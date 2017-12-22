@@ -1,6 +1,7 @@
 <?php
 /**
  * Class for creating Wordpress custom post types.
+ * Test addition.   
  */
 class CustomPostType
 {
