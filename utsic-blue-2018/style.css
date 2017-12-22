@@ -1,0 +1,618 @@
+/*
+Theme Name: UTSIC Blue (2016)
+Theme URI: http://mikethicke.com/
+Author: Mike Thicke (Design: Karen Smith, Jordan Hale & Mike Thicke)
+Description: Blue theme for UTSIC blog
+*/
+
+/**** Defaults ****/
+
+body {
+    font-family: Georgia, Times, serif;
+    padding: 5px;
+    color: #666;
+}
+
+span {
+    display: inline;
+}
+
+h2 {
+    color: #2c69bd;
+    font-weight: normal;
+    font-size: 32px;
+    margin: 0px 0 10px 0; 
+}
+
+h4 {
+    font-size: 1em;
+    line-height: 1.2em;
+    margin: 0px;
+    font-weight: normal;
+    color: #2c69bd;
+    text-transform: uppercase;
+}
+
+a, a:visited {
+   color: #2c69bd;
+   text-decoration: none;
+}
+
+.clear {
+    clear: both;
+}
+
+.assistive-text {
+    display: none;
+}
+
+.screen-reader-text {
+    display: none;
+}
+
+input {
+    margin-bottom: 5px;
+}
+
+object {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+p {
+    line-height: 1.5em;
+}
+
+img {
+    border-style: none;
+}
+
+/**** Page ****/
+
+#page {
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+.alignright {
+    float: right;
+    margin-left: 10px;
+}
+
+.alignleft {
+    float: left;
+    margin-right: 10px;
+}
+
+.aligncenter {
+    margin-right: auto;
+    margin-left: auto;
+    clear: both;
+}
+
+.aligncenter p.wp-caption-text {
+    text-align: center;
+}
+
+.wp-caption-text {
+    font-size: 0.8em;
+    font-style: italic;
+}
+    
+
+/**** Header ****/
+
+#header {
+    width: 100%;
+    height: 192px;
+    background: white;
+}
+
+#site-title, #site-description {
+    display: none;
+}
+
+#site-title a {
+    text-decoration: none;
+    color: #2c69bd;
+}
+
+#site-title a:visited {
+    color: #2c69bd;
+}
+
+/**** Nav Bar ****/ 
+
+.menu {
+    font: normal 15px arial;
+    text-transform: uppercase;
+    position: absolute;
+    left: 270px;
+    top: 143px;
+    padding: 0;
+    display: block;
+}
+
+.menu ul {
+    list-style: none;
+    display: block;
+    padding: 0;
+}
+
+.menu li {
+    display: block;
+    float: left;
+    background-color: #2c69bd;
+    border-style: solid;
+    border-color: #333;
+    border-width: 1px;
+    margin: 0 0 -1px -1px;
+}
+
+.menu a, .menu a:visited {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    letter-spacing: 0.1em;
+    background: transparent;
+    padding: 5px 15px 5px 15px;
+}
+
+.menu li:hover {
+    background-color: #333;
+}
+
+ul.sub-menu {
+   position: absolute;
+   width: 200px;
+   display: none;
+   border-color: #333;
+   float: left;
+}
+
+ul.sub-menu .sub-menu {
+    position: absolute;
+    left: 200px;
+    top: -1px;
+    float: left;
+    width: 200px;
+}
+
+ul.sub-menu li {
+    display: block;
+    float: none;
+    padding: 0px;
+    position: relative;
+}
+
+ul.sub-menu li a {
+    margin-top: -1px;
+    padding-bottom: 6px;
+    width: 170px;
+}
+
+li:hover>ul.sub-menu {
+    display: block;
+}
+
+
+/**** Footer ****/
+
+#footer {
+    width: 100%;
+    height: 44px;
+    background-image: url(images/footer.jpg);
+    background-repeat: no-repeat;
+}
+
+/**** Content Area ****/ 
+
+#main {
+    width: 850px;
+    padding: 15px 75px 15px 75px;
+    background-image: url(images/lr-border.jpg);
+    background-repeat: repeat-y;
+}
+
+#content, #exhibit-theme, #category {
+    margin: 0 0 0 185px;
+    width: 660px;
+}
+
+/**** Instrument Post ****/
+
+.field-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.field-label-div {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: -16px;
+}
+
+.field-text {
+    width: 450px;
+}
+
+.instrument_gallery_box {
+    width: 180px;
+    float: right;
+}
+
+.instrument-post-categories {
+    font-style: italic;
+}
+
+/**** Collections Template ****/
+
+.instrument-archive-row-even, .instrument-archive-row-odd, .theme-row-even, .theme-row-odd {
+    margin-bottom: 10px;
+    padding: 10px;
+    color: #222;
+    min-height: 180px;
+}
+
+.instrument-archive-row-even, .instrument-grid-even, .theme-row-even {
+    background-color: #ddd;
+}
+
+.instrument-archive-row-odd, .instrument-grid-odd, .theme-row-odd {
+    background-color: #c0c0c0;
+}
+
+.instrument-text-wrapper, .theme-row-text-wrapper {
+    margin-left: 200px;
+}
+
+.instrument-archive-thumbnail, .theme-row-thumbnail {
+    float: left;
+    margin: 20px;
+}
+
+.instrument-archive-title a {
+    text-decoration: none;
+    color: #222;
+    font-size: 1.5em;
+}
+
+.instrument-archive-excerpt, .theme-excerpt {
+    margin-top: 5px;
+}
+
+.instrument-archive-excerpt a, .theme-excerpt a {
+    color: inherit;
+}
+
+.instrument-archive-info {
+    font-style: italic;
+}
+
+.breadcrumbs, .paging {
+    margin-bottom: 1em;
+}
+
+
+#list-grid-toggle {
+    float: right;
+}
+
+#toggle-left, #toggle-right {
+    display: inline-block;
+    width: 31px;
+    height: 27px;
+    overflow: hidden;
+}
+
+#toggle-left {
+    margin-right: -4px;
+}
+
+#toggle-right img {
+    margin-left: -31px;
+}
+
+.toggle-grid #toggle-left img, .toggle-grid #toggle-right img {
+    margin-top: -27px;    
+}
+
+.paging {
+    text-align: right;
+}
+
+/**** Instrument Grid Box ****/
+
+.instrument-grid-even, .instrument-grid-odd {
+    padding: 10px;
+    width: 190px;
+    margin-bottom: 10px;
+    color: #222;
+    overflow: hidden;
+}
+
+.instrument-grid-name {
+    font-size: 24px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.instrument-grid-name a {
+    color: #222;
+}
+
+.instrument-grid-info {
+    font-size: 14px;
+    font-style: italic;
+}
+
+.instrument-grid-image {
+    overflow: hidden;
+    text-align: center;
+}
+
+#grid-col-1, #grid-col-2, #grid-col-3, .instrument-grid-col {
+    float: left;
+    width: 210px;
+    margin-left: 10px;
+}
+
+#grid-col-1, .instrument-grid-col:first-child {
+    margin-left: 0;
+}
+
+.instrument_grid_wrapper {
+    margin: 10px;
+}
+
+/**
+ * Front page
+ */ 
+
+#feature-boxes {
+    height: 300px;    
+}
+
+.frontpage-feature-box {
+    float: left;
+    width: 225px;
+    height: 240px;
+    margin: 16px;
+    padding: 10px 20px 20px 10px;
+}
+
+.homepage-box-image img {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: 10px;
+    width: 235px;
+    height: 200px;
+    overflow: hidden;
+}
+
+#feature-box-1, #feature-box-3 {
+    background-color: #ddd;
+}
+
+#feature-box-2 {
+   background-color: #c0c0c0; 
+}
+
+#feature-box-1 {
+    margin-left: 0;
+}
+
+#feature-box-3 {
+    margin-right: 0;
+}
+
+.homepage-box-title a {
+    color: #666;
+    font-size: 1.2em;
+}
+
+#bottom-matter {
+    margin-top: 26px;
+}
+
+#donate-box a {
+    display: block;
+    position: static;
+    color: #fff;
+    background-color: #2c69bd;
+    width: 200px;
+    height: 28px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 5px;
+    font-size: 1.5em;
+    font-weight: normal;
+    float: left;
+}
+
+#frontpage-feed p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 0.8em;
+    width: 600px;
+}
+
+#feed-date {
+    color: #2c69bd;
+    margin-top: 0px;
+}
+
+#frontpage-search {
+    float: right;
+    width: 543px;
+    vertical-align: top;
+    padding-right: 20px;
+}
+
+#frontpage-search input[type=text] {
+    font-size: 24px;
+    height: 32px;
+    width: 440px;
+    margin: 0 0 0 0;
+}
+
+#frontpage-search input[type=submit] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-family: Georgia, Times, serif;
+    height: 38px;
+    background-color: #2c69bd;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    margin: -10px 0 0 0;
+    padding: 5px 10px 5px 10px;
+    vertical-align: middle;
+}
+/**
+ * Left sidebar
+ */
+#left-sidebar {
+    width: 170px;
+    float: left;
+    margin: 0 20px 0 0px;
+    font-size: 0.8em;
+    padding-top: 5px;
+}
+
+#left-sidebar li {
+    list-style-type: none;
+}
+
+#left-sidebar input[type=text] {
+    width: 165px;
+    height: 28px;
+}
+
+#left-sidebar .collections_description_page_link {
+    font-family: arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 15px;
+    letter-spacing: 1.5px;
+    display: block;
+    position: static;
+    color: #fff;
+    background-color: #2c69bd;
+    width: 160px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px 5px 10px 5px;
+    margin: 10px 0 10px 0;
+    font-weight: normal;
+    float: left; 
+}
+
+#left-sidebar .collections_description_page_link:hover {
+     background-color: #333;   
+}
+
+#left-sidebar .widget_utsic_collections_description_page_link_widget {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+/**
+ * Exhibits
+ */
+.exhibit-row-thumbnail {
+    float: left;
+    margin: 0px 10px 10px 0; 
+}
+
+.exhibit-text-wrapper, .exhibit-row h2 {
+    margin-left: 160px;
+}
+
+.exhibit-image, .exhibit-theme-image, .category-thumbnail {
+    float: right;
+    margin: 0 0 10px 10px; 
+}
+
+.category-box {
+    float: left;
+    width: 150px;
+    margin: 20px;
+}
+
+.theme-row {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.indent-1 {
+    margin-left: 50px;    
+}
+
+.theme-row-title a {
+    text-decoration: none;
+    font-size: 1.5em;
+}
+
+#exhibit-rows {
+    margin-top: 20px;
+}
+
+#override-links {
+    font-size: 1.5em;
+    text-align: center;
+}
+
+#override-posts, #overide-links {
+    margin-right: 25px;
+    margin-left: 25px;
+}
+
+#exhibit-theme-toggle {
+    font-size: 1.5em;
+    text-align: left;
+    background-color: #ddd;
+    margin-bottom: -1em;
+    width: 240px;
+    padding: 10px;
+}
+
+#exhibit-theme-toggle-post, #exhibit-theme-toggle-instrument {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.toggle-unselected a {
+    color: #333;
+}
+
+.toggle-unselected a:hover {
+    color: #2c69bd;
+}
+
+/**
+ * Exhibit sidebar
+ */
+
+.sidebar-exhibit-theme-list {
+    padding-left: 0;
+}
+
+.sidebar-theme-post-list {
+    padding-left: 20px;
+}
+
+#exhibit-tree-wrapper h3 {
+    color: #2c69bd;
+}
+
+#exhibit-tree-wrapper li {
+    margin-top: 1em;
+}
+.inferno_gallery_box {
+    display: inline-block;
+}
