@@ -1,9 +1,17 @@
 <?php
-
 /**
  * Exhibit custom post type.
  *
- * Each exhibit is associated with a category, and links to the pages of that category.
+ * Each exhibit is associated with a category, and links to the pages of that category. Exhibits are
+ * hierarchical, with parent exhibits linking to child exhibits.
+ *
+ * ===Custom Fields===
+ *   * description          - a short description of the exhibit
+ *   * associated_category  - category containing objects to be displayed in exhibit
+ *   * layout -
+ *          * manual: acts as a normal post
+ *          * icons: sub exhibits displayed as grid of icons with titles
+ *          * list: sub exhibits displayed as list with title, thumbnail, description
  */
 
 require_once ( 'CustomPostType.php' );
@@ -20,8 +28,11 @@ $exhibit_post_type = new CustomPostType($exhibit_options);
 $exhibit_post_type->add_support( ['thumbnail', 'revisions'] );
 $exhibit_post_type->add_taxonomy( 'category' );
 
-$exhibit_post_type->add_meta_field ( 'description', 'Description', 'textarea' );
+/*
+ * Custom Fields
+ */
 
+$exhibit_post_type->add_meta_field ( 'description', 'Description', 'textarea' );
 
 $categories = get_categories( array('hide_empty' => false));
 $category_options = [-1 => '' ];
@@ -37,7 +48,15 @@ $layout_options = [
 ];
 $exhibit_post_type->add_meta_field ( 'layout', 'Exhibit Layout', 'radio', $options=['options'=>$layout_options] );
 
+/*
+ * Metaboxes
+ */
+
+// Metabox showing exhibit children of current exhibit, with view and edit links.
+// Button "New Sub Exhibit" creates a new exhibit as a child, then redirects to edit page
+// for new exhibit.
 $exhibit_post_type->add_custom_meta (
+    //Metabox display callback
     function ( WP_POST $post ) {
         add_meta_box ( 'sub_exhibits', 'Sub Exhibits', function() use ($post) {          
             $sub_exhibits = get_children (  ['numberposts'  => -1,
@@ -60,13 +79,17 @@ $exhibit_post_type->add_custom_meta (
             echo "<button type='button' class='button button-large' onclick='new_SE({$post->ID})'>New Sub Exhibit</button>";
         });       
     },
+    //Metabox save callback (do nothing)
     function ( $post_id ) {
         return;
     }
 );
 
+// Metabox showing objects (everything except exhibits) in associated directory, with view
+// and edit links.
 $exhibit_post_type->add_custom_meta (
     function ( WP_POST $post ) {
+        //Metabox display callback
         add_meta_box ( 'exhibit_objects', 'Objects', function() use ($post) {
             $post_custom = get_post_custom( $post->ID );
             if ( !isset( $post_custom['associated_category'] ) ) return;
@@ -89,11 +112,18 @@ $exhibit_post_type->add_custom_meta (
             echo "</table>";
         });       
     },
+    //Metabox save callback (do nothing)
     function ( $post_id ) {
         return;
     }
 );
 
+/*
+ * Creating new sub exhibit.
+ */
+
+// Javascript for creating new sub exhibit when "New Sub Exhibit" button is clicked.
+// Initiates AJAX call, then redirects to new sub exhibit.
 add_action( 'admin_footer', 'new_sub_exhibit_js' );
 function new_sub_exhibit_js() {
     ?>
@@ -112,6 +142,7 @@ function new_sub_exhibit_js() {
     <?php
 }
 
+// AJAX callback for creating new sub exhibit.
 add_action( 'wp_ajax_create_new_se', 'create_new_se');
 function create_new_se() {
     $parent_ID = intval( $_POST['parent'] );
@@ -128,9 +159,14 @@ function create_new_se() {
     wp_die();
 }
 
-
+/*
+ * Registers exhibit post type. This should be called after settings, callbacks, etc. already added.
+ */
 $exhibit_post_type->register();
 
+/*
+ * Box at top of edit page showing exhibit's parent, if one exists, along with edit link.
+ */
 add_action ( 'edit_form_top', 'add_parent_link');
 function add_parent_link ( WP_POST $post ) {
     if ( $post->post_type != 'exhibit' ) return;

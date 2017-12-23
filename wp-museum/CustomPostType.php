@@ -1,7 +1,6 @@
 <?php
 /**
- * Class for creating Wordpress custom post types.
- * Test addition.   
+ * Class for creating Wordpress custom post types. 
  */
 class CustomPostType
 {
@@ -42,6 +41,12 @@ class CustomPostType
     
     public $custom_metas = [];
     
+    /**
+     * Constructor.
+     *
+     * @param array $options Array of key-value pairs of options.
+     * @see https://developer.wordpress.org/reference/functions/register_post_type/
+     */
     function __construct($options) {
         foreach ($options as $key => $value) {
             $this->options[$key] = $value;
@@ -51,6 +56,12 @@ class CustomPostType
         $this->meta_label = $this->options['label'] . ' Options';
     }
     
+    /**
+     * Add support to post type.
+     *
+     * @param array|string $supports Array of strings to add multiple support options, or string to add one support option.
+     * @see https://codex.wordpress.org/Function_Reference/post_type_supports
+     */
     public function add_support ( $supports ) {
         if ( gettype($supports) == 'string' ) {
             $this->supports[] = $supports;
@@ -60,6 +71,12 @@ class CustomPostType
         }
     }
     
+    /**
+     * Add taxonomy to post type.
+     *
+     * @param array|string $taxonomy Array of strings to add multiple taxonomies, or string to add one taxonomy.
+     * @see https://developer.wordpress.org/reference/functions/register_post_type/
+     */
     public function add_taxonomy ( $taxonomy ) {
         if ( gettype($taxonomy) == 'string' ) {
             $this->taxonomies[] = $taxonomy;
@@ -69,10 +86,23 @@ class CustomPostType
         }
     }
     
+    /**
+     * Add custom metabox to post type that will appear on edit screen.
+     *
+     * @param function $display_callback Callback function to display metabox.
+     * @param function $save_callback Callback function to process metabox form and save data.
+     */
     public function add_custom_meta ( $display_callback, $save_callback ) {
         $this->custom_metas[] = ['display' => $display_callback, 'save' => $save_callback];
     }
     
+    /**
+     * Add a field to main metabox.
+     *
+     * @param string $field_name Name of the field (will be name of option in templates, etc.).
+     * @param string $field_label Label of field in metabox form.
+     * @param string $field_type Type of field (text|textarea|select|radio|checkbox)
+     */
     public function add_meta_field ( $field_name, $field_label, $field_type='text', $options=[] ) {
         $this->meta_box_fields[$field_name] = [
             'label'     =>  $field_label,
@@ -81,6 +111,11 @@ class CustomPostType
         ];
     }
     
+    /**
+     * Display all metaboxes in edit page of post.
+     *
+     * @param WP_POST $post The post.
+     */
     public function display_meta_boxes ( WP_POST $post ) {
         if ( count($this->meta_box_fields)  > 0 ) $this->main_meta_box( $post );
         foreach ( $this->custom_metas as $cm ) {
@@ -88,7 +123,12 @@ class CustomPostType
         }
     }
     
-    public function main_meta_box (WP_POST $post)
+    /**
+     * Display just main metabox in edit page of post.
+     *
+     * @param WP_POST $post The post.
+     */
+    public function main_meta_box ( WP_POST $post )
     {
         add_meta_box($this->meta_name, $this->meta_label, function() use ($post) {
             
@@ -182,12 +222,12 @@ class CustomPostType
         } );          
     }
     
-    
     /**
      * Creates array of labels based on this->label and this->label_plural
-     * See: https://typerocket.com/ultimate-guide-to-custom-post-types-in-wordpress/
+     * 
+     * @see https://typerocket.com/ultimate-guide-to-custom-post-types-in-wordpress/
      *
-     * @return [string]
+     * @return [string] The labels.
      */
     private function labels()
     {
@@ -215,7 +255,8 @@ class CustomPostType
     
     /**
      * Register the post type.
-     * See: https://typerocket.com/ultimate-guide-to-custom-post-types-in-wordpress/
+     * 
+     * @see https://typerocket.com/ultimate-guide-to-custom-post-types-in-wordpress/
      */
     public function register()
     {
