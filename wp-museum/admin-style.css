@@ -1,0 +1,43 @@
+#wpm-edit-object {
+    font-size: 1.2em;
+    width: 100%;
+}
+
+#wpm-edit-object th, #wpm-edit-object td {
+    padding: 5px;
+}
+
+#wpm-edit-object th {
+    width: 10em;
+    text-align: left;
+    vertical-align: top;
+}
+
+.wpm-object input[type=text] {
+    width: 100%;
+    padding: 5px;
+}
+
+.wpm-object textarea {
+    width: 100%;
+    height: 10em;
+    padding: 5px;
+}
+
+#wpm-object-fields-table textarea {
+    height: 5em;
+}
+
+.wpm-object select {
+    width: 100%;
+}
+
+.empty-table-notification {
+    background-color: rgb(229,229,229);
+    font-style: italic;
+    padding: 10px;
+}
+
+#wpm-object-bottom-buttons {
+    margin: 5px;
+}

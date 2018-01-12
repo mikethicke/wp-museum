@@ -3,3 +3,5 @@
 *.bak
 .htaccess
 *.komodoproject
+*.komodotools
+wordpress-4
