@@ -88,8 +88,8 @@ $exhibit_post_type->add_custom_meta (
 // Metabox showing objects (everything except exhibits) in associated directory, with view
 // and edit links.
 $exhibit_post_type->add_custom_meta (
+    //Metabox display callback
     function ( WP_POST $post ) {
-        //Metabox display callback
         add_meta_box ( 'exhibit_objects', 'Objects', function() use ($post) {
             $post_custom = get_post_custom( $post->ID );
             if ( !isset( $post_custom['associated_category'] ) ) return;

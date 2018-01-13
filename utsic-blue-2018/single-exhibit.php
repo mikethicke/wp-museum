@@ -12,11 +12,11 @@ if ( have_posts() ) {
     $post_custom = get_post_custom();
     $sub_exhibits = get_posts ( [   'post_parent'  => $post->ID,
                                     'numberposts'  => -1,
-                                    'post_status'  => 'published',
+                                    'post_status'  => 'publish',
                                     'post_type'    => 'exhibit'] );
     
     $objects = get_posts ( [        'numberposts'   => -1,
-                                    'post_status'   => 'published',
+                                    'post_status'   => 'publish',
                                     'category__in'  => $post_custom['associated_category']
                             ] );
     

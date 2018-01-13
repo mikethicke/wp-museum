@@ -32,6 +32,10 @@
     width: 100%;
 }
 
+#wpm-field-edit select {
+    width: auto;
+}
+
 .empty-table-notification {
     background-color: rgb(229,229,229);
     font-style: italic;
@@ -40,4 +44,22 @@
 
 #wpm-object-bottom-buttons {
     margin: 5px;
+}
+
+td.wpm-object-field-label {
+    width: 10em;
+    word-wrap: normal;
+}
+
+.wpm-object-field-label label {
+    width: auto;
+}
+
+tr.wpm-object-help-text td {
+    background-color: #C9FFB8;
+    
+}
+
+tr.wpm-quick-row-draft td {
+    background-color: #F8FFB8;
 }

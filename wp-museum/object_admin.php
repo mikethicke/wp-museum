@@ -3,7 +3,7 @@
  * Base custom post type that creates specialized custom post types.
  */
 
-const DB_VERSION = 0.02;
+const DB_VERSION = 0.05;
 const DB_SHOW_ERRORS = true;
 const WPM_FIELD = 'wpm-new-field#';
 
@@ -26,6 +26,7 @@ function create_objects_table() {
     $wpdb->show_errors = DB_SHOW_ERRORS;
     $sql = "CREATE TABLE $table_name (
         object_id mediumint(9) NOT NULL AUTO_INCREMENT,
+        cat_field mediumint(9),
         name varchar(255),
         label varchar(255),
         description text,
@@ -48,8 +49,10 @@ function create_object_fields_table() {
         name varchar(255),
         label varchar(255),
         type varchar(255),
+        display_order int(5),
         public tinyint(1),
         visible tinyint(1),
+        quick_browse tinyint(1),
         help_text varchar(255),
         length int(5),
         PRIMARY KEY  (field_id)
@@ -57,6 +60,29 @@ function create_object_fields_table() {
     
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);   
+}
+
+function get_object_types( $object_id=-1, $object_name='') {
+    global $wpdb;
+    $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
+    if ( $object_id != -1 ) {
+        $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE object_id=%s", $object_id ) );
+    }
+    elseif ( $object_name != '' ) {
+        $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE name=%s", $object_name ) );
+    }
+    else {
+        $results = $wpdb->get_results( "SELECT * FROM $table_name");  
+    }
+    return $results;
+}
+
+function get_object_fields( $object_name ) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
+    $object = get_object_types(-1, $object_name)[0];
+    $results = $wpdb->get_results( $wpdb->prepare("SELECT * FROM $table_name WHERE object_id=%s", $object->object_id ) );
+    return $results;
 }
 
 function display_objects_table() {
@@ -68,12 +94,19 @@ function display_objects_table() {
     <div class="wrap">
         <h1>Museum Objects Administration</h1>
         <table class='widefat striped wp-list-table wpm-object'>
-        <tr><th class="check-column"><span class="dashicons dashicons-trash"></span><th>Object Type</th></tr>
+        <tr><th class="check-column"><span class="dashicons dashicons-trash"></span><th>Object Type</th><th>ID Field</th><th></th></tr>
         <?php
         foreach ( $rows as $object_row ) {
+            $fields = get_object_fields( $object_row->name );
             echo "<tr>";
             echo "<td></td>";
-            echo "<td>{$object_row->label}</td><td><a href='{$_SERVER['PHP_SELF']}?page=wpm-objects-admin&wpm-objects-page=wpm-edit-object&oid={$object_row->object_id}'>Edit</a></td>";
+            echo "<td>{$object_row->label}</td>";
+            echo "<td><select>";
+            foreach ( $fields as $field ) {
+                echo "<option>$field->name</option>";
+            }
+            echo "</select></td>";
+            echo "<td><a href='{$_SERVER['PHP_SELF']}?page=wpm-objects-admin&wpm-objects-page=wpm-edit-object&oid={$object_row->object_id}'>Edit</a></td>";
             echo "</tr>";
         }
         echo "</table>";
@@ -83,12 +116,27 @@ function display_objects_table() {
         echo "<div id='wpm-object-bottom-buttons'>";
         echo "<a class='button' href='{$_SERVER['PHP_SELF']}?page=wpm-objects-admin&wpm-objects-page=wpm-new-object'>Add New</a>";
     echo "</div></div>";
+    
+    //Test for old instrument_fields table
+    $instrument_fields_table = $wpdb->prefix . 'instrument_fields';
+    $count_result = $wpdb->query(
+        "
+        SELECT COUNT(1) AS 'result' 
+        FROM information_schema.tables 
+        WHERE table_schema = '{$wpdb->dbname}' 
+        AND table_name = '{$instrument_fields_table}';
+        "
+    );
+    $table_count = (int)$wpdb->last_result[0]->result;
+    if ( $table_count > 0) {
+        echo "<a href='{$_SERVER['PHP_SELF']}?page=wpm-objects-admin&import-legacy=1'>Import legacy instruments</a>";
+    }
 }
 
 function object_fields_table($rows) {
     ?>
     <table id="wpm-object-fields-table" class="widefat striped wp-list-table wpm-object">
-        <tr><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th class="check-column">Public</th><th class="check-column">Visible</th></tr>
+        <tr><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th class="check-column">Public</th><th class="check-column">Visible</th><th class="check-column">Quick</th></tr>
         <?php
         foreach ( $rows as $row ) {
         ?>
@@ -109,6 +157,7 @@ function object_fields_table($rows) {
                 <td><textarea name="<?php echo $row->field_id; ?>~help_text" rows=3 cols=25><?php echo stripslashes ( $row->help_text );?></textarea></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~public" <?php if ($row->public > 0) echo 'checked="checked"'; ?> value="1"/></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~visible" <?php if ($row->visible > 0) echo 'checked="checked"'; ?> value="1"/></td>
+                <td><input type="checkbox" name="<?php echo $row->field_id; ?>~quick_browse" <?php if ($row->quick_browse > 0) echo 'checked="checked"'; ?> value="1"/></td>
             </tr>
         <?php
         } //foreach ( $rows as $row )
@@ -139,6 +188,7 @@ function add_field_js() {
             var help_cell = row.insertCell(3);
             var public_cell = row.insertCell(4);
             var visible_cell = row.insertCell(5);
+            var quick_cell = row.insertCell(5);
             
             var delete_checkbox = document.createElement("input");
             delete_checkbox.setAttribute("type", "checkbox");
@@ -191,6 +241,12 @@ function add_field_js() {
             visible_checkbox.name = field_prefix + "~visible";
             visible_checkbox.value = 1;
             visible_cell.appendChild(visible_checkbox);
+            
+            var quick_checkbox = document.createElement("input");
+            quick_checkbox.setAttribute("type", "checkbox");
+            quick_checkbox.name = field_prefix + "~quick_browse";
+            quick_checkbox.value = 1;
+            quick_cell.appendChild(quick_checkbox);
                       
             new_field_counter += 1;
         }
@@ -212,6 +268,7 @@ function update_object ( $object_id, $object_data ) {
     
     return $wpdb->update( $table_name, $object_data, ['object_id'=>$object_id] ); 
 }
+
 function new_object($object_label, $object_description='', $activated=1) {
     if ( $object_label == '' ) return -1;
     
@@ -280,6 +337,7 @@ function edit_object($object_id=-1) {
                 if ( !isset($form_row['delete']) ) $form_row['delete'] = 0;
                 if ( !isset($form_row['public']) ) $form_row['public'] = 0;
                 if ( !isset($form_row['visible']) ) $form_row['visible'] = 0;
+                if ( !isset($form_row['quick_browse']) ) $form_row['visible'] = 0;
             }
         }
         
@@ -366,6 +424,9 @@ function objects_admin_page() {
     else $wpm_page = 'wpm-objects-table';
     switch($wpm_page) {
         case 'wpm-objects-table' :
+             if ( isset($_GET['import-legacy']) ) {
+                import_legacy_instruments();
+             }
              display_objects_table();
              break;
         case 'wpm-new-object' :
@@ -381,6 +442,55 @@ function objects_admin_page() {
             break;
     }
    
+}
+
+function object_name_from_id( $object_id ) {
+    global $wpdb;
+    $object_types_table = $wpdb-> prefix . WPM_PREFIX . 'object_types';
+    $result = $wpdb->get_results( "SELECT name FROM $object_types_table WHERE object_id = $object_id" );
+    if ( count( $result ) > 0 ) {
+        return $result[0]->name;
+    }
+    else {
+        return '';
+    }
+}
+
+function import_legacy_instruments() {
+    global $wpdb;
+    $old_fields_table = $wpdb->prefix . 'instrument_fields';
+    $old_fields = $wpdb->get_results( "SELECT * FROM $old_fields_table", ARRAY_A );
+    
+    $object_types_table = $wpdb-> prefix . WPM_PREFIX . 'object_types';
+    $object_fields_table = $wpdb->prefix . WPM_PREFIX . 'object_fields';
+    
+    $existing_fields_table = $wpdb->get_results( "SELECT object_id FROM $object_types_table WHERE label='Instrument'" );
+    if ( count($existing_fields_table) > 0 ) {
+        $object_id = $existing_fields_table[0]->object_id;
+    }
+    else {
+        $object_id = new_object( 'Instrument', 'A scientific instrument' );
+    }
+    $object_name = object_name_from_id($object_id);
+    
+    foreach ( $old_fields as $old_field ) {
+        $existing_field = $wpdb->get_results( "SELECT field_id FROM $object_fields_table WHERE object_id='$object_id' AND name='{$old_field['name']}'" );
+        if ( count( $existing_field ) == 0 ) {
+            unset ( $old_field['id'] );
+            unset ( $old_field['slug'] );
+            unset ( $old_field['description_order'] );
+            $old_field['visible'] = $old_field['in_description'];
+            unset ( $old_field['in_description'] );
+            $old_field['object_id'] = $object_id;
+            $wpdb->insert ( $object_fields_table, $old_field );
+        }  
+    }   
+    
+    
+    $old_instrument_posts = $wpdb->get_results( "SELECT ID FROM {$wpdb->posts} WHERE post_type='instrument'" );
+    foreach ( $old_instrument_posts as $old_instrument ) {
+        $updated = $wpdb->update( $wpdb->posts, ['post_type'=>type_name($object_name)], ['ID' => $old_instrument->ID] ); 
+    }
 }
 
 function add_object_admin_page() {
