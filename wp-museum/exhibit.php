@@ -15,6 +15,7 @@
  */
 
 require_once ( 'CustomPostType.php' );
+require_once ( 'MetaBox.php' );
 
 $exhibit_options = [
   'type'          => 'exhibit',
@@ -55,68 +56,58 @@ $exhibit_post_type->add_meta_field ( 'layout', 'Exhibit Layout', 'radio', $optio
 // Metabox showing exhibit children of current exhibit, with view and edit links.
 // Button "New Sub Exhibit" creates a new exhibit as a child, then redirects to edit page
 // for new exhibit.
-$exhibit_post_type->add_custom_meta (
-    //Metabox display callback
-    function ( WP_POST $post ) {
-        add_meta_box ( 'sub_exhibits', 'Sub Exhibits', function() use ($post) {          
-            $sub_exhibits = get_children (  ['numberposts'  => -1,
-                                             'post_status'  => 'any',
-                                             'post_type'    => 'exhibit',
-                                             'post_parent'  => $post->ID]
-                                             );
-            echo "<table class='wp-list-table widefat striped'>";
-            foreach ( $sub_exhibits as $se ) {
-                $permalink = get_permalink( $se->ID );
-                $ps = get_post_status_object( $se->post_status )->label;
-                echo "<tr>
-                        <td>{$se->post_title}</td>
-                        <td><a href='post.php?post={$se->ID}&action=edit'>Edit</a></td>
-                        <td><a href='{$permalink}'>View</a></td>
-                        <td>{$ps}</td>
-                    </tr>";
-            }
-            echo "</table><br />";
-            echo "<button type='button' class='button button-large' onclick='new_SE({$post->ID})'>New Sub Exhibit</button>";
-        });       
-    },
-    //Metabox save callback (do nothing)
-    function ( $post_id ) {
-        return;
+$display_sub_exhibits_cb = function() {
+    global $post;
+    $sub_exhibits = get_children (  [  'numberposts'  => -1,
+                                        'post_status'  => 'any',
+                                        'post_type'    => 'exhibit',
+                                        'post_parent'  => $post->ID]
+                                   );
+    echo "<table class='wp-list-table widefat striped'>";
+    foreach ( $sub_exhibits as $se ) {
+        $permalink = get_permalink( $se->ID );
+        $ps = get_post_status_object( $se->post_status )->label;
+        echo "<tr>
+                <td>{$se->post_title}</td>
+                <td><a href='post.php?post={$se->ID}&action=edit'>Edit</a></td>
+                <td><a href='{$permalink}'>View</a></td>
+                <td>{$ps}</td>
+            </tr>";
     }
-);
+    echo "</table><br />";
+    echo "<button type='button' class='button button-large' onclick='new_SE({$post->ID})'>New Sub Exhibit</button>";
+};
+$children_box = new MetaBox ( 'sub_exhibits', __('Sub Exhibits'), $display_sub_exhibits_cb );
+$exhibit_post_type->add_custom_meta ( $children_box );
+
 
 // Metabox showing objects (everything except exhibits) in associated directory, with view
 // and edit links.
-$exhibit_post_type->add_custom_meta (
-    //Metabox display callback
-    function ( WP_POST $post ) {
-        add_meta_box ( 'exhibit_objects', 'Objects', function() use ($post) {
-            $post_custom = get_post_custom( $post->ID );
-            if ( !isset( $post_custom['associated_category'] ) ) return;
-            
-            $exhibit_objects = get_posts ( ['category__in'     => $post_custom['associated_category'],
-                                             'numberposts'  => -1,
-                                             'post_status'  => 'any'] );
-            echo "<table class='wp-list-table widefat striped'>";
-            foreach ( $exhibit_objects as $ed ) {
-                if ( $ed->post_type == 'exhibit' ) continue;
-                $permalink = get_permalink( $ed->ID );
-                $ps = get_post_status_object( $ed->post_status )->label;
-                echo "<tr>
-                        <td>{$ed->post_title}</td>
-                        <td><a href='post.php?post={$ed->ID}&action=edit'>Edit</a></td>
-                        <td><a href='{$permalink}'>View</a></td>
-                        <td>{$ps}</td>
-                    </tr>";
-            }
-            echo "</table>";
-        });       
-    },
-    //Metabox save callback (do nothing)
-    function ( $post_id ) {
-        return;
+$display_associated_objects = function() {
+    global $post;
+    $post_custom = get_post_custom( $post->ID );
+    if ( !isset( $post_custom['associated_category'] ) ) return;
+    
+    $exhibit_objects = get_posts ( ['category__in'     => $post_custom['associated_category'],
+                                     'numberposts'  => -1,
+                                     'post_status'  => 'any'] );
+    echo "<table class='wp-list-table widefat striped'>";
+    foreach ( $exhibit_objects as $ed ) {
+        if ( $ed->post_type == 'exhibit' ) continue;
+        $permalink = get_permalink( $ed->ID );
+        $ps = get_post_status_object( $ed->post_status )->label;
+        echo "<tr>
+                <td>{$ed->post_title}</td>
+                <td><a href='post.php?post={$ed->ID}&action=edit'>Edit</a></td>
+                <td><a href='{$permalink}'>View</a></td>
+                <td>{$ps}</td>
+            </tr>";
     }
-);
+    echo "</table>";
+};
+$associated_objects_box = new MetaBox ( 'exhibit_objects', __('Objects'), $display_associated_objects );
+$exhibit_post_type->add_custom_meta ( $associated_objects_box );
+
 
 /*
  * Creating new sub exhibit.

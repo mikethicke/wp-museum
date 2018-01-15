@@ -63,3 +63,7 @@ tr.wpm-object-help-text td {
 tr.wpm-quick-row-draft td {
     background-color: #F8FFB8;
 }
+
+tr.wpm-quick-row-pending td {
+    background-color: #B8FFBE;
+}

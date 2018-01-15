@@ -26,6 +26,7 @@ add_action('admin_enqueue_scripts', 'admin_style');
 include_once ( 'exhibit.php' );
 include_once ( 'object_admin.php' );
 include_once ( 'object_post_types.php' );
-include_once ( 'quick_browse.php');
+include_once ( 'quick_browse.php' );
+include_once ( 'database.php' );
 
 ?>

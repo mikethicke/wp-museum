@@ -1,90 +1,15 @@
 <?php
 /**
- * Base custom post type that creates specialized custom post types.
+ * Administration of object types (Settings|Museum Objects).
  */
 
-const DB_VERSION = 0.05;
-const DB_SHOW_ERRORS = true;
 const WPM_FIELD = 'wpm-new-field#';
 
 add_action( 'admin_menu', 'add_object_admin_page' );
-add_action( 'plugins_loaded', 'db_version_check' );
 
-function db_version_check() {
-    $version = get_site_option("wpm_db_version");
-    if ( $version != DB_VERSION ) {
-        create_objects_table();
-        create_object_fields_table();
-        update_option("wpm_db_version", DB_VERSION);
-    }
-        
-}
-
-function create_objects_table() {
-    global $wpdb;
-    $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
-    $wpdb->show_errors = DB_SHOW_ERRORS;
-    $sql = "CREATE TABLE $table_name (
-        object_id mediumint(9) NOT NULL AUTO_INCREMENT,
-        cat_field mediumint(9),
-        name varchar(255),
-        label varchar(255),
-        description text,
-        activated tinyint(1),
-        PRIMARY KEY  (object_id)
-    );";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-    
-}
-
-function create_object_fields_table() {
-    global $wpdb;
-    $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
-    $wpdb->show_errors = DB_SHOW_ERRORS;
-    $sql = "CREATE TABLE $table_name (
-        field_id mediumint(9) NOT NULL AUTO_INCREMENT,
-        object_id mediumint(9),
-        name varchar(255),
-        label varchar(255),
-        type varchar(255),
-        display_order int(5),
-        public tinyint(1),
-        visible tinyint(1),
-        quick_browse tinyint(1),
-        help_text varchar(255),
-        length int(5),
-        PRIMARY KEY  (field_id)
-    );";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);   
-}
-
-function get_object_types( $object_id=-1, $object_name='') {
-    global $wpdb;
-    $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
-    if ( $object_id != -1 ) {
-        $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE object_id=%s", $object_id ) );
-    }
-    elseif ( $object_name != '' ) {
-        $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE name=%s", $object_name ) );
-    }
-    else {
-        $results = $wpdb->get_results( "SELECT * FROM $table_name");  
-    }
-    return $results;
-}
-
-function get_object_fields( $object_name ) {
-    global $wpdb;
-    $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
-    $object = get_object_types(-1, $object_name)[0];
-    $results = $wpdb->get_results( $wpdb->prepare("SELECT * FROM $table_name WHERE object_id=%s", $object->object_id ) );
-    return $results;
-}
-
+/**
+ * Display object types.
+ */
 function display_objects_table() {
     global $wpdb;
     $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
@@ -93,6 +18,7 @@ function display_objects_table() {
     ?>
     <div class="wrap">
         <h1>Museum Objects Administration</h1>
+        <form name='' method='' action=''>
         <table class='widefat striped wp-list-table wpm-object'>
         <tr><th class="check-column"><span class="dashicons dashicons-trash"></span><th>Object Type</th><th>ID Field</th><th></th></tr>
         <?php
@@ -110,6 +36,7 @@ function display_objects_table() {
             echo "</tr>";
         }
         echo "</table>";
+        echo "</form>";
         if ( count($rows) < 1 ) {
             echo "<div class='empty-table-notification'>There are currently no object types.</div>";
         }
@@ -136,7 +63,7 @@ function display_objects_table() {
 function object_fields_table($rows) {
     ?>
     <table id="wpm-object-fields-table" class="widefat striped wp-list-table wpm-object">
-        <tr><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th class="check-column">Public</th><th class="check-column">Visible</th><th class="check-column">Quick</th></tr>
+        <tr><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th>Schema</th><th class="check-column">Public</th><th class="check-column">Visible</th><th class="check-column">Quick</th></tr>
         <?php
         foreach ( $rows as $row ) {
         ?>
@@ -155,6 +82,7 @@ function object_fields_table($rows) {
                     </select>
                 </td>
                 <td><textarea name="<?php echo $row->field_id; ?>~help_text" rows=3 cols=25><?php echo stripslashes ( $row->help_text );?></textarea></td>
+                <td><input type="text" name="<?php echo $row->field_id; ?>~field_schema" value="<?php echo stripslashes( $row->field_schema ); ?>" /></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~public" <?php if ($row->public > 0) echo 'checked="checked"'; ?> value="1"/></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~visible" <?php if ($row->visible > 0) echo 'checked="checked"'; ?> value="1"/></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~quick_browse" <?php if ($row->quick_browse > 0) echo 'checked="checked"'; ?> value="1"/></td>
@@ -230,6 +158,11 @@ function add_field_js() {
             help_text.name = field_prefix + "~help_text";
             help_cell.appendChild(help_text);
             
+            var schema_input = document.createElement("input");
+            name_input.setAttribute("type", "text")
+            name_input.name = field_prefix + "~field_schema";
+            name_cell.appendChild(schema_input);
+            
             var public_checkbox = document.createElement("input");
             public_checkbox.setAttribute("type", "checkbox");
             public_checkbox.name = field_prefix + "~public";
@@ -252,38 +185,6 @@ function add_field_js() {
         }
     </script>
     <?php
-}
-
-function object_name ( $object_label ) {
-    return strtolower( str_replace( " ", "-", $object_label ) );
-}
-
-function update_object ( $object_id, $object_data ) {
-    if ( $object_id == -1 ) return -1;
-    
-    global $wpdb;
-    $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
-    
-    if ( isset( $object_data['label'] ) ) $object_data['name'] = object_name( $object_data['label'] );
-    
-    return $wpdb->update( $table_name, $object_data, ['object_id'=>$object_id] ); 
-}
-
-function new_object($object_label, $object_description='', $activated=1) {
-    if ( $object_label == '' ) return -1;
-    
-    global $wpdb;
-    $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
-    
-    $object_name = object_name( $object_label );
-    $data = [
-        'name'          => $object_name,
-        'label'         => $object_label,
-        'description'   => $object_description,
-        'activated'     => $activated
-    ];
-    $wpdb->insert( $table_name, $data );
-    return $wpdb->insert_id;
 }
 
 function edit_object($object_id=-1) {
@@ -444,18 +345,6 @@ function objects_admin_page() {
    
 }
 
-function object_name_from_id( $object_id ) {
-    global $wpdb;
-    $object_types_table = $wpdb-> prefix . WPM_PREFIX . 'object_types';
-    $result = $wpdb->get_results( "SELECT name FROM $object_types_table WHERE object_id = $object_id" );
-    if ( count( $result ) > 0 ) {
-        return $result[0]->name;
-    }
-    else {
-        return '';
-    }
-}
-
 function import_legacy_instruments() {
     global $wpdb;
     $old_fields_table = $wpdb->prefix . 'instrument_fields';
@@ -485,11 +374,40 @@ function import_legacy_instruments() {
             $wpdb->insert ( $object_fields_table, $old_field );
         }  
     }   
-    
-    
+      
     $old_instrument_posts = $wpdb->get_results( "SELECT ID FROM {$wpdb->posts} WHERE post_type='instrument'" );
     foreach ( $old_instrument_posts as $old_instrument ) {
         $updated = $wpdb->update( $wpdb->posts, ['post_type'=>type_name($object_name)], ['ID' => $old_instrument->ID] ); 
+    }
+    
+    //update meta_fields
+    $args = [
+        'numberposts'           => -1,
+        'post_type'             => type_name( $object_name ),
+        'post_status'           => 'any'
+    ];
+    $instrument_posts = get_posts ( $args );
+    $object_type = get_object ( get_object_id ( $object_name ) );
+    
+    foreach ( $instrument_posts as $instrument_post ) {
+        $custom = get_post_custom ( $instrument_post->ID );
+        //Check for legacy field names
+        if ( $instrument_post->ID == 10264 ) {
+            echo 'here';
+        }
+        if ( ( isset( $custom['unidentified'] ) || isset( $custom['accession-number'] ) ) && $object_type->name == 'instrument' ) {
+            $fields = get_object_fields( $object_type->object_id );
+            foreach ( $fields as $field ) {
+                $field_slug = strtolower(str_replace(" ", "-", $field->name));
+                $old_custom = $custom;
+                foreach ( $old_custom as $key=>$value ) {
+                    if ( $key == $field_slug && $key != WPM_PREFIX . $field->field_id ) {
+                        update_post_meta( $instrument_post->ID, WPM_PREFIX . $field->field_id, $value[0] );
+                        delete_post_meta( $instrument_post->ID, $key );
+                    }
+                }
+            }
+        }
     }
 }
 

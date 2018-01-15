@@ -2,6 +2,9 @@
 /**
  * Class for creating Wordpress custom post types. 
  */
+
+require_once ( 'MetaBox.php' );
+ 
 class CustomPostType
 {
 
@@ -92,8 +95,8 @@ class CustomPostType
      * @param function $display_callback Callback function to display metabox.
      * @param function $save_callback Callback function to process metabox form and save data.
      */
-    public function add_custom_meta ( $display_callback, $save_callback ) {
-        $this->custom_metas[] = ['display' => $display_callback, 'save' => $save_callback];
+    public function add_custom_meta ( MetaBox $new_meta ) {
+        $this->custom_metas[] = $new_meta;
     }
     
     /**
@@ -119,7 +122,7 @@ class CustomPostType
     public function display_meta_boxes ( WP_POST $post ) {
         if ( count($this->meta_box_fields)  > 0 ) $this->main_meta_box( $post );
         foreach ( $this->custom_metas as $cm ) {
-            $cm['display']( $post );
+            $cm->add();
         }
     }
     
@@ -293,9 +296,6 @@ class CustomPostType
                 
             } );     
             
-        }
-        foreach ( $this->custom_metas as $cm ) {
-            add_action('save_post', $cm['save']);
         }
         add_action( 'init', function() use ($arguments) {
             $arguments = $arguments + $this->options['options'];
