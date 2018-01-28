@@ -239,6 +239,10 @@ li:hover>ul.sub-menu {
     width: 450px;
 }
 
+.object-private-field {
+   background-color: #f2c3ba;
+}
+
 .instrument_gallery_box {
     width: 180px;
     float: right;
@@ -613,6 +617,22 @@ li:hover>ul.sub-menu {
 #exhibit-tree-wrapper li {
     margin-top: 1em;
 }
-.inferno_gallery_box {
-    display: inline-block;
+
+/**
+ * WPM 2018
+ */
+#wpm-object-gallery {
+   float: right;
+   width: 180px;
+}
+
+.wpm-object-image {
+   margin: 20px 0px 20px 0px;
+   border: 10px solid #F1F1F1;
+   width: 160px;
+}
+
+.wpm-object-image a {
+   display: block;
+   margin-bottom: -4px;
 }

@@ -8,7 +8,7 @@
 class MetaBox
 {
     public $display_callback = null;
-    public $save_callback = null;
+    private $save_callback = null;
     public $name;
     public $label;
     public $screen = null;
@@ -28,7 +28,18 @@ class MetaBox
         $this->name = $name;
         $this->label = $label;
         $this->display_callback = $display_callback;
-        $this->save_callback = $save_callback;
+        if ( !is_null ( $save_callback ) ) {
+            $this->save_callback = $save_callback;
+            add_action( 'save_post', $this->save_callback );
+        }
+        
+    }
+    
+    function set_save_callback ( $save_callback ) {
+        if ( !is_null ( $save_callback ) ) {
+            $this->save_callback = $save_callback;
+            add_action( 'save_post', $this->save_callback );
+        }
     }
     
     /**
@@ -42,9 +53,6 @@ class MetaBox
                      $this->context,
                      $this->priority,
                      $this->args);
-        if ( !is_null($this->save_callback) ) {
-            add_action('save_post', $this->save_callback);
-        }
     }
 }
 

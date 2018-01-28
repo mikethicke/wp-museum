@@ -13,35 +13,72 @@ add_action( 'admin_menu', 'add_object_admin_page' );
 function display_objects_table() {
     global $wpdb;
     $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
+    
     $rows = $wpdb->get_results( "SELECT * FROM $table_name");
     
+    //process submitted form
+    $submitted_form = array();
+    if ( count( $_POST ) > 0 ) {
+        foreach ( $_POST as $post_key => $post_val ) {
+            $key_array = explode("~", $post_key);
+            if ( count($key_array) == 2 ) {
+                $key_row = $key_array[0];
+                $key_col = $key_array[1];
+                $submitted_form[$key_row][$key_col] = $post_val;
+            }  
+        }
+    }
+    
+    if ( isset( $submitted_form['del'] ) ) {
+        foreach ( $submitted_form['del'] as $key=>$value ) {
+            $wpdb->query( $wpdb->prepare("DELETE FROM $table_name WHERE object_id=%s", $key )  );
+        }
+    }
+    
+    if ( isset( $submitted_form['cat_field'] ) ) {
+        foreach ( $submitted_form['cat_field'] as $key=>$value ) {
+            $wpdb->update (
+                $table_name,
+                ['cat_field_id' => $value],
+                ['object_id' => $key]
+            );
+        }
+    }
+    
+    if ( count( $_POST ) > 0 ) $rows = $wpdb->get_results( "SELECT * FROM $table_name");
+    
+    $form_action = $_SERVER['PHP_SELF'] . "?page=wpm-objects-admin";
     ?>
     <div class="wrap">
         <h1>Museum Objects Administration</h1>
-        <form name='' method='' action=''>
+        <form name='wpm-objects-admin' method='post' action='<?php echo $form_action;?>'>
         <table class='widefat striped wp-list-table wpm-object'>
         <tr><th class="check-column"><span class="dashicons dashicons-trash"></span><th>Object Type</th><th>ID Field</th><th></th></tr>
         <?php
         foreach ( $rows as $object_row ) {
-            $fields = get_object_fields( $object_row->name );
+            $fields = get_object_fields( $object_row->object_id );
             echo "<tr>";
-            echo "<td></td>";
+            echo "<td><input name='del~{$object_row->object_id}' type='checkbox' /></td>";
             echo "<td>{$object_row->label}</td>";
-            echo "<td><select>";
+            echo "<td><select name='cat_field~{$object_row->object_id}'>";
+            echo "<option></option>";
             foreach ( $fields as $field ) {
-                echo "<option>$field->name</option>";
+                echo "<option value='$field->field_id'";
+                if ( $object_row->cat_field_id == $field->field_id ) echo " selected='selected' ";
+                echo ">$field->name</option>";
             }
             echo "</select></td>";
             echo "<td><a href='{$_SERVER['PHP_SELF']}?page=wpm-objects-admin&wpm-objects-page=wpm-edit-object&oid={$object_row->object_id}'>Edit</a></td>";
             echo "</tr>";
         }
         echo "</table>";
-        echo "</form>";
         if ( count($rows) < 1 ) {
             echo "<div class='empty-table-notification'>There are currently no object types.</div>";
         }
         echo "<div id='wpm-object-bottom-buttons'>";
+        echo "<input type='submit' value='Update' name='btn_update' class='button button-primary'> ";
         echo "<a class='button' href='{$_SERVER['PHP_SELF']}?page=wpm-objects-admin&wpm-objects-page=wpm-new-object'>Add New</a>";
+        echo "</form>";
     echo "</div></div>";
     
     //Test for old instrument_fields table
@@ -63,11 +100,25 @@ function display_objects_table() {
 function object_fields_table($rows) {
     ?>
     <table id="wpm-object-fields-table" class="widefat striped wp-list-table wpm-object">
-        <tr><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th>Schema</th><th class="check-column">Public</th><th class="check-column">Visible</th><th class="check-column">Quick</th></tr>
+        <tr><th></th><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th>Schema</th><th class="check-column">Public</th><th class="check-column">Visible</th><th class="check-column">Quick</th></tr>
         <?php
+        $order_counter = 0;
         foreach ( $rows as $row ) {
-        ?>
-            <tr>
+            if ( !is_null( $row->display_order ) && $row->display_order > $order_counter ) $order_counter = $row->display_order + 1;
+        }
+        foreach ( $rows as $row ) {
+            if ( is_null( $row->display_order ) ) {
+                $row->display_order = $order_counter;
+                $order_counter++;
+            }
+            $row_id = "wpm-row-" . $row->display_order;
+            ?>
+            <tr id="<?php echo $row_id; ?>">
+                <td>
+                    <input type="hidden" id="doi-<?php echo $row_id; ?>" name="<?php echo stripslashes( $row->field_id ); ?>~display_order" value="<?php echo stripslashes( $row->display_order ); ?>"/>
+                    <a class='clickable' onclick="wpm_reorder_table('<?php echo $row_id; ?>', -1);"><span class="dashicons dashicons-arrow-up-alt2"></span></a><br />
+                    <a class='clickable' onclick="wpm_reorder_table('<?php echo $row_id; ?>', 1);"><span class="dashicons dashicons-arrow-down-alt2"></span></a>
+                </td>
                 <td>
                     <input type="hidden" name="<?php echo stripslashes( $row->field_id ); ?>~field_id" value="<?php echo stripslashes( $row->field_id ); ?>"/>
                     <input type="checkbox" name="<?php echo stripslashes( $row->field_id ); ?>~delete" value="1"/>
@@ -87,7 +138,7 @@ function object_fields_table($rows) {
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~visible" <?php if ($row->visible > 0) echo 'checked="checked"'; ?> value="1"/></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~quick_browse" <?php if ($row->quick_browse > 0) echo 'checked="checked"'; ?> value="1"/></td>
             </tr>
-        <?php
+            <?php
         } //foreach ( $rows as $row )
         ?>
     </table>
@@ -95,6 +146,38 @@ function object_fields_table($rows) {
     if ( count($rows) < 1 ) {
         echo "<div class='empty-table-notification' id='wpm-object-fields-empty'>Object contains no fields.</div>";
     }
+}
+
+add_action( 'admin_footer', 'reorder_table_js' );
+function reorder_table_js() {
+    ?>
+    <script type="text/javascript">
+    function wpm_reorder_table(row_id, direction) {
+        row = document.getElementById(row_id);
+        row_input = document.getElementById("doi-" + row_id);
+        table = document.getElementById("wpm-object-fields-table");
+        swapped = false;
+        
+        if ( direction == 1 && row.rowIndex < row.parentNode.rows.length - 1 ) {
+            swap_row = row.parentNode.rows[ row.rowIndex + 1 ];
+            row.parentNode.insertBefore(row.parentNode.removeChild(swap_row), row);
+            swapped = true;
+        }
+        else if ( direction == -1 && row.rowIndex > 1 ) {
+            swap_row = row.parentNode.rows[ row.rowIndex - 1 ];
+            row.parentNode.insertBefore(row.parentNode.removeChild(row), swap_row);
+            swapped = true;
+        }
+        
+        if ( swapped ) {
+            swap_row_input = document.getElementById("doi-" + swap_row.id);
+            save_value = swap_row_input.value;
+            swap_row_input.value = row_input.value;
+            row_input.value = save_value;  
+        }
+    }
+    </script>
+    <?php
 }
 
 add_action( 'admin_footer', 'add_field_js' );
@@ -114,6 +197,7 @@ function add_field_js() {
             var name_cell = row.insertCell(1);
             var type_cell = row.insertCell(2);
             var help_cell = row.insertCell(3);
+            var schema_cell = row.insertCell(3);
             var public_cell = row.insertCell(4);
             var visible_cell = row.insertCell(5);
             var quick_cell = row.insertCell(5);
@@ -159,9 +243,9 @@ function add_field_js() {
             help_cell.appendChild(help_text);
             
             var schema_input = document.createElement("input");
-            name_input.setAttribute("type", "text")
-            name_input.name = field_prefix + "~field_schema";
-            name_cell.appendChild(schema_input);
+            schema_input.setAttribute("type", "text")
+            schema_input.name = field_prefix + "~field_schema";
+            schema_cell.appendChild(schema_input);
             
             var public_checkbox = document.createElement("input");
             public_checkbox.setAttribute("type", "checkbox");
@@ -283,15 +367,10 @@ function edit_object($object_id=-1) {
                 }
             }
         }
-        
-        if ( $object_id != -1 ) {
-            $rows = $wpdb->get_results( "SELECT * FROM $table_name WHERE object_id=$object_id" );
-        }
-        else $rows = [];
     }
     
     if ( $object_id != -1 ) {
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE object_id = %d", $object_id ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE object_id = %d ORDER BY display_order", $object_id ) );
         $object_table = $wpdb->prefix . WPM_PREFIX . "object_types";
         $object_data = $wpdb->get_results( $wpdb->prepare("SELECT * FROM $object_table WHERE object_id = %d", $object_id ), ARRAY_A )[0];
     }
@@ -421,7 +500,6 @@ function add_object_admin_page() {
         'objects_admin_page'
     );
 }
-
 
 
 ?>

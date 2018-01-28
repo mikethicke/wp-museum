@@ -5,7 +5,7 @@
 
 add_action( 'plugins_loaded', 'db_version_check' );
 
-const DB_VERSION = 0.07;
+const DB_VERSION = 0.08;
 const DB_SHOW_ERRORS = true;
 
 /**
@@ -29,7 +29,7 @@ function create_objects_table() {
     $wpdb->show_errors = DB_SHOW_ERRORS;
     $sql = "CREATE TABLE $table_name (
         object_id mediumint(9) NOT NULL AUTO_INCREMENT,
-        cat_field mediumint(9),
+        cat_field_id mediumint(9),
         name varchar(255),
         label varchar(255),
         description text,
@@ -68,6 +68,7 @@ function create_object_fields_table() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);   
 }
+
 
 /**
  * Get object type given object id.
@@ -128,6 +129,7 @@ function get_object_types() {
     return $results;
 }
 
+
 /**
  * Get fields associated with a given object type.
  *
@@ -138,7 +140,10 @@ function get_object_types() {
 function get_object_fields( $object_id ) {
     global $wpdb;
     $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
-    $results = $wpdb->get_results( $wpdb->prepare("SELECT * FROM $table_name WHERE object_id=%s", $object_id ) );
+    $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE object_id=%s ORDER BY display_order", $object_id ) );
+    foreach ( $results as &$field ) {
+        $field->slug = WPM_PREFIX . $field->field_id;
+    }
     return $results;
 }
 
@@ -177,7 +182,7 @@ function update_object ( $object_id, $object_data ) {
  * @param string $object_description Short description of object type.
  * @param int $activated 1 if object type is active.
  */
-function new_object($object_label, $object_description='', $activated=1) {
+function new_object ( $object_label, $object_description='', $activated=1 ) {
     if ( $object_label == '' ) return -1;
     
     global $wpdb;
@@ -192,6 +197,72 @@ function new_object($object_label, $object_description='', $activated=1) {
     ];
     $wpdb->insert( $table_name, $data );
     return $wpdb->insert_id;
+}
+
+function sort_row_by_fields ($row, $fields) {
+    $sorted_row = [];
+    foreach ( $fields as $field ) {
+        $index = WPM_PREFIX . $field->field_id;
+        if ( isset( $row[$index] ) ) {
+            $sorted_row[] = $row[$index][0];
+        }
+        else {
+            $sorted_row[] = '';
+        }
+        
+    }
+    return $sorted_row;
+}
+
+/**
+ * Output csv to save.
+ *
+ * @param object $object_type A row of object types table.
+ * @see https://www.virendrachandak.com/techtalk/creating-csv-file-using-php-and-mysql/
+ */
+function export_csv () { 
+    if ( isset( $_GET[WPM_PREFIX . 'ot_csv'] ) ) {
+        if ( !current_user_can( 'edit_posts') ) wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+        $object_id = $_GET[WPM_PREFIX . 'ot_csv'];
+        $object_type = get_object( $object_id );
+        $object_type_name = type_name ( $object_type->name );
+        
+        global $wpdb;
+        $posts_table = $wpdb->prefix . 'posts';
+        $posts = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $posts_table WHERE post_type=%s;", $object_type_name ) );
+        $rows = [];
+        foreach ( $posts as $the_post ) {
+            $rows[] = get_post_custom( $the_post->ID );
+        }
+        
+        $fields = get_object_fields( $object_id );
+        $header_row = [];
+        foreach ( $fields as $field ) {
+            $header_row[] = $field->name;
+        }
+        
+        header( 'Content-type: text/csv' );
+        $filename = $object_type->name . '_export.csv';
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Pragma: no-cache' );
+        header( 'Expires: 0' );
+         
+        $file = fopen( 'php://output', 'w' );
+        fputcsv( $file, $header_row );
+        foreach ( $rows as $row )
+        {
+            $sorted_row = sort_row_by_fields( $row, $fields );
+            fputcsv( $file, $sorted_row );
+        }
+         
+        exit();
+    }
+}
+add_action( 'admin_menu', 'export_csv' );
+
+function export_csv_button ( $object_id ) {
+    $url = $_SERVER['PHP_SELF'] . '?' . WPM_PREFIX . 'ot_csv=' . $object_id;
+    return "<a class='button' href='$url'>Download CSV</a>";
 }
 
 

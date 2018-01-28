@@ -8,7 +8,9 @@ require_once ( 'MetaBox.php' );
 class CustomPostType
 {
 
-    //Basic options for post type
+    /* Basic options for post type
+     * See: https://developer.wordpress.org/reference/functions/register_post_type/
+     */
     public $options = [
         'type'          =>  'post',
         'label'         =>  'Post',
@@ -17,27 +19,29 @@ class CustomPostType
         'public'        =>  true,
         'hierarchical'   =>  true,
         'menu_icon'     =>  'dashicons-format-aside', // See: https://developer.wordpress.org/resource/dashicons/
-        'options'       =>  []
+        'options'       =>  [],
+        'rewrite'       => true
     ];
     
-    // Meta Box options
+    /* Meta Box options */
     public $meta_name = 'post_meta';
     public $meta_label = 'Post Meta';
     public $meta_box_fields = [];
     
-    // Possible options:
-    //'title'
-    //'editor' (content)
-    //'author'
-    //'thumbnail' (featured image) (current theme must also support Post Thumbnails)
-    //'excerpt'
-    //'trackbacks'
-    //'custom-fields' (see Custom_Fields, aka meta-data)
-    //'comments' (also will see comment count balloon on edit screen)
-    //'revisions' (will store revisions)
-    //'page-attributes' (template and menu order) (hierarchical must be true)
-    //'post-formats' (see Post_Formats)
-    // See: https://codex.wordpress.org/Function_Reference/post_type_supports
+    /* Possible options:
+     *'title'
+     *'editor' (content)
+     *'author'
+     *'thumbnail' (featured image) (current theme must also support Post Thumbnails)
+     *'excerpt'
+     *'trackbacks'
+     *'custom-fields' (see Custom_Fields, aka meta-data)
+     *'comments' (also will see comment count balloon on edit screen)
+     *'revisions' (will store revisions)
+     *'page-attributes' (template and menu order) (hierarchical must be true)
+     *'post-formats' (see Post_Formats)
+     * See: https:*codex.wordpress.org/Function_Reference/post_type_support'
+     */
     public $supports = ['title', 'editor', 'author'];
     
     public $taxonomies = [];
@@ -206,13 +210,19 @@ class CustomPostType
                                 }
                                 break;
                             case 'checkbox':
-                                foreach ( $field_options['options'] as $option_value => $option_label ) {
-                                    echo "<input type='checkbox' name='{$field_name}' value='{$option_value}' ";
-                                    if ( $option_value == $field_value) echo ' checked ';
-                                    echo ">{$option_label}<br />";
+                                if ( isset( $field_options['options'] ) ) {
+                                    foreach ( $field_options['options'] as $option_value => $option_label ) {
+                                        echo "<input type='checkbox' name='{$field_name}' value='{$option_value}' ";
+                                        if ( $option_value == $field_value) echo ' checked ';
+                                        echo ">{$option_label}<br />";
+                                    }
+                                }
+                                else {
+                                    echo "<input type='checkbox' name='$field_name' value='1' ";
+                                    if ( $field_value == '1' ) echo ' checked ';
+                                    echo ">";
                                 }
                                 break;
-                            
                         }
                         ?>
                         </td>
@@ -223,6 +233,27 @@ class CustomPostType
             </table>
             <?php
         } );          
+    }
+    
+    public function save_main_metabox ( $post_id ) {
+        $post = get_post($post_id);
+        $is_revision = wp_is_post_revision($post_id);
+        
+        if ( $post->post_type != $this->options['type'] || $is_revision )
+            return;
+        /*if ( ! (check_admin_referer($this->meta_name + '_nonce', $this->meta_name + '_nonce') ) )
+            return;*/
+        
+        foreach ( $this->meta_box_fields as $field_name => $field_data ) {
+            if ( isset($_POST[$field_name]) ) {
+                $field_value = trim($_POST[$field_name]);
+                if ( isset($field_value) && $field_value != '' ) update_post_meta($post_id, $field_name, $field_value);
+                else delete_post_meta($post_id, $field_name);
+            }
+            elseif ( $field_data['type'] == 'checkbox' ) {
+                update_post_meta( $post_id, $field_name, '0' );
+            }   
+        }   
     }
     
     /**
@@ -271,32 +302,13 @@ class CustomPostType
                 'supports' => $this->supports,
                 'taxonomies' => $this->taxonomies,
                 'hierarchical' => $this->options['hierarchical'],
+                'rewrite'   => $this->options['rewrite'],
                 'show_in_rest' => true,
                 'register_meta_box_cb' => array($this, 'display_meta_boxes')
             ];
-        if ( count($this->meta_box_fields)  > 0 ) {
-            add_action('save_post', function($post_id) {
-            $post = get_post($post_id);
-            $is_revision = wp_is_post_revision($post_id);
+        if ( count($this->meta_box_fields)  > 0 ) add_action('save_post', array( $this, 'save_main_metabox' ) );     
             
-            if ( $post->post_type != $this->options['type'] || $is_revision )
-                return;
-            /*if ( ! (check_admin_referer($this->meta_name + '_nonce', $this->meta_name + '_nonce') ) )
-                return;*/
-            
-            foreach ($this->meta_box_fields as $field_name => $field_label) {
-                if ( isset($_POST[$field_name]) ) {
-                    $field_value = trim($_POST[$field_name]);
-                    if ( isset($field_value) && $field_value != '' )
-                        update_post_meta($post_id, $field_name, $field_value);
-                    else
-                        delete_post_meta($post_id, $field_name);
-                    }
-                }
-                
-            } );     
-            
-        }
+        
         add_action( 'init', function() use ($arguments) {
             $arguments = $arguments + $this->options['options'];
             register_post_type( $this->options['type'], $arguments);

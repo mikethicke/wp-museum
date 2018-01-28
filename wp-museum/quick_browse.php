@@ -59,7 +59,8 @@ function quick_browse() {
             echo "</a></th>";
         }
     }
-    echo "<th></th><th></th>";
+    $csv_button = export_csv_button ( $object_type->object_id );
+    echo "<th>$csv_button</th><th></th><th></th>";
     echo "</tr></thead><tbody>";
     
     $args = [
@@ -92,6 +93,11 @@ function quick_browse() {
             }
         }
         echo "<td><a href='$view_url'>View</a><td>";
+        echo "<td>";
+        if ( count(get_attached_media( 'image', $object ) ) > 0 ) {
+            echo '<span class="dashicons dashicons-format-gallery"></span>';
+        }
+        echo "</td>";
         echo "</tr>";
     }
     

@@ -1,5 +1,7 @@
 <?php
 
+include_once ('wpm-functions.php');
+
 add_theme_support( 'post-thumbnails' );
 add_theme_support('category-thumbnails');
 register_nav_menu ( 'primary', 'Primary' );
@@ -59,6 +61,8 @@ add_image_size ( "instrument_grid_thumb", 190, 1000 );
 
 //image size for homepage content boxes
 add_image_size ( "homepage_thumb", 235, 200 );
+
+add_image_size ( "object_gallery_thumb", 160, 1000 );
 
 //keep track of whether to display grid or list view in search and category pages
 session_start();
@@ -226,7 +230,7 @@ function instrument_grid_box ( $post, $row_counter, $image_size='instrument_grid
     ?>
     <div class="<?php echo $row_style; ?>">
         <div class="instrument-grid-image">
-            <a href="<?php the_permalink(); ?>" title="<?php echo $post->post_title; ?>">
+            <a href="<?php echo get_permalink( $post ); ?>" title="<?php echo $post->post_title; ?>">
             <?php
                 $thumb_id = instrument_thumbnail_id ( $post->ID );
                 if ( $thumb_id ) echo wp_get_attachment_image ( $thumb_id, $image_size );
@@ -234,10 +238,10 @@ function instrument_grid_box ( $post, $row_counter, $image_size='instrument_grid
             </a>
         </div>
         <?php if ( $image_size == 'instrument_grid_thumb' ) { ?>
-            <div class="instrument-grid-name"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></div>
+            <div class="instrument-grid-name"><a href="<?php echo get_permalink( $post ); ?>"><?php echo $post->post_title; ?></a></div>
             <div class="instrument-grid-info">
-                <span class="instrument-grid-info-collection"><?php the_category ( ' &middot; ');  ?> &middot; </span>
-                <span class="instrument-grid-info-an"><?php echo $custom['accession-number'][0]; ?></span>
+                <span class="instrument-grid-info-collection"><?php the_category ( ' &middot; ', '', $post->ID );  ?> </span>
+                <!-- <span class="instrument-grid-info-an"><?php echo $custom['accession-number'][0]; ?></span> -->
             </div>
         <?php } //if ?>
     </div><!-- .$row_style -->
@@ -1404,6 +1408,43 @@ function addUploadMimes($mimes) {
 }
 
 add_filter('upload_mimes', 'addUploadMimes');
+
+/**
+ * Return src of first instrument gallery attachment in thumbnail size.
+ */
+function instrument_first_thumbnail ( $post_id ) {
+    $attachments = get_attached_media( 'image', $post_id );
+    
+    if( count( $attachments ) > 0 ) {
+        $attachment = reset( $attachments );
+        $image_attributes = wp_get_attachment_image_src( $attachment->ID, 'photo-thumb' );
+        return $image_attributes[0];      
+    }
+    return '';    
+}
+
+/**
+ * @param integer $post_id ID of the current post
+ * @return integer the ID of the thumbnail or the first image.
+ */
+function instrument_thumbnail_id ( $post_id ) {
+    
+    if ( has_post_thumbnail( $post_id ) ) {
+        $attach_id = get_post_thumbnail_id( $post_id );
+        $attach_path = wp_get_attachment_thumb_file( $post_id );
+    }
+    else {
+        $attachments = get_attached_media( 'image', $post_id );
+        
+        if( count( $attachments ) > 0 ) {
+            $attachment = reset( $attachments );
+            $attach_id = $attachment->ID;
+        }
+    }
+    
+    if ( isset ( $attach_id ) ) return $attach_id;
+    else return false;
+}
 
 
 ?>
