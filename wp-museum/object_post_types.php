@@ -12,6 +12,15 @@ function type_name ( $object_name ) {
     return $type_name;
 }
 
+function get_object_type_names() {
+    $object_types = get_object_types();
+    $type_names = array();
+    foreach ( $object_types as $object ) {
+        $type_names[] = type_name ( $object->name );
+    }
+    return $type_names;
+}
+
 function object_from_type( $type_name ) {
     $object_types = get_object_types();
     foreach ( $object_types as $object_type ) {
@@ -27,8 +36,6 @@ function object_type_from_object ( $object ) {
     $object_type = object_from_type ( $type_name );
     return $object_type;
 }
-
-
 
 function create_object_types() {
     global $wpdb;
@@ -51,12 +58,18 @@ function create_object_types() {
         $object_post_type->supports = ['title', 'thumbnail', 'author'];
         $object_post_type->add_taxonomy( 'category' );
         
+        $fields = get_object_fields( $object_id );
+        $object_post_type->custom_fields = array_map(
+                function ( $field ) {
+                    return $field->slug;
+                },
+                $fields );
+        
         //MetaBox for editing object fields.
-        $display_fields_table = function () use ($fields_table_name, $object_id) {
+        $display_fields_table = function () use ($fields_table_name, $object_id, $fields) {
             global $wpdb;
             global $post;
             $custom = get_post_custom( $post->ID );                 
-            $fields = get_object_fields( $object_id );
             //Check for legacy field names
             if ( isset( $custom['unidentified'] ) && object_name_from_id( $object_id ) == 'instrument' ) {
                 foreach ( $fields as $field ) {
@@ -357,4 +370,19 @@ function object_image_box_contents ( $post_id ) {
         echo "<a id='delete-{$image->ID}' class='wpm-image-delete' onclick='remove_image_attachment({$image->ID}, $post_id)'>[x]</a>";
     }
 }
-?>
+
+function get_post_descendants ( $post, $post_status='publish' ) {
+    $descendants = [];
+    $children = get_posts ( [
+        'numberposts'   => -1,
+        'post_status'   => $post_status,
+        'post_type'     => $post->post_type,
+        'post_parent'   => $post->ID
+    ] );
+    foreach ( $children as $child ) {
+        $grand_children = get_post_descendants ( $child, $post_status );
+        $descendants = array_merge( $descendants, $grand_children);
+    }
+    $descendants = array_merge( $descendants, $children );
+    return $descendants;
+}

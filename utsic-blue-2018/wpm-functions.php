@@ -20,4 +20,3 @@ function get_wpm_post_types() {
     }
     return $post_types;
 }
-?>

@@ -7,6 +7,11 @@ const WPM_FIELD = 'wpm-new-field#';
 
 add_action( 'admin_menu', 'add_object_admin_page' );
 
+function field_slug_from_name ( $name ) {
+    $name = preg_replace("/[^A-Za-z0-9 ]/", '', $name);
+    return substr( trim( strtolower( str_replace( ' ', '-', $name ) ) ), 0, 255 );
+}
+
 /**
  * Display object types.
  */
@@ -63,7 +68,7 @@ function display_objects_table() {
             echo "<td><select name='cat_field~{$object_row->object_id}'>";
             echo "<option></option>";
             foreach ( $fields as $field ) {
-                echo "<option value='$field->field_id'";
+                echo "<option value='$field->slug'";
                 if ( $object_row->cat_field_id == $field->field_id ) echo " selected='selected' ";
                 echo ">$field->name</option>";
             }
@@ -148,44 +153,12 @@ function object_fields_table($rows) {
     }
 }
 
-add_action( 'admin_footer', 'reorder_table_js' );
-function reorder_table_js() {
-    ?>
-    <script type="text/javascript">
-    function wpm_reorder_table(row_id, direction) {
-        row = document.getElementById(row_id);
-        row_input = document.getElementById("doi-" + row_id);
-        table = document.getElementById("wpm-object-fields-table");
-        swapped = false;
-        
-        if ( direction == 1 && row.rowIndex < row.parentNode.rows.length - 1 ) {
-            swap_row = row.parentNode.rows[ row.rowIndex + 1 ];
-            row.parentNode.insertBefore(row.parentNode.removeChild(swap_row), row);
-            swapped = true;
-        }
-        else if ( direction == -1 && row.rowIndex > 1 ) {
-            swap_row = row.parentNode.rows[ row.rowIndex - 1 ];
-            row.parentNode.insertBefore(row.parentNode.removeChild(row), swap_row);
-            swapped = true;
-        }
-        
-        if ( swapped ) {
-            swap_row_input = document.getElementById("doi-" + swap_row.id);
-            save_value = swap_row_input.value;
-            swap_row_input.value = row_input.value;
-            row_input.value = save_value;  
-        }
-    }
-    </script>
-    <?php
-}
-
 add_action( 'admin_footer', 'add_field_js' );
 function add_field_js() {
     ?>
     <script type="text/javascript">
         var new_field_counter = 0;
-        function add_field(wpm_field) {
+        function add_field(wpm_field, num_fields) {
             var field_prefix = wpm_field + new_field_counter;
             
             var empty_div = document.getElementById("wpm-object-fields-empty");
@@ -193,14 +166,27 @@ function add_field_js() {
             
             var fields_table = document.getElementById("wpm-object-fields-table");
             var row = fields_table.insertRow(-1);
-            var delete_cell = row.insertCell(0);
-            var name_cell = row.insertCell(1);
-            var type_cell = row.insertCell(2);
-            var help_cell = row.insertCell(3);
-            var schema_cell = row.insertCell(3);
-            var public_cell = row.insertCell(4);
-            var visible_cell = row.insertCell(5);
-            var quick_cell = row.insertCell(5);
+            var doi_cell = row.insertCell(-1);
+            var delete_cell = row.insertCell(-1);
+            var name_cell = row.insertCell(-1);
+            var type_cell = row.insertCell(-1);
+            var help_cell = row.insertCell(-1);
+            var schema_cell = row.insertCell(-1);
+            var public_cell = row.insertCell(-1);
+            var visible_cell = row.insertCell(-1);
+            var quick_cell = row.insertCell(-1);
+            
+            row.id = "wpm-row-" + num_fields;
+            
+            var doi_input = document.createElement("input");
+            doi_input.setAttribute("type", "hidden");
+            doi_input.name = field_prefix + '~display_order';
+            doi_input.value = num_fields;
+            doi_input.id = "doi-wpm-row-" + doi_input.value;
+            doi_cell.appendChild(doi_input);
+            var doi_text = "<a class='clickable' onclick='wpm_reorder_table(\"wpm-row-" + doi_input.value + "\", -1);'><span class='dashicons dashicons-arrow-up-alt2'></span></a><br />";
+            doi_text = doi_text + "<a class='clickable' onclick='wpm_reorder_table(\"wpm-row-" + doi_input.value + "\", 1);'><span class='dashicons dashicons-arrow-down-alt2'></span></a><br />";
+            doi_cell.innerHTML = doi_cell.innerHTML + doi_text;
             
             var delete_checkbox = document.createElement("input");
             delete_checkbox.setAttribute("type", "checkbox");
@@ -271,6 +257,38 @@ function add_field_js() {
     <?php
 }
 
+add_action( 'admin_footer', 'reorder_table_js' );
+function reorder_table_js() {
+    ?>
+    <script type="text/javascript">
+    function wpm_reorder_table(row_id, direction) {
+        row = document.getElementById(row_id);
+        row_input = document.getElementById("doi-" + row_id);
+        table = document.getElementById("wpm-object-fields-table");
+        swapped = false;
+        
+        if ( direction == 1 && row.rowIndex < row.parentNode.rows.length - 1 ) {
+            swap_row = row.parentNode.rows[ row.rowIndex + 1 ];
+            row.parentNode.insertBefore(row.parentNode.removeChild(swap_row), row);
+            swapped = true;
+        }
+        else if ( direction == -1 && row.rowIndex > 1 ) {
+            swap_row = row.parentNode.rows[ row.rowIndex - 1 ];
+            row.parentNode.insertBefore(row.parentNode.removeChild(row), swap_row);
+            swapped = true;
+        }
+        
+        if ( swapped ) {
+            swap_row_input = document.getElementById("doi-" + swap_row.id);
+            save_value = swap_row_input.value;
+            swap_row_input.value = row_input.value;
+            row_input.value = save_value;  
+        }
+    }
+    </script>
+    <?php
+}
+
 function edit_object($object_id=-1) {
     if ( !current_user_can( 'manage_options' ) )  {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
@@ -330,6 +348,7 @@ function edit_object($object_id=-1) {
             //New fields
             if ( substr( $key, 0, strlen(WPM_FIELD)) === WPM_FIELD ) {
                 $form_row['object_id'] = $object_id;
+                $form_row['slug'] = field_slug_from_name( $form_row['name'] );
                 if ( $form_row['delete'] != 1 ) {
                     unset($form_row['delete']);
                     $wpdb->insert( $table_name, $form_row );
@@ -347,14 +366,23 @@ function edit_object($object_id=-1) {
                 else {
                     unset( $form_row['delete'] );
                     $db_rows = $wpdb->get_results( "SELECT * FROM $table_name WHERE object_id=$object_id" );
+                    $field_slugs = [];
                     foreach ( $db_rows as $db_row ) {
                         $db_fields[$db_row->field_id] = $db_row;
+                        $field_slugs[$db_row->field_id] = $db_row->slug;
                     }
                     foreach ( $form_row as $key=>$val ) {
                         $change = false;
                         if ( $db_fields[(int)$form_row['field_id']]->$key != $val ) {
                             $change = true;
                             $change_log[] = "FIELD: {$form_row['name']} COL: $key FROM: {$db_fields[$form_row['field_id']]->$key} TO: $val";
+                        }
+                        if ( !isset( $field_slugs[$form_row['field_id']] ) ) $old_slug = '';
+                        else $old_slug = $field_slugs[$form_row['field_id']];
+                        $form_row['slug'] = field_slug_from_name( $form_row['name'] );
+                        if ( $form_row['slug'] != $old_slug ) {
+                            $meta_table = $wpdb->prefix . 'postmeta';
+                            $wpdb->query ("UPDATE $meta_table SET meta_key='{$form_row['slug']}' WHERE meta_key=$old_slug");
                         }
                         if ( $change ) {
                             $wpdb->update (
@@ -391,7 +419,7 @@ function edit_object($object_id=-1) {
         object_fields_table($rows);
         ?>
         <div id='wpm-object-bottom-buttons'>
-            <button type='button' class='button button-large' onclick='add_field("<?php echo WPM_FIELD; ?>");'>Add Field</button>
+            <button type='button' class='button button-large' onclick='add_field("<?php echo WPM_FIELD; ?>", <?php echo count($rows); ?>);'>Add Field</button>
             <input type="submit" class="button button-primary button-large" name="save-object" value="Save" />
         </div>
         </form>
@@ -400,6 +428,7 @@ function edit_object($object_id=-1) {
 }
 
 function objects_admin_page() {
+    //fix_field_slugs();
     if ( isset($_GET['wpm-objects-page']) ) $wpm_page = $_GET['wpm-objects-page'];
     else $wpm_page = 'wpm-objects-table';
     switch($wpm_page) {
@@ -450,7 +479,8 @@ function import_legacy_instruments() {
             $old_field['visible'] = $old_field['in_description'];
             unset ( $old_field['in_description'] );
             $old_field['object_id'] = $object_id;
-            $wpdb->insert ( $object_fields_table, $old_field );
+            $old_field['slug'] = field_slug_from_name( $old_field['name'] );
+            $wpdb->insert( $object_fields_table, $old_field );
         }  
     }   
       
@@ -468,12 +498,10 @@ function import_legacy_instruments() {
     $instrument_posts = get_posts ( $args );
     $object_type = get_object ( get_object_id ( $object_name ) );
     
+    /*
     foreach ( $instrument_posts as $instrument_post ) {
         $custom = get_post_custom ( $instrument_post->ID );
         //Check for legacy field names
-        if ( $instrument_post->ID == 10264 ) {
-            echo 'here';
-        }
         if ( ( isset( $custom['unidentified'] ) || isset( $custom['accession-number'] ) ) && $object_type->name == 'instrument' ) {
             $fields = get_object_fields( $object_type->object_id );
             foreach ( $fields as $field ) {
@@ -488,6 +516,7 @@ function import_legacy_instruments() {
             }
         }
     }
+    */
 }
 
 function add_object_admin_page() {
@@ -500,6 +529,3 @@ function add_object_admin_page() {
         'objects_admin_page'
     );
 }
-
-
-?>

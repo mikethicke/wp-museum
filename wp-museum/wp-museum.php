@@ -7,7 +7,6 @@ Author: Mike Thicke
 Author URI: http://www.mikethicke.com
 */
 
-
 if ( defined('WP_DEBUG') && WP_DEBUG == true) {
     add_action( 'init', 'stop_heartbeat', 1 );
     function stop_heartbeat() {
@@ -32,5 +31,3 @@ include_once ( 'object_admin.php' );
 include_once ( 'object_post_types.php' );
 include_once ( 'collection_post_type.php' );
 include_once ( 'quick_browse.php' );
-
-?>

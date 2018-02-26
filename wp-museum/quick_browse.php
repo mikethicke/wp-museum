@@ -36,7 +36,7 @@ function quick_browse() {
     $self_url = $_SERVER['PHP_SELF'] . "?post_type=$type_name&page={$object_type->name}-quick-browse";
     
     if ( isset( $_GET['sort_col'] ) ) $sort_col = $_GET['sort_col'];
-    else $sort_col = WPM_PREFIX . $fields[0]->field_id;
+    else $sort_col = $fields[0]->slug;
     
     if ( isset ( $_GET['sort_dir'] ) ) $sort_dir = $_GET['sort_dir'];
     else $sort_dir = 'asc';
@@ -44,7 +44,7 @@ function quick_browse() {
     foreach ( $fields as $field ) {
         if ( $field->quick_browse == 1 ) {
             echo "<th>";
-            if ( $sort_col == WPM_PREFIX . $field->field_id ) {
+            if ( $sort_col == $field->slug ) {
                 if ( $sort_dir == 'asc' ) {
                     echo "<a href='$self_url&sort_col={$sort_col}&sort_dir=desc'>{$field->name}<span class='dashicons dashicons-arrow-down'></span>";
                 }
@@ -53,7 +53,7 @@ function quick_browse() {
                 }
             }
             else {
-                $col = WPM_PREFIX . $field->field_id;
+                $col = $field->slug;
                 echo "<a href='$self_url&sort_col=$col&sort_dir=asc'>$field->name";
             }
             echo "</a></th>";
@@ -81,9 +81,8 @@ function quick_browse() {
         echo "<tr class='$row_class'>";
         foreach ( $fields as $field ) {
             if ( $field->quick_browse == 1 ) {
-                $field_name = WPM_PREFIX . $field->field_id;
-                if ( isset( $custom[$field_name] ) ) {
-                    $field_value = $custom[$field_name][0];
+                if ( isset( $custom[$field->slug] ) ) {
+                    $field_value = $custom[$field->slug][0];
                 }
                 else {
                     $field_value = '(none)';
@@ -107,7 +106,7 @@ function quick_browse() {
 function wpm_sort_by_field(&$target_array, $sort_col, $sort_dir) {
     $fields = get_object_fields ( object_type_from_object( $target_array[0] )->object_id );
     foreach ( $fields as $field ) {
-        if ( WPM_PREFIX . $field->field_id == $sort_col ) {
+        if ( $field->slug == $sort_col ) {
             $sort_field = $field;
             break;
         }
@@ -126,28 +125,53 @@ function wpm_sort_by_field(&$target_array, $sort_col, $sort_dir) {
         if ( isset( $b_custom[$sort_col] ) ) $b_field_val = $b_custom[$sort_col][0];
         else return $rv;
         
-        if ( isset( $sort_field->field_schema ) ) {
+        if ( isset( $sort_field->field_schema ) && !empty( $sort_field->field_schema ) ) {
             $a_matches = [];
             $b_matches = [];
             $pattern = '/' . stripslashes( $sort_field->field_schema ) . '/';
             if ( preg_match( $pattern, $a_field_val, $a_matches ) &&
                  preg_match( $pattern, $b_field_val, $b_matches ) ) {
-                $limit = min( count($a_matches), count($b_matches) );
-                for ( $i=1; $i<$limit; $i++ ) {
-                    if ( is_numeric($a_matches[$i]) && is_numeric($b_matches[$i]) ) {
-                        if ( $a_matches[$i] > $b_matches[$i] ) return $rv;
-                        elseif ( $a_matches[$i] < $b_matches[$i] ) return -1*$rv;
+                if ( count(array_filter(array_keys($a_matches), 'is_string')) > 0 ) {
+                    //named capture groups
+                    ksort ( $a_matches );
+                    foreach ( $a_matches as $a_key => $a_val ) {
+                        if ( is_numeric( $a_val ) && is_numeric( $b_matches[$a_key] ) ) {
+                            if ( $a_val > $b_matches[$a_key] ) return $rv;
+                            elseif ( $a_val < $b_matches[$a_key] ) return -1*$rv;
+                        }
+                        elseif ( strcasecmp( $a_val, $b_matches[$a_key] ) > 0 ) return $rv;
+                        elseif ( strcasecmp( $a_val, $b_matches[$a_key] ) < 0 ) return -1*$rv;
                     }
-                    elseif ( strcmp( $a_matches[$i], $b_matches[$i] ) > 0 ) return $rv;
-                    elseif ( strcmp( $a_matches[$i], $b_matches[$i] ) < 0 ) return -1*$rv; 
                 }
-                return -1*$rv;
+                else {
+                    //sequential capture groups
+                    $limit = min( count($a_matches), count($b_matches) );
+                    for ( $i=1; $i<$limit; $i++ ) {
+                        if ( is_numeric($a_matches[$i]) && is_numeric($b_matches[$i]) ) {
+                            if ( $a_matches[$i] > $b_matches[$i] ) return $rv;
+                            elseif ( $a_matches[$i] < $b_matches[$i] ) return -1*$rv;
+                        }
+                        elseif ( strcasecmp( $a_matches[$i], $b_matches[$i] ) > 0 ) return $rv;
+                        elseif ( strcasecmp( $a_matches[$i], $b_matches[$i] ) < 0 ) return -1*$rv;
+                    }
+                }
+                if ( count( $a_matches ) > count ( $b_matches) ) return 1*$rv;
+                elseif ( count( $a_matches ) < count ( $b_matches) ) return -1*$rv;
+                else return 0; 
             }
         }
         
-        if ( $a_field_val > $b_field_val ) return $rv;
-        else return -1*$rv;
+        if ( is_numeric( $a_field_val ) && is_numeric( $b_field_val ) ) {
+            if ( $a_field_val > $b_field_val ) return $rv;
+            elseif ( $a_field_val > $b_field_val ) return -1*$rv;
+            else return 0;
+        }
+        else {
+            if ( strcasecmp( $a_field_val, $b_field_val ) > 0) return $rv;
+            elseif ( strcasecmp( $a_field_val, $b_field_val ) < 0) return -1*$rv;
+            else return 0;
+        }
+        
+        
     });
 }
-
-?>

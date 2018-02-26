@@ -33,7 +33,6 @@ if (have_posts()) the_post();
                     <div>
                         <label class="screen-reader-text" for="s">Search for:</label>
                         <input type="text" placeholder="search the collection..." name="s" id="s" />
-			<input type="hidden" name="within_collection" value="entire_collection">
                         <input type="submit" id="searchsubmit" value="Search" />
                     </div>
                 </form>

@@ -5,7 +5,7 @@
 
 add_action( 'plugins_loaded', 'db_version_check' );
 
-const DB_VERSION = 0.08;
+const DB_VERSION = 0.09;
 const DB_SHOW_ERRORS = true;
 
 /**
@@ -51,6 +51,7 @@ function create_object_fields_table() {
     $wpdb->show_errors = DB_SHOW_ERRORS;
     $sql = "CREATE TABLE $table_name (
         field_id mediumint(9) NOT NULL AUTO_INCREMENT,
+        slug varchar(255),
         object_id mediumint(9),
         name varchar(255),
         label varchar(255),
@@ -61,7 +62,6 @@ function create_object_fields_table() {
         quick_browse tinyint(1),
         help_text varchar(255),
         field_schema varchar(255),
-        length int(5),
         PRIMARY KEY  (field_id)
     );";
     
@@ -129,7 +129,6 @@ function get_object_types() {
     return $results;
 }
 
-
 /**
  * Get fields associated with a given object type.
  *
@@ -141,9 +140,6 @@ function get_object_fields( $object_id ) {
     global $wpdb;
     $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
     $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE object_id=%s ORDER BY display_order", $object_id ) );
-    foreach ( $results as &$field ) {
-        $field->slug = WPM_PREFIX . $field->field_id;
-    }
     return $results;
 }
 
@@ -202,7 +198,7 @@ function new_object ( $object_label, $object_description='', $activated=1 ) {
 function sort_row_by_fields ($row, $fields) {
     $sorted_row = [];
     foreach ( $fields as $field ) {
-        $index = WPM_PREFIX . $field->field_id;
+        $index = $field->slug;
         if ( isset( $row[$index] ) ) {
             $sorted_row[] = $row[$index][0];
         }
@@ -265,5 +261,41 @@ function export_csv_button ( $object_id ) {
     return "<a class='button' href='$url'>Download CSV</a>";
 }
 
-
-?>
+function fix_field_slugs() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
+    $rows = $wpdb->get_results( "SELECT * FROM $table_name", ARRAY_A );
+    foreach ( $rows as $row ) {
+        $row['slug'] = field_slug_from_name( $row['name'] );
+        $wpdb->update (
+            $table_name,
+            $row,
+            ['field_id' => $row['field_id']]
+        );
+    }
+    $object_type_table = $wpdb->prefix . WPM_PREFIX . "object_types";
+    $object_rows = $wpdb->get_results( "SELECT * FROM $object_type_table" );
+    foreach ( $object_rows as $object_row ) {
+        $type_name = type_name( $object_row->name );
+        $fields = get_object_fields( $object_row->object_id );
+        $posts = get_posts( [
+            'numberposts'       => -1,
+            'post_status'       => 'any',
+            'post_type'         => $type_name
+        ]);
+        $meta_table = $wpdb->prefix . 'postmeta';
+        foreach ( $posts as $post ) {
+            $custom_rows = $wpdb->get_results ("SELECT * FROM $meta_table WHERE post_id = '{$post->ID}'");
+            foreach ( $custom_rows as $custom_row ) {
+                foreach ( $fields as $field ) {
+                    if ( $custom_row->meta_key == WPM_PREFIX . $field->field_id ) {
+                        $val = field_slug_from_name( $field->name );
+                        $mid = $custom_row->meta_id;
+                        $wpdb->query ("UPDATE $meta_table SET meta_key = '$val' WHERE meta_id = '$mid'");
+                        break;
+                    }
+                }    
+            }   
+        }
+    }
+}
