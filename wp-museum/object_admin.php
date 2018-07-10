@@ -340,7 +340,7 @@ function edit_object($object_id=-1) {
                 if ( !isset($form_row['delete']) ) $form_row['delete'] = 0;
                 if ( !isset($form_row['public']) ) $form_row['public'] = 0;
                 if ( !isset($form_row['visible']) ) $form_row['visible'] = 0;
-                if ( !isset($form_row['quick_browse']) ) $form_row['visible'] = 0;
+                if ( !isset($form_row['quick_browse']) ) $form_row['quick_browse'] = 0;
             }
         }
         
@@ -449,8 +449,7 @@ function objects_admin_page() {
                 edit_object();
             }
             break;
-    }
-   
+    }  
 }
 
 function import_legacy_instruments() {

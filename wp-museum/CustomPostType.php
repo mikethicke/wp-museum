@@ -263,8 +263,10 @@ class CustomPostType
      */
     public function add_to_search( $query ) {
         if ( is_search() && $query->is_main_query() && !empty( $search_string ) ) {
-            if ( !is_null( $query->get( 'post_type' ) ) && !empty( $query->get( 'post_type' ) ) ) $post_types = $query->get( 'post_type' );
-            else $post_types = ['post', 'page'];
+            
+            $post_types = '';
+            if ( !is_null( $query->get( 'post_type' ) ) ) $post_types = $query->get( 'post_type' );
+            if ( empty( $post_types ) ) $post_types = ['post', 'page'];
             $post_types[] = $this->options['type'];
             $query->set( 'post_type', $post_types );
             return $query;

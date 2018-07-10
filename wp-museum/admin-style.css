@@ -80,6 +80,24 @@ a.wpm-image-delete {
     cursor: pointer;
 }
 
+a.wpm-image-moveup {
+    position: relative;
+    left: -180px;
+    top: 30px;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+a.wpm-image-movedown {
+    position: relative;
+    left: -185px;
+    top: 30px;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+
+
 div#admin-object-gallery img {
     margin: 20px 0px 20px 0px;
     border: 10px solid #F1F1F1;

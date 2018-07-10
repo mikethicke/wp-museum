@@ -9,7 +9,16 @@ $collection_options = [
     'label_plural'  => 'Collections',
     'description'   => 'Contains related museum objects.',
     'menu_icon'     => 'dashicons-archive',
-    'hierarchical'  => true
+    'hierarchical'  => true,
+    'capabilities'  => [
+        'edit_posts' => 'edit_collections',
+        'edit_others_posts' => 'edit_others_collections',
+        'publish_posts' => 'publish_collections',
+        'read_private_posts' => 'read_private_collections',
+        'delete_posts' => 'delete_collections',
+        'edit_published_posts' => 'edit_published_collections'
+    ],
+    'map_meta_cap'  => true
 ];
 $collection_post_type = new CustomPostType( $collection_options );
 $collection_post_type->add_support( ['thumbnail'] );

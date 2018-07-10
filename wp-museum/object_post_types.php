@@ -52,7 +52,16 @@ function create_object_types() {
             'label_plural'  => $object_row->label . 's',
             'description'   => $object_row->description,
             'menu_icon'     => 'dashicons-archive',
-            'hierarchical'  => true
+            'hierarchical'  => true,
+            'capabilities'  => [
+                'edit_posts' => 'edit_objects',
+                'edit_others_posts' => 'edit_others_objects',
+                'publish_posts' => 'publish_objects',
+                'read_private_posts' => 'read_private_objects',
+                'delete_posts' => 'delete_objects',
+                'edit_published_posts' => 'edit_published_objects'
+            ],
+            'map_meta_cap'  => true
         ];
         $object_post_type = new CustomPostType( $options );
         $object_post_type->supports = ['title', 'thumbnail', 'author'];
@@ -363,11 +372,21 @@ function object_image_box_contents ( $post_id ) {
     global $post;
     if ( is_null( $post ) ) $post = get_post( $post_id );
     $images = get_attached_media( 'image', $post );
+    $prev_menu_order = -1;
     foreach ( $images as $image ) {
+        if ( $image->menu_order <= $prev_menu_order ) {
+            $image->menu_order = $prev_menu_order + 1;
+            wp_update_post ( $image );
+        }
+        $prev_menu_order = $image->menu_order;
         $image_thumbnail = wp_get_attachment_image_src( $image->ID, 'thumbnail' )[0];
         $image_full = wp_get_attachment_image_src( $image->ID, 'large' )[0];
+        echo "<div id='image-div-{$image->ID}' style='display:inline'>";
         echo "<a data-fancybox='fbgallery' href='$image_full'><img src='$image_thumbnail'></a>";
         echo "<a id='delete-{$image->ID}' class='wpm-image-delete' onclick='remove_image_attachment({$image->ID}, $post_id)'>[x]</a>";
+        echo "<a id='moveup-{$image->ID}' class='wpm-image-moveup' onclick='wpm_image_move({$image->ID}, -1)'><span class='dashicons dashicons-arrow-left'></span></a>";
+        echo "<a id='movedown-{$image->ID}' class='wpm-image-movedown' onclick='wpm_image_move({$image->ID}, +1)'><span class='dashicons dashicons-arrow-right'></span></a>";
+        echo "</div>";
     }
 }
 
@@ -385,4 +404,64 @@ function get_post_descendants ( $post, $post_status='publish' ) {
     }
     $descendants = array_merge( $descendants, $children );
     return $descendants;
+}
+
+add_action( 'admin_footer', 'wpm_image_move_js' );
+function wpm_image_move_js() {
+    ?>
+    <script type='text/javascript'>
+    function wpm_image_move(image_id, direction) {
+        div = document.getElementById("image-div-" + image_id);
+        gallery_div = document.getElementById("admin-object-gallery");
+        gallery_children = gallery_div.children;
+        swapped = false;
+        
+        for ( i = 0; i < gallery_children.length; i++ ) {
+            if ( gallery_children[i].id == "image-div-" + image_id ) {
+                if ( direction == 1 && i < gallery_children.length - 1 ) {
+                    swap_div = gallery_children[i + 1];
+                    gallery_children[i].parentNode.insertBefore( gallery_children[i].parentNode.removeChild(swap_div), gallery_children[i] );
+                    swapped = true;
+                    break;
+                }
+                else if ( direction == -1 && i > 0 ) {
+                    swap_div = gallery_children[i - 1];
+                    gallery_children[i].parentNode.insertBefore( gallery_children[i].parentNode.removeChild(gallery_children[i]), swap_div );
+                    swapped = true;
+                    break;
+                }
+            }
+        }
+        
+        if ( swapped ) {
+             var data = {
+                'action'    : 'swap_image_order_aj',
+                'first_image_id'   : swap_div.id,
+                'second_image_id'  : image_id
+            };
+            
+            jQuery.post( ajaxurl, data, function( response ) {
+                //pass
+            });
+        }
+        
+        
+    }
+    </script>
+    <?php
+}
+
+add_action( 'wp_ajax_swap_image_order_aj', 'swap_image_order_aj');
+function swap_image_order_aj() {
+    $first_image_id = $_POST['first_image_id'];
+    $first_image_id = intval( substr( $first_image_id, strlen("image-div-") ) );
+    $second_image_id = intval( $_POST['second_image_id'] );
+    $first_image_post = get_post( $first_image_id );
+    $second_image_post = get_post( $second_image_id );
+    $first_image_menu_order = $first_image_post->menu_order;
+    $first_image_post->menu_order = $second_image_post->menu_order;
+    $second_image_post->menu_order = $first_image_menu_order;
+    wp_update_post( $first_image_post );
+    wp_update_post( $second_image_post );
+    wp_die();
 }

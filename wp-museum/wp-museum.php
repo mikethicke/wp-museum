@@ -26,6 +26,7 @@ function admin_style() {
 add_action('admin_enqueue_scripts', 'admin_style');
 
 include_once ( 'database.php' );
+include_once ( 'capabilities.php' );
 include_once ( 'exhibit.php' );
 include_once ( 'object_admin.php' );
 include_once ( 'object_post_types.php' );
