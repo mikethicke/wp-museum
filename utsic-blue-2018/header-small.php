@@ -1,6 +1,7 @@
 <?php
 /**
  * Header for utsic-blue theme. Displays <head> section, banner, and #main.
+ * Has a smaller banner than the standard header, for collections pages.
  *
  * Mike Thicke
  * June 14, 2012

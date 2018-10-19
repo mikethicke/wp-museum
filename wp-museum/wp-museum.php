@@ -2,7 +2,7 @@
 /*
 Plugin Name: Museum Database (2017)
 Description: Manages a database of scientific instruments
-Version: 0.1
+Version: 0.5
 Author: Mike Thicke
 Author URI: http://www.mikethicke.com
 */
@@ -25,10 +25,16 @@ function admin_style() {
 }
 add_action('admin_enqueue_scripts', 'admin_style');
 
-include_once ( 'database.php' );
-include_once ( 'capabilities.php' );
-include_once ( 'exhibit.php' );
-include_once ( 'object_admin.php' );
-include_once ( 'object_post_types.php' );
-include_once ( 'collection_post_type.php' );
-include_once ( 'quick_browse.php' );
+//Remove capabilities upon plugin deactivation
+register_deactivation_hook( __FILE__, 'remove_museum_capabilities' );
+
+require_once ( 'database_functions.php' );
+require_once ( 'capabilities.php' );
+require_once ( 'exhibit.php' );
+require_once ( 'object_admin.php' );
+require_once ( 'object_functions.php' );
+require_once ( 'object_post_types.php' );
+require_once ( 'object_ajax.php' );
+require_once ( 'collection_functions.php');
+require_once ( 'collection_post_type.php' );
+require_once ( 'quick_browse.php' );

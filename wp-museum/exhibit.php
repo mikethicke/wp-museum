@@ -24,7 +24,8 @@ $exhibit_options = [
   'description'   => 'A museum exhibit that guides readers through a set of related posts and objects.',
   'menu_icon'     => 'dashicons-location-alt',
   'hierarchical'  => true,
-  'capabilities'  => [
+  'options'       => [
+    'capabilities'  => [
         'edit_posts' => 'edit_exhibits',
         'edit_others_posts' => 'edit_others_exhibits',
         'publish_posts' => 'publish_exhibits',
@@ -33,6 +34,7 @@ $exhibit_options = [
         'edit_published_posts' => 'edit_published_exhibits'
     ],
     'map_meta_cap'  => true
+  ]
 ];
 $exhibit_post_type = new CustomPostType($exhibit_options);
 $exhibit_post_type->add_support( ['thumbnail', 'revisions'] );

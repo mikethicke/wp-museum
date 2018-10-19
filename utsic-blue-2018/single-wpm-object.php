@@ -1,6 +1,6 @@
 <?php
 /**
- * Single WPM object
+ * Single WPM object (instrument)
  */
 
 global $post;
@@ -88,6 +88,4 @@ if ( have_posts() ) {
 <?php    
 }
     get_footer();
-?>
- 
 ?>

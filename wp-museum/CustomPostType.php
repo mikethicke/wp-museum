@@ -118,6 +118,15 @@ class CustomPostType
             'type'      =>  $field_type,
             'options'   =>  $options
         ];
+    
+        register_post_meta ( $this->options['type'],
+                            $field_name,
+                            [
+                                'type' => 'string',
+                                'description' => $field_name,
+                                'single' => true,
+                                'show_in_rest' => true
+                             ] ); 
     }
     
     /**
@@ -237,6 +246,9 @@ class CustomPostType
         } );          
     }
     
+    /**
+     * Callback to save custom post fields.
+     */
     public function save_main_metabox ( $post_id ) {
         $post = get_post($post_id);
         $is_revision = wp_is_post_revision($post_id);
@@ -332,10 +344,14 @@ class CustomPostType
             if ( $arguments['hierarchical'] ) add_post_type_support( $this->options['type'], 'page-attributes' );
         });
         
-        add_action( 'pre_get_posts', array( $this, 'add_to_search' )  );
+        add_action( 'pre_get_posts', array( $this, 'add_to_search' )  );    
     }    
 }
 
+
+/**
+ * Callback to search post meta fields when searching posts.
+ */
 $custom_search = function ( $query ) {
       global $wpdb;
       if ( is_search() && $query->is_main_query() ) {

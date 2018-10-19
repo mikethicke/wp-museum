@@ -1,6 +1,11 @@
 <?php
 /**
- * Displays instruments for category and search pages in row format.
+ * Functions for the display of instruments (museum object custom post type)
+ */
+
+
+/**
+ * Displays an instrument for category and search pages in row format.
  *
  * @param object $post Wordpress post object
  * @param integer $row_counter either 1 or -1, for alternating row styles
@@ -49,6 +54,12 @@ function instrument_row ( $post, $row_counter ) {
     <?php
 }
 
+/**
+ * Displays a post for category and search pages in row format.
+ *
+ * @param object $post Wordpress post object
+ * @param integer $row_counter either 1 or -1, for alternating row styles
+ */
 function post_row ( $post=null, $indent=0 ) {
     if ( is_null( $post ) ) global $post;
     
@@ -91,6 +102,14 @@ function post_row ( $post=null, $indent=0 ) {
     
 }
 
+/**
+ * Displays a set of posts in row format.
+ *
+ * @param [WP_Post]     $posts      Array of posts.
+ * @param int           $indent     Indent level (controlled by CSS)
+ *
+ * @see post_row.
+ */
 function post_rows ( $posts, $indent=0 ) {
     foreach ( $posts as $post ) {
         post_row ( $post, $indent );
@@ -273,6 +292,12 @@ function post_box( $post, $css_class=''  ) {
      
 }
 
+/**
+ * Display a set of posts in grid format.
+ *
+ * @param [WP_Post]     $posts      Array of posts
+ * @param string        $css_class  Class for each post.
+ */
 function post_boxes ( $posts, $css_class='' ) {
     $box_width = get_option( 'thumbnail_size_w' ) + 40;
     $num_boxes_per_row = (int) floor( 830 / $box_width ); //830 is the text width, from style.css;

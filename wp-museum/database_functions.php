@@ -73,9 +73,9 @@ function create_object_fields_table() {
 /**
  * Get object type given object id.
  *
- * @param int/string $object_id ID of object in database.
+ * @param   int/string  $object_id  ID of object in database.
  *
- * @return object Database entry for object as object.
+ * @return  object      Database entry for object as object.
  */
 function get_object ( $object_id ) {
     global $wpdb;
@@ -87,9 +87,9 @@ function get_object ( $object_id ) {
 /**
  * Get object type's id with given name.
  *
- * @param string $object_name The object's name.
+ * @param   string  $object_name    The object's name.
  *
- * @return string The object's ID.
+ * @return  string  The object's ID (a number).
  */
 function get_object_id ( $object_name ) {
     global $wpdb;
@@ -101,9 +101,9 @@ function get_object_id ( $object_name ) {
 /**
  * Get object type's name from ID.
  *
- * @param string/int $object_id The ID of the object type.
+ * @param   string/int  $object_id  The ID of the object type.
  *
- * @return string The object type's name.
+ * @return  string      The object type's name.
  */
 function object_name_from_id( $object_id ) {
     global $wpdb;
@@ -132,9 +132,9 @@ function get_object_types() {
 /**
  * Get fields associated with a given object type.
  *
- * @param string/int $object_id The ID of the object type.
+ * @param   string/int  $object_id The ID of the object type.
  *
- * @return [object] Array of objects corresponding to rows of object field table.
+ * @return  [object]    Array of objects corresponding to rows of object field table.
  */
 function get_object_fields( $object_id ) {
     global $wpdb;
@@ -146,9 +146,9 @@ function get_object_fields( $object_id ) {
 /**
  * Converts object type's label to name: all lowercase, spaces replaced by dashes.
  *
- * @param string $object_label The object type's label.
+ * @param   string  $object_label The object type's label.
  *
- * @return string The object type's name.
+ * @return  string  The object type's name.
  */
 function object_name ( $object_label ) {
     return strtolower( str_replace( " ", "-", $object_label ) );
@@ -157,8 +157,10 @@ function object_name ( $object_label ) {
 /**
  * Update object type in database.
  *
- * @param string/int $object_id The object type to be updated. Must exist in db.
- * @param ['field'=>'value'] $object_data Array of field/value pairs.
+ * @param string/int            $object_id      The object type to be updated. Must exist in db.
+ * @param ['field'=>'value']    $object_data    Array of field/value pairs.
+ *
+ * @return bool True if update is successful.
  */
 function update_object ( $object_id, $object_data ) {
     if ( $object_id == -1 ) return -1;
@@ -177,6 +179,8 @@ function update_object ( $object_id, $object_data ) {
  * @param string $object_label Object type's label.
  * @param string $object_description Short description of object type.
  * @param int $activated 1 if object type is active.
+ *
+ * @return bool True if object is inserted into the database successfully.
  */
 function new_object ( $object_label, $object_description='', $activated=1 ) {
     if ( $object_label == '' ) return -1;
@@ -195,6 +199,14 @@ function new_object ( $object_label, $object_description='', $activated=1 ) {
     return $wpdb->insert_id;
 }
 
+/**
+ * Sorts a retrieved database row by its fields.
+ *
+ * @param [[string]]    $row      The row, an associative array where the first element of each row is its content.
+ * @param [StdObj]      $fields   Array of field objects with slug elements corresponding to row indexes.
+ *
+ * @return [string]     An array ordered the same as $fields containing the content for each field.
+ */
 function sort_row_by_fields ($row, $fields) {
     $sorted_row = [];
     foreach ( $fields as $field ) {
@@ -211,9 +223,9 @@ function sort_row_by_fields ($row, $fields) {
 }
 
 /**
- * Output csv to save.
+ * Output csv to save. This is called by setting the Get parameter wpm_ot_csv to
+ * an object type (collection, exhibit, instrument, etc.).
  *
- * @param object $object_type A row of object types table.
  * @see https://www.virendrachandak.com/techtalk/creating-csv-file-using-php-and-mysql/
  */
 function export_csv () { 
@@ -256,11 +268,21 @@ function export_csv () {
 }
 add_action( 'admin_menu', 'export_csv' );
 
+/**
+ * Generates a link for exporting an object type to CSV.
+ *
+ * @param   int/string  $object_id  The object's ID (a number)
+ *
+ * @return  string      Html containing link to export/download the CSV file.
+ */
 function export_csv_button ( $object_id ) {
     $url = $_SERVER['PHP_SELF'] . '?' . WPM_PREFIX . 'ot_csv=' . $object_id;
     return "<a class='button' href='$url'>Download CSV</a>";
 }
 
+/**
+ * Fixes field slugs in database to upgrade from old version of plugin.
+ */
 function fix_field_slugs() {
     global $wpdb;
     $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";

@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * Front page of the site.
+ */
+
 get_header();
 
 $options = get_option('utsic_options');

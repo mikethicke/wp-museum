@@ -1,12 +1,54 @@
 <?php
 /**
- * Administration of object types (Settings|Museum Objects).
+ * Administration of object types.
+ *
+ * Adds pages to the dashboard (Settings|Museum Objects) for the creation and
+ * administration of museum object post types. The first pages allows administrators
+ * to create new object types and shows existing object types. The second page
+ * allows for the creation and editing of fields for a particular object.
+ *
+ * Each field has a name, type (short string, text, date, true/false), help text,
+ * and optionally a schema. The schema is a regular expression with <a>, <b>, <c> etc.
+ * placeholders that correspond to different subfields of the field. The schema
+ * is currently used for sorting in the quick browse page---the field will be sorted
+ * first by <a>, then <b>, etc. In the future, the schema could also be used for
+ * validating input.
+ *
+ * The public, visible, and quick checkboxes determine whether everyone (or just site
+ * contributors) can see the field, whether the field is shown when viewing the object,
+ * and whether the field appears in the quick browse table.
+ *
+ * @see object_post_types.php
  */
 
+//prefix for new fields created by javascript before being saved. Just has to be something
+//unique.
 const WPM_FIELD = 'wpm-new-field#';
 
+/**
+ * Creates the admin page and adds it to the Settings menu. Only accessible to administrators.
+ */
+function add_object_admin_page() {
+    add_submenu_page(
+        'options-general.php',
+        'Museum Objects',
+        'Museum Objects',
+        'manage_options',
+        'wpm-objects-admin',
+        'objects_admin_page'
+    );
+}
 add_action( 'admin_menu', 'add_object_admin_page' );
 
+/**
+ * Generates a field slug from a field's name.
+ *
+ * Converts a field's name as set by user, that may have capitals, spaces, special
+ * characters to a slug with only lowercase, spaces replaced by '-', and no special
+ * characters. Does not do collision checking.
+ *
+ * @param string $name Field name as set by user.
+ */
 function field_slug_from_name ( $name ) {
     $name = preg_replace("/[^A-Za-z0-9 ]/", '', $name);
     return substr( trim( strtolower( str_replace( ' ', '-', $name ) ) ), 0, 255 );
@@ -14,6 +56,8 @@ function field_slug_from_name ( $name ) {
 
 /**
  * Display object types.
+ *
+ * Table of user created objects for main administration page.
  */
 function display_objects_table() {
     global $wpdb;
@@ -102,6 +146,9 @@ function display_objects_table() {
     }
 }
 
+/**
+ * Table of fields for editing individual objects.
+ */
 function object_fields_table($rows) {
     ?>
     <table id="wpm-object-fields-table" class="widefat striped wp-list-table wpm-object">
@@ -153,7 +200,9 @@ function object_fields_table($rows) {
     }
 }
 
-add_action( 'admin_footer', 'add_field_js' );
+/**
+ * Javascript for adding a new field to an object.
+ */
 function add_field_js() {
     ?>
     <script type="text/javascript">
@@ -256,8 +305,11 @@ function add_field_js() {
     </script>
     <?php
 }
+add_action( 'admin_footer', 'add_field_js' );
 
-add_action( 'admin_footer', 'reorder_table_js' );
+/**
+ * Javascript for reordering fields when editing object fields.
+ */
 function reorder_table_js() {
     ?>
     <script type="text/javascript">
@@ -288,7 +340,16 @@ function reorder_table_js() {
     </script>
     <?php
 }
+add_action( 'admin_footer', 'reorder_table_js' );
 
+/**
+ * Page for editing museum objects.
+ *
+ * First processes submitted form, then displays page for editing a single object
+ * type.
+ *
+ * @param int   $object_id  The id of the object to edit. If -1, a new object.
+ */
 function edit_object($object_id=-1) {
     if ( !current_user_can( 'manage_options' ) )  {
         wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
@@ -427,6 +488,11 @@ function edit_object($object_id=-1) {
     <?php  
 }
 
+/**
+ * Displays appropriate object administration page.
+ *
+ * Top-level function for object admin page that displays appropriate editing page depending on get parameter.
+ */
 function objects_admin_page() {
     //fix_field_slugs();
     if ( isset($_GET['wpm-objects-page']) ) $wpm_page = $_GET['wpm-objects-page'];
@@ -452,6 +518,9 @@ function objects_admin_page() {
     }  
 }
 
+/**
+ * Imports instruments from previous version of plugin into new custom object types.
+ */
 function import_legacy_instruments() {
     global $wpdb;
     $old_fields_table = $wpdb->prefix . 'instrument_fields';
@@ -518,13 +587,3 @@ function import_legacy_instruments() {
     */
 }
 
-function add_object_admin_page() {
-    add_submenu_page(
-        'options-general.php',
-        'Museum Objects',
-        'Museum Objects',
-        'manage_options',
-        'wpm-objects-admin',
-        'objects_admin_page'
-    );
-}

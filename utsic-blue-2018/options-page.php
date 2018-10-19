@@ -5,7 +5,11 @@
  * See: http://ottopress.com/2009/wordpress-settings-api-tutorial/
  */
 function add_theme_options_page() {
-    add_theme_page('UTSIC Theme Options', 'UTSIC Theme Options', 'manage_options', 'utsic_theme_options', 'utsic_options_page');
+    add_theme_page('UTSIC Theme Options',
+                   'UTSIC Theme Options',
+                   'manage_options',
+                   'utsic_theme_options',
+                   'utsic_options_page');
 }
 add_action('admin_menu', 'add_theme_options_page');
 

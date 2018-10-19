@@ -1,13 +1,17 @@
 <?php
+/**
+ * General functions for UTSIC Blue Theme
+ */
 
-include_once( 'wpm-functions.php' );
-include_once( 'widgets/collection-toggle-widget.php' );
-include_once( 'widgets/collections-tree-widget.php' );
-include_once( 'widgets/exhibit-tree-widget.php' );
-include_once( 'widgets/search-collections-widget.php' );
-include_once( 'instrument-display-functions.php' );
-include_once( 'frontpage-functions.php' );
-include_once( 'options-page.php' );
+
+require_once( 'wpm-functions.php' );
+require_once( 'widgets/collection-toggle-widget.php' );
+require_once( 'widgets/collections-tree-widget.php' );
+require_once( 'widgets/exhibit-tree-widget.php' );
+require_once( 'widgets/search-collections-widget.php' );
+require_once( 'instrument-display-functions.php' );
+require_once( 'frontpage-functions.php' );
+require_once( 'options-page.php' );
 
 add_theme_support( 'post-thumbnails' );
 add_theme_support('category-thumbnails');
@@ -49,7 +53,7 @@ function utsic_admin_init() {
     wp_enqueue_style('thickbox');
 }
 add_action('admin_init', 'utsic_admin_init');
-add_action('widgets_init', 'utsic_register_widgets');
+
 
 flush_rewrite_rules( false );
 
@@ -129,12 +133,17 @@ register_sidebar ( array (
     'id'    => 'default_sidebar'
 ) );
 
+
+/**
+ * Widgets
+ */
 function utsic_register_widgets() {
     register_widget ( 'utsic_search_collections_widget' );
     register_widget ( 'utsic_exhibit_tree_widget' );
     register_widget ( 'utsic_collections_tree_widget' );
     register_widget ( 'utsic_collection_toggle_widget' );
 }
+add_action('widgets_init', 'utsic_register_widgets');
 
 /**
  * Checks if current category is a child (direct descendent) of a category.
@@ -205,6 +214,10 @@ if ( ! function_exists( 'post_is_in_descendant_category' ) ) {
 	}
 }
 
+/**
+ * Allows CSV files to be uploaded. Necessary for import of CSV files to database.
+ * (Why is this in theme not plugin?)
+ */
 function addUploadMimes($mimes) {
     $mimes = array_merge($mimes, array(
         'csv' => 'text/csv'
@@ -212,9 +225,13 @@ function addUploadMimes($mimes) {
  
     return $mimes;
 }
-
 add_filter('upload_mimes', 'addUploadMimes');
 
+/**
+ * Returns the first thumbnail of a post.
+ *
+ * @param int $post_id The post's id.
+ */
 function first_thumbnail ( $post_id ) {
     $attachments = get_attached_media( 'image', $post_id );
     
@@ -234,6 +251,8 @@ function instrument_first_thumbnail ( $post_id ) {
 }
 
 /**
+ * Returns the id of an instrument's thumbnail.
+ *
  * @param integer $post_id ID of the current post
  * @return integer the ID of the thumbnail or the first image.
  */
@@ -241,7 +260,6 @@ function instrument_thumbnail_id ( $post_id ) {
     
     if ( has_post_thumbnail( $post_id ) ) {
         $attach_id = get_post_thumbnail_id( $post_id );
-        $attach_path = wp_get_attachment_thumb_file( $post_id );
     }
     else {
         $attachments = get_attached_media( 'image', $post_id );
@@ -256,6 +274,9 @@ function instrument_thumbnail_id ( $post_id ) {
     else return false;
 }
 
+/**
+ * Checks whether a collection should display as a grid or as rows.
+ */
 function get_display_mode() {
 
     if ( isset($_GET['mode'] ) ) {
@@ -281,6 +302,8 @@ function get_display_mode() {
 }
 
 /**
+ * Adds a get parameter to a url in the form ?key=value
+ * 
  * @see https://stackoverflow.com/questions/5809774/manipulate-a-url-string-by-adding-get-parameters/16987010
  */
 function add_get_param ( $url, $key, $value ) {
@@ -303,13 +326,18 @@ function add_get_param ( $url, $key, $value ) {
     return $final_url;
 }
 
+/**
+ * Replaces the standard Wordpress excerpt.
+ */
 function new_excerpt_more($more) {
        global $post;
 	return ' <a href="'. get_permalink($post->ID) . '">[Read More...]</a>';
 }
 add_filter('excerpt_more', 'new_excerpt_more');
 
-
+/**
+ * Fixes pagination for searches.
+ */
 function fix_search_pagination ( $query ) {
     if ( is_search() && $query->is_main_query() ) {
         if ( isset( $_GET['page'] ) ) $pagenum = $_GET['page'];

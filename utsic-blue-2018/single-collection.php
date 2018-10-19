@@ -1,4 +1,10 @@
 <?php
+/**
+ * Displays a collection.
+ *
+ * A collection is associated with a Wordpress category, and functions something
+ * like a category combined with a post.
+ */
 
 $display_mode = get_display_mode();
 

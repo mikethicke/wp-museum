@@ -1,80 +1,65 @@
 <?php
+/**
+ * Creates object post types/
+ */
 
-require_once 'dateclass.php';
-require_once 'MetaBox.php';
+require_once ( 'SimpleDate.php' );
+require_once ( 'MetaBox.php' );
+require_once ( 'object_functions.php' );
 
-add_action( 'plugins_loaded', 'create_object_types' );
-
-function type_name ( $object_name ) {
-    $type_name = WPM_PREFIX . $object_name;
-    if ( strlen( $type_name ) > 20 ) $type_name = substr( $type_name, 0, 19 );
-    //should do collision checking here.
-    return $type_name;
-}
-
-function get_object_type_names() {
-    $object_types = get_object_types();
-    $type_names = array();
-    foreach ( $object_types as $object ) {
-        $type_names[] = type_name ( $object->name );
-    }
-    return $type_names;
-}
-
-function object_from_type( $type_name ) {
-    $object_types = get_object_types();
-    foreach ( $object_types as $object_type ) {
-        if ( type_name( $object_type->name ) == $type_name ) {
-            return $object_type;
-        }
-    }
-    return false;
-}
-
-function object_type_from_object ( $object ) {
-    $type_name = $object->post_type;
-    $object_type = object_from_type ( $type_name );
-    return $object_type;
-}
-
+/**
+ * Creates the custom museum object post types.
+ *
+ * Iterates through the user-created museum objects and creates a custom post type
+ * for each. Each object has a table of custom fields that are presented to users
+ * on the edit post screen. The bulk of this function is devoted to creating and
+ * saving that form. Object posts are hierarchical--users can create child objects
+ * from the edit post page. Objects and their custom fields are accessible to the
+ * Wordpress REST api if they are marked as 'public' in the object admin page.
+ * Objects have image galleries using ajax to add and manipulate image attachments.
+ *
+ * @see object_admin.php
+ */
 function create_object_types() {
     global $wpdb;
     $object_type_table = $wpdb->prefix . WPM_PREFIX . "object_types";
     $object_rows = $wpdb->get_results( "SELECT * FROM $object_type_table" );
-    foreach ( $object_rows as $object_row ) {
+    
+    //Iterating through each object type created by user and stored in database.
+    foreach ( $object_rows as $object_row ) { 
         $fields_table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
         $object_name = $object_row->name;
+        $object_type = type_name( $object_name );
+        $object_type_list[] = $object_type;
         $object_id = $object_row->object_id;
         
         $options = [
-            'type'          => type_name( $object_name ),
+            'type'          => $object_type,
             'label'         => $object_row->label,
             'label_plural'  => $object_row->label . 's',
             'description'   => $object_row->description,
             'menu_icon'     => 'dashicons-archive',
             'hierarchical'  => true,
-            'capabilities'  => [
-                'edit_posts' => 'edit_objects',
-                'edit_others_posts' => 'edit_others_objects',
-                'publish_posts' => 'publish_objects',
-                'read_private_posts' => 'read_private_objects',
-                'delete_posts' => 'delete_objects',
-                'edit_published_posts' => 'edit_published_objects'
-            ],
-            'map_meta_cap'  => true
+            'options'   => [
+                'capabilities'  => [
+                    'edit_posts' => 'edit_objects',
+                    'edit_others_posts' => 'edit_others_objects',
+                    'publish_posts' => 'publish_objects',
+                    'read_private_posts' => 'read_private_objects',
+                    'delete_posts' => 'delete_objects',
+                    'edit_published_posts' => 'edit_published_objects'
+                ],
+                'map_meta_cap'  => true
+            ]    
         ];
         $object_post_type = new CustomPostType( $options );
         $object_post_type->supports = ['title', 'thumbnail', 'author'];
         $object_post_type->add_taxonomy( 'category' );
         
         $fields = get_object_fields( $object_id );
-        $object_post_type->custom_fields = array_map(
-                function ( $field ) {
-                    return $field->slug;
-                },
-                $fields );
+        $object_post_type->custom_fields = $fields;
         
-        //MetaBox for editing object fields.
+        //Callback creating MetaBox for editing object fields.
         $display_fields_table = function () use ($fields_table_name, $object_id, $fields) {
             global $wpdb;
             global $post;
@@ -124,7 +109,7 @@ function create_object_types() {
                         <?php
                         break;
                     case 'date' :
-                        $theDate = new DateClass();
+                        $theDate = new SimpleDate();
                         if ( isset ( $custom[$field->slug] ) ) {
                             $theDate->fromString ( $custom[$field->slug][0] );
                         }
@@ -174,7 +159,9 @@ function create_object_types() {
                 <?php   
             } //foreach ( $fields as $field ) 
             echo "</table>";
-        };
+        }; //$display_fields_table
+        
+        //Callback for saving fields table
         $save_fields_table = function ( $post_id ) use ($fields_table_name, $object_id) {
             /* check autosave */
             if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
@@ -187,7 +174,7 @@ function create_object_types() {
             foreach ( $fields as $field ) {
                 $old = get_post_meta($post_id, $field->slug, true);
                 if ( $field->type == 'date' ) {
-                    $the_date = new DateClass();
+                    $the_date = new SimpleDate();
                     if ( isset ( $_POST[$field->slug . "~day"] ) && isset ( $_POST[$field->slug . "~month"] ) && isset ( $_POST[$field->slug . "~year"] ) ) {
                         $the_date->year     =   $_POST[$field->slug . "~year"];
                         $the_date->month    =   $_POST[$field->slug . "~month"];
@@ -221,10 +208,13 @@ function create_object_types() {
                 }
                 wp_set_post_categories( $post_id, $new_categories );
             }   
-        };
+        }; //$save_fields_table
+        
+        //Create a MetaBox with the two above functions as callbacks.
         $fields_box = new MetaBox ( type_name ( $object_row->name ).'-fields', __('Fields'), $display_fields_table, $save_fields_table );
         $object_post_type->add_custom_meta ( $fields_box );
         
+        //Callback for displaying object post's children.
         $display_object_children = function() use ( $object_post_type ) {
             global $post;
             $children = get_children( ['numberposts'    => -1,
@@ -240,10 +230,13 @@ function create_object_types() {
             echo "</table><br />";
             echo "<button type='button' class='button button-large' onclick='new_obj({$post->ID})'>New Part</button>";
         };
+        
+        //Creates a MetaBox displaying an object's child posts.
         $children_box = new MetaBox ( type_name ( $object_row->name ).'-children', __( $object_row->label. ' Parts' ), $display_object_children );
         $children_box->context = 'side';
         $object_post_type->add_custom_meta ( $children_box );
         
+        //Callback for displaying object post's image attachments.
         $display_gallery_box = function () {
             global $post;
             echo "<div>";
@@ -252,49 +245,91 @@ function create_object_types() {
             echo "</div>";
             echo '<button type="button" id="insert-media-button" class="button insert-media add_media" data-editor="content"><span class="wp-media-buttons-icon"></span> Add Images</button></div>';
         };
+        
+        //Creates a MetaBox for displaying and manipulating object post's image gallery.
         $gallery_box = new MetaBox ( type_name ( $object_row->name ).'-gallery', __( $object_row->label. ' Images' ), $display_gallery_box );
         $object_post_type->add_custom_meta ( $gallery_box );
         
         $object_post_type->register();
-    }
-}
-
-add_action( 'admin_footer', 'new_object_js' );
-function new_object_js() {
-    ?>
-    <script type="text/javascript">
-        function new_obj(parent) {
-            var data = {
-                'action'    : 'create_new_obj',
-                'parent'    : parent
-            };
+        
+        /*
+         * Callbacks for making objects available through the Wordpress REST api.
+         */
+        
+        // Adds each public custom field to the api.
+        // Typically accessed at /wp-json/wp/v2/<object_slug>/<field_slug> 
+        add_action( 'rest_api_init', function() use( $fields, $object_type, $object_type_list ) {
+            foreach ( $fields as $field ) { 
+                if ( $field->public == 1 ) {
+                    register_rest_field( $object_type, $field->slug, array(
+                        'get_callback'      => function ( $object ) use( $field ) {
+                            $custom_fields = get_post_custom( $object['id'] );
+                            if ( isset($custom_fields[$field->slug]) ) {
+                                return ( $custom_fields[$field->slug][0] ); 
+                            }
+                            else return ( null );
+                           
+                        },
+                        'update_callback'   => null,
+                        'schema'            => null        
+                    )
+                    );   
+                }
+            }
             
-            jQuery.post(ajaxurl, data, function(response) {
-                window.location.href = "post.php?post=" + response +"&action=edit";
-            });
-        }
-    </script>     
-    <?php
+            // Adds thumbnail url and img attributes to the api.
+            // Typically accessed at /wp-json/wp/v2/<object_slug>/thumbnail_src
+            register_rest_field( $object_type, 'thumbnail_src', array(
+                'get_callback'      => function ( $object ) {
+                    if ( has_post_thumbnail( $object['id'] ) ) {
+                        $attach_id = get_post_thumbnail_id( $object['id'] );
+                    }
+                    else {
+                        $attachments = get_attached_media( 'image', $object['id'] );
+        
+                        if( count( $attachments ) > 0 ) {
+                            $attachment = reset( $attachments );
+                            $attach_id = $attachment->ID;
+                        }
+                    }
+                    if ( isset($attach_id) ) {
+                        return wp_get_attachment_image_src ( $attach_id, 'photo-thumb' );
+                    }
+                }
+            ) );
+            
+            // Adds a list of the object post type's public custom fields to the api.
+            // Typically accessed at /wp-json/wp-museum/v1/object_custom/<object_slug>/
+            register_rest_route( 'wp-museum/v1', '/object_custom/' . $object_type . '/', array (
+                'methods'   => 'GET',
+                'callback'  => function() use ($fields) {
+                    foreach ( $fields as $field ) {
+                        if ( $field->public == 1) {
+                            $filtered_fields[] = $field->slug;
+                        }
+                    }
+                    return $filtered_fields;
+                }
+            ) );
+        } ); //rest_api_init
+    } //foreach ( $object_rows as $object_row )
+    
+    // Adds a list of the museum objects to the REST api.
+    // Typically accessed at /wp-json/wp-museum/v1/object_types/
+    add_action ( 'rest_api_init', function() use( $object_type_list) {
+        register_rest_route( 'wp-museum/v1', '/object_types/', array (
+            'methods'   => 'GET',
+            'callback'  => function() use( $object_type_list ) {
+                return $object_type_list;
+            }
+        ) );
+    } );
 }
+add_action( 'plugins_loaded', 'create_object_types' );
 
-add_action( 'wp_ajax_create_new_obj', 'create_new_obj');
-function create_new_obj() {
-    $parent_ID = intval( $_POST['parent'] );
-    $parent_post = get_post( $parent_ID );
-    $categories = wp_get_post_categories( $parent_ID );
-    $args = [
-        'post_title'        => '',
-        'post_content'      => '',
-        'post_type'         => $parent_post->post_type,
-        'post_parent'       => $parent_ID,
-        'post_category'     => $categories
-    ];
-    $post_id = wp_insert_post( $args );
-    echo $post_id;
-    wp_die();
-}
-
-add_action ( 'edit_form_top', 'add_object_parent_link');
+/**
+ * Adds a link to the parent object post for child posts.
+ */
 function add_object_parent_link ( WP_POST $post ) {
     if ( substr($post->post_type, 0, strlen(WPM_PREFIX)) !== WPM_PREFIX ) return;
     $parent_ID = wp_get_post_parent_ID( $post->ID );
@@ -304,164 +339,5 @@ function add_object_parent_link ( WP_POST $post ) {
         echo "<div class='postbox' style='font-size:1.2em; padding:10px; margin-bottom:10px;'>Parent Object: {$parent->post_title} (<a href='post.php?post={$parent->ID}&action=edit'>Edit</a>)</div>";
     }
 }
+add_action ( 'edit_form_top', 'add_object_parent_link');
 
-add_action( 'admin_enqueue_scripts', 'wpm_media_box_enqueue' );
-function wpm_media_box_enqueue()  {
-    wp_enqueue_media();
-    wp_enqueue_script('media-upload');
-    wp_enqueue_script( 'fancybox-jq', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js', ['jquery'] );
-}
-
-add_action( 'admin_footer', 'remove_image_attachment_js' );
-function remove_image_attachment_js() {
-    ?>
-    <script type="text/javascript">
-        function remove_image_attachment( image_id, post_id ) {
-            var data = {
-                'action'    : 'remove_image_attachment_aj',
-                'post_id'   : post_id,
-                'image_id'  : image_id
-            };
-            
-            jQuery.post( ajaxurl, data, function( response ) {
-                oib = document.getElementById('object-image-box');
-                oib.innerHTML = response;
-            });
-        }
-    </script>
-    <?php
-}
-
-add_action( 'admin_footer', 'refresh_image_box_js' );
-function refresh_image_box_js() {
-    ?>
-    <script type="text/javascript">
-        jQuery(document).ready( function() {
-            wp.Uploader.queue.on('reset', function() { 
-                var data = {
-                    'action'    : 'refresh_image_box_on_upload_aj',
-                    'post_id'   : <?php global $post; echo $post->ID; ?>
-                };
-                jQuery.post( ajaxurl, data, function( response ) {
-                    oib = document.getElementById('object-image-box');
-                    oib.innerHTML = response;
-                });
-            });
-        });
-    </script>
-    <?php
-}
-
-add_action( 'wp_ajax_refresh_image_box_on_upload_aj', 'refresh_image_box_on_upload_aj' );
-function refresh_image_box_on_upload_aj() {
-    $post_id = intval( $_POST['post_id'] );
-    object_image_box_contents( $post_id );
-    wp_die();
-}
-
-add_action( 'wp_ajax_remove_image_attachment_aj', 'remove_image_attachment_aj');
-function remove_image_attachment_aj() {
-    $image_id = intval( $_POST['image_id'] );
-    $post_id = intval( $_POST['post_id'] );
-    wp_delete_attachment( $image_id );
-    object_image_box_contents( $post_id );
-    wp_die();
-}
-
-function object_image_box_contents ( $post_id ) {
-    global $post;
-    if ( is_null( $post ) ) $post = get_post( $post_id );
-    $images = get_attached_media( 'image', $post );
-    $prev_menu_order = -1;
-    foreach ( $images as $image ) {
-        if ( $image->menu_order <= $prev_menu_order ) {
-            $image->menu_order = $prev_menu_order + 1;
-            wp_update_post ( $image );
-        }
-        $prev_menu_order = $image->menu_order;
-        $image_thumbnail = wp_get_attachment_image_src( $image->ID, 'thumbnail' )[0];
-        $image_full = wp_get_attachment_image_src( $image->ID, 'large' )[0];
-        echo "<div id='image-div-{$image->ID}' style='display:inline'>";
-        echo "<a data-fancybox='fbgallery' href='$image_full'><img src='$image_thumbnail'></a>";
-        echo "<a id='delete-{$image->ID}' class='wpm-image-delete' onclick='remove_image_attachment({$image->ID}, $post_id)'>[x]</a>";
-        echo "<a id='moveup-{$image->ID}' class='wpm-image-moveup' onclick='wpm_image_move({$image->ID}, -1)'><span class='dashicons dashicons-arrow-left'></span></a>";
-        echo "<a id='movedown-{$image->ID}' class='wpm-image-movedown' onclick='wpm_image_move({$image->ID}, +1)'><span class='dashicons dashicons-arrow-right'></span></a>";
-        echo "</div>";
-    }
-}
-
-function get_post_descendants ( $post, $post_status='publish' ) {
-    $descendants = [];
-    $children = get_posts ( [
-        'numberposts'   => -1,
-        'post_status'   => $post_status,
-        'post_type'     => $post->post_type,
-        'post_parent'   => $post->ID
-    ] );
-    foreach ( $children as $child ) {
-        $grand_children = get_post_descendants ( $child, $post_status );
-        $descendants = array_merge( $descendants, $grand_children);
-    }
-    $descendants = array_merge( $descendants, $children );
-    return $descendants;
-}
-
-add_action( 'admin_footer', 'wpm_image_move_js' );
-function wpm_image_move_js() {
-    ?>
-    <script type='text/javascript'>
-    function wpm_image_move(image_id, direction) {
-        div = document.getElementById("image-div-" + image_id);
-        gallery_div = document.getElementById("admin-object-gallery");
-        gallery_children = gallery_div.children;
-        swapped = false;
-        
-        for ( i = 0; i < gallery_children.length; i++ ) {
-            if ( gallery_children[i].id == "image-div-" + image_id ) {
-                if ( direction == 1 && i < gallery_children.length - 1 ) {
-                    swap_div = gallery_children[i + 1];
-                    gallery_children[i].parentNode.insertBefore( gallery_children[i].parentNode.removeChild(swap_div), gallery_children[i] );
-                    swapped = true;
-                    break;
-                }
-                else if ( direction == -1 && i > 0 ) {
-                    swap_div = gallery_children[i - 1];
-                    gallery_children[i].parentNode.insertBefore( gallery_children[i].parentNode.removeChild(gallery_children[i]), swap_div );
-                    swapped = true;
-                    break;
-                }
-            }
-        }
-        
-        if ( swapped ) {
-             var data = {
-                'action'    : 'swap_image_order_aj',
-                'first_image_id'   : swap_div.id,
-                'second_image_id'  : image_id
-            };
-            
-            jQuery.post( ajaxurl, data, function( response ) {
-                //pass
-            });
-        }
-        
-        
-    }
-    </script>
-    <?php
-}
-
-add_action( 'wp_ajax_swap_image_order_aj', 'swap_image_order_aj');
-function swap_image_order_aj() {
-    $first_image_id = $_POST['first_image_id'];
-    $first_image_id = intval( substr( $first_image_id, strlen("image-div-") ) );
-    $second_image_id = intval( $_POST['second_image_id'] );
-    $first_image_post = get_post( $first_image_id );
-    $second_image_post = get_post( $second_image_id );
-    $first_image_menu_order = $first_image_post->menu_order;
-    $first_image_post->menu_order = $second_image_post->menu_order;
-    $second_image_post->menu_order = $first_image_menu_order;
-    wp_update_post( $first_image_post );
-    wp_update_post( $second_image_post );
-    wp_die();
-}

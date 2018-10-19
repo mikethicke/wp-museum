@@ -1,7 +1,13 @@
 <?php
+/**
+ * Adds quick browse tables to all museum object types. Quick browse tables allow administrators
+ * to quickly see all objects of a particular type along with publication status and summary
+ * data. The quick browse page is accessed through the <Object Type>|Quick Browse menu.
+ */
 
-add_action( 'admin_menu', 'add_quick_browse' );
-
+/**
+ * Adds quick browse page to all object types.
+ */
 function add_quick_browse() {
     $object_types = get_object_types();
     
@@ -11,14 +17,17 @@ function add_quick_browse() {
             "edit.php?post_type=$type_name",
             "Quick Browse",
             "Quick Browse",
-            'edit_others_posts',
+            'edit_others_objects',
             $object_type->name . '-quick-browse',
             'quick_browse'
         );
     }
-    
 }
+add_action( 'admin_menu', 'add_quick_browse' );
 
+/**
+ * Display the quick browse table.
+ */
 function quick_browse() {
     global $wpdb;
     $type_name = $_GET['post_type'];
@@ -119,6 +128,13 @@ function quick_browse() {
     echo "</tbody></table></div>"; 
 }
 
+/**
+ * Callback function for sorting quick browse table by a column.
+ *
+ * @param [WP_Post]     $target_array   The posts to be sorted.
+ * @param string        $sort_col       Slug of field to sort by.
+ * @param string        $sort_dir       The direction to sort by (asc or desc)
+ */
 function wpm_sort_by_field(&$target_array, $sort_col, $sort_dir) {
     if ( $sort_col == 'post_title' ) {
         $sort_field = null;

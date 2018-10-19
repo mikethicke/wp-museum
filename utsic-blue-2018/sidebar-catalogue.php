@@ -1,6 +1,6 @@
 <?php
 /**
- * Sidebar2
+ * Sidebar
  */
 ?>
 

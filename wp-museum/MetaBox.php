@@ -24,7 +24,7 @@ class MetaBox
      * @param function $display_callback Function that displays the metabox.
      * @param function $save_callback Function that is called when post is saved (can be null)
      */
-    function __construct ( $name, $label, $display_callback = null, $save_callback = null ) {
+    public function __construct ( $name, $label, $display_callback = null, $save_callback = null ) {
         $this->name = $name;
         $this->label = $label;
         $this->display_callback = $display_callback;
@@ -35,7 +35,12 @@ class MetaBox
         
     }
     
-    function set_save_callback ( $save_callback ) {
+    /**
+     * Sets the save callback function.
+     *
+     * @param function  $save_callback  A function that will save the metabox data to the database.
+     */
+    public function set_save_callback ( $save_callback ) {
         if ( !is_null ( $save_callback ) ) {
             $this->save_callback = $save_callback;
             add_action( 'save_post', $this->save_callback );

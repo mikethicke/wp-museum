@@ -1,5 +1,9 @@
 <?php
-class DateClass
+
+/**
+ * Simple class for representing dates and converting to and from strings.
+ */
+class SimpleDate
 {
 	var $months = array();
 	var $days = array ();
@@ -11,7 +15,12 @@ class DateClass
 	var $day;
 	
 	
-	function DateClass()
+	/**
+     * Constructor.
+     *
+     * @param string    $str    String formatted as yyyy-mm-dd, or null.
+     */
+    public function __construct( $str= null )
 	{
 		for ($i = 1; $i <= 31; $i++) { $this->days[$i] = $i; }
 		for ($yyear = date('Y') -5, $max_year = date('Y') + 5; $yyear < $max_year; $yyear++)
@@ -24,9 +33,16 @@ class DateClass
 		$this->shortmonths = array(1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 
 				6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 
 				11 => 'Nov', 12 => 'Dec');
+        
+        if ( !is_null( $str ) ) $this->fromString( $str );
 	}
 	
-	function toString()
+	/**
+     * Converts date to string.
+     *
+     * @return string  String formatted as yyyy-mm-dd.
+     */
+    function toString()
 	{
 		if ($this->month < 10)
 		{
@@ -50,7 +66,12 @@ class DateClass
 		return $str;
 	}
 	
-	function toLongString()
+	/**
+     * Converts date to long string.
+     *
+     * @return string   String formatted as Jan 04, 2010.
+     */
+    function toLongString()
 	{
 		$str = $this->shortmonths[$this->month];
 		
@@ -60,7 +81,12 @@ class DateClass
 	}
 	
 	/*2004-12-31*/
-	function fromString($str)
+	/**
+     * Sets date from string.
+     *
+     * @param string    $str    String formatted as yyyy-mm-dd, or null.
+     */
+    function fromString($str)
 	{
 		$yearstr='';
 		$yearstr = $yearstr . $str{0};
@@ -93,7 +119,5 @@ class DateClass
 		$this->year = $yearstr;
 		$this->month = $monthstr;
 		$this->day = $daystr;
-	}
-	
-		
+	}	
 }
