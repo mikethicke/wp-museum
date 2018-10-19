@@ -2,7 +2,7 @@
 /*
 Plugin Name: Museum Database (2017)
 Description: Manages a database of scientific instruments
-Version: 0.5
+Version: 1.0
 Author: Mike Thicke
 Author URI: http://www.mikethicke.com
 */
