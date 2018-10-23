@@ -134,15 +134,6 @@ class UTSIC_Exhibit_Tree_Widget extends WP_Widget {
                 
                 echo $instance['html_follow'];
                 
-                if ( $the_exhibit->name == 'The Colour of Science' ) {
-                    ?>
-                    
-                    <h3><a href='https://utsic.escalator.utoronto.ca/home/blog/2014/01/21/the-making-of-the-colour-of-science-exhibition/'>The Making of The Colour of Science</a></h3>
-                    <h3><a href='https://utsic.escalator.utoronto.ca/home/blog/2014/02/19/colour-of-science-partners/'>Our Partners</a></h3>
-                    
-                    <?php    
-                }
-                
                 
                 echo '</div>'; //#exhibit-tree-wrapper
 		echo $after_widget;

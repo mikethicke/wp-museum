@@ -3,7 +3,7 @@
  * Administration of object types.
  *
  * Adds pages to the dashboard (Settings|Museum Objects) for the creation and
- * administration of museum object post types. The first pages allows administrators
+ * administration of museum object post types. The first page allows administrators
  * to create new object types and shows existing object types. The second page
  * allows for the creation and editing of fields for a particular object.
  *
@@ -566,24 +566,5 @@ function import_legacy_instruments() {
     $instrument_posts = get_posts ( $args );
     $object_type = get_object ( get_object_id ( $object_name ) );
     
-    /*
-    foreach ( $instrument_posts as $instrument_post ) {
-        $custom = get_post_custom ( $instrument_post->ID );
-        //Check for legacy field names
-        if ( ( isset( $custom['unidentified'] ) || isset( $custom['accession-number'] ) ) && $object_type->name == 'instrument' ) {
-            $fields = get_object_fields( $object_type->object_id );
-            foreach ( $fields as $field ) {
-                $field_slug = strtolower(str_replace(" ", "-", $field->name));
-                $old_custom = $custom;
-                foreach ( $old_custom as $key=>$value ) {
-                    if ( $key == $field_slug && $key != WPM_PREFIX . $field->field_id ) {
-                        update_post_meta( $instrument_post->ID, WPM_PREFIX . $field->field_id, $value[0] );
-                        delete_post_meta( $instrument_post->ID, $key );
-                    }
-                }
-            }
-        }
-    }
-    */
 }
 

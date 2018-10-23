@@ -42,12 +42,12 @@ function create_object_types() {
             'hierarchical'  => true,
             'options'   => [
                 'capabilities'  => [
-                    'edit_posts' => 'edit_objects',
-                    'edit_others_posts' => 'edit_others_objects',
-                    'publish_posts' => 'publish_objects',
-                    'read_private_posts' => 'read_private_objects',
-                    'delete_posts' => 'delete_objects',
-                    'edit_published_posts' => 'edit_published_objects'
+                    'edit_posts'            => WPM_PREFIX . 'edit_objects',
+                    'edit_others_posts'     => WPM_PREFIX . 'edit_others_objects',
+                    'publish_posts'         => WPM_PREFIX . 'publish_objects',
+                    'read_private_posts'    => WPM_PREFIX . 'read_private_objects',
+                    'delete_posts'          => WPM_PREFIX . 'delete_objects',
+                    'edit_published_posts'  => WPM_PREFIX . 'edit_published_objects'
                 ],
                 'map_meta_cap'  => true
             ]    

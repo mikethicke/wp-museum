@@ -19,12 +19,12 @@ $collection_options = [
     'hierarchical'  => true,
     'options'       => [
         'capabilities'  => [
-            'edit_posts' => 'edit_collections',
-            'edit_others_posts' => 'edit_others_collections',
-            'publish_posts' => 'publish_collections',
-            'read_private_posts' => 'read_private_collections',
-            'delete_posts' => 'delete_collections',
-            'edit_published_posts' => 'edit_published_collections'
+            'edit_posts'            => WPM_PREFIX . 'edit_collections',
+            'edit_others_posts'     => WPM_PREFIX . 'edit_others_collections',
+            'publish_posts'         => WPM_PREFIX . 'publish_collections',
+            'read_private_posts'    => WPM_PREFIX . 'read_private_collections',
+            'delete_posts'          => WPM_PREFIX . 'delete_collections',
+            'edit_published_posts'  => WPM_PREFIX . 'edit_published_collections'
         ],
         'map_meta_cap'  => true
     ] 

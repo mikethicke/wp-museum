@@ -26,12 +26,12 @@ $exhibit_options = [
   'hierarchical'  => true,
   'options'       => [
     'capabilities'  => [
-        'edit_posts' => 'edit_exhibits',
-        'edit_others_posts' => 'edit_others_exhibits',
-        'publish_posts' => 'publish_exhibits',
-        'read_private_posts' => 'read_private_exhibits',
-        'delete_posts' => 'delete_exhibits',
-        'edit_published_posts' => 'edit_published_exhibits'
+        'edit_posts'            => WPM_PREFIX . 'edit_exhibits',
+        'edit_others_posts'     => WPM_PREFIX . 'edit_others_exhibits',
+        'publish_posts'         => WPM_PREFIX . 'publish_exhibits',
+        'read_private_posts'    => WPM_PREFIX . 'read_private_exhibits',
+        'delete_posts'          => WPM_PREFIX . 'delete_exhibits',
+        'edit_published_posts'  => WPM_PREFIX . 'edit_published_exhibits'
     ],
     'map_meta_cap'  => true
   ]
