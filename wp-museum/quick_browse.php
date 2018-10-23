@@ -17,7 +17,7 @@ function add_quick_browse() {
             "edit.php?post_type=$type_name",
             "Quick Browse",
             "Quick Browse",
-            'edit_others_objects',
+            WPM_PREFIX . 'edit_others_objects',
             $object_type->name . '-quick-browse',
             'quick_browse'
         );
