@@ -50,6 +50,8 @@ class CustomPostType
     
     public $custom_fields = [];
     
+    public $include_in_loop = true;
+    
     /**
      * Constructor.
      *
@@ -271,17 +273,41 @@ class CustomPostType
     }
     
     /**
+     * Adds post type to query. Called by add_to_search and add_to_loop.
+     */
+    private function add_to_query( $query ) {
+        if ( !is_admin() ) {
+            $post_types = [];
+            if ( !is_null( $query->get( 'post_type' ) ) ) $post_types = $query->get( 'post_type' );
+            if ( !is_array($post_types) ) $post_types = array( $post_types );
+            if ( empty( $post_types ) ) $post_types = ['post', 'page'];
+            if ( !in_array($this->options['type'], $post_types ) ) $post_types[] = $this->options['type'];
+            $query->set( 'post_type', $post_types );
+            return $query;
+        }
+    }
+    
+    /**
+     * Adds this post type to searches.
+     *
      * @see https://webdevstudios.com/2015/09/01/search-everything-within-custom-post-types/
      */
     public function add_to_search( $query ) {
         if ( is_search() && $query->is_main_query() && !empty( $search_string ) ) {
-            
-            $post_types = '';
-            if ( !is_null( $query->get( 'post_type' ) ) ) $post_types = $query->get( 'post_type' );
-            if ( empty( $post_types ) ) $post_types = ['post', 'page'];
-            $post_types[] = $this->options['type'];
-            $query->set( 'post_type', $post_types );
-            return $query;
+            $this->add_to_query( $query );
+        }
+    }
+    
+    /**
+     * Add this post type to list of post types retrieved by the Wordpress loop.
+     * A hook to call this during pre_get_posts is added on registration if
+     * include_in_loop is true.
+     *
+     * @see https://stackoverflow.com/questions/29669534/include-custom-post-type-in-wordpress-loop
+     */
+    public function add_to_loop ( $query ) {
+        if ( $query->is_main_query() ) {
+            $this->add_to_query( $query );
         }
     }
     
@@ -344,7 +370,8 @@ class CustomPostType
             if ( $arguments['hierarchical'] ) add_post_type_support( $this->options['type'], 'page-attributes' );
         });
         
-        add_action( 'pre_get_posts', array( $this, 'add_to_search' )  );    
+        add_action( 'pre_get_posts', array( $this, 'add_to_search' )  );
+        if ( $this->include_in_loop ) add_action( 'pre_get_posts', array( $this, 'add_to_loop' ) );
     }    
 }
 
@@ -354,7 +381,7 @@ class CustomPostType
  */
 $custom_search = function ( $query ) {
       global $wpdb;
-      if ( is_search() && $query->is_main_query() ) {
+      if ( $query->is_main_query() && is_search() ) {
         $search_string = get_search_query();
         $search_string = '%' . $wpdb->esc_like( $search_string ) . '%';
         $post_ids_meta = $wpdb->get_col( $wpdb->prepare( "

@@ -34,7 +34,7 @@ function add_object_admin_page() {
         'Museum Objects',
         'Museum Objects',
         'manage_options',
-        WPM_PREFIX . 'wpm-objects-admin',
+        'wpm-objects-admin',
         'objects_admin_page'
     );
 }

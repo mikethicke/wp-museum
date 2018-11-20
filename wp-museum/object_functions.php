@@ -64,30 +64,133 @@ function object_type_from_object ( $object ) {
 }
 
 /**
+ * Save object image gallery array.
+ * 
+ * @param [Int=>Int] $attached_image_array Associative array of image_id => sort_order.
+ * @param Int $post_id The id of post containing the image gallery.
+ * 
+ * @return Bool True if successful.
+ */
+function set_object_image_box_attachments ( $attached_image_array, $post_id )  {
+    if ( !is_array($attached_image_array) ) return false;
+    $attached_images_str = '';
+    $existing_sort_orders = array();
+    foreach ( $attached_image_array as $image_id => $sort_order  ) {
+        if ( $image_id != '' && $image_id != 0 ) {
+            if ( $attached_images_str != '' ) $attached_images_str .= ',';
+            if ( $sort_order == '' || in_array( $sort_order, $existing_sort_orders ) ) {
+                $sort_order = max ( $existing_sort_orders ) + 1;
+            }
+            $existing_sort_orders[] = $sort_order;
+            $attached_images_str .= $image_id . ':' . $sort_order;
+        }       
+    }
+    update_post_meta( $post_id, 'wpm_gallery_attach_ids', $attached_images_str );
+    return true;
+}
+
+/**
+ * Get image gallery array for an object.
+ * 
+ * @param Int $post_id The id of the object post containing the image gallery.
+ * 
+ * @return [Int=>Int] An array of image_id => sort_order 
+ */
+function get_object_image_box_attachments ( $post_id ) {
+    $attached_image_array = array();
+    $custom = get_post_custom( $post_id );
+    if ( !isset($custom['wpm_gallery_attach_ids']) || 
+          $custom['wpm_gallery_attach_ids'][0] == '' ) 
+      return array();
+    $image_pairs_array = explode( ',', $custom['wpm_gallery_attach_ids'][0] );
+    $max_order = 0;
+    foreach ( $image_pairs_array as $image_pair_str ) {
+        $image_pair_arr = explode( ':', $image_pair_str );
+        if ( count($image_pair_arr) == 2 ) {
+            $attached_image_array[$image_pair_arr[0]] = $image_pair_arr[1];
+            if ( $image_pair_arr[1] >= $max_order ) $max_order = $image_pair_arr[1];
+        }
+        elseif ( count($image_pair_arr) == 1 ) {
+            $max_order += 1;
+            $attached_image_array[$image_pair_arr[0]] = $max_order;
+        }
+    }
+    return $attached_image_array;
+}
+
+/**
+ * Resets object image galleries from post attachments.
+ * 
+ * Resets image gallery arrays for all objects, and then reconstructs them from
+ * Wordpress image attachment system and menu order (the old system of object 
+ * image galleries). This has the potential to lose data. Only callable by
+ * administrator. Called by setting Get parameter wpm_foia.
+ * 
+ */
+function fix_object_image_attachments() {
+    if ( !current_user_can( 'manage_options' ) || !isset( $_GET['wpm_foia'] ) ) return;
+    $object_types = get_object_type_names();
+    foreach ( $object_types as $object_type ) {
+        $object_posts = get_posts(array(
+            'post_type'     => $object_type,
+            'numberposts'   => -1,
+            'post_status'   => 'any'
+        ));
+        foreach ( $object_posts as $object_post ) {
+            update_post_meta ( $object_post->ID, 'wpm_gallery_attach_ids', '' );
+            $object_image_box_contents = array();
+            $existing_post_ids = array();
+            $existing_sort_orders = array();
+            $attachments = get_posts( array(
+                'post_type'     => 'attachment',
+                'numberposts'   => -1,
+                'post_status'   => 'any',
+                'post_parent'   => $object_post->ID
+            ));
+            foreach ( $attachments as $attachment ) {
+                if ( !in_array( $attachment->ID, $existing_post_ids ) ) {
+                    if ( !in_array( $attachment->menu_order, $existing_sort_orders ) ) {
+                        $sort_order = $attachment->menu_order;
+                    }  
+                    else {
+                        $sort_order = max($existing_sort_orders) + 1;
+                    }
+                    $existing_sort_orders[] = $sort_order;
+                    $existing_post_ids[] = $attachment->ID;
+                }
+                $object_image_box_contents[$attachment->ID] = $sort_order;
+            }
+            set_object_image_box_attachments( $object_image_box_contents, $object_post->ID );
+        } 
+    }
+}
+
+/**
  * Displays fancybox thumbnails for all image attachments of a post.
  *
- * @param int $post_it The id of the post.
+ * @param int $post_id The id of the post.
  */
-function object_image_box_contents ( $post_id ) {
+function object_image_box_contents ( $post_id=null ) {
     global $post;
-    if ( is_null( $post ) ) $post = get_post( $post_id );
-    $images = get_attached_media( 'image', $post );
-    $prev_menu_order = -1;
-    foreach ( $images as $image ) {
-        if ( $image->menu_order <= $prev_menu_order ) {
-            $image->menu_order = $prev_menu_order + 1;
-            wp_update_post ( $image );
-        }
-        $prev_menu_order = $image->menu_order;
-        $image_thumbnail = wp_get_attachment_image_src( $image->ID, 'thumbnail' )[0];
-        $image_full = wp_get_attachment_image_src( $image->ID, 'large' )[0];
-        echo "<div id='image-div-{$image->ID}' style='display:inline'>";
-        echo "<a data-fancybox='fbgallery' href='$image_full'><img src='$image_thumbnail'></a>";
-        echo "<a id='delete-{$image->ID}' class='wpm-image-delete' onclick='remove_image_attachment({$image->ID}, $post_id)'>[x]</a>";
-        echo "<a id='moveup-{$image->ID}' class='wpm-image-moveup' onclick='wpm_image_move({$image->ID}, -1)'><span class='dashicons dashicons-arrow-left'></span></a>";
-        echo "<a id='movedown-{$image->ID}' class='wpm-image-movedown' onclick='wpm_image_move({$image->ID}, +1)'><span class='dashicons dashicons-arrow-right'></span></a>";
-        echo "</div>";
+    if ( is_null( $post_id ) ) {
+        if ( is_null ( $post ) ) return false;
+        $post_id = $post->ID;
     }
+    
+    $image_box_contents = get_object_image_box_attachments( $post_id );
+    if ( !empty( $image_box_contents ) ) {
+        asort ( $image_box_contents );
+        foreach ( $image_box_contents as $image_id => $sort_order ) {
+            $image_thumbnail = wp_get_attachment_image_src( $image_id, 'thumbnail' );
+            $image_full = wp_get_attachment_image_src( $image_id, 'large' );
+            echo "<div id='image-div-{$image_id}' class='inline-image-box'>";
+            echo "<a data-fancybox='fbgallery' href='$image_full[0]'><img src='$image_thumbnail[0]' width='$image_thumbnail[1]' height='$image_thumbnail[2]'></a>";
+            echo "<a id='delete-{$image_id}' class='wpm-image-delete' onclick='remove_image_attachment({$image_id}, $post_id)'>[x]</a>";
+            echo "<a id='moveup-{$image_id}' class='wpm-image-moveup' onclick='wpm_image_move({$image_id}, -1)'><span class='dashicons dashicons-arrow-left'></span></a>";
+            echo "<a id='movedown-{$image_id}' class='wpm-image-movedown' onclick='wpm_image_move({$image_id}, +1)'><span class='dashicons dashicons-arrow-right'></span></a>";
+            echo "</div>";
+        }
+    }   
 }
 
 /**

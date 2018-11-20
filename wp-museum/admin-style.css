@@ -72,34 +72,41 @@ a.clickable {
     cursor: pointer;
 }
 
-a.wpm-image-delete {
+/*
+ * Image gallery on object pages.
+ */
+
+div.inline-image-box {
     position: relative;
-    left: -40px;
-    top: -160px;
+    display: inline-block;
+}
+
+a.wpm-image-delete {
+    position: absolute;
+    left: 140px;
+    top: 30px;
     font-size: 1.5em;
     cursor: pointer;
 }
 
 a.wpm-image-moveup {
-    position: relative;
-    left: -180px;
+    position: absolute;
+    left: 20px;
     top: 30px;
     font-size: 1.5em;
     cursor: pointer;
 }
 
 a.wpm-image-movedown {
-    position: relative;
-    left: -185px;
+    position: absolute;
+    left: 35px;
     top: 30px;
     font-size: 1.5em;
     cursor: pointer;
 }
 
-
-
-div#admin-object-gallery img {
-    margin: 20px 0px 20px 0px;
+div#object-image-box img {
+    margin: 20px 10px 20px 10px;
     border: 10px solid #F1F1F1;
 }
 
