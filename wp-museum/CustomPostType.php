@@ -152,7 +152,7 @@ class CustomPostType
     {
         add_meta_box($this->meta_name, $this->meta_label, function() use ($post) {
             
-            wp_nonce_field($this->meta_name + '_nonce', $this->meta_name + '_nonce');
+            wp_nonce_field($this->meta_name . '_nonce', $this->meta_name . '_nonce');
             ?>
             <table class='form-table'>
             <?php

@@ -30,9 +30,14 @@ function instrument_row ( $post, $row_counter ) {
                  echo get_the_post_thumbnail( $post-> ID );   
             }
             else {
-                ?> 
-                <img src="<?php echo instrument_first_thumbnail( $post->ID ); ?>" /> 
-            <?php
+                $first_thumbnail_attach = instrument_first_thumbnail( $post->ID );
+                if ( is_array( $first_thumbnail_attach ) && !empty( $first_thumbnail_attach) ) {
+                    ?> 
+                    <img    src="<?php echo $first_thumbnail_attach[0]; ?>" 
+                            width="<?php echo $first_thumbnail_attach[1]; ?>" 
+                            height="<?php echo $first_thumbnail_attach[2]; ?>" /> 
+                    <?php
+                }
             }
             ?>
             </a>
@@ -80,7 +85,10 @@ function post_row ( $post=null, $indent=0 ) {
     else $excerpt_text = get_the_excerpt( $post->ID );
     
     if ( has_post_thumbnail( $post->ID ) ) $thumbnail_img = get_the_post_thumbnail( $post->ID );
-    else $thumbnail_img = '<img src="' . first_thumbnail( $post->ID ) . '">';
+    else {
+        $thumbnail_attach = first_thumbnail( $post->ID );
+        $thumbnail_img = "<img src='{$thumbnail_attach[0]}' width='{$thumbnail_attach[1]}' height='{$thumbnail_attach[2]}'";
+    }
     
     ?>
     <div class = "<?php echo $row_style; ?>">
@@ -194,7 +202,7 @@ function instrument_grid_shortcode ( $atts ) {
     query_posts ( "post_type=instrument&cat=$cat_id&posts_per_page=$num&paged=1" );
     while ( have_posts() ) {
         the_post();
-        if ( $full == 'false' ) $image_size = 'photo-thumb';
+        if ( $full == 'false' ) $image_size = 'thumb';
         else $image_size = 'instrument_grid_thumb';
         $col_output[$col_counter] .= instrument_grid_box ( $post, $row_counter, $image_size );
         $row_counter = 1 - $row_counter;
@@ -250,7 +258,7 @@ function instrument_box_shortcode( $atts ){
         query_posts ( "post_type=instrument&meta_value=$acc_num" );
         if ( have_posts() ) {
             the_post();
-            if ( $full == 'false' ) $image_size = 'photo-thumb';
+            if ( $full == 'false' ) $image_size = 'thumb';
             else $image_size = 'instrument_grid_thumb';
             $output = '<div class="instrument_grid_wrapper" style="' . $style . '">';
             $output .= instrument_grid_box ( $post, $row_counter, $image_size );

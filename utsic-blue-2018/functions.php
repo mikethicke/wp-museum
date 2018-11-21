@@ -54,22 +54,7 @@ function utsic_admin_init() {
 }
 add_action('admin_init', 'utsic_admin_init');
 
-
 flush_rewrite_rules( false );
-
-/**
- * Fix rewrite rules to make permalinks work with instrument post type.
- * Source: http://wordpress.org/support/topic/custom-post-types-permalinks (wpAdm)
- */
-/*
-function my_rewrite() {
-    global $wp_rewrite;
-    $wp_rewrite->add_permastruct('typename', 'typename/%year%/%postname%/', true, 1);
-    add_rewrite_rule('typename/([0-9]{4})/(.+)/?$', 'index.php?typename=$matches[2]', 'top');
-    $wp_rewrite->flush_rules(); // !!!
-}
-add_action('init', 'my_rewrite');
-*/
 
 set_post_thumbnail_size ( 150, 150, false );
 
@@ -237,8 +222,8 @@ function first_thumbnail ( $post_id ) {
     
     if( count( $attachments ) > 0 ) {
         $attachment = reset( $attachments );
-        $image_attributes = wp_get_attachment_image_src( $attachment->ID, 'photo-thumb' );
-        return $image_attributes[0];      
+        $image_attributes = wp_get_attachment_image_src( $attachment->ID, 'thumb' );
+        return $image_attributes;      
     }
     return '';
 }

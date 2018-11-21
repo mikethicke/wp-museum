@@ -98,7 +98,8 @@ function query_associated_objects( $post_status='publish', $post_id=null, $show_
  */
 function get_associated_objects ( $post_status='publish' ) {
     $query = query_associated_objects( $post_status );
-    return $query->posts;
+    if ( !is_null($query) ) return $query->posts;
+    return array();
 }
 
 /**

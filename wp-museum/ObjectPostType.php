@@ -219,15 +219,15 @@ class ObjectPostType {
     }
 
     function save_gallery_box () {
-        /* check autosave */
-        if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
-                return $post_id;
-        }
         global $post;
-        $custom = get_post_custom( $post->ID );
-        if ( isset( $_POST['gallery_attach_ids'] ) ) {
-            update_post_meta( $post->ID, 'gallery_attach_ids', $_POST['gallery_attach_ids'] );
-        }
+        if ( isset( $_POST['gallery_attach_ids'] ) && !is_null( $post ) ) {
+            /* check autosave */
+            if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+                return $post->ID;
+            }
+            $custom = get_post_custom( $post->ID );
+            update_post_meta( $post->ID, 'gallery_attach_ids', $_POST['gallery_attach_ids'] );  
+        }  
     }
 
     // Adds each public custom field to the api.
@@ -268,7 +268,7 @@ class ObjectPostType {
                     }
                 }
                 if ( isset($attach_id) ) {
-                    return wp_get_attachment_image_src ( $attach_id, 'photo-thumb' );
+                    return wp_get_attachment_image_src ( $attach_id, 'thumb' );
                 }
             }
         ) );
