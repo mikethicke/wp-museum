@@ -279,7 +279,10 @@ class CustomPostType
         if ( !is_admin() ) {
             $post_types = [];
             if ( !is_null( $query->get( 'post_type' ) ) ) $post_types = $query->get( 'post_type' );
-            if ( !is_array($post_types) ) $post_types = array( $post_types );
+            if ( !is_array($post_types) ) {
+                if ( empty( $post_types ) ) $post_types = array();
+                else $post_types = array( $post_types );
+            }
             if ( empty( $post_types ) ) $post_types = ['post', 'page'];
             if ( !in_array($this->options['type'], $post_types ) ) $post_types[] = $this->options['type'];
             $query->set( 'post_type', $post_types );
@@ -396,6 +399,9 @@ $custom_search = function ( $query ) {
         $post_ids = array_merge( $post_ids_meta, $post_ids_post );
         $query->set( 'post__in', $post_ids );
         return $query;
+      }
+      else {
+          return $query;
       }
 };
 add_action( 'pre_get_posts', $custom_search );

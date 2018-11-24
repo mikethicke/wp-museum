@@ -110,3 +110,34 @@ function check_object_post_on_publish( $new_status, $old_status, $post) {
 }
 add_action( 'transition_post_status', 'check_object_post_on_publish', 10, 3);
 
+function link_objects_by_id ( $content ) {
+    global $post;
+    $objects = get_object_types();
+    foreach ( $objects as $object ) {
+        if ( empty( $object->cat_field_id ) ) break;
+        $id_field = get_object_field ( $object->object_id, $object->cat_field_id )[0];
+        if ( empty( $id_field->field_schema ) ) break;
+        $pattern = "/" . stripslashes( $id_field->field_schema ) . "/";
+        $pattern = preg_replace ( '/<.*?>/', ':', $pattern );
+        $matches = array();
+        $plain_content = strip_tags( $content );
+        preg_match ( $pattern, $plain_content, $matches );
+        foreach ( $matches as $match ) {
+            $args = [
+                'post_type'     => type_name ( $object->name ),
+                'post_status'   => 'publish',
+                'meta_key'   => $id_field->slug,
+                'meta_value' => $match
+            ];
+            $posts = get_posts ( $args );
+            if ( !empty($posts) && $posts[0]->ID != $post->ID ) {
+                $post_url = get_permalink ( $posts[0] );
+                $link = "<a href='$post_url'>{$match}</a>";
+                $content = str_replace( $match, $link, $content );
+            }
+        }
+    }
+    
+    return $content;
+}
+add_filter ( 'the_content', 'link_objects_by_id' );

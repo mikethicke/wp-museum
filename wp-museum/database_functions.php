@@ -147,6 +147,13 @@ function get_object_fields( $object_id ) {
     return $results;
 }
 
+function get_object_field( $object_id, $field_id ) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . WPM_PREFIX . "object_fields";
+    $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE object_id=%s AND field_id=%s ORDER BY display_order", $object_id, $field_id ) );
+    return $results;
+}
+
 /**
  * Converts object type's label to name: all lowercase, spaces replaced by dashes.
  *
