@@ -5,7 +5,7 @@
 
 add_action( 'plugins_loaded', 'db_version_check' );
 
-const DB_VERSION = 0.09;
+const DB_VERSION = 0.12;
 const DB_SHOW_ERRORS = true;
 
 /**
@@ -34,6 +34,10 @@ function create_objects_table() {
         label varchar(255),
         description text,
         activated tinyint(1),
+        categorized tinyint(1),
+        hierarchical tinyint(1),
+        must_featured_image tinyint(1),
+        must_gallery tinyint(1),
         PRIMARY KEY  (object_id)
     );";
     
@@ -58,7 +62,7 @@ function create_object_fields_table() {
         type varchar(255),
         display_order int(5),
         public tinyint(1),
-        visible tinyint(1),
+        required tinyint(1),
         quick_browse tinyint(1),
         help_text varchar(255),
         field_schema varchar(255),
@@ -176,26 +180,17 @@ function update_object ( $object_id, $object_data ) {
 /**
  * Create new object type.
  *
- * @param string $object_label Object type's label.
- * @param string $object_description Short description of object type.
- * @param int $activated 1 if object type is active.
+ * @param [field=>value] $object_data Associative array of options for the object.
  *
  * @return bool True if object is inserted into the database successfully.
  */
-function new_object ( $object_label, $object_description='', $activated=1 ) {
-    if ( $object_label == '' ) return -1;
+function new_object ( $object_data ) {
+    if ( !isset($object_data['label']) || $object_data['label'] == '' ) return -1;
     
     global $wpdb;
     $table_name = $wpdb->prefix . WPM_PREFIX . "object_types";
-    
-    $object_name = object_name( $object_label );
-    $data = [
-        'name'          => $object_name,
-        'label'         => $object_label,
-        'description'   => $object_description,
-        'activated'     => $activated
-    ];
-    $wpdb->insert( $table_name, $data );
+    $object_data['name'] = object_name( $object_data['label'] );
+    $wpdb->insert( $table_name, $object_data );
     return $wpdb->insert_id;
 }
 

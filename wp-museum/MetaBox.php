@@ -30,7 +30,7 @@ class MetaBox
         $this->display_callback = $display_callback;
         if ( !is_null ( $save_callback ) ) {
             $this->save_callback = $save_callback;
-            add_action( 'save_post', $this->save_callback );
+            add_action( 'pre_post_update', $this->save_callback );
         }
         
     }
@@ -43,7 +43,7 @@ class MetaBox
     public function set_save_callback ( $save_callback ) {
         if ( !is_null ( $save_callback ) ) {
             $this->save_callback = $save_callback;
-            add_action( 'save_post', $this->save_callback );
+            add_action( 'pre_post_update', $this->save_callback );
         }
     }
     

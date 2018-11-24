@@ -108,4 +108,22 @@ function add_gallery_images_aj() {
 }
 add_action( 'wp_ajax_add_gallery_images_aj', 'add_gallery_images_aj' );
 
+function check_object_post_on_publish_aj() {
+    $post_id = $_POST['post_id'];
+    $problems = check_object_post( $post_id );
+    $problems_text = '';
+    if (count( $problems ) > 0 ) {
+        $problems_text .= "<ul>";
+        foreach ( $problems as $problem ) {
+            $problem = esc_html($problem);
+            $problems_text .= "<li>$problem</li>";
+        }
+        $problems_text .= "</ul>";
+    }
+    echo $problems_text;
+    $_SESSION[WPM_PREFIX . 'object_problems'] = $problems_text;
+    wp_die();
+}
+//add_action( 'wp_ajax_check_object_post_on_publish_aj', 'check_object_post_on_publish_aj' );
+
 ?>

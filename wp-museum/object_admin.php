@@ -14,8 +14,8 @@
  * first by <a>, then <b>, etc. In the future, the schema could also be used for
  * validating input.
  *
- * The public, visible, and quick checkboxes determine whether everyone (or just site
- * contributors) can see the field, whether the field is shown when viewing the object,
+ * The public, required, and quick checkboxes determine whether everyone (or just site
+ * contributors) can see the field, whether the field is required when creating an object,
  * and whether the field appears in the quick browse table.
  *
  * @see object_post_types.php
@@ -112,7 +112,7 @@ function display_objects_table() {
             echo "<td><select name='cat_field~{$object_row->object_id}'>";
             echo "<option></option>";
             foreach ( $fields as $field ) {
-                echo "<option value='$field->slug'";
+                echo "<option value='$field->field_id'";
                 if ( $object_row->cat_field_id == $field->field_id ) echo " selected='selected' ";
                 echo ">$field->name</option>";
             }
@@ -152,7 +152,7 @@ function display_objects_table() {
 function object_fields_table($rows) {
     ?>
     <table id="wpm-object-fields-table" class="widefat striped wp-list-table wpm-object">
-        <tr><th></th><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th>Schema</th><th class="check-column">Public</th><th class="check-column">Visible</th><th class="check-column">Quick</th></tr>
+        <tr><th></th><th class="check-column"><span class="dashicons dashicons-trash"></span></th></th></th><th>Field</th><th>Type</th><th>Help Text</th><th>Schema</th><th class="check-column">Public</th><th class="check-column">Required</th><th class="check-column">Quick</th></tr>
         <?php
         $order_counter = 0;
         foreach ( $rows as $row ) {
@@ -187,7 +187,7 @@ function object_fields_table($rows) {
                 <td><textarea name="<?php echo $row->field_id; ?>~help_text" rows=3 cols=25><?php echo stripslashes ( $row->help_text );?></textarea></td>
                 <td><input type="text" name="<?php echo $row->field_id; ?>~field_schema" value="<?php echo stripslashes( $row->field_schema ); ?>" /></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~public" <?php if ($row->public > 0) echo 'checked="checked"'; ?> value="1"/></td>
-                <td><input type="checkbox" name="<?php echo $row->field_id; ?>~visible" <?php if ($row->visible > 0) echo 'checked="checked"'; ?> value="1"/></td>
+                <td><input type="checkbox" name="<?php echo $row->field_id; ?>~required" <?php if ($row->required > 0) echo 'checked="checked"'; ?> value="1"/></td>
                 <td><input type="checkbox" name="<?php echo $row->field_id; ?>~quick_browse" <?php if ($row->quick_browse > 0) echo 'checked="checked"'; ?> value="1"/></td>
             </tr>
             <?php
@@ -199,148 +199,6 @@ function object_fields_table($rows) {
         echo "<div class='empty-table-notification' id='wpm-object-fields-empty'>Object contains no fields.</div>";
     }
 }
-
-/**
- * Javascript for adding a new field to an object.
- */
-function add_field_js() {
-    ?>
-    <script type="text/javascript">
-        var new_field_counter = 0;
-        function add_field(wpm_field, num_fields) {
-            var field_prefix = wpm_field + new_field_counter;
-            
-            var empty_div = document.getElementById("wpm-object-fields-empty");
-            if ( empty_div != null ) empty_div.style.display = "none";
-            
-            var fields_table = document.getElementById("wpm-object-fields-table");
-            var row = fields_table.insertRow(-1);
-            var doi_cell = row.insertCell(-1);
-            var delete_cell = row.insertCell(-1);
-            var name_cell = row.insertCell(-1);
-            var type_cell = row.insertCell(-1);
-            var help_cell = row.insertCell(-1);
-            var schema_cell = row.insertCell(-1);
-            var public_cell = row.insertCell(-1);
-            var visible_cell = row.insertCell(-1);
-            var quick_cell = row.insertCell(-1);
-            
-            row.id = "wpm-row-" + num_fields;
-            
-            var doi_input = document.createElement("input");
-            doi_input.setAttribute("type", "hidden");
-            doi_input.name = field_prefix + '~display_order';
-            doi_input.value = num_fields;
-            doi_input.id = "doi-wpm-row-" + doi_input.value;
-            doi_cell.appendChild(doi_input);
-            var doi_text = "<a class='clickable' onclick='wpm_reorder_table(\"wpm-row-" + doi_input.value + "\", -1);'><span class='dashicons dashicons-arrow-up-alt2'></span></a><br />";
-            doi_text = doi_text + "<a class='clickable' onclick='wpm_reorder_table(\"wpm-row-" + doi_input.value + "\", 1);'><span class='dashicons dashicons-arrow-down-alt2'></span></a><br />";
-            doi_cell.innerHTML = doi_cell.innerHTML + doi_text;
-            
-            var delete_checkbox = document.createElement("input");
-            delete_checkbox.setAttribute("type", "checkbox");
-            delete_checkbox.name = field_prefix + "~delete";
-            delete_checkbox.value = 1;
-            delete_cell.appendChild(delete_checkbox);
-            
-            var field_id_input = document.createElement("input");
-            field_id_input.setAttribute("type", "hidden");
-            field_id_input.name = field_prefix + "~field_id";
-            name_cell.appendChild(field_id_input);
-            
-            var name_input = document.createElement("input");
-            name_input.setAttribute("type", "text")
-            name_input.name = field_prefix + "~name";
-            name_cell.appendChild(name_input);
-            
-            var type_select = document.createElement("select");
-            type_select.setAttribute("name", field_prefix + "~type");
-            var option_varchar = document.createElement("option");
-            option_varchar.value = "varchar";
-            option_varchar.text = "Short String";
-            var option_text = document.createElement("option");
-            option_text.value = "text";
-            option_text.text = "Text";
-            var option_date = document.createElement("option");
-            option_date.value = "date";
-            option_date.text = "Date";
-            var option_tinyint = document.createElement("option");
-            option_tinyint.value = "tinyint";
-            option_tinyint.text = "True/False";
-            type_select.appendChild(option_varchar);
-            type_select.appendChild(option_text);
-            type_select.appendChild(option_date);
-            type_select.appendChild(option_tinyint);
-            type_cell.appendChild(type_select);
-            
-            var help_text = document.createElement("textarea");
-            help_text.name = field_prefix + "~help_text";
-            help_cell.appendChild(help_text);
-            
-            var schema_input = document.createElement("input");
-            schema_input.setAttribute("type", "text")
-            schema_input.name = field_prefix + "~field_schema";
-            schema_cell.appendChild(schema_input);
-            
-            var public_checkbox = document.createElement("input");
-            public_checkbox.setAttribute("type", "checkbox");
-            public_checkbox.name = field_prefix + "~public";
-            public_checkbox.value = 1;
-            public_cell.appendChild(public_checkbox);
-            
-            var visible_checkbox = document.createElement("input");
-            visible_checkbox.setAttribute("type", "checkbox");
-            visible_checkbox.name = field_prefix + "~visible";
-            visible_checkbox.value = 1;
-            visible_cell.appendChild(visible_checkbox);
-            
-            var quick_checkbox = document.createElement("input");
-            quick_checkbox.setAttribute("type", "checkbox");
-            quick_checkbox.name = field_prefix + "~quick_browse";
-            quick_checkbox.value = 1;
-            quick_cell.appendChild(quick_checkbox);
-                      
-            new_field_counter += 1;
-        }
-    </script>
-    <?php
-}
-add_action( 'admin_footer', 'add_field_js' );
-
-/**
- * Javascript for reordering fields when editing object fields.
- */
-function reorder_table_js() {
-    ?>
-    <script type="text/javascript">
-    function wpm_reorder_table(row_id, direction) {
-        row = document.getElementById(row_id);
-        row_input = document.getElementById("doi-" + row_id);
-        table = document.getElementById("wpm-object-fields-table");
-        swapped = false;
-        
-        if ( direction == 1 && row.rowIndex < row.parentNode.rows.length - 1 ) {
-            swap_row = row.parentNode.rows[ row.rowIndex + 1 ];
-            row.parentNode.insertBefore(row.parentNode.removeChild(swap_row), row);
-            swapped = true;
-        }
-        else if ( direction == -1 && row.rowIndex > 1 ) {
-            swap_row = row.parentNode.rows[ row.rowIndex - 1 ];
-            row.parentNode.insertBefore(row.parentNode.removeChild(row), swap_row);
-            swapped = true;
-        }
-        
-        if ( swapped ) {
-            swap_row_input = document.getElementById("doi-" + swap_row.id);
-            save_value = swap_row_input.value;
-            swap_row_input.value = row_input.value;
-            row_input.value = save_value;  
-        }
-    }
-    </script>
-    <?php
-}
-add_action( 'admin_footer', 'reorder_table_js' );
 
 /**
  * Page for editing museum objects.
@@ -363,22 +221,30 @@ function edit_object($object_id=-1) {
     
     //Process submitted form
     if ( isset($_POST) and count($_POST) > 0 ) {
+        if ( isset($_POST['hierarchical']) && $_POST['hierarchical'] == 1 ) $object_data['hierarchical'] = 1;
+        else $object_data['hierarchical'] = 0;
+        if ( isset($_POST['categorized']) && $_POST['categorized'] == 1 ) $object_data['categorized'] = 1;
+        else $object_data['categorized'] = 0;
+        if ( isset($_POST['must_featured_image']) && $_POST['must_featured_image'] == 1 ) $object_data['must_featured_image'] = 1;
+        else $object_data['must_featured_image'] = 0;
+        if ( isset($_POST['must_gallery']) && $_POST['must_gallery'] == 1 ) $object_data['must_gallery'] = 1;
+        else $object_data['must_gallery'] = 0;
+        if ( !isset($_POST['object_description']) ) $object_data['description'] = '';
+        else $object_data['description'] = str_replace( '~', '-', $_POST['object_description'] );
+        if ( isset($_POST['cat_field_id']) ) $object_data['cat_field_id'] = $_POST['cat_field_id'];
+        if ( !isset($_POST['object_name']) || $_POST['object_name'] == '' ) {
+            wp_die( __( 'All objects must have a name.' ) );
+        }
+        else {
+            $object_data['label'] = str_replace( '~', '-', $_POST['object_name'] );
+        }
         if ( $object_id == -1 ) {
-            if ( !isset($_POST['object_name']) || $_POST['object_name'] == '' ) {
-                wp_die( __( 'All objects must have a name.' ) );
-            }
-            else $object_name = $_POST['object_name'];
-            if ( !isset($_POST['object_description']) ) $object_description = '';
-            else $object_description = $_POST['object_description'];
-            $object_id = new_object($object_name, $object_description);
+            $object_id = new_object( $object_data );
             if ( $object_id == -1 )
                 wp_die( __( 'Error creating object.' ) );
         }
         else {
-            update_object( $object_id, [
-                'label'         => $_POST['object_name'],
-                'description'   => $_POST['object_description']
-            ]);
+            update_object( $object_id, $object_data );
         }
         
         $submitted_form = array();
@@ -386,8 +252,7 @@ function edit_object($object_id=-1) {
         //Translate POST into form matching database. The submitted form is
         //encoded in the form row~column (see below).
         foreach ( $_POST as $post_key => $post_val ) {
-            if ( $post_key != 'object_name' && $post_key != 'object_description' && $post_key != 'save-object' ) {
-                //print "KEY: $post_key VAL: $post_val <br>";
+            if ( strpos( $post_key, '~') && $post_key != 'save-object' ) {
                 $key_array = explode("~", $post_key);
                 $key_row = $key_array[0];
                 $key_col = $key_array[1];
@@ -400,7 +265,7 @@ function edit_object($object_id=-1) {
             foreach ( $submitted_form as &$form_row ) {
                 if ( !isset($form_row['delete']) ) $form_row['delete'] = 0;
                 if ( !isset($form_row['public']) ) $form_row['public'] = 0;
-                if ( !isset($form_row['visible']) ) $form_row['visible'] = 0;
+                if ( !isset($form_row['required']) ) $form_row['required'] = 0;
                 if ( !isset($form_row['quick_browse']) ) $form_row['quick_browse'] = 0;
             }
         }
@@ -468,14 +333,47 @@ function edit_object($object_id=-1) {
     }
     if ( !isset( $object_data['label'] ) ) $object_data['label'] = '';
     if ( !isset( $object_data['description'] ) ) $object_data['description'] = '';
+    if ( !isset( $object_data['hierarchical'] ) ) $object_data['hierarchical'] = 0;
+    if ( !isset( $object_data['categorized'] ) ) $object_data['categorized'] = 0;
+    if ( !isset( $object_data['must_featured_image'] ) ) $object_data['must_featured_image'] = 0;
+    if ( !isset( $object_data['must_gallery'] ) ) $object_data['must_gallery'] = 0;
+
+    $id_select = "<select name='cat_field_id'>";
+    $id_select .= "<option></option>";
+    $fields = get_object_fields ( $object_id );
+    if ( !is_null( $fields ) ) {
+        foreach ( $fields as $field ) {
+            $id_select .= "<option value='$field->field_id'";
+            if ( $object_data['cat_field_id'] == $field->field_id ) $id_select .= " selected='selected' ";
+            $id_select .= ">$field->name</option>";
+        }
+    }
+    $id_select .= "</select>";
+
     ?>
     <div class="wrap">
+        <form name="object_fields_form" method="post" action="<?php echo $form_action; ?>"> 
+        <div id='wpm-object-top-buttons'>
+            <input type="submit" class="button button-primary button-large" name="save-object" value="Save" />
+        </div>
         <h1 class="wp-heading">Edit Museum Object Type</h1>
-        <form name="object_fields_form" method="post" action="<?php echo $form_action; ?>">
             <table id="wpm-edit-object" class="wpm-object">
-                <tr><th>Object Name:</th><td><input type="text" style="width:100%;" name="object_name" value="<?php echo $object_data['label'];?>"></input></td></tr>
-                <tr><th>Object Description:</th><td><textarea style="width:100%;" name="object_description"><?php echo $object_data['description'];?></textarea></td></tr> 
+                <tr><th>Object Name:</th><td><input type="text" style="width:100%;" name="object_name" value="<?php echo $object_data['label'];?>"/></td></tr>
+                <tr><th>Object Description:</th><td><textarea style="width:100%;" name="object_description"><?php echo $object_data['description'];?></textarea></td></tr>
+                <tr><th>ID Field:</th></td><td><?php echo $id_select;?></td></tr>
+                <tr><th>Options:</th><td>
+                    <table><tr>
+                        <td><ul>
+                        <li><input type="checkbox" <?php if ($object_data['hierarchical'] > 0) echo 'checked="checked"';?> name="hierarchical" value="1"/> Hierarchical</li>
+                        <li><input type="checkbox" <?php if ($object_data['categorized'] > 0) echo 'checked="checked"';?> name="categorized" value="1"/> Must be categorized</li>
+                        </ul></td>
+                        <td><ul>
+                        <li><input type="checkbox" <?php if ($object_data['must_featured_image'] > 0) echo 'checked="checked"';?> name="must_featured_image" value="1"/> Must have featured image</li>
+                        <li><input type="checkbox" <?php if ($object_data['must_gallery'] > 0) echo 'checked="checked"';?> name="must_gallery" value="1"/> Must have image gallery</li>
+                        </ul></td>
+                    </table></tr>
             </table>
+        <h2 class="wp-heading">Object Fields</h2>
         <?php
         object_fields_table($rows);
         ?>
@@ -544,7 +442,7 @@ function import_legacy_instruments() {
             unset ( $old_field['id'] );
             unset ( $old_field['slug'] );
             unset ( $old_field['description_order'] );
-            $old_field['visible'] = $old_field['in_description'];
+            $old_field['required'] = $old_field['in_description'];
             unset ( $old_field['in_description'] );
             $old_field['object_id'] = $object_id;
             $old_field['slug'] = field_slug_from_name( $old_field['name'] );
@@ -567,4 +465,3 @@ function import_legacy_instruments() {
     $object_type = get_object ( get_object_id ( $object_name ) );
     
 }
-

@@ -143,11 +143,6 @@ class ObjectPostType {
     }
 
     function save_fields_table ( $post_id ) {
-        /* check autosave */
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-                return $post_id;
-        }
-        
         foreach ( $this->fields as $field ) {
             $old = get_post_meta($post_id, $field->slug, true);
             if ( $field->type == 'date' ) {

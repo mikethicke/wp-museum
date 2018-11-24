@@ -28,6 +28,7 @@ $wpm_javascript_dir = plugin_dir_url( __FILE__ ).'javascript/';
 function wpm_enqueue_javascript() {
     global $wpm_javascript_dir;
     wp_enqueue_script('jquery-wp-uploader', $wpm_javascript_dir.'jquery-wp-uploader.js');
+    wp_enqueue_script('wpm-admin-js', $wpm_javascript_dir.'admin.js');
 }
 add_action('admin_enqueue_scripts', 'wpm_enqueue_javascript');
 

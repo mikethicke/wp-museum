@@ -361,7 +361,7 @@ class CustomPostType
                 'show_in_rest' => true,
                 'register_meta_box_cb' => array($this, 'display_meta_boxes')
             ];
-        if ( count($this->meta_box_fields)  > 0 ) add_action('save_post', array( $this, 'save_main_metabox' ) );     
+        if ( count($this->meta_box_fields)  > 0 ) add_action('pre_post_update', array( $this, 'save_main_metabox' ), 10 );     
             
         
         add_action( 'init', function() use ($arguments) {

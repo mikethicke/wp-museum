@@ -216,4 +216,68 @@ function get_post_descendants ( $post, $post_status='publish' ) {
     $descendants = array_merge( $descendants, $children );
     return $descendants;
 }
-?>
+
+function check_object_post ( $post_id=null ) {
+    global $post;
+    if ( $post_id == null ) {
+        if ( $post == null ) return false;
+        else $post_id = $post->ID;
+    }
+    else {
+        $post = get_post ( $post_id );
+    }
+
+    $problems = array();
+
+    $custom = get_post_custom( $post_id );
+    $object = object_from_type( $post->post_type );
+    $fields = get_object_fields ( $object->object_id );
+
+    foreach ( $fields as $field ) {
+        if ( $field->required == 1 && empty( $custom[$field->slug][0] ) ) {
+            $problems[] = "{$field->name} is required but empty.";
+        }
+        if ( !empty( $field->field_schema ) && !empty( $custom[$field->slug][0] ) ) {
+            $pattern = '/^' . stripslashes( $field->field_schema ) . '$/';
+            if ( !preg_match( $pattern, $custom[$field->slug][0], $matches ) ) {
+                $problems[] = esc_html( "{$field->name} does not conform to required schema: {$pattern}." );
+            }
+        }
+        if ( !empty( $custom[$field->slug] ) && $field->field_id == $object->cat_field_id ) {
+            $args = [
+                'post_type'     => $post->post_type,
+                'numberposts'   => -1,
+                'post_status'   => 'any',
+                'meta_key'   => $field->slug,
+                'meta_value' => $custom[$field->slug][0]
+            ];
+            $matching_posts = get_posts( $args );
+            foreach ( $matching_posts as $match ) {
+                if ( $match->ID != $post->ID ) {
+                    $problems[] = "{$field->name} must be unique, but is already possessed by <a href='post.php?post={$match->ID}&action=edit'>{$match->post_title}</a>.";
+                }
+            }
+        }
+    }
+    if ( $object->categorized ) {
+        $post_category = get_the_category( $post->ID );
+        if ( count ($post_category) == 0 || 
+                (   count ( $post_category ) == 1  && 
+                    $post_category[0]->name == "Uncategorized" 
+                ) 
+            ) {
+                $problems[] = "Post must be categorized.";
+            }    
+    }
+    if ( $object->must_featured_image ) {
+        $thumb = get_the_post_thumbnail( $post );
+        if ( empty( $thumb ) ) $problems[] = "Post must have featured image.";
+    }
+    if ( $object->must_gallery ) {
+        if ( !isset( $custom[WPM_PREFIX . 'gallery_attach_ids'][0] ) ||
+         empty ($custom[WPM_PREFIX . 'gallery_attach_ids'][0] ) ) {
+             $problems[] = "Post must have image gallery.";
+         }
+    }
+    return $problems;
+}

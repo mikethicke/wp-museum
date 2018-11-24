@@ -60,3 +60,53 @@ function add_object_parent_link ( WP_POST $post ) {
 }
 add_action ( 'edit_form_top', 'add_object_parent_link');
 
+function add_object_check ( ) {
+    global $post;
+    if ( !empty($post) && in_array( $post->post_type, get_object_type_names() ) ) {
+        ?>
+        <script type="text/javascript">
+            jQuery('#save-post').click(check_object_post_for_publication);
+            jQuery('#publish').click(check_object_post_for_publication);
+        </script>
+        <?php
+    }  
+}
+//add_action ( 'admin_footer', 'add_object_check');
+
+function add_object_problem_div() {
+    global $post;
+    if ( !empty($post) && in_array( $post->post_type, get_object_type_names() ) ) {
+        echo "<div id='wpm-post-check' class='error'";
+    if ( !empty( $_SESSION[WPM_PREFIX . 'object_problems'] ) ) {
+        echo ">";
+        echo $_SESSION[WPM_PREFIX . 'object_problems']; 
+        unset ( $_SESSION[WPM_PREFIX . 'object_problems'] );
+    }
+    else {
+        echo "style='display:none'>";
+    }
+    echo "</div>";
+    } 
+}
+add_action ( 'admin_notices', 'add_object_problem_div' );
+
+function check_object_post_on_publish( $new_status, $old_status, $post) {
+    if ( empty($post) || !in_array( $post->post_type, get_object_type_names() ) )
+        return;
+    $problems = check_object_post( $post->ID );
+    $problems_text = '';
+    if (count( $problems ) > 0 ) {
+        if ($new_status != $old_status && $new_status == 'publish' ) {
+            $post->post_status = $old_status;
+            wp_update_post( $post );
+        }
+        $problems_text .= "<ul>";
+        foreach ( $problems as $problem ) {
+            $problems_text .= "<li>$problem</li>";
+        }
+        $problems_text .= "</ul>";
+    }
+    $_SESSION[WPM_PREFIX . 'object_problems'] = $problems_text;
+}
+add_action( 'transition_post_status', 'check_object_post_on_publish', 10, 3);
+

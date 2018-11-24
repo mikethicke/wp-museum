@@ -46,6 +46,11 @@
     margin: 5px;
 }
 
+#wpm-object-top-buttons {
+    margin: 5px;
+    float: right;
+}
+
 td.wpm-object-field-label {
     width: 10em;
     word-wrap: normal;
