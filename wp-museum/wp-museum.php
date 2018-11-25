@@ -46,4 +46,5 @@ require_once ( 'collection_functions.php');
 require_once ( 'collection_post_type.php' );
 require_once ( 'quick_browse.php' );
 
+//Migrates old image attachment system to new
 add_action( 'admin_init', 'fix_object_image_attachments' );

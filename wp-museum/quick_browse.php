@@ -118,7 +118,7 @@ function quick_browse() {
         }
         echo "<td><a href='$view_url'>View</a><td>";
         echo "<td>";
-        if ( count(get_attached_media( 'image', $object ) ) > 0 ) {
+        if ( count(get_object_image_box_attachments( $object->ID ) ) > 0 ) {
             echo '<span class="dashicons dashicons-format-gallery"></span>';
         }
         echo "</td>";

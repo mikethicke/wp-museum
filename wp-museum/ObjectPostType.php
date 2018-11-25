@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Class for registering museum object custom post types.
+ */
 class ObjectPostType {
     
     public $object_row;
@@ -8,6 +11,11 @@ class ObjectPostType {
     public $object_post_type;
     public $object_type;
     
+    /**
+     * Init object.
+     * 
+     * @param StdClass $object_row Database row from objects table.
+     */
     public function __construct ( $object_row ) {
         global $wpdb;
         $this->object_row = $object_row;
@@ -41,6 +49,9 @@ class ObjectPostType {
         $this->object_post_type->custom_fields = $this->fields;
     }
 
+    /**
+     * Display the fields table for object post types (callback).
+     */
     function display_fields_table () {
         global $wpdb;
         global $post;
@@ -142,6 +153,11 @@ class ObjectPostType {
         echo "</table>";
     }
 
+    /**
+     * Saves fields table for object post types (callback).
+     * 
+     * @param Int $post_id Id of post being saved.
+     */
     function save_fields_table ( $post_id ) {
         foreach ( $this->fields as $field ) {
             $old = get_post_meta($post_id, $field->slug, true);
@@ -182,7 +198,9 @@ class ObjectPostType {
         }   
     }
 
-    //Callback for displaying object post's children.
+    /**
+     * Callback for displaying object post's children.
+     */
     function display_object_children ( ) {
         global $post;
         $children = get_children( ['numberposts'    => -1,
@@ -199,7 +217,9 @@ class ObjectPostType {
         echo "<button type='button' class='button button-large' onclick='new_obj({$post->ID})'>New Part</button>";
     }
 
-    //Callback for displaying object post's image attachments.
+    /**
+     * Callback for displaying object post's image attachments.
+     */
     function display_gallery_box () {
         global $post;
         $custom = get_post_custom( $post->ID );
@@ -213,6 +233,9 @@ class ObjectPostType {
         echo '</input>';
     }
 
+    /**
+     * Save the image gallery box (callback).
+     */
     function save_gallery_box () {
         global $post;
         if ( isset( $_POST['gallery_attach_ids'] ) && !is_null( $post ) ) {
@@ -225,9 +248,11 @@ class ObjectPostType {
         }  
     }
 
-    // Adds each public custom field to the api.
-    // Typically accessed at /wp-json/wp/v2/<object_slug>/<field_slug> 
-    // add_action( 'rest_api_init', function() use( $fields, $object_type, $object_type_list ) 
+    /**
+     * Adds each public custom field to the api.
+     * Typically accessed at /wp-json/wp/v2/<object_slug>/<field_slug> 
+     * add_action( 'rest_api_init', function() use( $fields, $object_type, $object_type_list ) 
+     */
     function wpm_rest_custom_fields () {
         foreach ( $this->fields as $field ) { 
             if ( $field->public == 1 ) {
@@ -283,6 +308,9 @@ class ObjectPostType {
         ) );
     }
 
+    /**
+     * Register the object as custom post type.
+     */
     function register() {
         //Create a MetaBox with the two above functions as callbacks.
         $fields_box = new MetaBox ( type_name ( $this->object_row->name ).'-fields', 

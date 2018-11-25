@@ -217,6 +217,13 @@ function get_post_descendants ( $post, $post_status='publish' ) {
     return $descendants;
 }
 
+/**
+ * Checks a post upon save against requirementss set in object admin.
+ * 
+ * @param Int $post_id Id of post to check
+ * 
+ * @return [string] Array of error messages for failed requirements.
+ */
 function check_object_post ( $post_id=null ) {
     global $post;
     if ( $post_id == null ) {

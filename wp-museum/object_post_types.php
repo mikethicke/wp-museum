@@ -60,19 +60,12 @@ function add_object_parent_link ( WP_POST $post ) {
 }
 add_action ( 'edit_form_top', 'add_object_parent_link');
 
-function add_object_check ( ) {
-    global $post;
-    if ( !empty($post) && in_array( $post->post_type, get_object_type_names() ) ) {
-        ?>
-        <script type="text/javascript">
-            jQuery('#save-post').click(check_object_post_for_publication);
-            jQuery('#publish').click(check_object_post_for_publication);
-        </script>
-        <?php
-    }  
-}
-//add_action ( 'admin_footer', 'add_object_check');
-
+/**
+ * Adds a div to top of object edit pages for the reporting of problems, and
+ * report problems based on Session variable. 
+ * 
+ * Called at admin_notices.
+ */
 function add_object_problem_div() {
     global $post;
     if ( !empty($post) && in_array( $post->post_type, get_object_type_names() ) ) {
@@ -90,6 +83,14 @@ function add_object_problem_div() {
 }
 add_action ( 'admin_notices', 'add_object_problem_div' );
 
+/**
+ * Checks that objects meet requirements set in Object Admin on saving or
+ * publishing an object post. Sets Session variable for display of problems 
+ * by add_objects_problem_div(). If there are problems and post is to be
+ * published, prevent post from publishing.
+ * 
+ * Called at transition_post_status.
+ */
 function check_object_post_on_publish( $new_status, $old_status, $post) {
     if ( empty($post) || !in_array( $post->post_type, get_object_type_names() ) )
         return;
@@ -110,6 +111,10 @@ function check_object_post_on_publish( $new_status, $old_status, $post) {
 }
 add_action( 'transition_post_status', 'check_object_post_on_publish', 10, 3);
 
+/**
+ * Filter to add link text to content containing text patterns matching
+ * schema of object's id field.
+ */
 function link_objects_by_id ( $content ) {
     global $post;
     $objects = get_object_types();
