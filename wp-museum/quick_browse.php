@@ -173,25 +173,28 @@ function wpm_sort_by_field(&$target_array, $sort_col, $sort_dir) {
                 $pattern = '/' . stripslashes( $sort_field->field_schema ) . '/';
                 if ( preg_match( $pattern, $a_field_val, $a_matches ) &&
                      preg_match( $pattern, $b_field_val, $b_matches ) ) {
-                    if ( count(array_filter(array_keys($a_matches), 'is_string')) > 0 ) {
+                    $a_named_capture_keys = array_filter(array_keys($a_matches), 'is_string');
+                    $b_named_capture_keys = array_filter(array_keys($b_matches), 'is_string');
+                    $named_capture_keys = array_intersect ($a_named_capture_keys, $b_named_capture_keys);
+                    if ( count($named_capture_keys) > 0 ) {
                         //named capture groups
-                        ksort ( $a_matches );
-                        foreach ( $a_matches as $a_key => $a_val ) {
-                            if ( is_numeric( $a_val ) && is_numeric( $b_matches[$a_key] ) ) {
-                                if ( $a_val > $b_matches[$a_key] ) return $rv;
-                                elseif ( $a_val < $b_matches[$a_key] ) return -1*$rv;
+                        ksort ( $named_capture_keys );
+                        foreach ( $named_capture_keys as $key ) {
+                            if ( is_numeric( $a_matches[$key] ) && is_numeric( $b_matches[$key] ) ) {
+                                if ( intval ($a_matches[$key]) > intval($b_matches[$key]) ) return $rv;
+                                elseif ( intval($a_matches[$key]) < intval($b_matches[$key]) ) return -1*$rv;
                             }
-                            elseif ( strcasecmp( $a_val, $b_matches[$a_key] ) > 0 ) return $rv;
-                            elseif ( strcasecmp( $a_val, $b_matches[$a_key] ) < 0 ) return -1*$rv;
-                        }
+                            elseif ( strcasecmp( $a_matches[$key], $b_matches[$key] ) > 0 ) return $rv;
+                            elseif ( strcasecmp( $a_matches[$key], $b_matches[$key] ) < 0 ) return -1*$rv;
+                        }   
                     }
                     else {
                         //sequential capture groups
                         $limit = min( count($a_matches), count($b_matches) );
                         for ( $i=1; $i<$limit; $i++ ) {
                             if ( is_numeric($a_matches[$i]) && is_numeric($b_matches[$i]) ) {
-                                if ( $a_matches[$i] > $b_matches[$i] ) return $rv;
-                                elseif ( $a_matches[$i] < $b_matches[$i] ) return -1*$rv;
+                                if ( intval($a_matches[$i]) > intval($b_matches[$i]) ) return $rv;
+                                elseif ( intval($a_matches[$i]) < intval($b_matches[$i]) ) return -1*$rv;
                             }
                             elseif ( strcasecmp( $a_matches[$i], $b_matches[$i] ) > 0 ) return $rv;
                             elseif ( strcasecmp( $a_matches[$i], $b_matches[$i] ) < 0 ) return -1*$rv;
@@ -205,7 +208,7 @@ function wpm_sort_by_field(&$target_array, $sort_col, $sort_dir) {
         }
         
         if ( is_numeric( $a_field_val ) && is_numeric( $b_field_val ) ) {
-            if ( $a_field_val > $b_field_val ) return $rv;
+            if ( intval($a_field_val) > intval($b_field_val) ) return $rv;
             elseif ( $a_field_val > $b_field_val ) return -1*$rv;
             else return 0;
         }
