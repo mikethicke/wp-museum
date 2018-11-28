@@ -5,7 +5,7 @@
 
 add_action( 'plugins_loaded', 'db_version_check' );
 
-const DB_VERSION = 0.12;
+const DB_VERSION = 0.13;
 const DB_SHOW_ERRORS = true;
 
 /**
@@ -38,6 +38,7 @@ function create_objects_table() {
         hierarchical tinyint(1),
         must_featured_image tinyint(1),
         must_gallery tinyint(1),
+        strict_checking tinyint(1)
         PRIMARY KEY  (object_id)
     );";
     

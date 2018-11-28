@@ -229,6 +229,8 @@ function edit_object($object_id=-1) {
         else $object_data['must_featured_image'] = 0;
         if ( isset($_POST['must_gallery']) && $_POST['must_gallery'] == 1 ) $object_data['must_gallery'] = 1;
         else $object_data['must_gallery'] = 0;
+        if ( isset($_POST['strict_checking']) && $_POST['strict_checking'] == 1 ) $object_data['strict_checking'] = 1;
+        else $object_data['strict_checking'] = 0;
         if ( !isset($_POST['object_description']) ) $object_data['description'] = '';
         else $object_data['description'] = str_replace( '~', '-', $_POST['object_description'] );
         if ( isset($_POST['cat_field_id']) ) $object_data['cat_field_id'] = $_POST['cat_field_id'];
@@ -337,6 +339,7 @@ function edit_object($object_id=-1) {
     if ( !isset( $object_data['categorized'] ) ) $object_data['categorized'] = 0;
     if ( !isset( $object_data['must_featured_image'] ) ) $object_data['must_featured_image'] = 0;
     if ( !isset( $object_data['must_gallery'] ) ) $object_data['must_gallery'] = 0;
+    if ( !isset( $object_data['strict_checking'] ) ) $object_data['strict_checking'] = 0;
 
     $id_select = "<select name='cat_field_id'>";
     $id_select .= "<option></option>";
@@ -364,6 +367,7 @@ function edit_object($object_id=-1) {
                 <tr><th>Options:</th><td>
                     <table><tr>
                         <td><ul>
+                        <li><input type="checkbox" <?php if ($object_data['strict_checking'] > 0) echo 'checked="checked"';?> name="strict_checking" value="1"/> Strictly enforce requirements</li>
                         <li><input type="checkbox" <?php if ($object_data['hierarchical'] > 0) echo 'checked="checked"';?> name="hierarchical" value="1"/> Hierarchical</li>
                         <li><input type="checkbox" <?php if ($object_data['categorized'] > 0) echo 'checked="checked"';?> name="categorized" value="1"/> Must be categorized</li>
                         </ul></td>

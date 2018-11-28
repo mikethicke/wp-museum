@@ -97,7 +97,8 @@ function check_object_post_on_publish( $new_status, $old_status, $post) {
     $problems = check_object_post( $post->ID );
     $problems_text = '';
     if (count( $problems ) > 0 ) {
-        if ($new_status != $old_status && $new_status == 'publish' ) {
+        $object = object_from_type( $post->post_type );
+        if ( $new_status != $old_status && $new_status == 'publish' && $object->strict_checking ) {
             $post->post_status = $old_status;
             wp_update_post( $post );
         }
