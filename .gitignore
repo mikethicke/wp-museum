@@ -13,3 +13,4 @@ vendor
 sql
 planning
 *.code-workspace
+.DS_Store
