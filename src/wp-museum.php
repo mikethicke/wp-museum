@@ -48,7 +48,7 @@ require_once 'general/object-functions.php';
 require_once 'general/collection-functions.php';
 require_once 'admin/object-admin-functions.php';
 require_once 'general/custom-post-type-functions.php';
-require_once 'frontend/display.php';
+require_once 'public/display.php';
 require_once 'admin/customization.php';
 
 /*
