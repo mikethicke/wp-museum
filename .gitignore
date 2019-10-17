@@ -1,8 +1,15 @@
 
 *.log
 *.bak
+*.lock
 .htaccess
 *.komodoproject
 *.komodotools
 wordpress-4
 .vscode
+composer.json
+composer.lock
+vendor
+sql
+planning
+*.code-workspace
