@@ -34,32 +34,32 @@ const DEF_POSTS_PER_PAGE = 20;
 /*
  * Classes
  */
-require_once 'class-customposttype.php';
-require_once 'class-metabox.php';
-require_once 'class-objectposttype.php';
-require_once 'class-objectkind.php';
-require_once 'class-mobjectfield.php';
+require_once 'classes/class-customposttype.php';
+require_once 'classes/class-metabox.php';
+require_once 'classes/class-objectposttype.php';
+require_once 'classes/class-objectkind.php';
+require_once 'classes/class-mobjectfield.php';
 
 /*
  * Functions
  */
-require_once 'database-functions.php';
-require_once 'object-functions.php';
-require_once 'collection-functions.php';
-require_once 'object-admin-functions.php';
-require_once 'custom-post-type-functions.php';
-require_once 'display.php';
-require_once 'customization.php';
+require_once 'general/database-functions.php';
+require_once 'general/object-functions.php';
+require_once 'general/collection-functions.php';
+require_once 'admin/object-admin-functions.php';
+require_once 'general/custom-post-type-functions.php';
+require_once 'frontend/display.php';
+require_once 'admin/customization.php';
 
 /*
  * Scripts
  */
-require_once 'actions-filters.php';
-require_once 'capabilities.php';
-require_once 'object-post-types.php';
-require_once 'object-ajax.php';
-require_once 'collection-post-type.php';
-require_once 'quick-browse.php';
-require_once 'import-export.php';
-require_once 'database-upgrade.php';
+require_once 'general/actions-filters.php';
+require_once 'general/capabilities.php';
+require_once 'general/object-post-types.php';
+require_once 'general/object-ajax.php';
+require_once 'general/collection-post-type.php';
+require_once 'admin/quick-browse.php';
+require_once 'admin/import-export.php';
+require_once 'general/database-upgrade.php';
 
