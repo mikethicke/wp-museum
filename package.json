@@ -1,0 +1,24 @@
+{
+    "name": "wp-museum",
+    "version": "1.0.0",
+    "description": "Wordpress plugin for online museums.",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "wp-scripts build /src/blocks/src/index.js --output-path=src/blocks/build",
+        "start": "wp-scripts start"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mikethicke/wp-museum.git"
+    },
+    "author": "Mike Thicke",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/mikethicke/wp-museum/issues"
+    },
+    "homepage": "https://github.com/mikethicke/wp-museum#readme",
+    "devDependencies": {
+        "@wordpress/scripts": "^5.1.0"
+    }
+}

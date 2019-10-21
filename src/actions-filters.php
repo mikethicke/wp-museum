@@ -101,7 +101,7 @@ add_action(
 	function () {
 		wp_enqueue_style(
 			'admin-styles',
-			plugin_dir_url( __FILE__ ) . 'admin-style.css',
+			plugin_dir_url( __FILE__ ) . 'admin/admin-style.css',
 			[],
 			CSS_VERSION
 		);
