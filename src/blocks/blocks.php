@@ -16,15 +16,19 @@ function enqueue_block_scripts() {
 	} else {
 		$block_path = 'index.js';
 	}
-	$file = __FILE__;
 	wp_enqueue_script(
 		WPM_PREFIX . 'blocks',
 		plugins_url( $block_path, __FILE__ ),
-		[ 'wp-i18n', 'wp-element', 'wp-blocks', 'wp-components', 'wp-editor' ],
+		[ 'wp-i18n', 'wp-element', 'wp-blocks', 'wp-components', 'wp-editor', 'wp-api-fetch', 'wp-api' ],
 		filemtime( plugin_dir_path( __FILE__ ) . $block_path ),
 		true
 	);
+	wp_enqueue_style( 
+		WPM_PREFIX . 'block-styles',
+		plugins_url( 'editor-style.css', __FILE__ ),
+		[ 'wp-blocks', 'wp-components' ],
+		filemtime( plugin_dir_path( __FILE__ ) . 'editor-style.css' )
+	);
 }
 
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_scripts' );
-add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_scripts' );
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_scripts' );

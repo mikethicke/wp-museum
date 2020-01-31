@@ -44,9 +44,69 @@ function create_mobject_post_types() {
 				array(
 					'methods'  => 'GET',
 					'callback' => function() {
-						return $this->object_type_list;
+						return $kind_type_list;
 					},
 				)
+			);
+		}
+	);
+
+	// Creates a REST endpoint that includes posts for all museum objects.
+	add_action(
+		'rest_api_init',
+		function () use ( $kind_type_list ) {
+			register_rest_route(
+				'wp-museum/v1',
+				'/all',
+				[
+					'methods'  => 'GET',
+					'callback' => function ( $request ) use ( $kind_type_list ) {
+						$post_data = [];
+						$paged     = $request->get_param( 'page' );
+
+						if ( isset( $paged ) && ! empty( $paged ) ) {
+							$paged = 1;
+						}
+						$posts = get_posts(
+							[
+								'paged'     => $paged,
+								'post_type' => $kind_type_list,
+							]
+						);
+						foreach ( $posts as $post ) {
+							$custom      = get_post_custom( $post->ID );
+							$post_data[] = array_merge( $post->to_array(), $custom );
+						}
+						return $post_data;
+					},
+				]
+			);
+			register_rest_route(
+				'wp-museum/v1',
+				'/all/(?P<id>[\d]+)',
+				[
+					'methods'  => 'GET',
+					'args'     =>
+						[
+							'id' =>
+								[
+									'validate_callback' => function( $param, $request, $key ) {
+										return is_numeric( $param );
+									},
+								],
+						],
+					'callback' => function ( $request ) {
+						$post      = get_post( $request['id'] );
+						$custom    = array_map(
+							function ( $i ) {
+								return $i[0];
+							},
+							get_post_custom( $post->ID )
+						);
+						$post_data = array_merge( $post->to_array(), $custom );
+						return $post_data;
+					},
+				]
 			);
 		}
 	);

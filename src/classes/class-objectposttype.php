@@ -348,7 +348,8 @@ class ObjectPostType {
 		}
 
 		// Adds thumbnail url and img attributes to the REST api.
-		// Typically accessed at /wp-json/wp/v2/<object_slug>/thumbnail_src .
+		// Typically accessed at /wp-json/wp/v2/<object_id> [thumbnail_src].
+		// Eg. /wp-json/wp/v2/wpm_instrument/7719/
 		register_rest_field(
 			$this->kind->type_name,
 			'thumbnail_src',
@@ -372,7 +373,8 @@ class ObjectPostType {
 		);
 
 		// Adds a list of the object post type's public custom fields to the REST api.
-		// Typically accessed at /wp-json/wp-museum/v1/object_custom/<object_slug>/ .
+		// Typically accessed at /wp-json/wp-museum/v1/object_custom/<kind_slug>/ .
+		// Eg: /wp-json/wp-museum/v1/object_custom/wpm_instrument/
 		register_rest_route(
 			'wp-museum/v1',
 			'/object_custom/' . $this->kind->type_name . '/',
@@ -381,7 +383,7 @@ class ObjectPostType {
 				'callback' => function() {
 					foreach ( $this->fields as $field ) {
 						if ( $field->public == 1 ) {
-							$filtered_fields[] = $field->slug;
+							$filtered_fields[ $field->field_id ] = $field;
 						}
 					}
 					return $filtered_fields;
@@ -423,6 +425,8 @@ class ObjectPostType {
 		$this->object_post_type->add_custom_meta( $gallery_box );
 
 		$this->object_post_type->register();
+
+		add_action( 'rest_api_init', [ $this, 'wpm_rest_custom_fields' ] );
 
 	}
 }
