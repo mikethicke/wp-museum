@@ -382,7 +382,7 @@ class ObjectPostType {
 				'methods'  => 'GET',
 				'callback' => function() {
 					foreach ( $this->fields as $field ) {
-						if ( $field->public == 1 ) {
+						if ( $field->public ) {
 							$filtered_fields[ $field->field_id ] = $field;
 						}
 					}

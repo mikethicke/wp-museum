@@ -2,25 +2,7 @@ import { registerBlockType } from "@wordpress/blocks";
 
 import { __ } from "@wordpress/i18n";
 
-import {
-	InspectorControls,
-	RichText,
-} from "@wordpress/editor";
 
-import { 
-	PanelBody,
-	PanelRow,
-	TextControl,
-	Button
-} from '@wordpress/components';
-
-import {
-	Fragment
-} from '@wordpress/element';
-
-import apiFetch from '@wordpress/api-fetch';
-
-import ObjectSearchButton from '../components/object-search-box.js';
 
 registerBlockType('wp-museum/simple-object-callout-block', {
 	title: __('Simple Object Callout'),
@@ -29,59 +11,155 @@ registerBlockType('wp-museum/simple-object-callout-block', {
 	attributes: {
 		object_id: {
 			type: 'string',
-			default: ''
+			default: null
 		},
-		object_title: {
-			type: 'string',
-			default: ''
+		display_title: {
+			type: 'boolean',
+			default: true
 		},
-		url: {
-			type: 'string',
-			default: ''
+		display_excerpt: {
+			type: 'boolean',
+			default: true
+		},
+		display_thumbnail: {
+			type: 'boolean',
+			default: true
+		},
+		link_to_object: {
+			type: 'boolean',
+			default: true
+		},
+		fields: {
+			type: Object,
+			default: {}
+		},
+		field_data: {
+			type: Object,
+			default: {}
 		}
 	},
-	edit: ( props ) => {
-		let object_id = props.attributes.object_id;
-		let confirmed_id = props.attributes.confirmed_id;
+	edit: ( { attributes, setAttributes } ) => {
+		const {
+			object_id,
+			display_title,
+			display_excerpt,
+			display_thumbnail,
+			link_to_object,
+			fields,
+			field_data
+		} = attributes;
+		const base_rest_path = '/wp-museum/v1/';
 
-		function onChangeObjectID ( content ) {
-			props.setAttributes( { object_id: content } );
-		}
-
-		function onUpdateButton ( ) {
-			let post = new wp.api.collections.Posts( { id: object_id } );
-			post.fetch().then( ( posts ) => {
-				let a = 1;
-			});
-
-
-			const object_path = 'wp/v2/wpm_instrument/' + object_id
+		function updateFields ( ) {
+			const object_path = base_rest_path + 'all/' + object_id
 			apiFetch( { path: object_path } ).then( result => {
-				props.setAttributes( {
-					object_title:	result.title.rendered,
+				setAttributes( {
+					object_title:	result.post_title,
 					url:			result.link,
-					post_type:		result.type		
+					post_type:		result.post_type,
+					excerpt:		result.excerpt
 				} );
-				apiFetch
+				apiFetch(
+					{ path: base_rest_path + 
+							'object_custom/' + 
+							attributes.post_type 
+					}
+				).then( result => {
+					for ( let key in result ) {
+						if ( typeof ( fields[key] ) === 'undefined') {
+							fields[key] = ( result[key]['callout_default'] === '1' );
+						}
+					}
+					setAttributes( { 
+						fields : fields,
+						field_data: result 
+					} );
+				} );
 			} );
 		}
 
-		let content = '';
-		if ( props.attributes.object_title != '' ) {
-			content = [
-				<div>
-					<table>
-						<tr><td>Title:</td><td>{props.attributes.object_title}</td></tr>
-						<tr><td>URL:</td><td>{props.attributes.url}</td></tr>
-						<tr><td>Post Type:</td><td>{props.attributes.post_type}</td></tr>
-					</table>
-				</div>
+		function onChangeObjectID ( content ) {
+			setAttributes( { object_id: content } );
+		}
+
+		function onUpdateButton ( ) {
+			if ( object_id ) {
+				updateFields();
+			}
+		}
+
+		function FieldsPanel ( ) {
+			if ( 
+				Object.keys(fields).length > 0 &&
+				Object.keys(field_data).length === Object.keys(fields).length 
+			) {
+				let items = [];
+				for ( let key in fields ) {
+					items.push(
+						<CheckboxControl
+							label = { field_data[key]['name'] }
+							checked = { fields[key] }
+							onChange = { ( val ) => { 
+								fields[key] = val;
+								setAttributes( { fields: fields } );
+							} }
+						/>
+					);
+				}
+				return [
+					<PanelBody
+						title = "Custom Fields"
+						initialOpen = {true}
+					>
+						{ items }
+					</PanelBody>
+				];
+			} else {
+				updateFields();
+				return null;
+			}
+		}
+
+		function OptionsPanel ( ) {
+			return [
+				<PanelBody
+					title = "Options"
+					initialOpen = {true}
+				>
+					<CheckboxControl
+						label = 'Display Title'
+						checked = { display_title }
+						onChange = { ( val ) => { setAttributes( { display_title: val } ) } }
+					/>
+					<CheckboxControl
+						label = 'Display Excerpt'
+						checked = { display_excerpt }
+						onChange = { ( val ) => { setAttributes( { display_excerpt: val } ) } }
+					/>
+					<CheckboxControl
+						label = 'Display Thumbnail'
+						checked = { display_thumbnail }
+						onChange = { ( val ) => { setAttributes( { display_thumbnail: val } ) } }
+					/>
+					<CheckboxControl
+						label = 'Link to Object'
+						checked = { display_thumbnail }
+						onChange = { ( val ) => { setAttributes( { link_to_object: val } ) } }
+					/>
+				</PanelBody>
 			]
 		}
 
+		function CalloutContent ( ) {
+			return null;
+		}
+
+		if ( object_id !== null && Object.keys( fields ).length === 0 ) {
+			updateFields();
+		}
 
 		return [
-			<Fragment>
+			<>
 				<InspectorControls>
 					<PanelBody
 						title = "Embed Object"
@@ -106,9 +184,11 @@ registerBlockType('wp-museum/simple-object-callout-block', {
 							</ObjectSearchButton>
 						</PanelRow>
 					</PanelBody>
+					<OptionsPanel />
+					<FieldsPanel />
 				</InspectorControls>
-				{ content }
-			</Fragment>
+				<CalloutContent />
+			</>
 			
 		];
 	},

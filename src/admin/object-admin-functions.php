@@ -432,6 +432,9 @@ function edit_kind_form( $kind_id = -1 ) {
 				if ( ! isset( $form_row['quick_browse'] ) ) {
 					$form_row['quick_browse'] = 0;
 				}
+				if ( ! isset( $form_row['callout_default'] ) ) {
+					$form_row['callout_default'] = 0;
+				}
 			}
 		}
 
@@ -626,6 +629,7 @@ function object_fields_table( $rows ) {
 			<th class="check-column">Public</th>
 			<th class="check-column">Required</th>
 			<th class="check-column">Quick</th>
+			<th class="check-column">Callout</th>
 		</tr>
 		<?php
 		$order_counter = 0;
@@ -681,26 +685,50 @@ function object_fields_table( $rows ) {
 						">True/False</option>
 					</select>
 				</td>
-				<td><textarea name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~help_text" rows=3 cols=25><?php echo esc_html( wp_unslash( $row->help_text ) ); ?></textarea></td>
-				<td><input type="text" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~field_schema" value="<?php echo esc_html( wp_unslash( $row->field_schema ) ); ?>" /></td>
-				<td><input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~public" 
-															<?php
-															if ( $row->public > 0 ) {
-																echo 'checked="checked"';}
-															?>
-				value="1"/></td>
-				<td><input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~required" 
-															<?php
-															if ( $row->required > 0 ) {
-																echo 'checked="checked"';}
-															?>
-				value="1"/></td>
-				<td><input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~quick_browse" 
-															<?php
-															if ( $row->quick_browse > 0 ) {
-																echo 'checked="checked"';}
-															?>
-				value="1"/></td>
+				<td>
+					<textarea name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~help_text" rows=3 cols=25>
+						<?php echo esc_html( wp_unslash( $row->help_text ) ); ?>
+					</textarea>
+				</td>
+				<td>
+					<input type="text" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~field_schema" value="<?php echo esc_html( wp_unslash( $row->field_schema ) ); ?>" />
+				</td>
+				<td>
+					<input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~public" 
+						<?php
+						if ( $row->public > 0 ) {
+							echo 'checked="checked"';}
+						?>
+						value="1"
+					/>
+				</td>
+				<td>
+					<input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~required" 
+						<?php
+						if ( $row->required > 0 ) {
+							echo 'checked="checked"';}
+						?>
+						value="1"
+					/>
+				</td>
+				<td>
+					<input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~quick_browse" 
+						<?php
+						if ( $row->quick_browse > 0 ) {
+							echo 'checked="checked"';}
+						?>
+						value="1"
+					/>
+				</td>
+				<td>
+					<input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~callout_default" 
+						<?php
+						if ( $row->callout_default > 0 ) {
+							echo 'checked="checked"';}
+						?>
+						value="1"
+					/>
+				</td>
 			</tr>
 			<?php
 		} // Foreach ( $rows as $row ).

@@ -96,15 +96,7 @@ function create_mobject_post_types() {
 								],
 						],
 					'callback' => function ( $request ) {
-						$post      = get_post( $request['id'] );
-						$custom    = array_map(
-							function ( $i ) {
-								return $i[0];
-							},
-							get_post_custom( $post->ID )
-						);
-						$post_data = array_merge( $post->to_array(), $custom );
-						return $post_data;
+						return combine_post_data( $request['id'] );
 					},
 				]
 			);
