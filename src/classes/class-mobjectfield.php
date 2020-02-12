@@ -105,18 +105,18 @@ class MObjectField {
 	public $callout_default;
 
 	public function __construct( $database_field ) {
-		$this->field_id      = intval( $database_field->field_id );
-		$this->slug          = $database_field->slug;
-		$this->kind_id       = intval( $database_field->kind_id );
-		$this->name          = $database_field->name;
-		$this->label         = $database_field->label;
-		$this->type          = $database_field->type;
-		$this->display_order = intval( $database_field->display_order );
-		$this->public        = (bool) intval( $database_field->public );
-		$this->required      = (bool) intval( $database_field->required );
-		$this->quick_browse  = (bool) intval( $database_field->quick_browse );
-		$this->help_text     = $database_field->help_text;
-		$this->field_schema  = $database_field->field_schema;
+		$this->field_id        = intval( $database_field->field_id );
+		$this->slug            = $database_field->slug;
+		$this->kind_id         = intval( $database_field->kind_id );
+		$this->name            = $database_field->name;
+		$this->label           = $database_field->label;
+		$this->type            = $database_field->type;
+		$this->display_order   = intval( $database_field->display_order );
+		$this->public          = (bool) intval( $database_field->public );
+		$this->required        = (bool) intval( $database_field->required );
+		$this->quick_browse    = (bool) intval( $database_field->quick_browse );
+		$this->help_text       = $database_field->help_text;
+		$this->field_schema    = $database_field->field_schema;
 		$this->callout_default = (bool) intval( $database_field->callout_default );
 	}
 }

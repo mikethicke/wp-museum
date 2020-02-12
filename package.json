@@ -19,6 +19,7 @@
     },
     "homepage": "https://github.com/mikethicke/wp-museum#readme",
     "devDependencies": {
+        "@babel/plugin-proposal-class-properties": "^7.8.3",
         "@wordpress/scripts": "^5.1.0"
     },
     "dependencies": {

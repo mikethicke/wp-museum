@@ -44,33 +44,3 @@ function custom_search( $query ) {
 		return $query;
 	}
 }
-
-/**
- * Combine custom post data with standard post data and return as array.
- *
- * @param WP_POST | int $post Post object or post id.
- */
-function combine_post_data( $post ) {
-	if ( is_numeric( $post ) ) {
-		$post = get_post( $post );
-	}
-
-	$custom = array_map(
-		function ( $i ) {
-			return $i[0];
-		},
-		get_post_custom( $post->ID )
-	);
-
-	$additional_fields = [
-		'link' => get_permalink( $post ),
-		'excerpt' => get_the_excerpt( $post )
-	];
-
-	$post_data = array_merge(
-		$post->to_array(),
-		$custom,
-		$additional_fields
-	);
-	return $post_data;
-}

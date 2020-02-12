@@ -320,79 +320,6 @@ class ObjectPostType {
 	}
 
 	/**
-	 * Adds each public custom field to the REST api.
-	 * Typically accessed at /wp-json/wp/v2/<object_slug>/<field_slug>
-	 * add_action( 'rest_api_init', function() use( $fields, $object_type, $object_type_list )
-	 */
-	public function wpm_rest_custom_fields() {
-		foreach ( $this->fields as $field ) {
-			if ( $field->public ) {
-				register_rest_field(
-					$this->kind->type_name,
-					$field->slug,
-					array(
-						'get_callback'    => function ( $object ) use ( $field ) {
-							$custom_fields = get_post_custom( $object['id'] );
-							if ( isset( $custom_fields[ $field->slug ] ) ) {
-								return ( $custom_fields[ $field->slug ][0] );
-							} else {
-								return ( null );
-							}
-
-						},
-						'update_callback' => null,
-						'schema'          => null,
-					)
-				);
-			}
-		}
-
-		// Adds thumbnail url and img attributes to the REST api.
-		// Typically accessed at /wp-json/wp/v2/<object_id> [thumbnail_src].
-		// Eg. /wp-json/wp/v2/wpm_instrument/7719/
-		register_rest_field(
-			$this->kind->type_name,
-			'thumbnail_src',
-			array(
-				'get_callback' => function ( $object ) {
-					if ( has_post_thumbnail( $object['id'] ) ) {
-						$attach_id = get_post_thumbnail_id( $object['id'] );
-					} else {
-						$attachments = get_attached_media( 'image', $object['id'] );
-
-						if ( count( $attachments ) > 0 ) {
-							$attachment = reset( $attachments );
-							$attach_id = $attachment->ID;
-						}
-					}
-					if ( isset( $attach_id ) ) {
-						return wp_get_attachment_image_src( $attach_id, 'thumb' );
-					}
-				},
-			)
-		);
-
-		// Adds a list of the object post type's public custom fields to the REST api.
-		// Typically accessed at /wp-json/wp-museum/v1/object_custom/<kind_slug>/ .
-		// Eg: /wp-json/wp-museum/v1/object_custom/wpm_instrument/
-		register_rest_route(
-			'wp-museum/v1',
-			'/object_custom/' . $this->kind->type_name . '/',
-			array(
-				'methods'  => 'GET',
-				'callback' => function() {
-					foreach ( $this->fields as $field ) {
-						if ( $field->public ) {
-							$filtered_fields[ $field->field_id ] = $field;
-						}
-					}
-					return $filtered_fields;
-				},
-			)
-		);
-	}
-
-	/**
 	 * Register the object as custom post type.
 	 */
 	public function register() {
@@ -425,8 +352,6 @@ class ObjectPostType {
 		$this->object_post_type->add_custom_meta( $gallery_box );
 
 		$this->object_post_type->register();
-
-		add_action( 'rest_api_init', [ $this, 'wpm_rest_custom_fields' ] );
 
 	}
 }

@@ -87,6 +87,14 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\db_version_check' );
  */
 add_action( 'plugins_loaded', __NAMESPACE__ . '\generate_image_sizes' );
 
+/**
+ * Register REST routes.
+ *
+ * @see rest.php::rest_routes()
+ */
+add_action( 'rest_api_init', __NAMESPACE__ . '\rest_routes' );
+
+
 /*****************************************************************************
  *
  * Admin Actions

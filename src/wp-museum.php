@@ -23,6 +23,7 @@ const CACHE_GROUP    = 'MikeThicke\WPMuseum';  // For caching db queries.
 const DB_VERSION     = '0.0.16';               // Change to update db structure.
 const DB_SHOW_ERRORS = true;                   // Have WP report db errors.
 const IMAGE_DIR      = 'wp-museum';            // Directory to save exported images.
+const REST_NAMESPACE = 'wp-museum/v1';         // Root for rest routes.
 
 /**
  * Is this a development build of the plugin?
@@ -32,7 +33,7 @@ const IMAGE_DIR      = 'wp-museum';            // Directory to save exported ima
  *
  * @see blocks/blocks.php
  */
-const DEV_BUILD      = true;
+const DEV_BUILD = true;
 
 /**
  * Default number of posts per page to retrieve in query_associated_objects.
@@ -58,6 +59,7 @@ require_once 'general/object-functions.php';
 require_once 'general/collection-functions.php';
 require_once 'admin/object-admin-functions.php';
 require_once 'general/custom-post-type-functions.php';
+require_once 'general/rest.php';
 require_once 'public/display.php';
 require_once 'admin/customization.php';
 

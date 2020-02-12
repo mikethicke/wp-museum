@@ -83,31 +83,6 @@ $collection_post_type->add_custom_meta( $associated_objects_box );
  */
 $collection_post_type->register();
 
-/*
- * Registers the Collection post type with WordPress' REST api. Each
- * collection endpoint contains a list of associated object ids.
- */
-add_action(
-	'rest_api_init',
-	function() use ( $collection_post_type ) {
-		register_rest_field(
-			$collection_post_type->options['type'],
-			'associated_objects',
-			array(
-				'get_callback'    => function ( $object ) {
-					$object_entries = [];
-					$associated_objects = get_associated_object_ids( $object['id'] );
-					foreach ( $associated_objects as $ao ) {
-						$obj_post = get_post( $ao );
-						$object_entries[] = array( $ao, $obj_post->post_type );
-					}
-					return $object_entries;
-				},
-				'update_callback' => null,
-				'schema'          => null,
-			)
-		);
-	}
-);
+
 
 
