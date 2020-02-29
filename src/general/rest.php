@@ -165,7 +165,7 @@ function rest_routes() {
 	 * /wp-json/wp-museum/v1/all/<post id> - Data for specific object.
 	 */
 	register_rest_route(
-		'wp-museum/v1',
+		REST_NAMESPACE,
 		'/all/(?P<id>[\d]+)',
 		[
 			'methods'  => 'GET',
@@ -188,7 +188,7 @@ function rest_routes() {
 	 * /wp-json/wp-musuem/v1/mobject_kinds - Data for object kinds
 	 */
 	register_rest_route(
-		'wp-museum/v1',
+		REST_NAMESPACE,
 		'/mobject_kinds/',
 		array(
 			'methods'  => 'GET',

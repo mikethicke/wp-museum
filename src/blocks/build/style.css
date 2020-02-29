@@ -1,0 +1,31 @@
+.editor-block-list__block[data-align=right] > .editor-block-list__block-edit,
+.editor-block-list__block[data-align=left] > .editor-block-list__block-edit {
+  max-width: 50%; }
+
+div.wp-museum-object-info-edit ul {
+  list-style-type: none;
+  text-align: left; }
+  div.wp-museum-object-info-edit ul .field-name {
+    font-weight: bold; }
+
+div.wp-museum-object-info-edit img {
+  margin: 5px; }
+
+div.wp-museum-object-info-edit h2, div.wp-museum-object-info-edit h3, div.wp-museum-object-info-edit h4, div.wp-museum-object-info-edit h5, div.wp-museum-object-info-edit h6, div.wp-museum-object-info-edit p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  text-align: left; }
+
+div.wp-museum-object-info-edit .img_info_right {
+  float: right; }
+
+div.wp-museum-object-info-edit .img_info_left {
+  float: left; }
+
+div.wp-museum-object-info-edit .img_info_center {
+  margin-right: auto;
+  margin-left: auto;
+  display: block; }
+
+
+/*# sourceMappingURL=style.css.map*/

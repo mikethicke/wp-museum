@@ -1,0 +1,40 @@
+.editor-block-list__block[data-align=right] > .editor-block-list__block-edit,
+.editor-block-list__block[data-align=left] > .editor-block-list__block-edit {
+    max-width: 50%;
+}
+
+div.wp-museum-object-info-edit {
+	ul {
+		list-style-type: none;
+		text-align: left;
+
+		.field-name {
+			font-weight: bold;
+		}
+	}
+
+	img {
+		margin: 5px;
+	}
+
+	h2, h3, h4, h5, h6, p {
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+		text-align: left;
+	}
+
+	.img_info_right {
+		float: right;
+	}
+	
+	.img_info_left {
+		float: left;
+	}
+	
+	.img_info_center {
+		margin-right: auto;
+		margin-left: auto;
+		display: block;
+	}
+}
+

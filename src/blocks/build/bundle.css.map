@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/blocks/src/object-info-box/style.scss"],"names":[],"mappings":"AAAA;AACA;AACA;AACA,C","file":"bundle.css","sourcesContent":["ul {\n  list-style-type: none;\n  color: red;\n}"],"sourceRoot":""}

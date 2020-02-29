@@ -1,20 +1,52 @@
-const { __, setLocaleData } = wp.i18n;
-const { registerBlockType } = wp.blocks;
+import { InspectorControls } from '@wordpress/blockEditor';
+import { CheckboxControl } from '@wordpress/components';
+import { registerBlockType } from "@wordpress/blocks";
+import { Component } from '@wordpress/element';
 
-const blockStyle = {
-    backgroundColor: '#900',
-    color: '#fff',
-    padding: '20px',
-};
+const edit = class EditComponent extends Component {
 
-registerBlockType('gutenberg-examples/example-01-basic-esnext', {
-    title: __('Example: Basic (esnext)', 'gutenberg-examples'),
+    render() {
+        const { attributes, setAttributes } = this.props;
+        const { an_array, a_boolean } = attributes; 
+        return [
+            <>
+                <InspectorControls>
+                    <CheckboxControl 
+                        label = 'Checkbox'
+                        checked = { an_array[0] === 1 }
+                        onChange = { ( val ) => { 
+                            an_array.push( an_array[0] );
+                            val ? an_array[0] = 1 : an_array[0] = 0;
+                            setAttributes( {
+                                an_array: an_array,
+                                // a_boolean: ! a_boolean
+                            } );
+                        } } 
+                    />
+                </InspectorControls>
+                <div>
+                    Array: { an_array.toString() }
+                </div>
+            </>
+        ];
+    }
+
+}
+
+registerBlockType('test/array-not-update', {
+    title: 'Array Attribute Change Issue',
     icon: 'universal-access-alt',
     category: 'layout',
-    edit() {
-        return <div style = { blockStyle } > Basic example with JSX!(editor) < /div>;
+    attributes: {
+        an_array: {
+            type: 'object',
+            default: []
+        },
+        a_boolean: {
+            type: 'boolean',
+            default: false
+        }
     },
-    save() {
-        return <div style = { blockStyle } > Basic example with JSX!(front) < /div>;
-    },
+    edit,
+    save() { return null; },
 });

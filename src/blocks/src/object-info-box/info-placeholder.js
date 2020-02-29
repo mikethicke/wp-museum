@@ -9,17 +9,17 @@ import {
 
 import ObjectSearchButton from '../components/object-search-box.js';
 
-class CalloutPlaceholder extends Component {
+class InfoPlaceholder extends Component {
 
 	render() {
-		const { object_id, onChangeObjectID, onUpdateButton } = this.props;
+		const { objectID, onChangeObjectID, onUpdateButton } = this.props;
 		return [
 			<div>
 				<p>Enter the Wordpress ID of the object you wish to display.</p>
 				<TextControl
 					label = 'Object ID'
 					onChange = { onChangeObjectID }
-					value = { object_id }
+					value = { objectID }
 				/>
 				<Button isDefault isPrimary
 					onClick = { onUpdateButton }
@@ -35,4 +35,4 @@ class CalloutPlaceholder extends Component {
 	}
 }
 
-export default CalloutPlaceholder;
+export default InfoPlaceholder;
