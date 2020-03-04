@@ -12,6 +12,7 @@ composer.lock
 vendor
 sql
 planning
+release
 *.code-workspace
 .DS_Store
 node_modules

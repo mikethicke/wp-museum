@@ -432,9 +432,6 @@ function edit_kind_form( $kind_id = -1 ) {
 				if ( ! isset( $form_row['quick_browse'] ) ) {
 					$form_row['quick_browse'] = 0;
 				}
-				if ( ! isset( $form_row['info_default'] ) ) {
-					$form_row['info_default'] = 0;
-				}
 			}
 		}
 
@@ -629,7 +626,6 @@ function object_fields_table( $rows ) {
 			<th class="check-column">Public</th>
 			<th class="check-column">Required</th>
 			<th class="check-column">Quick</th>
-			<th class="check-column">Info</th>
 		</tr>
 		<?php
 		$order_counter = 0;
@@ -715,15 +711,6 @@ function object_fields_table( $rows ) {
 					<input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~quick_browse" 
 						<?php
 						if ( $row->quick_browse > 0 ) {
-							echo 'checked="checked"';}
-						?>
-						value="1"
-					/>
-				</td>
-				<td>
-					<input type="checkbox" name="<?php echo esc_html( wp_unslash( $row->field_id ) ); ?>~info_default" 
-						<?php
-						if ( $row->info_default > 0 ) {
 							echo 'checked="checked"';}
 						?>
 						value="1"

@@ -97,13 +97,6 @@ class MObjectField {
 	 */
 	public $field_schema;
 
-	/**
-	 * Whether this field is displayed in info boxes by default.
-	 *
-	 * @var bool $info_default
-	 */
-	public $info_default;
-
 	public function __construct( $database_field ) {
 		$this->field_id        = intval( $database_field->field_id );
 		$this->slug            = $database_field->slug;
@@ -117,6 +110,5 @@ class MObjectField {
 		$this->quick_browse    = (bool) intval( $database_field->quick_browse );
 		$this->help_text       = $database_field->help_text;
 		$this->field_schema    = $database_field->field_schema;
-		$this->info_default = (bool) intval( $database_field->info_default );
 	}
 }

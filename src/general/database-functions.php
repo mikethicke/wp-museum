@@ -67,7 +67,6 @@ function create_mobject_fields_table() {
         public tinyint(1),
         required tinyint(1),
         quick_browse tinyint(1),
-		info_default tinyint(1),
         help_text varchar(255),
         field_schema varchar(255),
         PRIMARY KEY  (field_id)

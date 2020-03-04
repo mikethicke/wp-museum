@@ -498,7 +498,7 @@ class ObjectInfoEdit extends Component {
 					let fieldData = {};
 					for ( let key in result ) {
 						if ( typeof ( fields[key] ) === 'undefined') {
-							newFields[key] = result[key]['info_default'];
+							newFields[key] = false;
 						} else {
 							newFields[key] = fields[key];
 						}
