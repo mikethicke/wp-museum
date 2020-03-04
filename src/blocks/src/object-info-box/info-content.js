@@ -1,22 +1,8 @@
 import {
 	Component
 } from '@wordpress/element';
+import { hexToRgb } from './util';
 
-// https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-function hexToRgb(hex) {
-	// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-	hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-	  return r + r + g + g + b + b;
-	});
-  
-	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result ? {
-	  r: parseInt(result[1], 16),
-	  g: parseInt(result[2], 16),
-	  b: parseInt(result[3], 16)
-	} : null;
-  }
 
 class InfoContent extends Component {
 
@@ -73,7 +59,7 @@ class InfoContent extends Component {
 			  <>
 				{ imgReady &&
 					<img 
-						className = { 'img_info_' + imageAlignment }
+						className = { 'img-info-' + imageAlignment }
 						src = { thumbnailURL }
 						height = { imgRenderHeight }
 						width = { imgRenderWidth }
@@ -92,15 +78,13 @@ class InfoContent extends Component {
 
 		const divStyle = {
 			borderWidth: borderWidth,
-			borderStyle: 'solid',
-			padding: '5px',
 			borderColor: borderColor,
 			backgroundColor: `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
 		}
 
 		if ( objectID !== null ) {	
 			return [
-				<div style={ divStyle }>
+				<div className = 'info-outer-div' style = { divStyle }>
 					{ body }
 					{ field_list.length === 0 ||
 						<ul>

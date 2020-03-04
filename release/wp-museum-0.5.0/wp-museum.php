@@ -33,7 +33,7 @@ const REST_NAMESPACE = 'wp-museum/v1';         // Root for rest routes.
  *
  * @see blocks/blocks.php
  */
-const DEV_BUILD = true;
+const DEV_BUILD = false;
 
 /**
  * Default number of posts per page to retrieve in query_associated_objects.

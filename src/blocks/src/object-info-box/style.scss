@@ -1,9 +1,27 @@
-.editor-block-list__block[data-align=right] > .editor-block-list__block-edit,
-.editor-block-list__block[data-align=left] > .editor-block-list__block-edit {
-    max-width: 50%;
+
+.alignleft, .alignright {
+	max-width: 50%;
 }
 
-div.wp-museum-object-info-edit {
+.alignleft {
+	float: left;
+}
+
+.alignright {
+	float: right;
+}
+
+.aligncenter {
+	clear: both;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div.info-outer-div {
+	border-style: solid;
+	padding: 5px;
+	
 	ul {
 		list-style-type: none;
 		text-align: left;
@@ -23,18 +41,28 @@ div.wp-museum-object-info-edit {
 		text-align: left;
 	}
 
-	.img_info_right {
+	.img-info-right {
 		float: right;
 	}
 	
-	.img_info_left {
+	.img-info-left {
 		float: left;
 	}
 	
-	.img_info_center {
+	.img-info-center {
 		margin-right: auto;
 		margin-left: auto;
 		display: block;
+	}
+
+	.info-outer-div {
+		border-style: solid;
+		padding: 5px;
+	}
+
+	.object-link, .object-link:hover {
+		text-decoration: none;
+		color: inherit;
 	}
 }
 

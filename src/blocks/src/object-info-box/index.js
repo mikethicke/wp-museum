@@ -3,6 +3,7 @@ import { registerBlockType } from "@wordpress/blocks";
 import { __ } from "@wordpress/i18n";
 
 import edit from './edit';
+import save from './save';
 
 registerBlockType('wp-museum/object-info-box', {
 	title: __('Museum Object Infobox'),
@@ -12,6 +13,10 @@ registerBlockType('wp-museum/object-info-box', {
 		align: [ 'left', 'right', 'center' ]
 	},
 	attributes: {
+		align: {
+			type: 'string',
+			default: 'left'
+		},
 		objectID: {
 			type: 'string',
 			default: null
@@ -91,7 +96,5 @@ registerBlockType('wp-museum/object-info-box', {
 		}
 	},
 	edit,
-	save: ( props ) => {
-		return null;
-	}
+	save
 });

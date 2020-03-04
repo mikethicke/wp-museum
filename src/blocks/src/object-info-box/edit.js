@@ -193,12 +193,12 @@ class ImageSizePanel extends Component {
 		this.updateImageAlignment = this.updateImageAlignment.bind( this );
 	}
 	
-	updateImage ( sizeSlug ) {
+	updateImage ( size ) {
 		const { setAttributes, state } = this.props;
 		const { imgHeight, imgWidth, imgReady } = state;
 
 		if ( imgReady ) {
-			const targetSize = imageSizes[ sizeSlug ].width; //width == height
+			const targetSize = imageSizes[ size ].width; //width == height
 			let scaleFactor;
 			if ( targetSize === null ) {
 				scaleFactor = 1;
@@ -208,7 +208,7 @@ class ImageSizePanel extends Component {
 			const newImageDimensions = {
 				height: Math.round( scaleFactor * imgHeight ),
 				width: Math.round( scaleFactor * imgWidth ),
-				size: sizeSlug
+				size: size
 			};
 			setAttributes ( {
 				imageDimensions: newImageDimensions
@@ -261,7 +261,7 @@ class ImageSizePanel extends Component {
 	render () {
 		const { attributes } = this.props;
 		const { imageDimensions, imageAlignment } = attributes;
-		const { width, height, sizeSlug } = imageDimensions;
+		const { width, height, size } = imageDimensions;
 
 		const imageSizeOptions = [
 			{ value: 'thumbnail', label: __( 'Thumbnail' ) },
@@ -277,7 +277,7 @@ class ImageSizePanel extends Component {
 			>
 				<SelectControl
 					label = { __( 'Image Size' ) }
-					value = { sizeSlug }
+					value = { size }
 					options = { imageSizeOptions }
 					onChange = { this.updateImage }
 				/>
@@ -548,7 +548,7 @@ class ObjectInfoEdit extends Component {
 		const { fontSize, appearance, titleTag } = attributes;
 		
 		return [
-			<div className = 'wp-museum-object-info-edit'>
+			<>
 				<InspectorControls>
 					<PanelBody
 						title = "Embed Object"
@@ -598,7 +598,7 @@ class ObjectInfoEdit extends Component {
 					state = { this.state }
 					imageSizes = { imageSizes }
 				/>
-			</div>	
+			</>	
 		];
 	}
 }
