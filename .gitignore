@@ -13,6 +13,7 @@ vendor
 sql
 planning
 release
+src/blocks/build
 *.code-workspace
 .DS_Store
 node_modules
