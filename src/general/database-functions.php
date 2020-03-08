@@ -41,7 +41,7 @@ function create_mobject_kinds_table() {
         hierarchical tinyint(1),
         must_featured_image tinyint(1),
         must_gallery tinyint(1),
-        strict_checking tinyint(1)
+        strict_checking tinyint(1),
         PRIMARY KEY  (kind_id)
     );";
 
