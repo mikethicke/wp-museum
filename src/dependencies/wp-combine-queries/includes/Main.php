@@ -104,7 +104,7 @@ class Main
             $this->get_offset( $q ) 
         );
 
-        echo ( $generated_request );
+        //echo ( $generated_request );
         return empty( $generated_request ) ? $request : $generated_request;
     }
 
