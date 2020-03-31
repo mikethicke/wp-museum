@@ -46,6 +46,8 @@ function rest_routes() {
 						$paged = 1;
 					}
 
+					$meta_query = build_meta( $kind->kind_id, $request );
+
 					$posts = get_posts(
 						[
 							'post_status' => 'publish',
@@ -142,14 +144,18 @@ function rest_routes() {
 					$kinds
 				);
 
+				$combined_query = build_rest_combined_query( $kinds, $request );
+
 				if ( ! isset( $paged ) || empty( $paged ) ) {
 					$paged = 1;
 				}
 				$posts = get_posts(
 					[
-						'post_status' => 'publish',
-						'paged'       => $paged,
-						'post_type'   => $kind_type_list,
+						'post_status'      => 'publish',
+						'paged'            => $paged,
+						'post_type'        => $kind_type_list,
+						'combined_query'   => $combined_query,
+						'suppress_filters' => false,
 					]
 				);
 				foreach ( $posts as $post ) {

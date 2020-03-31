@@ -296,3 +296,93 @@ function get_object_post_from_id( $kind, $cat_id ) {
 		return null;
 	}
 }
+
+/**
+ * Builds a meta query for a kind from a REST request.
+ *
+ * @param int    $kind_id Kind id corresponding to the object.
+ * @param Object $request  A REST request object.
+ *
+ * @return Array Meta query that can be added to a WordPress query in the meta_query field.
+ */
+function build_meta( $kind_id, $request ) {
+	$mobject_fields = get_mobject_fields( $kind_id );
+	$meta_query     = [ 'relation' => 'OR' ];
+	foreach ( $mobject_fields as $field ) {
+		$field_query = $request->get_param( $field->slug );
+		if ( ! empty( $field_query ) && $field->public ) {
+			$meta_query[] = [
+				'key'     => $field->slug,
+				'value'   => $field_query,
+				'compare' => 'LIKE',
+			];
+		}
+	}
+	if ( count( $meta_query ) > 1 ) {
+		return $meta_query;
+	} else {
+		return [];
+	}
+}
+
+/**
+ * Builds a combined query for REST search requests.
+ *
+ * @param ObjectKind | [ ObjectKind ] $kinds   A kind or list of kinds to be searched.
+ * @param Object                      $request A REST request object.
+ *
+ * @return Array A combined query that can be passed as combined_query argument in a query object.
+ */
+function build_rest_combined_query( $kinds, $request ) {
+	if ( ! is_array( $kinds ) ) {
+		$kinds = [ $kinds ];
+	}
+
+	$search_string = $request->get_param( 's' );
+	if ( empty( $search_string ) ) {
+		return [];
+	}
+
+	$kind_type_list = array_map(
+		function ( $x ) {
+			return $x->type_name;
+		},
+		$kinds
+	);
+
+	$args = [
+		[
+			'post_type'   => $kind_type_list,
+			'post_status' => 'public',
+			's'           => $search_string,
+		],
+	];
+
+	foreach ( $kinds as $kind ) {
+		$meta_query = [ 'relation' => 'OR' ];
+		$fields     = get_mobject_fields( $kind->kind_id );
+		foreach ( $fields as $field ) {
+			if ( $field->public ) {
+				$meta_query[] = [
+					'key'     => $field->slug,
+					'value'   => $search_string,
+					'compare' => 'LIKE',
+				];
+			}
+		}
+		if ( count( $meta_query ) > 1 ) {
+			$args[] = [
+				'post_type'   => $kind->type_name,
+				'post_status' => 'public',
+				'meta_query'  => $meta_query,
+			];
+		}
+	}
+
+	$combined_query = [
+		'args'  => $args,
+		'union' => 'UNION',
+	];
+
+	return $combined_query;
+}
