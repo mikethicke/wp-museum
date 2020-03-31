@@ -42,6 +42,17 @@ const DEV_BUILD = true;
  */
 const DEF_POSTS_PER_PAGE = 20;
 
+/**
+ * Combine Query
+ *
+ * Plugin for combining WordPress queries. Used by museum objects to include
+ * meta fields in the default WordPress search.
+ *
+ * @link https://github.com/birgire/wp-combine-queries
+ * @version 1.0.5
+ */
+require_once 'dependencies/wp-combine-queries/combined-query.php';
+
 /*
  * Classes
  */
