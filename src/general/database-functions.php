@@ -109,7 +109,7 @@ function get_kind( $id ) {
 /**
  * Get museum object kind given id.
  *
- * @param   string $id  Type name of kind
+ * @param   string $type_name  Type name of kind
  *
  * @return  object      Database entry for object as object.
  */
@@ -124,7 +124,11 @@ function get_kind_from_typename( $type_name ) {
 				$type_name
 			)
 		);
-		$kind  = new ObjectKind( $results[0] );
+		if ( count( $results ) === 1 ) {
+			$kind  = new ObjectKind( $results[0] );
+		} else {
+			return null;
+		}
 		wp_cache_add( 'get_kind_' . $type_name, $kind, CACHE_GROUP );
 	}
 	return $kind;
@@ -222,7 +226,8 @@ function get_mobject_fields( $kind_id ) {
 		);
 		$fields = [];
 		foreach ( $results as $result ) {
-			$fields[] = new MObjectField( $result );
+			$new_field = new MObjectField( $result );
+			$fields[ $new_field->slug ] = $new_field;
 		}
 		wp_cache_add( 'get_mobject_fields', $fields, CACHE_GROUP );
 	}

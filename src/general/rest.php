@@ -45,14 +45,20 @@ function rest_routes() {
 					if ( ! isset( $paged ) || empty( $paged ) ) {
 						$paged = 1;
 					}
+					$param_count = count( $request->get_params() );
 
-					$meta_query = build_meta( $kind->kind_id, $request );
+					$combined_query = build_rest_combined_query( [ $kind ], $request );
+					if ( $param_count > 0 && empty( $combined_query ) ) {
+						return [];
+					}
 
 					$posts = get_posts(
 						[
-							'post_status' => 'publish',
-							'paged'       => $paged,
-							'post_type'   => $kind->type_name,
+							'post_status'      => 'publish',
+							'paged'            => $paged,
+							'post_type'        => $kind->type_name,
+							'combined_query'   => $combined_query,
+							'suppress_filters' => false,
 						]
 					);
 					$post_data = [];
@@ -136,6 +142,11 @@ function rest_routes() {
 			'callback' => function ( $request ) use ( $kinds ) {
 				$post_data = [];
 				$paged     = $request->get_param( 'page' );
+				$param_count = count( $request->get_params() );
+
+				if ( ! empty( $paged ) ) {
+					$param_count--;
+				}
 
 				$kind_type_list = array_map(
 					function ( $x ) {
@@ -145,6 +156,9 @@ function rest_routes() {
 				);
 
 				$combined_query = build_rest_combined_query( $kinds, $request );
+				if ( $param_count > 0 && empty( $combined_query ) ) {
+					return [];
+				}
 
 				if ( ! isset( $paged ) || empty( $paged ) ) {
 					$paged = 1;
@@ -159,8 +173,7 @@ function rest_routes() {
 					]
 				);
 				foreach ( $posts as $post ) {
-					$custom      = get_post_custom( $post->ID );
-					$post_data[] = array_merge( $post->to_array(), $custom );
+					$post_data[] = combine_post_data( $post );
 				}
 				return $post_data;
 			},
@@ -280,6 +293,18 @@ function combine_post_data( $post ) {
 		},
 		get_post_custom( $post->ID )
 	);
+
+	$kind = get_kind_from_typename( $post->post_type );
+	if ( ! empty( $kind ) ) {
+		$filtered_custom = [];
+		$fields          = get_mobject_fields( $kind->kind_id );
+		foreach ( $custom as $field_slug => $field_data ) {
+			if ( isset( $fields[ $field_slug ] ) && $fields[ $field_slug ]->public ) {
+				$filtered_custom[ $field_slug ] = $field_data;
+			}
+		}
+		$custom = $filtered_custom;
+	}
 
 	if ( has_post_thumbnail( $post->ID ) ) {
 		$attach_id = get_post_thumbnail_id( $post->ID );
