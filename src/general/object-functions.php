@@ -307,7 +307,7 @@ function get_object_post_from_id( $kind, $cat_id ) {
  */
 function build_meta( $kind_id, $request ) {
 	$mobject_fields = get_mobject_fields( $kind_id );
-	$meta_query     = [ 'relation' => 'OR' ];
+	$meta_query     = [ 'relation' => 'AND' ];
 	foreach ( $mobject_fields as $field ) {
 		$field_query = $request->get_param( $field->slug );
 		if ( ! empty( $field_query ) && $field->public ) {
@@ -340,49 +340,62 @@ function build_rest_combined_query( $kinds, $request ) {
 
 	$search_string = $request->get_param( 's' );
 	if ( empty( $search_string ) ) {
-		return [];
-	}
-
-	$kind_type_list = array_map(
-		function ( $x ) {
-			return $x->type_name;
-		},
-		$kinds
-	);
-
-	$args = [
-		[
-			'post_type'   => $kind_type_list,
-			'post_status' => 'public',
-			's'           => $search_string,
-		],
-	];
-
-	foreach ( $kinds as $kind ) {
-		$meta_query = [ 'relation' => 'OR' ];
-		$fields     = get_mobject_fields( $kind->kind_id );
-		foreach ( $fields as $field ) {
-			if ( $field->public ) {
-				$meta_query[] = [
-					'key'     => $field->slug,
-					'value'   => $search_string,
-					'compare' => 'LIKE',
+		$args = [];
+		foreach ( $kinds as $kind ) {
+			$meta_query = build_meta( $kind->kind_id, $request );
+			if ( ! empty( $meta_query ) ) {
+				$args[] = [
+					'post_type'   => $kind->type_name,
+					'post_status' => 'public',
+					'meta_query'  => $meta_query,
 				];
 			}
 		}
-		if ( count( $meta_query ) > 1 ) {
-			$args[] = [
-				'post_type'   => $kind->type_name,
+	} else {
+		$kind_type_list = array_map(
+			function ( $x ) {
+				return $x->type_name;
+			},
+			$kinds
+		);
+
+		$args = [
+			[
+				'post_type'   => $kind_type_list,
 				'post_status' => 'public',
-				'meta_query'  => $meta_query,
-			];
+				's'           => $search_string,
+			],
+		];
+
+		foreach ( $kinds as $kind ) {
+			$meta_query = [ 'relation' => 'OR' ];
+			$fields     = get_mobject_fields( $kind->kind_id );
+			foreach ( $fields as $field ) {
+				if ( $field->public ) {
+					$meta_query[] = [
+						'key'     => $field->slug,
+						'value'   => $search_string,
+						'compare' => 'LIKE',
+					];
+				}
+			}
+			if ( count( $meta_query ) > 1 ) {
+				$args[] = [
+					'post_type'   => $kind->type_name,
+					'post_status' => 'public',
+					'meta_query'  => $meta_query,
+				];
+			}
 		}
 	}
 
-	$combined_query = [
-		'args'  => $args,
-		'union' => 'UNION',
-	];
-
-	return $combined_query;
+	if ( empty( $args ) ) {
+		return [];
+	} else {
+		$combined_query = [
+			'args'  => $args,
+			'union' => 'UNION',
+		];
+		return $combined_query;
+	}
 }
