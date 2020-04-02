@@ -60,13 +60,6 @@ register_activation_hook(
 register_deactivation_hook( __FILE__, __NAMESPACE__ . '\remove_museum_capabilities' );
 
 /**
- * Search meta fields of custom post types when doing WordPress search.
- *
- * @see custom-post-type-functions.php::custom_search()
- */
-add_action( 'pre_get_posts', __NAMESPACE__ . '\custom_search' );
-
-/**
  * Creates and registers museum object post types from database.
  *
  * @see object-post-types.php::create_mobject_post_types()
@@ -93,6 +86,27 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\generate_image_sizes' );
  * @see rest.php::rest_routes()
  */
 add_action( 'rest_api_init', __NAMESPACE__ . '\rest_routes' );
+
+/*****************************************************************************
+ *
+ * Global Filters
+ *
+ *****************************************************************************/
+
+/**
+ * Allows for targetted searches of post_title and post_content.
+ *
+ * @see custom-post-type-functions.php::post_search_filter()
+ */
+add_filter( 'posts_where', __NAMESPACE__ . '\post_search_filter', 10, 2 );
+
+/**
+ * Add post_title and post_content to WP_QUERY query vars.
+ *
+ * @see custom-post-type-functions.php::add_title_content_query_vars()
+ * @see custom-post-type-functions.php::post_search_filter()
+ */
+add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
 
 
 /*****************************************************************************

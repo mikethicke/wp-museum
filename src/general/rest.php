@@ -45,22 +45,26 @@ function rest_routes() {
 					if ( ! isset( $paged ) || empty( $paged ) ) {
 						$paged = 1;
 					}
-					$param_count = count( $request->get_params() );
 
 					$combined_query = build_rest_combined_query( [ $kind ], $request );
-					if ( $param_count > 0 && empty( $combined_query ) ) {
-						return [];
-					}
 
-					$posts = get_posts(
-						[
-							'post_status'      => 'publish',
-							'paged'            => $paged,
-							'post_type'        => $kind->type_name,
-							'combined_query'   => $combined_query,
-							'suppress_filters' => false,
-						]
-					);
+					$args          = [
+						'post_status'      => 'publish',
+						'paged'            => $paged,
+						'post_type'        => $kind->type_name,
+						'combined_query'   => $combined_query,
+						'suppress_filters' => false,
+					];
+					$title_query   = $request->get_param( 'post_title' );
+					$content_query = $request->get_param( 'post_content' );
+					if ( $title_query ) {
+						$args['post_title'] = $title_query;
+					}
+					if ( $content_query ) {
+						$args['post_content'] = $content_query;
+					}
+					$posts = get_posts( $args );
+
 					$post_data = [];
 					foreach ( $posts as $post ) {
 						$post_data[] = combine_post_data( $post->ID );
@@ -142,11 +146,6 @@ function rest_routes() {
 			'callback' => function ( $request ) use ( $kinds ) {
 				$post_data = [];
 				$paged     = $request->get_param( 'page' );
-				$param_count = count( $request->get_params() );
-
-				if ( ! empty( $paged ) ) {
-					$param_count--;
-				}
 
 				$kind_type_list = array_map(
 					function ( $x ) {
@@ -156,22 +155,27 @@ function rest_routes() {
 				);
 
 				$combined_query = build_rest_combined_query( $kinds, $request );
-				if ( $param_count > 0 && empty( $combined_query ) ) {
-					return [];
-				}
 
 				if ( ! isset( $paged ) || empty( $paged ) ) {
 					$paged = 1;
 				}
-				$posts = get_posts(
-					[
-						'post_status'      => 'publish',
-						'paged'            => $paged,
-						'post_type'        => $kind_type_list,
-						'combined_query'   => $combined_query,
-						'suppress_filters' => false,
-					]
-				);
+
+				$args          = [
+					'post_status'      => 'publish',
+					'paged'            => $paged,
+					'post_type'        => $kind_type_list,
+					'combined_query'   => $combined_query,
+					'suppress_filters' => false,
+				];
+				$title_query   = $request->get_param( 'post_title' );
+				$content_query = $request->get_param( 'post_content' );
+				if ( $title_query ) {
+					$args['post_title'] = $title_query;
+				}
+				if ( $content_query ) {
+					$args['post_content'] = $content_query;
+				}
+				$posts = get_posts( $args );
 				foreach ( $posts as $post ) {
 					$post_data[] = combine_post_data( $post );
 				}
