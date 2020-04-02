@@ -343,12 +343,21 @@ function build_rest_combined_query( $kinds, $request ) {
 		$args = [];
 		foreach ( $kinds as $kind ) {
 			$meta_query = build_meta( $kind->kind_id, $request );
+			$new_arg = [
+				'post_type'   => $kind->type_name,
+				'post_status' => 'public',
+				'meta_query'  => $meta_query,
+			];
+			$title_query = $request->get_param( 'post_title' );
+			if ( ! empty( $title_query ) ) {
+				$new_arg['post_title'] = $title_query;
+			}
+			$content_query = $request->get_param( 'post_content' );
+			if ( ! empty( $content_query ) ) {
+				$new_arg['post_content'] = $content_query;
+			}
 			if ( ! empty( $meta_query ) ) {
-				$args[] = [
-					'post_type'   => $kind->type_name,
-					'post_status' => 'public',
-					'meta_query'  => $meta_query,
-				];
+				$args[] = $new_arg;
 			}
 		}
 	} else {
@@ -399,3 +408,5 @@ function build_rest_combined_query( $kinds, $request ) {
 		return $combined_query;
 	}
 }
+
+
