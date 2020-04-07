@@ -1,0 +1,43 @@
+.wpm-object-search-box {
+	padding: 5px;
+
+	.toggle-control {
+		margin-bottom: 5px;
+	}
+	.bottom-controls {
+		margin-top: 5px;
+		.cancel-button {
+			float: right;
+		}
+	}
+
+	.results-list {
+		div {
+			width: 100%;
+			padding: 5px 0px 5px 0px;
+		}
+		.search-result-button {
+			display: block;
+			width: 100%;
+			text-align: left;
+		}
+		.search-result-button:focus {
+			background-color: transparent;
+		}
+		li {
+			margin: 0;
+		}
+		li:nth-child( odd ) {
+			background-color: #f3f5f6;
+		}
+		li:nth-child( even ) {
+			background-color: #fdfdfd;
+		}
+		li.selected {
+			background-color: #0da0d1;
+		}
+		.search-result-title {
+			font-weight: bold;
+		}
+	}
+}

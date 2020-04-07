@@ -308,6 +308,14 @@ function combine_post_data( $post ) {
 			}
 		}
 		$custom = $filtered_custom;
+
+		$cat_field = get_mobject_field( $kind->kind_id, $kind->cat_field_id );
+	}
+
+	if ( $cat_field ) {
+		$cat_field_slug = $cat_field->slug;
+	} else {
+		$cat_field_slug = null;
 	}
 
 	if ( has_post_thumbnail( $post->ID ) ) {
@@ -330,6 +338,7 @@ function combine_post_data( $post ) {
 		'link'      => get_permalink( $post ),
 		'excerpt'   => get_the_excerpt( $post ),
 		'thumbnail' => $img_data,
+		'cat_field' => $cat_field_slug,
 	];
 
 	$post_data = array_merge(
