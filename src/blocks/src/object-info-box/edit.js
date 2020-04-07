@@ -398,7 +398,7 @@ function EditContent ( props ) {
 	} = state;
 
 	if ( object_fetched ) {
-		return [
+		return (
 			<InfoContent 
 				objectID = { objectID }
 				title = { displayTitle ? title : null }
@@ -415,15 +415,15 @@ function EditContent ( props ) {
 				appearance = { appearance }
 				titleTag = { titleTag }
 			/>
-		];
+		);
 	} else {
-		return [
+		return (
 			<InfoPlaceholder
 				objectID = { objectID }
 				onChangeObjectID = { onChangeObjectID }
 				onUpdateButton = { onUpdateButton }
 			/>
-		]
+		);
 	}
 }
 
@@ -431,16 +431,17 @@ class ObjectInfoEdit extends Component {
 	constructor ( props ) {
 		super ( props );
 
-		this.onUpdateButton = this.onUpdateButton.bind( this );
-		this.onChangeObjectID = this.onChangeObjectID.bind( this );
-		this.fetchFieldData = this.fetchFieldData.bind ( this );
+		this.onUpdateButton      = this.onUpdateButton.bind( this );
+		this.onChangeObjectID    = this.onChangeObjectID.bind( this );
+		this.fetchFieldData      = this.fetchFieldData.bind ( this );
+		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
 
 		this.state = {
-			object_fetched: false,
-			object_data: {},
-			imgHeight: null,
-			imgWidth: null,
-			imgReady: false
+			object_fetched : false,
+			object_data    : {},
+			imgHeight      : null,
+			imgWidth       : null,
+			imgReady       : false,
 		}
 	}
 	
@@ -466,11 +467,11 @@ class ObjectInfoEdit extends Component {
 		} );
 	}
 	
-	fetchFieldData ( ) {
+	fetchFieldData ( objectFetchID = null ) {
 		const { setAttributes } = this.props;
-		const { objectID } = this.props.attributes;
 		const base_rest_path = '/wp-museum/v1/';
-
+		const objectID = objectFetchID ? objectFetchID : this.props.attributes.objectID;
+		
 		if ( objectID != null ) {
 			const object_path = base_rest_path + 'all/' + objectID;
 			const that = this;
@@ -542,6 +543,15 @@ class ObjectInfoEdit extends Component {
 	onUpdateButton() {
 		this.fetchFieldData();
 	}
+
+	onSearchModalReturn( returnValue ) {
+		const { setAttributes } = this.props;
+
+		if ( returnValue != null ) {
+			setAttributes( { objectID: returnValue } );
+			this.fetchFieldData( returnValue );
+		}
+	}
 	
 	render () {
 		const { setAttributes, attributes } = this.props;
@@ -567,7 +577,9 @@ class ObjectInfoEdit extends Component {
 							>
 								Update
 							</Button>
-							<ObjectSearchButton>
+							<ObjectSearchButton
+								returnCallback = { this.onSearchModalReturn }
+							>
 								Search
 							</ObjectSearchButton>
 						</PanelRow>

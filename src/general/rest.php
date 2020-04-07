@@ -46,13 +46,25 @@ function rest_routes() {
 						$paged = 1;
 					}
 
-					$posts = get_posts(
-						[
-							'post_status' => 'publish',
-							'paged'       => $paged,
-							'post_type'   => $kind->type_name,
-						]
-					);
+					$combined_query = build_rest_combined_query( [ $kind ], $request );
+
+					$args          = [
+						'post_status'      => 'publish',
+						'paged'            => $paged,
+						'post_type'        => $kind->type_name,
+						'combined_query'   => $combined_query,
+						'suppress_filters' => false,
+					];
+					$title_query   = $request->get_param( 'post_title' );
+					$content_query = $request->get_param( 'post_content' );
+					if ( $title_query ) {
+						$args['post_title'] = $title_query;
+					}
+					if ( $content_query ) {
+						$args['post_content'] = $content_query;
+					}
+					$posts = get_posts( $args );
+
 					$post_data = [];
 					foreach ( $posts as $post ) {
 						$post_data[] = combine_post_data( $post->ID );
@@ -142,19 +154,30 @@ function rest_routes() {
 					$kinds
 				);
 
+				$combined_query = build_rest_combined_query( $kinds, $request );
+
 				if ( ! isset( $paged ) || empty( $paged ) ) {
 					$paged = 1;
 				}
-				$posts = get_posts(
-					[
-						'post_status' => 'publish',
-						'paged'       => $paged,
-						'post_type'   => $kind_type_list,
-					]
-				);
+
+				$args          = [
+					'post_status'      => 'publish',
+					'paged'            => $paged,
+					'post_type'        => $kind_type_list,
+					'combined_query'   => $combined_query,
+					'suppress_filters' => false,
+				];
+				$title_query   = $request->get_param( 'post_title' );
+				$content_query = $request->get_param( 'post_content' );
+				if ( $title_query ) {
+					$args['post_title'] = $title_query;
+				}
+				if ( $content_query ) {
+					$args['post_content'] = $content_query;
+				}
+				$posts = get_posts( $args );
 				foreach ( $posts as $post ) {
-					$custom      = get_post_custom( $post->ID );
-					$post_data[] = array_merge( $post->to_array(), $custom );
+					$post_data[] = combine_post_data( $post );
 				}
 				return $post_data;
 			},
@@ -275,6 +298,26 @@ function combine_post_data( $post ) {
 		get_post_custom( $post->ID )
 	);
 
+	$kind = get_kind_from_typename( $post->post_type );
+	if ( ! empty( $kind ) ) {
+		$filtered_custom = [];
+		$fields          = get_mobject_fields( $kind->kind_id );
+		foreach ( $custom as $field_slug => $field_data ) {
+			if ( isset( $fields[ $field_slug ] ) && $fields[ $field_slug ]->public ) {
+				$filtered_custom[ $field_slug ] = $field_data;
+			}
+		}
+		$custom = $filtered_custom;
+
+		$cat_field = get_mobject_field( $kind->kind_id, $kind->cat_field_id );
+	}
+
+	if ( $cat_field ) {
+		$cat_field_slug = $cat_field->slug;
+	} else {
+		$cat_field_slug = null;
+	}
+
 	if ( has_post_thumbnail( $post->ID ) ) {
 		$attach_id = get_post_thumbnail_id( $post->ID );
 	} else {
@@ -295,6 +338,7 @@ function combine_post_data( $post ) {
 		'link'      => get_permalink( $post ),
 		'excerpt'   => get_the_excerpt( $post ),
 		'thumbnail' => $img_data,
+		'cat_field' => $cat_field_slug,
 	];
 
 	$post_data = array_merge(

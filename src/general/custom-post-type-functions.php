@@ -8,39 +8,40 @@
 namespace MikeThicke\WPMuseum;
 
 /**
- * Callback to search post meta fields when searching posts.
+ * A filter for WP_QUERY to allow for searching just the post title.
  *
- * @param WP_QUERY $query WordPress query object.
+ * @link https://wordpress.stackexchange.com/questions/18703/wp-query-with-post-title-like-something
+ *
+ * @param string   $where    The existing WHERE clause.
+ * @param WP_QUERY $wp_query The query object.
  */
-function custom_search( $query ) {
+function post_search_filter( $where, $wp_query ) {
 	global $wpdb;
-	if ( $query->is_main_query() && is_search() ) {
-		$search_string = get_search_query();
-		$search_string = '%' . $wpdb->esc_like( $search_string ) . '%';
-		$post_ids      = wp_cache_get( 'custom_search_post_ids_' . $search_string, CACHE_GROUP );
-		if ( ! $post_ids ) {
-			$post_ids_meta = $wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT DISTINCT post_id FROM {$wpdb->postmeta}
-					WHERE meta_value LIKE %s",
-					$search_string
-				)
-			);
-			$post_ids_post = $wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT DISTINCT ID FROM {$wpdb->posts}
-					WHERE post_title LIKE %s
-					OR post_content LIKE %s",
-					$search_string,
-					$search_string
-				)
-			);
-			$post_ids      = array_merge( $post_ids_meta, $post_ids_post );
-			wp_cache_add( 'custom_search_post_ids_' . $search_string, $post_ids, CACHE_GROUP );
-			$query->set( 'post__in', $post_ids );
-		}
-		return $query;
-	} else {
-		return $query;
+
+	// Run only once.
+	remove_filter( 'posts_where', __NAMESPACE__ . 'post_search_filter', 10, 2 );
+
+	$search_term = $wp_query->get( 'post_title' );
+	if ( $search_term ) {
+		$where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'%' . esc_sql( $wpdb->esc_like( $search_term ) ) . '%\'';
 	}
+	$search_term = $wp_query->get( 'post_content' );
+	if ( $search_term ) {
+		$where .= ' AND ' . $wpdb->posts . '.post_content LIKE \'%' . esc_sql( $wpdb->esc_like( $search_term ) ) . '%\'';
+	}
+	return $where;
+}
+
+/**
+ * A filter to add post_title and post_content to the WP_QUERY query vars.
+ *
+ * @link https://www.smashingmagazine.com/2016/03/advanced-wordpress-search-with-wp_query/
+ *
+ * @param [string] $vars Array of accepted query vars.
+ * @return [string] Updated array of query vars.
+ */
+function add_title_content_query_vars( $vars ) {
+	$vars[] = 'post_title';
+	$vars[] = 'post_content';
+	return $vars;
 }
