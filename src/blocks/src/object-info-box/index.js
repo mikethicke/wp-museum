@@ -21,6 +21,10 @@ registerBlockType('wp-museum/object-info-box', {
 			type: 'string',
 			default: null
 		},
+		catID: {
+			type: 'string',
+			default: null
+		},
 		title: {
 			type: 'string',
 			default: null

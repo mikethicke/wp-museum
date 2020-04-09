@@ -23,9 +23,8 @@ import { __ } from "@wordpress/i18n";
 
 import apiFetch from '@wordpress/api-fetch';
 
-import ObjectSearchButton from '../components/object-search-box';
-import InfoContent from './info-content';
-import InfoPlaceholder from './info-placeholder';
+import { ObjectSearchButton } from '../components/object-search-box';
+import { InfoContent, InfoPlaceholder } from './info-content';
 
 const imageSizes = {
 	thumbnail: { height: 150, width: 150 },
@@ -54,7 +53,7 @@ class AppearancePanel extends Component {
 	}
 	
 	render ( ) {
-		const { appearance, setAttributes } = this.props;
+		const { appearance } = this.props;
 		const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 
 		return [
@@ -149,38 +148,36 @@ class FieldsPanel extends Component {
 	}
 }
 
-class OptionsPanel extends Component {
-	render () {
-		const { attributes, setAttributes } = this.props;
-		const { displayTitle, displayExcerpt, displayThumbnail, linkToObject } = attributes;
-		return [
-			<PanelBody
-				title = "Options"
-				initialOpen = {true}
-			>
-				<CheckboxControl
-					label = 'Display Title'
-					checked = { displayTitle }
-					onChange = { ( val ) => { setAttributes( { displayTitle: val } ) } }
-				/>
-				<CheckboxControl
-					label = 'Display Excerpt'
-					checked = { displayExcerpt }
-					onChange = { ( val ) => { setAttributes( { displayExcerpt: val } ) } }
-				/>
-				<CheckboxControl
-					label = 'Display Thumbnail'
-					checked = { displayThumbnail }
-					onChange = { ( val ) => { setAttributes( { displayThumbnail: val } ) } }
-				/>
-				<CheckboxControl
-					label = 'Link to Object'
-					checked = { linkToObject }
-					onChange = { ( val ) => { setAttributes( { linkToObject: val } ) } }
-				/>
-			</PanelBody>
-		]
-	}
+const OptionsPanel = ( props ) => {
+	const { attributes, setAttributes } = props;
+	const { displayTitle, displayExcerpt, displayThumbnail, linkToObject } = attributes;
+	return (
+		<PanelBody
+			title = "Options"
+			initialOpen = {true}
+		>
+			<CheckboxControl
+				label = 'Display Title'
+				checked = { displayTitle }
+				onChange = { ( val ) => { setAttributes( { displayTitle: val } ) } }
+			/>
+			<CheckboxControl
+				label = 'Display Excerpt'
+				checked = { displayExcerpt }
+				onChange = { ( val ) => { setAttributes( { displayExcerpt: val } ) } }
+			/>
+			<CheckboxControl
+				label = 'Display Thumbnail'
+				checked = { displayThumbnail }
+				onChange = { ( val ) => { setAttributes( { displayThumbnail: val } ) } }
+			/>
+			<CheckboxControl
+				label = 'Link to Object'
+				checked = { linkToObject }
+				onChange = { ( val ) => { setAttributes( { linkToObject: val } ) } }
+			/>
+		</PanelBody>
+	);
 }
 
 class ImageSizePanel extends Component {
@@ -328,53 +325,50 @@ class ImageSizePanel extends Component {
 	}
 }
 
-class FontSizePanel extends Component {
+const FontSizePanel = ( props ) => {
+	const { setAttributes, titleTag, fontSize } = props;
 
-	render ( ) {
-		const { setAttributes, titleTag, fontSize } = this.props;
+	const titleTagOptions = [
+		{ label: 'Heading 2', value: 'h2' },
+		{ label: 'Heading 3', value: 'h3' },
+		{ label: 'Heading 4', value: 'h4' },
+		{ label: 'Heading 5', value: 'h5' },
+		{ label: 'Heading 6', value: 'h6' },
+		{ label: 'Paragraph', value: 'p' },
+	];
 
-		const titleTagOptions = [
-			{ label: 'Heading 2', value: 'h2' },
-			{ label: 'Heading 3', value: 'h3' },
-			{ label: 'Heading 4', value: 'h4' },
-			{ label: 'Heading 5', value: 'h5' },
-			{ label: 'Heading 6', value: 'h6' },
-			{ label: 'Paragraph', value: 'p' },
-		];
-
-		return [
-			<PanelBody
-				title = "Font Size"
-				initialOpen = { false }
-			>
-				<PanelRow>
-					<SelectControl
-						label = 'Title Style'
-						value = { titleTag }
-						options = { titleTagOptions }
-						onChange = { ( val ) => setAttributes( { titleTag: val } ) }
-					/>
-				</PanelRow>
-				<PanelRow>
-					<RangeControl
-						label = 'Text (em)'
-						onChange = { ( val ) => val ? setAttributes( { fontSize: val } ) : setAttributes( { fontSize: 1 } ) }
-						min = '0.25'
-						max = '2'
-						step = '0.05'
-						value = { fontSize }
-						initialPosition = '1'
-						withInputField
-						allowReset
-					/>
-				</PanelRow>
-			</PanelBody>
-		];
-	}
+	return (
+		<PanelBody
+			title = "Font Size"
+			initialOpen = { false }
+		>
+			<PanelRow>
+				<SelectControl
+					label = 'Title Style'
+					value = { titleTag }
+					options = { titleTagOptions }
+					onChange = { ( val ) => setAttributes( { titleTag: val } ) }
+				/>
+			</PanelRow>
+			<PanelRow>
+				<RangeControl
+					label = 'Text (em)'
+					onChange = { ( val ) => val ? setAttributes( { fontSize: val } ) : setAttributes( { fontSize: 1 } ) }
+					min = '0.25'
+					max = '2'
+					step = '0.05'
+					value = { fontSize }
+					initialPosition = '1'
+					withInputField
+					allowReset
+				/>
+			</PanelRow>
+		</PanelBody>
+	);
 }
 
-function EditContent ( props ) {
-	const { attributes, state, onChangeObjectID, onUpdateButton, imageSizes } = props;
+const EditContent = ( props ) => {
+	const { attributes, state, onChangeObjectID, onUpdateButton, imageSizes, onSearchModalReturn } = props;
 	const { 
 		objectID,
 		title,
@@ -422,9 +416,49 @@ function EditContent ( props ) {
 				objectID = { objectID }
 				onChangeObjectID = { onChangeObjectID }
 				onUpdateButton = { onUpdateButton }
+				onSearchModalReturn = { onSearchModalReturn }
 			/>
 		);
 	}
+}
+
+const EmbedPanel = ( props ) => {
+	const { onSearchModalReturn, title, catID, objectID, objectURL } = props;
+
+	let objectDescription;
+	if ( objectID === null ) {
+		objectDescription = (
+			<div>
+				Click 'Search' to embed object.";
+			</div>
+		);
+	} else {
+		objectDescription = (
+			<div>
+				<div>{ title }</div>
+				<div>{ catID }</div>
+				<div><a href = { objectURL }>View Object</a></div>
+			</div>
+		);
+	}
+	
+	return (
+		<PanelBody
+			title = "Object"
+			initialOpen = {true}
+		>
+			<PanelRow>
+				{ objectDescription }
+			</PanelRow>
+			<PanelRow>
+				<ObjectSearchButton
+					returnCallback = { onSearchModalReturn }
+				>
+					{ objectID ? 'Replace' : 'Search' }
+				</ObjectSearchButton>
+			</PanelRow>
+		</PanelBody>
+	);
 }
 
 class ObjectInfoEdit extends Component {
@@ -519,8 +553,9 @@ class ObjectInfoEdit extends Component {
 						}
 					}
 					setAttributes( {
-						fields: newFields,
-						fieldData: fieldData
+						catID     : object_data[ object_data[ 'cat_field' ] ],
+						fields    : newFields,
+						fieldData : fieldData
 					} );
 					that.setState( { 
 						object_fetched: true
@@ -555,60 +590,54 @@ class ObjectInfoEdit extends Component {
 	
 	render () {
 		const { setAttributes, attributes } = this.props;
-		const { fontSize, appearance, titleTag } = attributes;
+		const { 
+			fontSize,
+			appearance,
+			titleTag,
+			title,
+			catID,
+			objectID,
+			fields,
+			fieldData,
+			toggle,
+			objectURL,
+		} = attributes;
 		
 		return [
 			<>
 				<InspectorControls>
-					<PanelBody
-						title = "Embed Object"
-						initialOpen = {true}
-					>
-						<PanelRow>
-							<TextControl
-								label = 'Object ID'
-								onChange = { this.onChangeObjectID }
-								value = { this.objectID }
-							/>
-						</PanelRow>
-						<PanelRow>
-							<Button isDefault isPrimary
-								onClick = { this.onUpdateButton }
-							>
-								Update
-							</Button>
-							<ObjectSearchButton
-								returnCallback = { this.onSearchModalReturn }
-							>
-								Search
-							</ObjectSearchButton>
-						</PanelRow>
-					</PanelBody>
+					<EmbedPanel 
+						onSearchModalReturn = { this.onSearchModalReturn }
+						title               = { title }
+						catID               = { catID }
+						objectID            = { objectID }
+						objectURL           = { objectURL }
+					/>
 					<OptionsPanel { ...this.props } />
 					<ImageSizePanel { ...this.props }
-						state = { this.state }
+						state         = { this.state }
 					/>
 					<AppearancePanel
 						setAttributes = { setAttributes }
-						appearance = { appearance }
+						appearance    = { appearance }
 					/>
 					<FontSizePanel
 						setAttributes = { setAttributes }
-						titleTag = { titleTag }
-						fontSize = { fontSize }
+						titleTag      = { titleTag }
+						fontSize      = { fontSize }
 					/>
 					<FieldsPanel
-						setAttributes = { this.props.setAttributes }
-						fields = { this.props.attributes.fields }
-						fieldData = { this.props.attributes.fieldData }
-						toggle = { this.props.attributes.toggle }
+						setAttributes = { setAttributes }
+						fields        = { fields }
+						fieldData     = { fieldData }
+						toggle        = { toggle }
 					/>
 				</InspectorControls>
 				<EditContent { ...this.props } 
-					onUpdateButton = { this.onUpdateButton }
-					onChangeObjectID = { this.onChangeObjectID }
-					state = { this.state }
-					imageSizes = { imageSizes }
+					onSearchModalReturn = { this.onSearchModalReturn }
+					onChangeObjectID    = { this.onChangeObjectID }
+					state               = { this.state }
+					imageSizes          = { imageSizes }
 				/>
 			</>	
 		];
