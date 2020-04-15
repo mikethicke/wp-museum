@@ -1,4 +1,4 @@
-import { hexToRgb } from './util';
+import { hexToRgb } from '../util';
 
 export default function save ( props ) {
 	const { attributes } = props;
@@ -13,13 +13,13 @@ export default function save ( props ) {
 		linkToObject,
 		fields,
 		fieldData,
-		imageDimensions,
-		imageAlignment,
+		imgDimensions,
+		imgAlignment,
 		fontSize,
 		titleTag,
 		appearance
 	} = attributes;
-	const { width, height } = imageDimensions;
+	const { width, height } = imgDimensions;
 	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 
 	const TitleTag = titleTag;
@@ -34,23 +34,19 @@ export default function save ( props ) {
 
 	let field_list = [];
 	if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
-		for ( let key in fields ) {
-			if ( fields[key] ) {
-				field_list.push(
-					<li key={ key } style={ { fontSize: fontSize + 'em'  } } >
-						<span className = 'field-name'>{ fieldData[key]['name']}: </span>
-						<span className = 'field-data'>{ fieldData[key]['content'] }</span>
-					</li>
-				)
-			}
-		}
+		field_list = Object.keys(fields).filter( key => fields[key] ).map( key => 
+			<li key={ key } style={ { fontSize: fontSize + 'em'  } } >
+				<span className = 'field-name'>{ fieldData[key]['name'] }: </span>
+				<span className = 'field-data'>{ fieldData[key]['content'] }</span>
+			</li>
+		);
 	}
 
 	const body = (
 		<>
 			{ thumbnailURL != null && displayThumbnail &&
 				<img
-					className = { 'img-info-' + imageAlignment }
+					className = { 'img-info-' + imgAlignment }
 					src = { thumbnailURL }
 					height = { height }
 					width = { width }

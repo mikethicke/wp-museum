@@ -6,9 +6,9 @@ import edit from './edit';
 import save from './save';
 
 registerBlockType('wp-museum/object-info-box', {
-	title: __('Museum Object Infobox'),
+	title: __('Object Infobox'),
 	icon: 'archive',
-	category: 'widgets',
+	category: 'wp-museum',
 	supports: {
 		align: [ 'left', 'right', 'center' ]
 	},
@@ -18,6 +18,10 @@ registerBlockType('wp-museum/object-info-box', {
 			default: 'left'
 		},
 		objectID: {
+			type: 'string',
+			default: null
+		},
+		catID: {
 			type: 'string',
 			default: null
 		},
@@ -61,11 +65,7 @@ registerBlockType('wp-museum/object-info-box', {
 			type: 'object',
 			default: {}
 		},
-		toggle: {
-			type: 'boolean',
-			default: false
-		},
-		imageDimensions: {
+		imgDimensions: {
 			type: 'object',
 			default: {
 				width: null,
@@ -73,7 +73,7 @@ registerBlockType('wp-museum/object-info-box', {
 				size: 'large' //options: thumbnail, medium, large, full
 			}
 		},
-		imageAlignment: {
+		imgAlignment: {
 			type: 'string',
 			default: 'center' //options: left, center, right
 		},
