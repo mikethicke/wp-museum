@@ -1,0 +1,57 @@
+.image-selector.alignleft, .image-selector.alignright {
+	max-width: 50%;
+}
+
+.image-selector.alignleft {
+	float: left;
+}
+
+.image-selector.alignright {
+	float: right;
+}
+
+.image-selector.aligncenter {
+	clear: both;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.image-selector {
+	text-align: left;
+
+	.image-selector-title {
+		margin-top: 0.5em;
+		margin-bottom: 0.2em;
+		text-align: left;
+	}
+
+	p.caption-text-field {
+		margin: 0.5em 0;
+	}
+
+	img {
+		margin: 5px;
+		max-width: 100%;
+		height: auto;
+	}
+
+	.image-selector-image-right {
+		float: right;
+	}
+	
+	.image-selector-image-left {
+		float: left;
+	}
+	
+	.image-selector-image-center {
+		margin-right: auto;
+		margin-left: auto;
+		display: block;
+	}
+
+	.object-link, .object-link:hover {
+		text-decoration: none;
+		color: inherit;
+	}
+}

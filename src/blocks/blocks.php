@@ -56,6 +56,31 @@ function enqueue_block_style_frontend() {
 	);
 }
 
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_scripts' );
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_scripts' );
+/**
+ * Callbacl to add 'Museum' block category.
+ *
+ * @link https://getwithgutenberg.com/2019/04/creating-a-block-category/
+ *
+ * @param Array $categories Array of existing categories.
+ * @return Array Updated $categories array.
+ */
+function add_museum_block_category( $categories ) {
+	$category_slugs = wp_list_pluck( $categories, 'slug' );
+	if ( in_array( 'wp-museum', $category_slugs, true ) ) {
+		return $categories;
+	} else {
+		return array_merge(
+			$categories,
+			[
+				[
+					'slug'  => 'wp-museum',
+					'title' => __( 'Museum', 'wp-museum' ),
+					'icon'  => null,
+				],
+			]
+		);
+	}
+}
+
+
 

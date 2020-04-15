@@ -1,106 +1,97 @@
-import {
-	Component
-} from '@wordpress/element';
-import { hexToRgb } from './util';
+import { hexToRgb } from '../util';
 
+import { ObjectSearchButton } from '../components/object-search-box.js';
 
-class InfoContent extends Component {
+const InfoContent = ( props ) => {
+	const { 
+		objectID,
+		title,
+		excerpt,
+		thumbnailURL,
+		fields,
+		fieldData,
+		imgDimensions,
+		state,
+		imgAlignment,
+		fontSize,
+		appearance,
+		titleTag
+	} = props;
+	const { width, height } = imgDimensions;
+	const { imgReady } = state;
+	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 
-	render()  {
-		const { 
-			objectID,
-			title,
-			excerpt,
-			thumbnailURL,
-			fields,
-			fieldData,
-			imageDimensions,
-			imageSizes,
-			state,
-			imageAlignment,
-			fontSize,
-			appearance,
-			titleTag
-		} = this.props;
-		const { width, height, size } = imageDimensions;
-		const { imgHeight, imgWidth, imgReady } = state;
-		const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
+	let field_list = [];
+	if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
+		field_list = Object.keys(fields).filter( key => fields[key] ).map( key => 
+				<li key={ 'field_list_' + key } style={ { fontSize: fontSize + 'em'  } } >
+					<span className = 'field-name'>{ fieldData[key]['name']}: </span>
+					<span className = 'field-data'>{ fieldData[key]['content'] }</span>
+				</li>
+		);
+	}
 
-		let imgRenderHeight, imgRenderWidth;
-		if ( imgReady ) {
-			if ( width != null && height != null ) {
-				imgRenderWidth = width;
-				imgRenderHeight = height;
-			} else {
-				const targetSize = imageSizes[ size ].width; //width == height
-				const scaleFactor = targetSize / Math.max( imgHeight, imgWidth );
-				imgRenderWidth = Math.round( imgWidth * scaleFactor );
-				imgRenderHeight = Math.round( imgWidth * scaleFactor );
+	const TitleTag = titleTag;
+
+	const body = (
+			<>
+			{ imgReady && width && height &&
+				<img 
+					className = { 'img-info-' + imgAlignment }
+					src = { thumbnailURL }
+					height = { height }
+					width = { width }
+				/>
 			}
-		}
-
-		let field_list = [];
-		if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
-			for ( let key in fields ) {
-				if ( fields[key] ) {
-					field_list.push(
-						<li key={ key } style={ { fontSize: fontSize + 'em'  } } >
-							<span className = 'field-name'>{ fieldData[key]['name']}: </span>
-							<span className = 'field-data'>{ fieldData[key]['content'] }</span>
-						</li>
-					)
-				}
+			{ title === null || 
+			<TitleTag>{ title }</TitleTag>
 			}
-		}
+			{ excerpt === null ||
+			<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
+			}
+			</>
+	);
 
-		const TitleTag = titleTag;
+	const bRGB = hexToRgb( backgroundColor.toString(16) );
 
-		const body = [
-			  <>
-				{ imgReady &&
-					<img 
-						className = { 'img-info-' + imageAlignment }
-						src = { thumbnailURL }
-						height = { imgRenderHeight }
-						width = { imgRenderWidth }
-					/>
+	const divStyle = {
+		borderWidth: borderWidth,
+		borderColor: borderColor,
+		backgroundColor: `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
+	}
+
+	if ( objectID !== null ) {	
+		return (
+			<div className = 'info-outer-div' style = { divStyle }>
+				{ body }
+				{ field_list.length === 0 ||
+					<ul>
+						{ field_list }
+					</ul>
 				}
-				{ title === null || 
-				<TitleTag>{ title }</TitleTag>
-				}
-				{ excerpt === null ||
-				<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
-				}
-			  </>
-		];
+			</div>
+		);
+	} else {
+		return (
+			<div>
 
-		const bRGB = hexToRgb( backgroundColor.toString(16) );
-
-		const divStyle = {
-			borderWidth: borderWidth,
-			borderColor: borderColor,
-			backgroundColor: `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
-		}
-
-		if ( objectID !== null ) {	
-			return [
-				<div className = 'info-outer-div' style = { divStyle }>
-					{ body }
-					{ field_list.length === 0 ||
-						<ul>
-							{ field_list }
-						</ul>
-					}
-				</div>
-			]
-		} else {
-			return [
-				<div>
-
-				</div>
-			];
-		}
+			</div>
+		);
 	}
 }
 
-export default InfoContent;
+const InfoPlaceholder = ( props ) => {
+	const { onSearchModalReturn } = props;
+	return (
+		<div>
+			<div>Click 'Search' to embed object.</div>
+			<ObjectSearchButton
+				returnCallback = { onSearchModalReturn }
+			>
+				Search
+			</ObjectSearchButton>
+		</div>
+	);
+}
+
+export { InfoContent, InfoPlaceholder };

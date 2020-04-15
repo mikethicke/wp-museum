@@ -1,5 +1,7 @@
-.editor-block-list__block[data-align=right][data-type=wp-museum\/object-info-box] > .editor-block-list__block-edit,
-.editor-block-list__block[data-align=left][data-type=wp-museum\/object-info-box] > .editor-block-list__block-edit {
+.wp-block[data-align=right][data-type=wp-museum\/object-info-box] > .is-block-content,
+.wp-block[data-align=left][data-type=wp-museum\/object-info-box] > .is-block-content {
     max-width: 50%;
+
 }
+
 
