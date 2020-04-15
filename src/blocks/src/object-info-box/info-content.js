@@ -1,4 +1,4 @@
-import { hexToRgb } from './util';
+import { hexToRgb } from '../util';
 
 import { ObjectSearchButton } from '../components/object-search-box.js';
 
@@ -10,55 +10,37 @@ const InfoContent = ( props ) => {
 		thumbnailURL,
 		fields,
 		fieldData,
-		imageDimensions,
-		imageSizes,
+		imgDimensions,
 		state,
-		imageAlignment,
+		imgAlignment,
 		fontSize,
 		appearance,
 		titleTag
 	} = props;
-	const { width, height, size } = imageDimensions;
-	const { imgHeight, imgWidth, imgReady } = state;
+	const { width, height } = imgDimensions;
+	const { imgReady } = state;
 	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
-
-	let imgRenderHeight, imgRenderWidth;
-	if ( imgReady ) {
-		if ( width != null && height != null ) {
-			imgRenderWidth = width;
-			imgRenderHeight = height;
-		} else {
-			const targetSize = imageSizes[ size ].width; //width == height
-			const scaleFactor = targetSize / Math.max( imgHeight, imgWidth );
-			imgRenderWidth = Math.round( imgWidth * scaleFactor );
-			imgRenderHeight = Math.round( imgWidth * scaleFactor );
-		}
-	}
 
 	let field_list = [];
 	if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
-		for ( let key in fields ) {
-			if ( fields[key] ) {
-				field_list.push(
-					<li key={ key } style={ { fontSize: fontSize + 'em'  } } >
-						<span className = 'field-name'>{ fieldData[key]['name']}: </span>
-						<span className = 'field-data'>{ fieldData[key]['content'] }</span>
-					</li>
-				)
-			}
-		}
+		field_list = Object.keys(fields).filter( key => fields[key] ).map( key => 
+				<li key={ 'field_list_' + key } style={ { fontSize: fontSize + 'em'  } } >
+					<span className = 'field-name'>{ fieldData[key]['name']}: </span>
+					<span className = 'field-data'>{ fieldData[key]['content'] }</span>
+				</li>
+		);
 	}
 
 	const TitleTag = titleTag;
 
-	const body = [
+	const body = (
 			<>
-			{ imgReady &&
+			{ imgReady && width && height &&
 				<img 
-					className = { 'img-info-' + imageAlignment }
+					className = { 'img-info-' + imgAlignment }
 					src = { thumbnailURL }
-					height = { imgRenderHeight }
-					width = { imgRenderWidth }
+					height = { height }
+					width = { width }
 				/>
 			}
 			{ title === null || 
@@ -68,7 +50,7 @@ const InfoContent = ( props ) => {
 			<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
 			}
 			</>
-	];
+	);
 
 	const bRGB = hexToRgb( backgroundColor.toString(16) );
 
@@ -79,7 +61,7 @@ const InfoContent = ( props ) => {
 	}
 
 	if ( objectID !== null ) {	
-		return [
+		return (
 			<div className = 'info-outer-div' style = { divStyle }>
 				{ body }
 				{ field_list.length === 0 ||
@@ -88,13 +70,13 @@ const InfoContent = ( props ) => {
 					</ul>
 				}
 			</div>
-		]
+		);
 	} else {
-		return [
+		return (
 			<div>
 
 			</div>
-		];
+		);
 	}
 }
 

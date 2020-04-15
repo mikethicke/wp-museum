@@ -1,17 +1,16 @@
-
-.alignleft, .alignright {
+.info-outer-div.alignleft, .info-outer-div.alignright {
 	max-width: 50%;
 }
 
-.alignleft {
+.info-outer-div.alignleft {
 	float: left;
 }
 
-.alignright {
+.info-outer-div.alignright {
 	float: right;
 }
 
-.aligncenter {
+.info-outer-div.aligncenter {
 	clear: both;
 	display: block;
 	margin-left: auto;
@@ -21,10 +20,12 @@
 div.info-outer-div {
 	border-style: solid;
 	padding: 5px;
+	overflow: auto;
 	
 	ul {
 		list-style-type: none;
 		text-align: left;
+		margin: 0;
 
 		.field-name {
 			font-weight: bold;
@@ -55,11 +56,6 @@ div.info-outer-div {
 		margin-right: auto;
 		margin-left: auto;
 		display: block;
-	}
-
-	.info-outer-div {
-		border-style: solid;
-		padding: 5px;
 	}
 
 	.object-link, .object-link:hover {
