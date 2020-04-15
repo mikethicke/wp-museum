@@ -1,7 +1,5 @@
 /**
  * Modal dialog box allowing user to search for a museum object post.
- *
- * @since 0.6.0
  */
 
 /**
@@ -11,6 +9,8 @@ import {
     Button,
     Modal,
     ToggleControl,
+    PanelBody,
+    PanelRow
 } from '@wordpress/components';
 
 import {
@@ -328,6 +328,7 @@ const SearchResultsList = ( props ) => {
     if ( results.length > 0 ) {
         const listItems = results.map( ( result, index ) => (
                 <li
+                    key = { 'results-list-' + index }
                     className = { index === selectedItem  ? 'search-item selected' : 'search-item unselected' }
                 >
                     <Button
@@ -391,4 +392,53 @@ const ObjectSearchButton = (props) => {
     )
 }
 
-export { ObjectSearchButton, ObjectSearchBox };
+/**
+ * Panel to embed or replace existing museum object.
+ * 
+ * @param {object}   props                     Properties of the component.
+ * @param {function} props.onSearchModalReturn Function accepting WordPress post ID returned from search.
+ * @param {string}   props.title               Title of the found object.
+ * @param {string}   props.catID               The catalogue ID of the found object.
+ * @param {number}   props.objectID            The WordPress ID of the found object.
+ * @param {string}   props.objectURL           WordPress permalink of the found object.
+ */
+const ObjectEmbedPanel = ( props ) => {
+	const { onSearchModalReturn, title, catID, objectID, objectURL, initialOpen } = props;
+
+	let objectDescription;
+	if ( objectID === null ) {
+		objectDescription = (
+			<div>
+				Click 'Search' to embed object.";
+			</div>
+		);
+	} else {
+		objectDescription = (
+			<div>
+				<div>{ title }</div>
+				<div>{ catID }</div>
+				<div><a href = { objectURL }>View Object</a></div>
+			</div>
+		);
+	}
+	
+	return (
+		<PanelBody
+			title = "Object"
+			initialOpen = { initialOpen }
+		>
+			<PanelRow>
+				{ objectDescription }
+			</PanelRow>
+			<PanelRow>
+				<ObjectSearchButton
+					returnCallback = { onSearchModalReturn }
+				>
+					{ objectID ? 'Replace' : 'Search' }
+				</ObjectSearchButton>
+			</PanelRow>
+		</PanelBody>
+	);
+}
+
+export { ObjectSearchButton, ObjectSearchBox, ObjectEmbedPanel };

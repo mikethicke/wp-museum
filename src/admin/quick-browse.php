@@ -72,7 +72,7 @@ function quick_browse() {
 	if ( isset( $_GET['sort_col'] ) ) {
 		$sort_col = sanitize_key( $_GET['sort_col'] );
 	} else {
-		$sort_col = $fields[0]->slug;
+		$sort_col = reset( $fields )->slug;
 	}
 
 	if ( isset( $_GET['sort_dir'] ) ) {

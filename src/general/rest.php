@@ -5,19 +5,21 @@
  * REST root: /wp-json/wp-museum/v1
  *
  * ## Objects ##
- * /wp-json/wp-museum/v1/<object type>/              Data for objects with post type <object type>.
- * /wp-json/wp-museum/v1/<object type>/<post id>     Data for specific object.
- * /wp-json/wp-museum/v1/all/                        Data for all museum objects, regardless of type.
- * /wp-json/wp-museum/v1/all/<post id>               Data for specific object.
- * /wp-json/wp-musuem/v1/<object type>/custom        Data for public fields for <object type>.
+ * /wp-json/wp-museum/v1/<object type>/                 Objects with post type <object type>.
+ * /wp-json/wp-museum/v1/<object type>/<post id>        Specific object.
+ * /wp-json/wp-museum/v1/<object type>/<post id>/images Images associated with object.
+ * /wp-json/wp-museum/v1/all/                           All museum objects, regardless of type.
+ * /wp-json/wp-museum/v1/all/<post id>                  Specific object.
+ * /wp-json/wp-museum/v1/all/<post id>/images           Images associated with object.
+ * /wp-json/wp-musuem/v1/<object type>/custom           Public fields for <object type>.
  *
  * ## Kinds ##
- * /wp-json/wp-musuem/v1/mobject_kinds               Data for object kinds
- * /wp-json/wp-museum/v1/mobject_kinds/<object type> Data for a specific kind with <object type>.
+ * /wp-json/wp-musuem/v1/mobject_kinds                  Object kinds
+ * /wp-json/wp-museum/v1/mobject_kinds/<object type>    A specific kind with <object type>.
  *
  * ## Collections ##
- * /wp-json/wp-museum/v1/collections                 Data for all museum collections.
- * /wp-json/wp-museum/v1/collections/<post id>       Data for a specific collection.
+ * /wp-json/wp-museum/v1/collections                    All museum collections.
+ * /wp-json/wp-museum/v1/collections/<post id>          A specific collection.
  *
  * @package MikeThicke\WPMuseum
  */
@@ -93,6 +95,29 @@ function rest_routes() {
 					],
 				'callback' => function ( $request ) {
 					return combine_post_data( $request['id'] );
+				},
+			]
+		);
+
+		/**
+		 * /wp-json/wp-museum/v1/<object type>/<post id>/images Images associated with object.
+		 */
+		register_rest_route(
+			REST_NAMESPACE,
+			'/' . $kind->type_name . '/(?P<id>[\d]+)/images',
+			[
+				'methods'  => 'GET',
+				'args'     =>
+					[
+						'id' =>
+							[
+								'validate_callback' => function( $param, $request, $key ) {
+									return is_numeric( $param );
+								},
+							],
+					],
+				'callback' => function ( $request ) {
+					return object_image_data( $request['id'] );
 				},
 			]
 		);
@@ -203,6 +228,29 @@ function rest_routes() {
 				],
 			'callback' => function ( $request ) {
 				return combine_post_data( $request['id'] );
+			},
+		]
+	);
+
+	/**
+	 * /wp-json/wp-museum/v1/all/<post id>/images Images associated with object.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/all/(?P<id>[\d]+)/images',
+		[
+			'methods'  => 'GET',
+			'args'     =>
+				[
+					'id' =>
+						[
+							'validate_callback' => function( $param, $request, $key ) {
+								return is_numeric( $param );
+							},
+						],
+				],
+			'callback' => function ( $request ) {
+				return object_image_data( $request['id'] );
 			},
 		]
 	);
@@ -348,4 +396,30 @@ function combine_post_data( $post ) {
 		$additional_fields
 	);
 	return $post_data;
+}
+
+/**
+ * Get data for images assoicated with a post and return as an array.
+ *
+ * @param WP_POST | int $post The post.
+ */
+function object_image_data( $post ) {
+	if ( is_numeric( $post ) ) {
+		$post = get_post( $post );
+	}
+
+	$images      = get_object_image_attachments( $post->ID );
+	$image_sizes = get_intermediate_image_sizes();
+
+	$associated_image_data = [];
+	foreach ( $images as $image_id => $sort_order ) {
+		$image_data = [];
+		foreach ( $image_sizes as $size_slug ) {
+			$image_data[ $size_slug ] = wp_get_attachment_image_src( $image_id, $size_slug );
+		}
+		$image_data['full'] = wp_get_attachment_image_src( $image_id, 'full' );
+		$associated_image_data[] = $image_data;
+	}
+
+	return $associated_image_data;
 }

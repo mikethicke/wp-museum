@@ -87,6 +87,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\generate_image_sizes' );
  */
 add_action( 'rest_api_init', __NAMESPACE__ . '\rest_routes' );
 
+
 /*****************************************************************************
  *
  * Global Filters
@@ -107,7 +108,6 @@ add_filter( 'posts_where', __NAMESPACE__ . '\post_search_filter', 10, 2 );
  * @see custom-post-type-functions.php::post_search_filter()
  */
 add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
-
 
 /*****************************************************************************
  *
@@ -241,6 +241,26 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\wpm_media_box_enqueue' );
  */
 add_action( 'customize_register', __NAMESPACE__ . '\register_customization' );
 
+/**
+ * Load block scripts for editor.
+ *
+ * @see blocks.php::enqueue_block_scripts()
+ */
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_scripts' );
+
+/*****************************************************************************
+ *
+ * Admin Filters
+ *
+ *****************************************************************************/
+
+/**
+ * Add 'Museum' category to Gutenberg block categories.
+ *
+ * @see blocks.php::add_museum_block_category()
+ */
+add_filter( 'block_categories', __NAMESPACE__ . '\add_museum_block_category' );
+
 /*****************************************************************************
  *
  * Frontend Actions
@@ -284,6 +304,13 @@ add_action( 'wp_head', __NAMESPACE__ . '\object_css' );
  * @see display.php::object_css()
  */
 add_action( 'wp_head', __NAMESPACE__ . '\collection_css' );
+
+/**
+ * Load block scripts for frontend.
+ *
+ * @see blocks.php::enqueue_block_scripts()
+ */
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_scripts' );
 
 /*****************************************************************************
  *
