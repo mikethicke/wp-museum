@@ -16,9 +16,7 @@ const ImageSelector = ( props ) => {
 		totalImages,
 		imgDimensions,
 		setAttributes,
-		setImageReady,
-		imgURL,
-		imgReady,
+		imgURL
 	} = props;
 
 	const [ imageData,       updateImageData       ] = useState( null );
@@ -89,14 +87,12 @@ const ImageSelector = ( props ) => {
 					imgWidth    : bestFitImage.width,
 					totalImages : Object.keys( imageData ).length,
 				} );
-	
-				setImageReady( true );
 			}
 		}
 	} );
 
 	return (
-		( imgReady && imgURL && imgDimensions.height && imgDimensions.width ) ?
+		( imgURL && imgDimensions.height && imgDimensions.width ) ?
 			<div
 				className = 'image-selector-container'
 			>

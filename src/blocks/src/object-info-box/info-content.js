@@ -11,14 +11,12 @@ const InfoContent = ( props ) => {
 		fields,
 		fieldData,
 		imgDimensions,
-		state,
 		imgAlignment,
 		fontSize,
 		appearance,
 		titleTag
 	} = props;
 	const { width, height } = imgDimensions;
-	const { imgReady } = state;
 	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 
 	let field_list = [];
@@ -35,7 +33,7 @@ const InfoContent = ( props ) => {
 
 	const body = (
 			<>
-			{ imgReady && width && height &&
+			{ width && height &&
 				<img 
 					className = { 'img-info-' + imgAlignment }
 					src = { thumbnailURL }

@@ -81,10 +81,6 @@ registerBlockType( 'wp-museum/object-image', {
 				size   : 'medium' //options: thumbnail, medium, large, full
 			}
 		},
-		imgAlignment: {
-			type    : 'string',
-			default : 'center' //options: left, center, right
-		},
 		fontSize: {
 			type    : 'float',
 			default : 0.7
