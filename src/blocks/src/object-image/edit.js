@@ -68,11 +68,6 @@ class ObjectImageEdit extends Component {
 		super( props );
 
 		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
-		this.setImageReady       = this.setImageReady.bind( this );
-
-		this.state = {
-			imgReady: false,
-		}
 	}
 
 	onSearchModalReturn( returnValue ) {
@@ -89,10 +84,6 @@ class ObjectImageEdit extends Component {
 				imgIndex  : 0
 			} );
 
-			this.setState( {
-				imgReady: false
-			} );
-
 			const object_path = base_rest_path + 'all/' + returnValue;
 			apiFetch( { path: object_path } ).then( result => {
 				setAttributes( {
@@ -100,14 +91,6 @@ class ObjectImageEdit extends Component {
 					objectURL : result[ 'link' ],
 					catID     : result[ result[ 'cat_field' ] ],
 				} );
-			} );
-		}
-	}
-
-	setImageReady( isReady ) {
-		if ( isReady !== this.state.imgReady ) {
-			this.setState( {
-				imgReady : isReady
 			} );
 		}
 	}
@@ -127,7 +110,6 @@ class ObjectImageEdit extends Component {
 			imgHeight,
 			imgWidth,
 			imgDimensions,
-			imgAlignment,
 			imgIndex,
 			totalImages,
 			imgURL,
@@ -139,10 +121,6 @@ class ObjectImageEdit extends Component {
 			titleTag,
 			fontSize,
 		} = attributes;
-
-		const {
-			imgReady
-		} = this.state;
 
 		const TitleTag = titleTag;
 
@@ -168,9 +146,8 @@ class ObjectImageEdit extends Component {
 					setAttributes = { setAttributes }
 					imgHeight     = { imgHeight }
 					imgWidth      = { imgWidth }
-					imgReady      = { imgReady }
 					imgDimensions = { imgDimensions }
-					imgAlignment  = { imgAlignment }
+					imgAlignment  = { null }
 					initialOpen   = { true }
 				/>
 				<AppearancePanel
@@ -198,8 +175,6 @@ class ObjectImageEdit extends Component {
 						imgDimensions = { imgDimensions }
 						setAttributes = { setAttributes }
 						totalImages   = { totalImages }
-						setImageReady = { this.setImageReady }
-						imgReady      = { imgReady }
 					/>
 					:
 					<div>

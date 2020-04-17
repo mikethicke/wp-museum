@@ -24,7 +24,6 @@ import { __ } from "@wordpress/i18n";
  * @param {function} props.setAttributes Function to set block attributes.
  * @param {number}   props.imgHeight     Base height of the image.
  * @param {number}   props.imgWidth      Base width of the image.
- * @param {boolean}  props.imgReady      Whether the image has finished loading.
  * @param {object}   props.imgDimensions The current width, height, or size (thumbnail, medium,
  *                                       large, full) of the image.
  * @param {string}   props.imgAlignment  The current alignment of the image (left, center, right).
@@ -34,7 +33,6 @@ const ImageSizePanel = ( props ) => {
 		setAttributes,
 		imgHeight,
 		imgWidth,
-		imgReady,
 		imgDimensions,
 		imgAlignment,
 		initialOpen,
@@ -62,7 +60,7 @@ const ImageSizePanel = ( props ) => {
 	 * @param {string} size New size of image, from imgSizes
 	 */
 	const updateImage = ( size ) => {
-		if ( imgReady ) {
+		if ( imgHeight && imgWidth ) {
 			const targetSize = imgSizes[ size ].width; //width == height
 			let scaleFactor;
 			if ( targetSize === null ) {
@@ -87,7 +85,7 @@ const ImageSizePanel = ( props ) => {
 	 * @param {number} newHeight New height of image, in pixels.
 	 */
 	const updateHeight = ( newHeight ) => {
-		if ( imgReady ) {
+		if ( imgHeight && imgWidth ) {
 			const setHeight = Math.min( newHeight, imgHeight );
 			const setWidth = Math.round( setHeight / imgHeight * imgWidth )
 			const newimgDimensions = {
@@ -107,7 +105,7 @@ const ImageSizePanel = ( props ) => {
 	 * @param {number} newWidth New width of image, in pixels.
 	 */
 	const updateWidth = ( newWidth ) => {
-		if ( imgReady ) {
+		if ( imgHeight && imgWidth ) {
 			const setWidth = Math.min( newWidth, imgWidth);
 			const setHeight = Math.round( setWidth / imgWidth * imgHeight )
 			const newimgDimensions = {
@@ -158,29 +156,31 @@ const ImageSizePanel = ( props ) => {
 					onChange = { updateHeight }
 				/>
 			</div>
-			<div>
-				<p>{ __( 'Image Alignment' ) }</p>
-				<ButtonGroup>
-					<Button
-						isPrimary = { imgAlignment === 'left' }
-						onClick   = { () => { updateimgAlignment( 'left' ) } }
-					>
-						<Dashicon icon='align-left'/>
-					</Button>
-					<Button
-						isPrimary = { imgAlignment === 'center' }
-						onClick   = { () => { updateimgAlignment( 'center' ) } }
-					>
-						<Dashicon icon = 'align-center'/>
-					</Button>
-					<Button
-						isPrimary = { imgAlignment === 'right' }
-						onClick   = { () => { updateimgAlignment( 'right' ) } }
-					>
-						<Dashicon icon = 'align-right'/>
-					</Button>
-				</ButtonGroup>
-			</div>
+			{ imgAlignment &&
+				<div>
+					<p>{ __( 'Image Alignment' ) }</p>
+					<ButtonGroup>
+						<Button
+							isPrimary = { imgAlignment === 'left' }
+							onClick   = { () => { updateimgAlignment( 'left' ) } }
+						>
+							<Dashicon icon='align-left'/>
+						</Button>
+						<Button
+							isPrimary = { imgAlignment === 'center' }
+							onClick   = { () => { updateimgAlignment( 'center' ) } }
+						>
+							<Dashicon icon = 'align-center'/>
+						</Button>
+						<Button
+							isPrimary = { imgAlignment === 'right' }
+							onClick   = { () => { updateimgAlignment( 'right' ) } }
+						>
+							<Dashicon icon = 'align-right'/>
+						</Button>
+					</ButtonGroup>
+				</div>
+			}
 		</PanelBody>
 	);
 }

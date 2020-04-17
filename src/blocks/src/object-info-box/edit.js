@@ -161,31 +161,8 @@ class ObjectInfoEdit extends Component {
 			object_fetched : false,
 			object_data    : {},
 			imgHeight      : null,
-			imgWidth       : null,
-			imgReady       : false,
+			imgWidth       : null
 		}
-	}
-	
-	getimgDimensions ( ) {
-		const { thumbnailURL } = this.props.attributes;
-		const that = this;
-
-		// https://stackoverflow.com/questions/52059596/loading-an-image-on-web-browser-using-promise
-		function loadImage(src) {
-			return new Promise( (resolve, reject) => {
-				const img = new Image();
-				img.addEventListener("load", () => resolve(img));
-				img.addEventListener("error", err => reject(err));
-				img.src = src;
-			} );
-		};
-		loadImage( thumbnailURL ).then( img => {
-			that.setState( {
-				imgHeight: img.height,
-				imgWidth: img.width,
-				imgReady: true
-			} );
-		} );
 	}
 	
 	fetchFieldData ( objectFetchID = null ) {
@@ -204,10 +181,10 @@ class ObjectInfoEdit extends Component {
 					thumbnailURL: result['thumbnail'][0],
 					objectURL: result['link']
 				} );
-				if ( that.props.attributes.thumbnailURL != null ) {
-					that.setState( { imgReady: false } );
-					that.getimgDimensions();
-				}
+				that.setState( {
+					imgWidth: result['thumbnail'][1],
+					imgHeight: result['thumbnail'][2]
+				} );
 				apiFetch(
 					{ path: base_rest_path + 
 							result.post_type +
@@ -294,7 +271,6 @@ class ObjectInfoEdit extends Component {
 		const {
 			imgHeight,
 			imgWidth,
-			imgReady,
 		} = this.state;
 		
 		return (
@@ -312,7 +288,6 @@ class ObjectInfoEdit extends Component {
 						setAttributes = { setAttributes }
 						imgHeight     = { imgHeight }
 						imgWidth      = { imgWidth }
-						imgReady      = { imgReady }
 						imgDimensions = { imgDimensions }
 						imgAlignment  = { imgAlignment }
 					/>
