@@ -61,6 +61,7 @@ then
 fi
 
 echo "Copying files to release directory..."
+cp ./wp-museum.php $RELEASE_DIR
 cp $SRC_DIR/*.php $RELEASE_DIR
 mkdir ${RELEASE_DIR}/blocks
 cp $SRC_DIR/blocks/*.php ${RELEASE_DIR}/blocks
