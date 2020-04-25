@@ -18,7 +18,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { ObjectEmbedPanel } from '../components/object-search-box';
 import AppearancePanel from '../components/appearance-panel';
 import ImageSizePanel from '../components/image-size-panel';
-import { InfoContent, InfoPlaceholder } from './info-content';
+import InfoContent from './info-content';
 import FontSizePanel from '../components/font-size-panel';
 
 const FieldsPanel = ( props ) => {
@@ -64,7 +64,7 @@ const FieldsPanel = ( props ) => {
 
 const OptionsPanel = ( props ) => {
 	const { attributes, setAttributes } = props;
-	const { displayTitle, displayExcerpt, displayThumbnail, linkToObject } = attributes;
+	const { displayTitle, displayExcerpt, displayImage, linkToObject } = attributes;
 	return (
 		<PanelBody
 			title = "Options"
@@ -81,9 +81,9 @@ const OptionsPanel = ( props ) => {
 				onChange = { ( val ) => { setAttributes( { displayExcerpt: val } ) } }
 			/>
 			<CheckboxControl
-				label = 'Display Thumbnail'
-				checked = { displayThumbnail }
-				onChange = { ( val ) => { setAttributes( { displayThumbnail: val } ) } }
+				label = 'Display Image'
+				checked = { displayImage }
+				onChange = { ( val ) => { setAttributes( { displayImage: val } ) } }
 			/>
 			<CheckboxControl
 				label = 'Link to Object'
@@ -94,98 +94,17 @@ const OptionsPanel = ( props ) => {
 	);
 }
 
-const EditContent = ( props ) => {
-	const { attributes, state, onChangeObjectID, onUpdateButton, onSearchModalReturn } = props;
-	const { 
-		objectID,
-		title,
-		excerpt,
-		thumbnailURL,
-		objectURL,
-		fields,
-		fieldData,
-		imgDimensions,
-		imgAlignment,
-		fontSize,
-		displayTitle,
-		displayThumbnail,
-		displayExcerpt,
-		linkToObject,
-		appearance,
-		titleTag
-	} = attributes;
-	const {
-		object_fetched
-	} = state;
-
-	if ( object_fetched ) {
-		return (
-			<InfoContent 
-				objectID = { objectID }
-				title = { displayTitle ? title : null }
-				excerpt = { displayExcerpt ? excerpt : null }
-				thumbnailURL = { displayThumbnail ? thumbnailURL : null }
-				objectURL = { linkToObject ? objectURL : null }
-				fields = { fields }
-				fieldData = { fieldData }
-				imgDimensions = { imgDimensions }
-				state = { state }
-				imgAlignment = { imgAlignment }
-				fontSize = { fontSize }
-				appearance = { appearance }
-				titleTag = { titleTag }
-			/>
-		);
-	} else {
-		return (
-			<InfoPlaceholder
-				objectID = { objectID }
-				onChangeObjectID = { onChangeObjectID }
-				onUpdateButton = { onUpdateButton }
-				onSearchModalReturn = { onSearchModalReturn }
-			/>
-		);
-	}
-}
-
 class ObjectInfoEdit extends Component {
 	constructor ( props ) {
 		super ( props );
 
 		this.onUpdateButton      = this.onUpdateButton.bind( this );
-		this.onChangeObjectID    = this.onChangeObjectID.bind( this );
 		this.fetchFieldData      = this.fetchFieldData.bind ( this );
 		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
 
 		this.state = {
-			object_fetched : false,
 			object_data    : {},
-			imgHeight      : null,
-			imgWidth       : null,
-			imgReady       : false,
 		}
-	}
-	
-	getimgDimensions ( ) {
-		const { thumbnailURL } = this.props.attributes;
-		const that = this;
-
-		// https://stackoverflow.com/questions/52059596/loading-an-image-on-web-browser-using-promise
-		function loadImage(src) {
-			return new Promise( (resolve, reject) => {
-				const img = new Image();
-				img.addEventListener("load", () => resolve(img));
-				img.addEventListener("error", err => reject(err));
-				img.src = src;
-			} );
-		};
-		loadImage( thumbnailURL ).then( img => {
-			that.setState( {
-				imgHeight: img.height,
-				imgWidth: img.width,
-				imgReady: true
-			} );
-		} );
 	}
 	
 	fetchFieldData ( objectFetchID = null ) {
@@ -201,13 +120,8 @@ class ObjectInfoEdit extends Component {
 				setAttributes( {
 					title: result['post_title'],
 					excerpt: result['excerpt'],
-					thumbnailURL: result['thumbnail'][0],
 					objectURL: result['link']
 				} );
-				if ( that.props.attributes.thumbnailURL != null ) {
-					that.setState( { imgReady: false } );
-					that.getimgDimensions();
-				}
 				apiFetch(
 					{ path: base_rest_path + 
 							result.post_type +
@@ -244,9 +158,6 @@ class ObjectInfoEdit extends Component {
 						fields    : newFields,
 						fieldData : fieldData
 					} );
-					that.setState( { 
-						object_fetched: true
-					} ); 
 				} );
 			} );
 		}
@@ -254,12 +165,6 @@ class ObjectInfoEdit extends Component {
 
 	componentDidMount() {
 		this.fetchFieldData();
-	}
-
-	onChangeObjectID( content ) {
-		const { setAttributes } = this.props;
-
-		setAttributes( { objectID: content } );
 	}
 
 	onUpdateButton() {
@@ -288,14 +193,18 @@ class ObjectInfoEdit extends Component {
 			fieldData,
 			objectURL,
 			imgDimensions,
-			imgAlignment
-		} = attributes;
-
-		const {
+			imgAlignment,
+			displayTitle,
+			displayExcerpt,
+			excerpt,
+			imgURL,
+			displayImage,
+			linkToObject,
+			totalImages,
 			imgHeight,
 			imgWidth,
-			imgReady,
-		} = this.state;
+			imgIndex,
+		} = attributes;
 		
 		return (
 			<>
@@ -312,7 +221,6 @@ class ObjectInfoEdit extends Component {
 						setAttributes = { setAttributes }
 						imgHeight     = { imgHeight }
 						imgWidth      = { imgWidth }
-						imgReady      = { imgReady }
 						imgDimensions = { imgDimensions }
 						imgAlignment  = { imgAlignment }
 					/>
@@ -332,10 +240,26 @@ class ObjectInfoEdit extends Component {
 						fieldData     = { fieldData }
 					/>
 				</InspectorControls>
-				<EditContent { ...this.props } 
+				<InfoContent 
+					objectID            = { objectID }
+					title               = { displayTitle ? title : null }
+					excerpt             = { displayExcerpt ? excerpt : null }
+					imgIndex            = { imgIndex }
+					imgURL              = { imgURL }
+					imgHeight           = { imgHeight }
+					imgWidth            = { imgWidth }
+					displayImage        = { displayImage }
+					objectURL           = { linkToObject ? objectURL : null }
+					fields              = { fields }
+					fieldData           = { fieldData }
+					imgDimensions       = { imgDimensions }
+					imgAlignment        = { imgAlignment }
+					fontSize            = { fontSize }
+					appearance          = { appearance }
+					titleTag            = { titleTag }
 					onSearchModalReturn = { this.onSearchModalReturn }
-					onChangeObjectID    = { this.onChangeObjectID }
-					state               = { this.state }
+					setAttributes       = { setAttributes }
+					totalImages         = { totalImages }
 				/>
 			</>	
 		);

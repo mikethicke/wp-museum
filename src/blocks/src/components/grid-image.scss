@@ -1,0 +1,56 @@
+.grid-image-container {
+	width: 100%;
+	display: inline-block;
+	position: relative;
+	align-items: center;
+
+	.grid-image-placeholder {
+		padding-top: 50%;
+		padding-bottom: 50%;
+		background-color: #f1f2f3;
+		height: 0;
+		cursor: pointer;
+
+		.grid-image-placeholder-plus {
+			position: absolute;
+			height: 0;
+			width: 100%;
+			text-align: center;
+			top: 50%;
+			overflow: visible;
+			font-size: 3em;
+			line-height: 0;
+		}
+	}
+
+	
+	.grid-image-image {
+		padding-bottom: 100%;
+		height: 0;
+
+		.image-selector-container {
+			height: 0;
+			padding-bottom: 100%;
+			display: block;
+			align-items: unset;
+			position: static;
+		}
+
+		.selector-button {
+			top: 50%;
+			transform: translateY(-50%);
+		}
+
+		img {
+			object-fit: fill;
+		}
+	
+		.removeImageLink {
+			position: absolute;
+			cursor: pointer;
+			top: 1em;
+			right: 5px;
+		}
+	}
+}
+

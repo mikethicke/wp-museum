@@ -329,6 +329,10 @@ function rest_routes() {
 	);
 }
 
+function rest_excerpt_filter( $more ) {
+	return '...';
+}
+
 /**
  * Combine custom post data with standard post data and return as array.
  *
@@ -382,10 +386,19 @@ function combine_post_data( $post ) {
 		$img_data = [];
 	}
 
+	add_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
+	$filtered_excerpt =
+		html_entity_decode(
+			wp_strip_all_tags(
+				get_the_excerpt( $post )
+			)
+		);
+	remove_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
+
 	$additional_fields = [
 		'link'      => get_permalink( $post ),
 		'edit_link' => get_edit_post_link( $post ),
-		'excerpt'   => get_the_excerpt( $post ),
+		'excerpt'   => $filtered_excerpt,
 		'thumbnail' => $img_data,
 		'cat_field' => $cat_field_slug,
 	];

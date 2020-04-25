@@ -2,6 +2,10 @@
 	display:flex;
 	align-items:center;
 	position: relative;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	max-width: 100%;
 
 	.selector-button {
 		position: absolute;

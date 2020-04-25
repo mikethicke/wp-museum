@@ -119,6 +119,9 @@ function check_object_post_on_publish( $new_status, $old_status, $post ) {
 function link_objects_by_id( $content ) {
 	global $post;
 	$kinds = get_mobject_kinds();
+	$content_array = wp_html_split( $content );
+	$count_content_items = count( $content_array );
+	$changed = false;
 	foreach ( $kinds as $kind ) {
 		if ( empty( $kind->cat_field_id ) ) {
 			break;
@@ -130,22 +133,46 @@ function link_objects_by_id( $content ) {
 		$pattern       = '/' . stripslashes( $id_field->field_schema ) . '/';
 		$pattern       = preg_replace( '/<.*?>/', ':', $pattern );
 		$matches       = array();
-		$plain_content = wp_strip_all_tags( $content );
-		preg_match( $pattern, $plain_content, $matches );
-		foreach ( $matches as $match ) {
-			$args  = [
-				'post_type'   => $kind->type_name,
-				'post_status' => 'publish',
-				'meta_key'    => $id_field->slug,
-				'meta_value'  => $match,
-			];
-			$posts = get_posts( $args );
-			if ( ! empty( $posts ) && $posts[0]->ID !== $post->ID ) {
-				$post_url = get_permalink( $posts[0] );
-				$link     = "<a href='$post_url'>{$match}</a>";
-				$content  = str_replace( $match, $link, $content );
+
+		// Make sure that we're not adding a link inside another link, which breaks the DOM.
+		$inside_link_element = false;
+
+		// See: wp-includes/formatting.php::wp_replace_in_html_tags().
+		for ( $index = 0; $index < $count_content_items; $index++ ) {
+			if ( 0 === $index % 2 && ! $inside_link_element ) {
+				preg_match( $pattern, $content_array[ $index ], $matches );
+				foreach ( $matches as $match ) {
+					$args  = [
+						'post_type'   => $kind->type_name,
+						'post_status' => 'publish',
+						'meta_key'    => $id_field->slug,
+						'meta_value'  => $match,
+					];
+					$posts = get_posts( $args );
+					if ( ! empty( $posts ) && $posts[0]->ID !== $post->ID ) {
+						$changed  = true;
+						$post_url = get_permalink( $posts[0] );
+						$link     = "<a href='$post_url'>{$match}</a>";
+
+						$content_array[ $index ] = str_replace(
+							$match,
+							$link,
+							$content_array[ $index ]
+						);
+					}
+				}
+			} else {
+				if ( '</a>' === substr( $content_array[ $index ], 0, 4 ) ) {
+					$inside_link_element = false;
+				} elseif ( '<a ' === substr( $content_array[ $index ], 0, 3 ) ) {
+					$inside_link_element = true;
+				}
 			}
 		}
+	}
+
+	if ( $changed ) {
+		$content = implode( $content_array );
 	}
 
 	return $content;
