@@ -21,9 +21,10 @@
 			width: 100%;
 			height: auto;
 			text-align: left;
+			cursor: pointer;
 		}
-		.search-result-button:focus {
-			background-color: transparent;
+		.search-result-button:focus, .search-result-button:hover {
+			background-color: transparent !important;
 		}
 		li {
 			margin: 0;

@@ -15,10 +15,10 @@ registerBlockType('wp-museum/object-info-box', {
 	attributes: {
 		align: {
 			type: 'string',
-			default: 'left'
+			default: 'center'
 		},
 		objectID: {
-			type: 'string',
+			type: 'number',
 			default: null
 		},
 		catID: {
@@ -27,15 +27,31 @@ registerBlockType('wp-museum/object-info-box', {
 		},
 		title: {
 			type: 'string',
-			default: null
+			default: 'No Object Selected'
 		},
 		excerpt: {
 			type: 'string',
-			default: null
+			default: 'No Object Selected'
 		},
-		thumbnailURL: {
+		imgURL: {
 			type: 'string',
 			default: null
+		},
+		imgIndex: {
+			type: 'number',
+			default: 0
+		},
+		totalImages: {
+			type    : 'number',
+			default : 0
+		},
+		imgHeight: {
+			type    : 'number',
+			default : null
+		},
+		imgWidth: {
+			type    : 'number',
+			default : null
 		},
 		objectURL: {
 			type: 'string',
@@ -49,7 +65,7 @@ registerBlockType('wp-museum/object-info-box', {
 			type: 'boolean',
 			default: true
 		},
-		displayThumbnail: {
+		displayImage: {
 			type: 'boolean',
 			default: true
 		},
@@ -68,14 +84,14 @@ registerBlockType('wp-museum/object-info-box', {
 		imgDimensions: {
 			type: 'object',
 			default: {
-				width: null,
-				height: null,
-				size: 'large' //options: thumbnail, medium, large, full
+				width: 150,
+				height: 150,
+				size: 'thumbnail' //options: thumbnail, medium, large, full
 			}
 		},
 		imgAlignment: {
 			type: 'string',
-			default: 'center' //options: left, center, right
+			default: 'left' //options: left, center, right
 		},
 		fontSize: {
 			type: 'float',
@@ -88,7 +104,7 @@ registerBlockType('wp-museum/object-info-box', {
 		appearance: {
 			type: 'object',
 			default: {
-				borderWidth: 1,
+				borderWidth: 0,
 				borderColor: '#000',
 				backgroundColor: '#fff',
 				backgroundOpacity: 0

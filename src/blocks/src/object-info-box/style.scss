@@ -21,41 +21,95 @@ div.info-outer-div {
 	border-style: solid;
 	padding: 5px;
 	overflow: auto;
+
+	a {
+		position: relative;
+		z-index: 1;
+	}
+
+	.infobox-body-wrapper {
+		display: flex;
+		flex-wrap: wrap;
+		position: relative;
+
+		.object-link {
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			overflow: hidden;
+			text-indent: 100%;
+			white-space: nowrap;
+			position: absolute;
+			z-index: 0;
+			background-color: transparent;
+			text-decoration: none;
+		}
+
+		.object-link:hover {
+			background-color: transparent;
+			text-decoration: none;
+		}
+
+		&.img-left {
+			flex-direction: row;
+
+			.infobox-img-wrapper {
+				margin-right: 5px;
+			}
+		}
+
+		&.img-right {
+			flex-direction: row-reverse;
+
+			.infobox-img-wrapper {
+				margin-left: 5px;
+			}
+		}
+
+		&.img-center {
+			flex-direction: column;
+
+			.infobox-img-wrapper {
+				margin-left: auto;
+				margin-right: auto;
+			}
+		}
+
+		.infobox-img-wrapper {
+			max-width: 100%;
+		}
+
+		.infobox-content-wrapper {
+			min-width: 25%;
+			flex-grow: 1;
+			flex-basis: 25%;
+		}
+	}
 	
 	ul {
 		list-style-type: none;
 		text-align: left;
 		margin: 0;
+		padding-left: 0;
 
 		.field-name {
 			font-weight: bold;
 		}
+
+		li {
+			margin-bottom: 0.5em;
+		}
 	}
 
 	img {
-		margin: 5px;
 		max-width: 100%;
-		height: auto;
 	}
 
 	h2, h3, h4, h5, h6, p {
 		margin-top: 0.5em;
 		margin-bottom: 0.5em;
 		text-align: left;
-	}
-
-	.img-info-right {
-		float: right;
-	}
-	
-	.img-info-left {
-		float: left;
-	}
-	
-	.img-info-center {
-		margin-right: auto;
-		margin-left: auto;
-		display: block;
 	}
 
 	.object-link, .object-link:hover {

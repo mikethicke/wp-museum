@@ -5,11 +5,11 @@ export default function save ( props ) {
 	const {
 		title,
 		excerpt,
-		thumbnailURL,
 		objectURL,
 		displayTitle,
 		displayExcerpt,
-		displayThumbnail,
+		imgURL,
+		displayImage,
 		linkToObject,
 		fields,
 		fieldData,
@@ -43,37 +43,43 @@ export default function save ( props ) {
 	}
 
 	const body = (
-		<>
-			{ thumbnailURL != null && displayThumbnail &&
-				<img
-					className = { 'img-info-' + imgAlignment }
-					src = { thumbnailURL }
-					height = { height }
-					width = { width }
-				/>
+		<div className = { `infobox-body-wrapper img-${imgAlignment}` }>
+			{ linkToObject &&
+				<a className='object-link' href={ objectURL }>Hidden Link Text</a>
 			}
-			{ title != null && displayTitle &&
-				<TitleTag>{ title }</TitleTag>
+			{ imgURL != null && displayImage &&
+				<div
+					className = {'infobox-img-wrapper'}
+				>
+					<img
+						src = { imgURL }
+						height = { height }
+						width = { width }
+					/>
+				</div>
 			}
-			{ excerpt != null && displayExcerpt && 
-				<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
-			}
-		</>
+			<div className = 'infobox-content-wrapper'>
+				{ title != null && displayTitle &&
+					<TitleTag>{ title }</TitleTag>
+				}
+				{ excerpt != null && displayExcerpt && 
+					<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
+				}
+				{ field_list.length > 0 &&
+					<ul>
+						{ field_list }
+					</ul>
+				}
+			</div>
+		</div>
 	);
-
-	const linkedBody = ( linkToObject && objectURL != null ) ? <a className='object-link' href={ objectURL }>{ body }</a> : body;
 	
 	return (
 		<div
 			className = 'info-outer-div'
 			style = { outerDivStyle }
 		>
-			{ linkedBody }	
-			{ field_list.length > 0 &&
-				<ul>
-					{ field_list }
-				</ul>
-			}
+			{ body }	
 		</div>	
 	);
 	
