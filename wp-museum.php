@@ -43,6 +43,16 @@ const DEV_BUILD = true;
 const DEF_POSTS_PER_PAGE = 20;
 
 /**
+ * For dev builds, wp-musuem.php is one directory up, so that the build
+ * will be detected by WordPress as a plugin.
+ */
+if ( DEV_BUILD ) {
+	$require_prefix = 'src/';
+} else {
+	$require_prefix = '';
+}
+
+/**
  * Combine Query
  *
  * Plugin for combining WordPress queries. Used by museum objects to include
@@ -51,43 +61,43 @@ const DEF_POSTS_PER_PAGE = 20;
  * @link https://github.com/birgire/wp-combine-queries
  * @version 1.0.5
  */
-require_once 'dependencies/wp-combine-queries/combined-query.php';
+require_once $require_prefix . 'dependencies/wp-combine-queries/combined-query.php';
 
 /*
  * Classes
  */
-require_once 'classes/class-customposttype.php';
-require_once 'classes/class-metabox.php';
-require_once 'classes/class-objectposttype.php';
-require_once 'classes/class-objectkind.php';
-require_once 'classes/class-mobjectfield.php';
+require_once $require_prefix . 'classes/class-customposttype.php';
+require_once $require_prefix . 'classes/class-metabox.php';
+require_once $require_prefix . 'classes/class-objectposttype.php';
+require_once $require_prefix . 'classes/class-objectkind.php';
+require_once $require_prefix . 'classes/class-mobjectfield.php';
 
 /*
  * Functions
  */
-require_once 'general/database-functions.php';
-require_once 'general/object-functions.php';
-require_once 'general/collection-functions.php';
-require_once 'admin/object-admin-functions.php';
-require_once 'general/custom-post-type-functions.php';
-require_once 'general/rest.php';
-require_once 'public/display.php';
-require_once 'admin/customization.php';
+require_once $require_prefix . 'general/database-functions.php';
+require_once $require_prefix . 'general/object-functions.php';
+require_once $require_prefix . 'general/collection-functions.php';
+require_once $require_prefix . 'admin/object-admin-functions.php';
+require_once $require_prefix . 'general/custom-post-type-functions.php';
+require_once $require_prefix . 'general/rest.php';
+require_once $require_prefix . 'public/display.php';
+require_once $require_prefix . 'admin/customization.php';
 
 /*
  * Scripts
  */
-require_once 'actions-filters.php';
-require_once 'general/capabilities.php';
-require_once 'general/object-post-types.php';
-require_once 'general/object-ajax.php';
-require_once 'general/collection-post-type.php';
-require_once 'admin/quick-browse.php';
-require_once 'admin/import-export.php';
-require_once 'general/database-upgrade.php';
+require_once $require_prefix . 'actions-filters.php';
+require_once $require_prefix . 'general/capabilities.php';
+require_once $require_prefix . 'general/object-post-types.php';
+require_once $require_prefix . 'general/object-ajax.php';
+require_once $require_prefix . 'general/collection-post-type.php';
+require_once $require_prefix . 'admin/quick-browse.php';
+require_once $require_prefix . 'admin/import-export.php';
+require_once $require_prefix . 'general/database-upgrade.php';
 
 /*
  * Blocks
  */
-require_once 'blocks/blocks.php';
+require_once $require_prefix . 'blocks/blocks.php';
 
