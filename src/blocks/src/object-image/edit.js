@@ -17,7 +17,7 @@ import apiFetch from '@wordpress/api-fetch';
 
 import {
 	ObjectEmbedPanel,
-	ObjectSearchButton
+	ObjectSearchBox
 } from '../components/object-search-box';
 import AppearancePanel from '../components/appearance-panel';
 import ImageSizePanel from '../components/image-size-panel';
@@ -68,10 +68,10 @@ class ObjectImageEdit extends Component {
 		super( props );
 
 		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
-		this.setImageReady       = this.setImageReady.bind( this );
+		this.setModalOpen        = this.setModalOpen.bind( this );
 
 		this.state = {
-			imgReady: false,
+			modalOpen: false
 		}
 	}
 
@@ -89,10 +89,6 @@ class ObjectImageEdit extends Component {
 				imgIndex  : 0
 			} );
 
-			this.setState( {
-				imgReady: false
-			} );
-
 			const object_path = base_rest_path + 'all/' + returnValue;
 			apiFetch( { path: object_path } ).then( result => {
 				setAttributes( {
@@ -104,12 +100,8 @@ class ObjectImageEdit extends Component {
 		}
 	}
 
-	setImageReady( isReady ) {
-		if ( isReady !== this.state.imgReady ) {
-			this.setState( {
-				imgReady : isReady
-			} );
-		}
+	setModalOpen ( isOpen ) {
+		this.setState( { modalOpen: isOpen } );
 	}
 
 	render() {
@@ -127,7 +119,6 @@ class ObjectImageEdit extends Component {
 			imgHeight,
 			imgWidth,
 			imgDimensions,
-			imgAlignment,
 			imgIndex,
 			totalImages,
 			imgURL,
@@ -139,10 +130,6 @@ class ObjectImageEdit extends Component {
 			titleTag,
 			fontSize,
 		} = attributes;
-
-		const {
-			imgReady
-		} = this.state;
 
 		const TitleTag = titleTag;
 
@@ -166,11 +153,10 @@ class ObjectImageEdit extends Component {
 				/>
 				<ImageSizePanel
 					setAttributes = { setAttributes }
-					imgHeight     = { imgHeight }
-					imgWidth      = { imgWidth }
-					imgReady      = { imgReady }
+					imgHeight     = { null }
+					imgWidth      = { null }
 					imgDimensions = { imgDimensions }
-					imgAlignment  = { imgAlignment }
+					imgAlignment  = { null }
 					initialOpen   = { true }
 				/>
 				<AppearancePanel
@@ -196,20 +182,32 @@ class ObjectImageEdit extends Component {
 						imgIndex      = { imgIndex }
 						imgURL        = { imgURL }
 						imgDimensions = { imgDimensions }
-						setAttributes = { setAttributes }
+						setImgData    = { setAttributes }
 						totalImages   = { totalImages }
-						setImageReady = { this.setImageReady }
-						imgReady      = { imgReady }
 					/>
 					:
-					<div>
-						<div>Click 'Search' to embed object.</div>
-						<ObjectSearchButton
-							returnCallback = { this.onSearchModalReturn }
+					<>
+					<div
+						className = 'image-selector-placeholder'
+						style     = { { minHeight: imgDimensions.height, minWidth: imgDimensions.width } }
+						onClick   = { ( event ) => {
+							event.stopPropagation();
+							this.setModalOpen( true ) 
+						} } 
+					>
+						<div
+							className = 'image-selector-placeholder-plus'
 						>
-							Search
-						</ObjectSearchButton>
+							+
+						</div>
 					</div>
+					{ this.state.modalOpen &&
+						<ObjectSearchBox
+							close = { () => this.setModalOpen( false ) }
+							returnCallback = { newObjectID => this.onSearchModalReturn( newObjectID ) }
+						/>
+					}
+					</>
 				}
 				{ displayTitle && 
 					<TitleTag
@@ -224,7 +222,7 @@ class ObjectImageEdit extends Component {
 					{ displayCatID && 
 						<div>{ catID }</div>
 					}
-					{ objectID && displayCaption &&
+					{ displayCaption &&
 						<RichText
 							tagName            = 'p'
 							className          = 'caption-text-field'

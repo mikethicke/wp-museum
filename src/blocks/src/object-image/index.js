@@ -23,11 +23,11 @@ registerBlockType( 'wp-museum/object-image', {
 		},
 		catID: {
 			type    : 'string',
-			default : null
+			default : 'No Object Selected'
 		},
 		title: {
 			type    : 'string',
-			default : null
+			default : 'No Object Selected'
 		},
 		captionText: {
 			type    : 'string',
@@ -80,10 +80,6 @@ registerBlockType( 'wp-museum/object-image', {
 				height : 300,
 				size   : 'medium' //options: thumbnail, medium, large, full
 			}
-		},
-		imgAlignment: {
-			type    : 'string',
-			default : 'center' //options: left, center, right
 		},
 		fontSize: {
 			type    : 'float',

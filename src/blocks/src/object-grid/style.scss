@@ -1,0 +1,47 @@
+.object-grid-container {
+	table {
+		width: 100%;
+		table-layout: fixed;
+		line-height: 0;
+		border-spacing: 2px;
+		border-collapse: separate;
+	}
+
+	tbody {
+		vertical-align: top;
+	}
+
+	tr {
+		padding: 0;
+	}
+
+	td {
+		padding: 0;
+		border-width: 0;
+
+		a, a:hover {
+			text-decoration: none;
+			background-color: transparent;
+		}
+	}
+
+	.grid-image-container {
+		width: 100%;
+		display: inline-block;
+		position: relative;
+		align-items: center;
+	}
+
+	.grid-image-placeholder {
+		padding-top: 50%;
+		padding-bottom: 50%;
+		background-color: #f1f2f3;
+		height: 0;
+	}
+
+	.grid-image-image {
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+}

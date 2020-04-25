@@ -67,7 +67,10 @@ export default function save ( { attributes } ) {
 	const linkedBody = ( linkToObject && objectURL ) ? <a className='object-link' href={ objectURL }>{ body }</a> : body;
 
 	return (
-		<div className = 'image-selector'>
+		<div 
+			className = 'image-selector'
+			style     = { outerDivStyle }
+		>
 			{ linkedBody }
 		</div>
 	);

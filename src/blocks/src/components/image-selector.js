@@ -15,10 +15,9 @@ const ImageSelector = ( props ) => {
 		imgIndex,
 		totalImages,
 		imgDimensions,
-		setAttributes,
-		setImageReady,
+		setImgData,
 		imgURL,
-		imgReady,
+		setImageSize
 	} = props;
 
 	const [ imageData,       updateImageData       ] = useState( null );
@@ -36,7 +35,7 @@ const ImageSelector = ( props ) => {
 			newImgIndex = 0
 		}
 
-		setAttributes( { imgIndex: newImgIndex } );
+		setImgData( { imgIndex: newImgIndex } );
 	}
 
 	useEffect( () => {
@@ -83,29 +82,31 @@ const ImageSelector = ( props ) => {
 					bestFitImage.height = height;
 					bestFitImage.width  = width
 				}
-				setAttributes ( {
+				setImgData ( {
 					imgURL      : bestFitImage.URL,
 					imgHeight   : bestFitImage.height,
 					imgWidth    : bestFitImage.width,
 					totalImages : Object.keys( imageData ).length,
 				} );
-	
-				setImageReady( true );
 			}
 		}
 	} );
 
+	const selectorStyle = {
+		backgroundImage: `url('${imgURL}')`
+	}
+
+	if ( setImageSize && imgDimensions ) {
+		selectorStyle.height = imgDimensions.height;
+		selectorStyle.width = imgDimensions.width;
+	}
+
 	return (
-		( imgReady && imgURL && imgDimensions.height && imgDimensions.width ) ?
+		( imgURL ) ?
 			<div
 				className = 'image-selector-container'
+				style     = { selectorStyle }
 			>
-				<img
-					className = 'editor-image'
-					src       = { imgURL }
-					height    = { imgDimensions.height }
-					width     = { imgDimensions.width }
-				/>
 				<IconButton
 					className = 'left-arrow selector-button'
 					icon      = 'arrow-left-alt2'
@@ -122,6 +123,10 @@ const ImageSelector = ( props ) => {
 	);
 
 	
+}
+
+ImageSelector.defaultProps = {
+	setImageSize: true
 }
 
 export default ImageSelector;
