@@ -44,14 +44,13 @@ const ImageSizePanel = ( props ) => {
 		thumbnail: { height: 150,  width: 150  },
 		medium:    { height: 300,  width: 300  },
 		large:     { height: 1024, width: 1024 },
-		full:      { height: null, width: null }
 	}
 
 	const imageSizeOptions = [
+		{ value: '',          label: '' },
 		{ value: 'thumbnail', label: __( 'Thumbnail' ) },
 		{ value: 'medium',    label: __( 'Medium' ) },
 		{ value: 'large',     label: __( 'Large' ) },
-		{ value: 'full',      label: __( 'Full Size' ) },
 	];
 
 	/**
@@ -60,23 +59,13 @@ const ImageSizePanel = ( props ) => {
 	 * @param {string} size New size of image, from imgSizes
 	 */
 	const updateImage = ( size ) => {
-		if ( imgHeight && imgWidth ) {
-			const targetSize = imgSizes[ size ].width; //width == height
-			let scaleFactor;
-			if ( targetSize === null ) {
-				scaleFactor = 1;
-			} else {
-				scaleFactor = targetSize / Math.max( imgWidth, imgHeight );
+		setAttributes ( {
+			imgDimensions: {
+				height : imgSizes[ size ].height,
+				width  : imgSizes[ size ].width,
+				size   : size
 			}
-			const newimgDimensions = {
-				height: Math.round( scaleFactor * imgHeight ),
-				width: Math.round( scaleFactor * imgWidth ),
-				size: size
-			};
-			setAttributes ( {
-				imgDimensions: newimgDimensions
-			} );
-		}	
+		} );
 	}
 
 	/**
@@ -85,18 +74,13 @@ const ImageSizePanel = ( props ) => {
 	 * @param {number} newHeight New height of image, in pixels.
 	 */
 	const updateHeight = ( newHeight ) => {
-		if ( imgHeight && imgWidth ) {
-			const setHeight = Math.min( newHeight, imgHeight );
-			const setWidth = Math.round( setHeight / imgHeight * imgWidth )
-			const newimgDimensions = {
-				height: setHeight,
-				width: setWidth,
-				size: null
-			};
-			setAttributes ( {
-				imgDimensions: newimgDimensions
-			} );
-		}	
+		setAttributes ( {
+			imgDimensions: {
+				height : Number( newHeight ),
+				width  : imgDimensions.width,
+				size   : ''
+			}
+		} );
 	}
 
 	/**
@@ -105,18 +89,13 @@ const ImageSizePanel = ( props ) => {
 	 * @param {number} newWidth New width of image, in pixels.
 	 */
 	const updateWidth = ( newWidth ) => {
-		if ( imgHeight && imgWidth ) {
-			const setWidth = Math.min( newWidth, imgWidth);
-			const setHeight = Math.round( setWidth / imgWidth * imgHeight )
-			const newimgDimensions = {
-				height: setHeight,
-				width: setWidth,
-				size: null
-			};
-			setAttributes ( {
-				imgDimensions: newimgDimensions
-			} );
-		}	
+		setAttributes ( {
+			imgDimensions: {
+				height : imgDimensions.height,
+				width  : Number( newWidth ),
+				size   : ''
+			}
+		} );
 	}
 
 	/**

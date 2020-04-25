@@ -23,11 +23,11 @@ registerBlockType( 'wp-museum/object-image', {
 		},
 		catID: {
 			type    : 'string',
-			default : null
+			default : 'No Object Selected'
 		},
 		title: {
 			type    : 'string',
-			default : null
+			default : 'No Object Selected'
 		},
 		captionText: {
 			type    : 'string',

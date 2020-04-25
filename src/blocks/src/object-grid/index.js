@@ -18,9 +18,9 @@ registerBlockType( 'wp-museum/object-grid', {
 			type: 'number',
 			default: 2,
 		},
-		objects: {
-			type: 'object',
-			default: null,
+		objectData: {
+			type: 'array',
+			default: [],
 		},
 		title: {
 			type: 'string',
@@ -56,7 +56,7 @@ registerBlockType( 'wp-museum/object-grid', {
 		},
 		titleTag: {
 			type    : 'string',
-			default : 'h6' //options: h2, h3, h, h5, h6, p
+			default : 'h4' //options: h2, h3, h, h5, h6, p
 		},
 		appearance: {
 			type    : 'object',

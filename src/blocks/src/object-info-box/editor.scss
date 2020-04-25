@@ -1,7 +1,25 @@
 .wp-block[data-align=right][data-type=wp-museum\/object-info-box] > .is-block-content,
 .wp-block[data-align=left][data-type=wp-museum\/object-info-box] > .is-block-content {
     max-width: 50%;
+}
 
+.info-outer-div {
+    .image-selector-placeholder {
+        background-color: #f1f2f3;
+        cursor: pointer;
+        position: relative;
+
+        .image-selector-placeholder-plus {
+            position: absolute;
+            height: 0;
+			width: 100%;
+			text-align: center;
+			top: 50%;
+			overflow: visible;
+			font-size: 3em;
+			line-height: 0;
+        }
+    }
 }
 
 

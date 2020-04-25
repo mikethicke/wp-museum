@@ -17,7 +17,7 @@ import apiFetch from '@wordpress/api-fetch';
 
 import {
 	ObjectEmbedPanel,
-	ObjectSearchButton
+	ObjectSearchBox
 } from '../components/object-search-box';
 import AppearancePanel from '../components/appearance-panel';
 import ImageSizePanel from '../components/image-size-panel';
@@ -68,6 +68,11 @@ class ObjectImageEdit extends Component {
 		super( props );
 
 		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
+		this.setModalOpen        = this.setModalOpen.bind( this );
+
+		this.state = {
+			modalOpen: false
+		}
 	}
 
 	onSearchModalReturn( returnValue ) {
@@ -93,6 +98,10 @@ class ObjectImageEdit extends Component {
 				} );
 			} );
 		}
+	}
+
+	setModalOpen ( isOpen ) {
+		this.setState( { modalOpen: isOpen } );
 	}
 
 	render() {
@@ -144,8 +153,8 @@ class ObjectImageEdit extends Component {
 				/>
 				<ImageSizePanel
 					setAttributes = { setAttributes }
-					imgHeight     = { imgHeight }
-					imgWidth      = { imgWidth }
+					imgHeight     = { null }
+					imgWidth      = { null }
 					imgDimensions = { imgDimensions }
 					imgAlignment  = { null }
 					initialOpen   = { true }
@@ -173,18 +182,32 @@ class ObjectImageEdit extends Component {
 						imgIndex      = { imgIndex }
 						imgURL        = { imgURL }
 						imgDimensions = { imgDimensions }
-						setAttributes = { setAttributes }
+						setImgData    = { setAttributes }
 						totalImages   = { totalImages }
 					/>
 					:
-					<div>
-						<div>Click 'Search' to embed object.</div>
-						<ObjectSearchButton
-							returnCallback = { this.onSearchModalReturn }
+					<>
+					<div
+						className = 'image-selector-placeholder'
+						style     = { { minHeight: imgDimensions.height, minWidth: imgDimensions.width } }
+						onClick   = { ( event ) => {
+							event.stopPropagation();
+							this.setModalOpen( true ) 
+						} } 
+					>
+						<div
+							className = 'image-selector-placeholder-plus'
 						>
-							Search
-						</ObjectSearchButton>
+							+
+						</div>
 					</div>
+					{ this.state.modalOpen &&
+						<ObjectSearchBox
+							close = { () => this.setModalOpen( false ) }
+							returnCallback = { newObjectID => this.onSearchModalReturn( newObjectID ) }
+						/>
+					}
+					</>
 				}
 				{ displayTitle && 
 					<TitleTag
@@ -199,7 +222,7 @@ class ObjectImageEdit extends Component {
 					{ displayCatID && 
 						<div>{ catID }</div>
 					}
-					{ objectID && displayCaption &&
+					{ displayCaption &&
 						<RichText
 							tagName            = 'p'
 							className          = 'caption-text-field'

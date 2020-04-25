@@ -331,10 +331,12 @@ const SearchResultsList = ( props ) => {
                     key = { 'results-list-' + index }
                     className = { index === selectedItem  ? 'search-item selected' : 'search-item unselected' }
                 >
-                    <Button
+                    <div
+                        tabIndex  = '0'
                         className = 'search-result-button'
                         onFocus   = { ( ) => onButtonItemFocus( index ) }
                         onClick   = { ( ) => onButtonItemClick( index ) }
+                        onMouseEnter = { () => onButtonItemFocus( index ) }
                         onKeyUp   = { ( event ) => event.key === 'Enter' ? onButtonItemClick( index ) : onKeyUp( event ) }
                         onKeyDown = { onKeyDown }
                     >
@@ -350,7 +352,7 @@ const SearchResultsList = ( props ) => {
                                 { result[ result[ 'cat_field' ] ] }
                             </div>
                         }
-                    </Button>
+                    </div>
                 </li>
             )   
         );
@@ -378,10 +380,15 @@ const ObjectSearchButton = (props) => {
 	const [ isOpen, setOpen ] = useState( false );
     const openModal = () => setOpen( true );
     const closeModal = () => setOpen( false );
- 
+
     return (
         <>
-            <Button isSecondary onClick={ openModal }>{ children }</Button>
+            <Button
+                isSecondary 
+                onClick = { openModal }
+            >
+                { children }
+            </Button>
             { isOpen && (
                 <ObjectSearchBox 
                     close          = { closeModal }

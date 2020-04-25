@@ -1,23 +1,36 @@
 import { hexToRgb } from '../util';
 
-import { ObjectSearchButton } from '../components/object-search-box.js';
+
+import {
+    useState,
+} from '@wordpress/element';
+
+import { ObjectSearchBox } from '../components/object-search-box';
+import ImageSelector from '../components/image-selector';
 
 const InfoContent = ( props ) => {
 	const { 
-		objectID,
 		title,
 		excerpt,
-		thumbnailURL,
+		imgURL,
+		imgIndex,
+		imgHeight,
+		imgWidth,
+		displayImage,
 		fields,
 		fieldData,
 		imgDimensions,
 		imgAlignment,
 		fontSize,
 		appearance,
-		titleTag
+		titleTag,
+		onSearchModalReturn,
+		objectID,
+		setAttributes,
+		totalImages
 	} = props;
-	const { width, height } = imgDimensions;
 	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
+	const [ modalOpen, setModalOpen ] = useState( false );
 
 	let field_list = [];
 	if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
@@ -32,22 +45,62 @@ const InfoContent = ( props ) => {
 	const TitleTag = titleTag;
 
 	const body = (
-			<>
-			{ width && height &&
-				<img 
-					className = { 'img-info-' + imgAlignment }
-					src = { thumbnailURL }
-					height = { height }
-					width = { width }
-				/>
-			}
-			{ title === null || 
-			<TitleTag>{ title }</TitleTag>
-			}
-			{ excerpt === null ||
-			<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
-			}
-			</>
+			<div className = { `infobox-body-wrapper img-${imgAlignment}` }>
+				{ displayImage &&
+					<div
+						className = { `infobox-img-wrapper` }
+					>
+						{ objectID ? 
+							<ImageSelector 
+								imgHeight     = { imgHeight }
+								imgWidth      = { imgWidth }
+								objectID      = { objectID }
+								imgIndex      = { imgIndex }
+								imgURL        = { imgURL }
+								imgDimensions = { imgDimensions }
+								setImgData    = { setAttributes }
+								totalImages   = { totalImages }
+							/>
+							:
+							<>
+								<div
+									className = 'image-selector-placeholder'
+									style     = { { height: imgDimensions.height, width: imgDimensions.width } }
+									onClick   = { ( event ) => {
+										event.stopPropagation();
+										setModalOpen( true ) 
+									} } 
+								>
+									<div
+										className = 'image-selector-placeholder-plus'
+									>
+										+
+									</div>
+								</div>
+								{ modalOpen &&
+									<ObjectSearchBox
+										close = { () => setModalOpen( false ) }
+										returnCallback = { onSearchModalReturn }
+									/>
+								}
+							</>
+						}
+					</div>
+				}
+				<div className = 'infobox-content-wrapper'>
+					{ title === null || 
+					<TitleTag>{ title }</TitleTag>
+					}
+					{ excerpt === null ||
+					<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
+					}
+					{ field_list.length === 0 ||
+						<ul>
+							{ field_list }
+						</ul>
+					}
+				</div>
+			</div>
 	);
 
 	const bRGB = hexToRgb( backgroundColor.toString(16) );
@@ -57,39 +110,12 @@ const InfoContent = ( props ) => {
 		borderColor: borderColor,
 		backgroundColor: `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
 	}
-
-	if ( objectID !== null ) {	
-		return (
-			<div className = 'info-outer-div' style = { divStyle }>
-				{ body }
-				{ field_list.length === 0 ||
-					<ul>
-						{ field_list }
-					</ul>
-				}
-			</div>
-		);
-	} else {
-		return (
-			<div>
-
-			</div>
-		);
-	}
-}
-
-const InfoPlaceholder = ( props ) => {
-	const { onSearchModalReturn } = props;
+	
 	return (
-		<div>
-			<div>Click 'Search' to embed object.</div>
-			<ObjectSearchButton
-				returnCallback = { onSearchModalReturn }
-			>
-				Search
-			</ObjectSearchButton>
+		<div className = 'info-outer-div' style = { divStyle }>
+			{ body }
 		</div>
 	);
 }
 
-export { InfoContent, InfoPlaceholder };
+export default InfoContent;
