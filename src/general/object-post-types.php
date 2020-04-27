@@ -118,10 +118,12 @@ function check_object_post_on_publish( $new_status, $old_status, $post ) {
  */
 function link_objects_by_id( $content ) {
 	global $post;
-	$kinds = get_mobject_kinds();
-	$content_array = wp_html_split( $content );
+
+	$kinds               = get_mobject_kinds();
+	$content_array       = wp_html_split( $content );
 	$count_content_items = count( $content_array );
-	$changed = false;
+	$changed             = false;
+
 	foreach ( $kinds as $kind ) {
 		if ( empty( $kind->cat_field_id ) ) {
 			break;
@@ -130,6 +132,10 @@ function link_objects_by_id( $content ) {
 		if ( empty( $id_field->field_schema ) ) {
 			break;
 		}
+
+		// The pattern is based on user-inputtted regular expression with some
+		// special syntax for group ordering in sort. We convert that into an
+		// expression that will match correctly.
 		$pattern       = '/' . stripslashes( $id_field->field_schema ) . '/';
 		$pattern       = preg_replace( '/<.*?>/', ':', $pattern );
 		$matches       = array();
@@ -137,6 +143,8 @@ function link_objects_by_id( $content ) {
 		// Make sure that we're not adding a link inside another link, which breaks the DOM.
 		$inside_link_element = false;
 
+		// wp_html_split makes it so that tags are on odd indexes and content
+		// is on event indexes.
 		// See: wp-includes/formatting.php::wp_replace_in_html_tags().
 		for ( $index = 0; $index < $count_content_items; $index++ ) {
 			if ( 0 === $index % 2 && ! $inside_link_element ) {

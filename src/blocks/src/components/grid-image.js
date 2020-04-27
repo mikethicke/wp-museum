@@ -1,17 +1,41 @@
-import ImageSelector from './image-selector';
+/**
+ * Single image box for an image grid.
+ */
 
+/**
+ * WordPress dependencies
+ */
 import {
 	useState
 } from '@wordpress/element';
 
+/**
+  * Internal dependencies
+  */
+import ImageSelector from './image-selector';
+
 import {
-	ObjectSearchButton, ObjectSearchBox,
+	ObjectSearchBox,
 } from './object-search-box';
 
-import {
-	Dashicon
-} from '@wordpress/components';
-
+/**
+ * A single museum object image in an ObjectGrid component. This component only 
+ * knows about itself, not about its context in the grid. It uses the
+ * ImageSelector component to allow the user to select a particlular image from
+ * an object's image gallery.
+ * 
+ * @param {object}   props                        The component's properties.
+ * @param {number}   props.objectID               The WordPress post_id of the object.
+ * @param {object}   props.imgDimensions          The *displayed* dimensions of the image 
+ *                                                (width & height).
+ * @param {string}   props.imgURL                 The URL of the image.
+ * @param {number}   props.imgIndex               The index of the image in the array of the 
+ *                                                object's image gallery.
+ * @param {function} props.updateImgCallback      A callback function accepting an object { imgURL, 
+ *                                                imgIndex}.
+ * @param {function} props.updateObjectIDCallback A callback function accepting a WordPress post_id 
+ *                                                (number or null).
+ */
 const GridImage = ( props ) => {
 	const {
 		objectID,
@@ -30,6 +54,13 @@ const GridImage = ( props ) => {
 
 	const [ modalOpen, setModalOpen ] = useState( false );
 
+	/**
+	 * Callback function passed to ImageSelector component. Properties that
+	 * don't matter to ObjectGrid are tracked using internal state. Properties
+	 * that do matter are passed along to parent.
+	 * 
+	 * @param {object} attrs The callback's attributes. 
+	 */
 	const setImgData = ( attrs ) => {
 		const {
 			imgURL,
@@ -41,9 +72,9 @@ const GridImage = ( props ) => {
 
 		if ( imgData.imgHeight != imgHeight || imgData.imgWidth != imgWidth || imgData.totalImages != totalImages ) {
 			updateImgData( {
-				imgHeight: imgHeight,
-				imgWidth: imgWidth,
-				totalImages: totalImages
+				imgHeight   : imgHeight,
+				imgWidth    : imgWidth,
+				totalImages : totalImages
 			} );
 		}
 

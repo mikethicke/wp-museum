@@ -1,4 +1,10 @@
+/**
+ * Inspector panel to set font size and title style.
+ */
 
+/**
+ * WordPress dependencies
+ */
 import { 
 	PanelBody,
 	PanelRow,
@@ -8,6 +14,16 @@ import {
 
 import { __ } from "@wordpress/i18n";
 
+/**
+ * Creates an inspector panel (must be inside <InspectorControls>) for selecting
+ * font size and title tag for the block.
+ * 
+ * @param {object}   props               The component properties.
+ * @param {function} props.setAttributes Callback to set attributes for block.
+ * @param {string}   props.titleTag      The tag for the block title (h2-h6 or p).
+ * @param {number}   props.fontSize      Font size for normal text in the block, in em.
+ * @param {boolean}  props.initialOpen   Whether the panel should be open initially. 
+ */
 const FontSizePanel = ( props ) => {
 	const { setAttributes, titleTag, fontSize, initialOpen } = props;
 
