@@ -30,6 +30,13 @@ const AppearancePanel = ( props ) => {
 	const { appearance, setAttributes, initialOpen } = props;
 	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 	
+	/**
+	 * Callback function to set appearance attribute fields.
+	 *
+	 * @param {string} field The appearance field to set (borderWidth |
+	 *                       borderColor | backgroundColor | backgroundOpacity).
+	 * @param {number} val   The new value for the field. 
+	 */
 	const setAppearance = ( field, val ) => {
 		let newVal;
 		val ? newVal = val : newVal = 0;

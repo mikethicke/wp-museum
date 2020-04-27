@@ -27,7 +27,7 @@ import {
  * uses the smallest image equal to or larger than the desired image
  * dimensions.
  * 
- * @see ObjectGrid and ObjectImage for examples of use.
+ * @see <ObjectGrid> and <ObjectImage> for examples of use.
  * 
  * @param {object}   props               The component's properties.
  * @param {number}   props.objectID      The object's WordPress post_id.
@@ -55,6 +55,12 @@ const ImageSelector = ( props ) => {
 
 	const rest_path = `/wp-museum/v1/all/${objectID}/images`;
 
+	/**
+	 * Changes the array index of the image to be displayed by +1 or -1 and
+	 * wraps around appropriately.
+	 * 
+	 * @param {number} increment Change to the image index ( +1 | -1 ). 
+	 */
 	const updateImageIndex = ( increment ) => {
 		let newImgIndex = imgIndex + increment;
 		if ( totalImages === 0 ) {
@@ -68,6 +74,14 @@ const ImageSelector = ( props ) => {
 		setImgData( { imgIndex: newImgIndex } );
 	}
 
+	/**
+	 * Updates image data from the WordPress REST api.
+	 *
+	 * If objectID has been updated, then reset the image data. If the image
+	 * data is not set, then fetch it from the REST api. The REST request
+	 * returns an array of image data for each object image. Find the best fit
+	 * image for the selected image and set that using the setImgData callback.
+	 */
 	useEffect( () => {
 		const bestFitImage = {
 			'URL'    : null,
@@ -93,9 +107,9 @@ const ImageSelector = ( props ) => {
 					] = dataArray;
 	
 					if ( height >= imgDimensions.height && 
-						height <  bestFitImage.height && 
-						width  >= imgDimensions.width && 
-						width  <  bestFitImage.width ) {
+						 height <  bestFitImage.height && 
+						 width  >= imgDimensions.width && 
+						 width  <  bestFitImage.width ) {
 							bestFitImage.URL    = URL;
 							bestFitImage.height = height;
 							bestFitImage.width  = width;
@@ -122,13 +136,18 @@ const ImageSelector = ( props ) => {
 		}
 	} );
 
+	// Using background image propery of <div> rather than an <img> tag in
+	// order to make a square images. This isn't ideal, but seems to be the
+	// best way of achieving a flexible square grid without resorting to
+	// javascript or something. Ultimately the save function of the block might
+	// do something different.
 	const selectorStyle = {
 		backgroundImage: `url('${imgURL}')`
 	}
 
 	if ( setImageSize && imgDimensions ) {
 		selectorStyle.height = imgDimensions.height;
-		selectorStyle.width = imgDimensions.width;
+		selectorStyle.width  = imgDimensions.width;
 	}
 
 	return (
@@ -155,6 +174,8 @@ const ImageSelector = ( props ) => {
 	
 }
 
+// setImage size really only needs to be set by components that want to do
+// something special with the image layout, such as <ObjectGrid>.
 ImageSelector.defaultProps = {
 	setImageSize: true
 }

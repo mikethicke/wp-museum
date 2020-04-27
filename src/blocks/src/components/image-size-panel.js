@@ -143,7 +143,7 @@ const ImageSizePanel = ( props ) => {
 							isPrimary = { imgAlignment === 'left' }
 							onClick   = { () => { updateimgAlignment( 'left' ) } }
 						>
-							<Dashicon icon='align-left'/>
+							<Dashicon icon = 'align-left'/>
 						</Button>
 						<Button
 							isPrimary = { imgAlignment === 'center' }
