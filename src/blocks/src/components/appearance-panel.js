@@ -1,10 +1,10 @@
 /**
- * Panel to control appearance of embedded museum object.
+ * Inspector panel to control appearance of embedded museum object.
  */
 
- /**
-  * WordPress dependencies
-  */
+/**
+ * WordPress dependencies
+ */
 import {
 	PanelBody,
 	PanelRow,
@@ -76,14 +76,14 @@ const AppearancePanel = ( props ) => {
 			</PanelRow>
 			<PanelRow>
 				<RangeControl
-					label = 'Background Opacity'
 					allowReset
+					label           = 'Background Opacity'
 					initialPosition = '0'
-					onChange = { ( val ) => setAppearance( 'backgroundOpacity', val ) }
-					min = '0'
-					max = '1'
-					step = '0.01'
-					value = { backgroundOpacity }
+					onChange        = { ( val ) => setAppearance( 'backgroundOpacity', val ) }
+					min             = '0'
+					max             = '1'
+					step            = '0.01'
+					value           = { backgroundOpacity }
 				/>
 			</PanelRow>
 		</PanelBody>

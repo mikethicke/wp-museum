@@ -1,3 +1,11 @@
+/**
+ * A component that allows the user to select a particular image from a museum
+ * object's image gallery.
+ */
+
+/**
+ * WordPress dependencies
+ */
 import {
 	useState,
 	useEffect
@@ -9,6 +17,28 @@ import {
 	IconButton,
 } from '@wordpress/components'
 
+/**
+ * A component used by various blocks that allows the user to select a
+ * particular image from a museum object's image gallery. Left and right arrows
+ * allow the user to scroll through the object's images, and the component
+ * updates the imgURL of its parent.
+ *
+ * WordPress stores multiple image files of different sizes. This component
+ * uses the smallest image equal to or larger than the desired image
+ * dimensions.
+ * 
+ * @see ObjectGrid and ObjectImage for examples of use.
+ * 
+ * @param {object}   props               The component's properties.
+ * @param {number}   props.objectID      The object's WordPress post_id.
+ * @param {number}   props.imgIndex      The array index of the image in the object's gallery.
+ * @param {number}   props.totalImages   The total number of images in the object's gallery.
+ * @param {object}   props.imgDimensions The *displayed* size of the image {width, height}.
+ * @param {function} props.setImgData    Callback function for setting image data.
+ * @param {string}   props.imgURL        The URL of the currently selected image.
+ * @param {boolean}  props.setImageSize  Whether component should specify height and width of image
+ *                                       when displaying it.
+ */
 const ImageSelector = ( props ) => {
 	const {
 		objectID,
