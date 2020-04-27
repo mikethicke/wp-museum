@@ -1,3 +1,10 @@
+/**
+ * Returns static HTML for frontend display of block.
+ */
+
+/**
+ * WordPress dependencies
+ */
 import { RichText } from '@wordpress/blockEditor';
 
 export default function save ( { attributes } ) {

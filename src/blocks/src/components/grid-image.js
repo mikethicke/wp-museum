@@ -19,9 +19,9 @@ import {
 } from './object-search-box';
 
 /**
- * A single museum object image in an ObjectGrid component. This component only 
+ * A single museum object image in an <ObjectGrid> component. This component only 
  * knows about itself, not about its context in the grid. It uses the
- * ImageSelector component to allow the user to select a particlular image from
+ * <ImageSelector> component to allow the user to select a particlular image from
  * an object's image gallery.
  * 
  * @param {object}   props                        The component's properties.
@@ -55,7 +55,7 @@ const GridImage = ( props ) => {
 	const [ modalOpen, setModalOpen ] = useState( false );
 
 	/**
-	 * Callback function passed to ImageSelector component. Properties that
+	 * Callback function passed to <ImageSelector> component. Properties that
 	 * don't matter to ObjectGrid are tracked using internal state. Properties
 	 * that do matter are passed along to parent.
 	 * 
@@ -124,7 +124,7 @@ const GridImage = ( props ) => {
 				</div>
 				{ modalOpen &&
 					<ObjectSearchBox
-						close = { () => setModalOpen( false ) }
+						close          = { () => setModalOpen( false ) }
 						returnCallback = { newObjectID => updateObjectIDCallback( newObjectID ) }
 					/>
 				}
