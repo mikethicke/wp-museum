@@ -1,3 +1,10 @@
+/**
+ * Gutenberg editor view for Object Infobox block. Creates <ObjectInfoEdit> component.
+ */
+
+/**
+ * WordPress dependencies
+ */
 import {
 	InspectorControls
 } from '@wordpress/blockEditor'
@@ -15,12 +22,25 @@ import { __ } from "@wordpress/i18n";
 
 import apiFetch from '@wordpress/api-fetch';
 
+/**
+ * Internal dependencies
+ */
 import { ObjectEmbedPanel } from '../components/object-search-box';
 import AppearancePanel from '../components/appearance-panel';
 import ImageSizePanel from '../components/image-size-panel';
 import InfoContent from './info-content';
 import FontSizePanel from '../components/font-size-panel';
 
+/**
+ * Inspector panel for selecting which fields to display in the infobox.
+ *
+ * @param {object}   props               The component's properties.
+ * @param {function} props.setAttributes Callback function to set block
+ *                                       attributes.
+ * @param {object}   props.fields        List of object fields and whether they
+ *                                       are selected for display.
+ * @param {object}   props.fieldData     Data for each field.
+ */
 const FieldsPanel = ( props ) => {
 	const {
 		setAttributes,
@@ -28,29 +48,35 @@ const FieldsPanel = ( props ) => {
 		fieldData
 	} = props;
 
+	/**
+	 * Callback to update whether a field is selected.
+	 *
+	 * @param {number}  key Array index of the field.
+	 * @param {boolean} val Whether the field is selected. 
+	 */
 	const updateField = ( key, val ) => {
 		const newFields = Object.assign( {}, fields );
-		newFields[key] = val;
+		newFields[key]  = val;
+		
 		setAttributes ( { 
 			fields: newFields,
 		} );
 	}
 
-	if ( 
-		Object.keys(fields).length > 0 &&
-		Object.keys(fieldData).length === Object.keys(fields).length 
+	if ( Object.keys(fields).length > 0 &&
+		 Object.keys(fieldData).length === Object.keys(fields).length 
 	) {
 		const items = Object.keys(fields).map( key => 
 			<CheckboxControl
-				key = { key.toString() }
-				label = { fieldData[key]['name'] }
-				checked = { fields[key] }
+				key      = { key.toString() }
+				label    = { fieldData[key]['name'] }
+				checked  = { fields[key] }
 				onChange = { ( val ) => { updateField( key, val ) } }
 			/>
 		);
 		return (
 			<PanelBody
-				title = "Custom Fields"
+				title       = "Custom Fields"
 				initialOpen = { false }
 			>
 				{ items }
@@ -62,6 +88,18 @@ const FieldsPanel = ( props ) => {
 	
 }
 
+/**
+ * Inspector panel controlling whether to display title, caption for the block
+ * and whether clicking on images will link to the associated object.
+ * 
+ * @param {object}   props                           The component's properties.
+ * @param {object}   props.attributes                The block's attributes.
+ * @param {function} props.setAttributes             Callback function to update block attributes.
+ * @param {boolean}  props.attributes.displayTitle   Whether to display a title for the block.
+ * @param {boolean}  props.attributes.displayExcerpt Whether to display object description.
+ * @param {boolean}  props.attributes.displayImage   Whether to display image for the block.
+ * @param {boolean}  props.attributes.linkToObject   Whether block should link to objects.
+ */
 const OptionsPanel = ( props ) => {
 	const { attributes, setAttributes } = props;
 	const { displayTitle, displayExcerpt, displayImage, linkToObject } = attributes;
@@ -94,11 +132,16 @@ const OptionsPanel = ( props ) => {
 	);
 }
 
+/**
+ * Main editor component for Object Infobox block.
+ *
+ * All of the content of this block is fetched from the REST api. The user
+ * controls which information is displayed through the InspectorControl.
+ */
 class ObjectInfoEdit extends Component {
 	constructor ( props ) {
 		super ( props );
 
-		this.onUpdateButton      = this.onUpdateButton.bind( this );
 		this.fetchFieldData      = this.fetchFieldData.bind ( this );
 		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
 
@@ -107,20 +150,31 @@ class ObjectInfoEdit extends Component {
 		}
 	}
 	
+	/**
+	 * Fetches object data from WordPress REST api.
+	 *
+	 * If objectFetchID is set, then fetch that object. Otherwise use the
+	 * objectID set in the block attributes. This function takes an
+	 * objectFetchID so that you don't need to wait for setAttributes to fire
+	 * before fetching data from the API, which would introduce additional
+	 * update lag.
+	 *
+	 * @param {number} objectFetchID WordPress post_id of object.
+	 */
 	fetchFieldData ( objectFetchID = null ) {
 		const { setAttributes } = this.props;
-		const base_rest_path = '/wp-museum/v1/';
-		const objectID = objectFetchID ? objectFetchID : this.props.attributes.objectID;
+		const base_rest_path    = '/wp-museum/v1/';
+		const objectID          = objectFetchID ? objectFetchID : this.props.attributes.objectID;
 		
 		if ( objectID != null ) {
 			const object_path = base_rest_path + 'all/' + objectID;
-			const that = this;
+			const that = this; //There's probably a more elegant way to do this.
 			apiFetch( { path: object_path } ).then( result => {
 				that.setState( { object_data: result } );
 				setAttributes( {
-					title: result['post_title'],
-					excerpt: result['excerpt'],
-					objectURL: result['link']
+					title     : result['post_title'],
+					excerpt   : result['excerpt'],
+					objectURL : result['link']
 				} );
 				apiFetch(
 					{ path: base_rest_path + 
@@ -128,10 +182,10 @@ class ObjectInfoEdit extends Component {
 							'/custom'
 					}
 				).then( result => {
-					const { fields } = that.props.attributes;
+					const { fields }      = that.props.attributes;
 					const { object_data } = that.state;
-					let newFields = {};
-					let fieldData = {};
+					let newFields         = {};
+					let fieldData         = {};
 					for ( let key in result ) {
 						if ( typeof ( fields[key] ) === 'undefined') {
 							newFields[key] = false;
@@ -149,8 +203,8 @@ class ObjectInfoEdit extends Component {
 							content = object_data[ result[key]['slug'] ];
 						}
 						fieldData[key] = {
-							name: result[key]['name'],
-							content: content
+							name    : result[key]['name'],
+							content : content
 						}
 					}
 					setAttributes( {
@@ -163,14 +217,19 @@ class ObjectInfoEdit extends Component {
 		}
 	}
 
+	/**
+	 * When component mounts, fetch object data from the REST API.
+	 */
 	componentDidMount() {
 		this.fetchFieldData();
 	}
 
-	onUpdateButton() {
-		this.fetchFieldData();
-	}
-
+	/**
+	 * Callback function for search modal. When an object is found, set the
+	 * objectID attribute and fetch the data for that object from the REST API.
+	 *
+	 * @param {number} returnValue WordPress post_of found object.
+	 */
 	onSearchModalReturn( returnValue ) {
 		const { setAttributes } = this.props;
 
@@ -180,6 +239,9 @@ class ObjectInfoEdit extends Component {
 		}
 	}
 	
+	/**
+	 * Render the component.
+	 */
 	render () {
 		const { setAttributes, attributes } = this.props;
 		const { 

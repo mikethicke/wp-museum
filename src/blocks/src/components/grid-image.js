@@ -70,15 +70,28 @@ const GridImage = ( props ) => {
 			totalImages
 		} = attrs;
 
-		if ( imgData.imgHeight != imgHeight || imgData.imgWidth != imgWidth || imgData.totalImages != totalImages ) {
-			updateImgData( {
-				imgHeight   : imgHeight,
-				imgWidth    : imgWidth,
-				totalImages : totalImages
-			} );
+		const newImgData = Object.assign( {}, imgData );
+		let imgDataChanged = false;
+		if ( typeof imgHeight !== 'undefined' && imgHeight != imgData.imgHeight ) {
+			imgDataChanged = true;
+			newImgData.imgHeight = imgHeight;
+		}
+		if ( typeof imgWidth !== 'undefined' && imgWidth != imgData.imgWidth ) {
+			imgDataChanged = true;
+			newImgData.imgWidth = imgWidth;
+		}
+		if ( typeof totalImages !== 'undefined' && totalImages != imgData.totalImages ) {
+			imgDataChanged = true;
+			newImgData.totalImages = totalImages;
+		}
+		if ( imgDataChanged ) {
+			updateImgData( newImgData );
 		}
 
-		if ( ( imgURL && imgURL != props.imgURL ) || ( imgIndex && imgIndex != props.imgIndex ) ) {
+		if (
+			( typeof imgURL != 'undefined'   && imgURL != props.imgURL ) || 
+			( typeof imgIndex != 'undefined' && imgIndex != props.imgIndex ) 
+		) {
 			updateImgCallback( {
 				imgURL   : imgURL,
 				imgIndex : imgIndex
@@ -105,7 +118,7 @@ const GridImage = ( props ) => {
 					/>
 					<a
 						className = 'removeImageLink'
-						onClick = { () => updateObjectIDCallback( null ) }
+						onClick   = { () => updateObjectIDCallback( null ) }
 					>
 						[X]
 					</a>

@@ -176,11 +176,12 @@ class ObjectGrid extends Component {
 
 		const newObjectData = objectData.concat();
 
-		if ( imgData['imgURL'] ) {
-			newObjectData[index]['imgURL'] = imgData['imgURL'];
+		if ( typeof imgData['imgIndex'] != 'undefined' ) {
+			newObjectData[ index ]['imgIndex'] = imgData['imgIndex'];
+			newObjectData[ index ]['imgURL'] = null;
 		}
-		if ( imgData['imgIndex'] ) {
-			newObjectData[index]['imgIndex'] = imgData['imgIndex'];
+		if ( typeof imgData['imgURL'] != 'undefined' ) {
+			newObjectData[ index ]['imgURL'] = imgData['imgURL'];
 		}
 
 		setAttributes( { objectData: newObjectData } );
