@@ -96,7 +96,7 @@ const ImageSelector = ( props ) => {
 			}
 			if ( imageData === null ) {
 				apiFetch( { path: rest_path } ).then( result => updateImageData( result ) );
-			} else if ( imageData.length > 0 ) {
+			} else if ( imageData.length > 0 && ( imgURL === null || totalImages === 0 ) ) {
 				const selectedImageData = imageData[ imgIndex ];
 				for ( let [ sizeSlug, dataArray ] of Object.entries( selectedImageData ) ) {
 					let [
@@ -130,7 +130,7 @@ const ImageSelector = ( props ) => {
 					imgURL      : bestFitImage.URL,
 					imgHeight   : bestFitImage.height,
 					imgWidth    : bestFitImage.width,
-					totalImages : Object.keys( imageData ).length,
+					totalImages : imageData.length,
 				} );
 			}
 		}
@@ -145,9 +145,13 @@ const ImageSelector = ( props ) => {
 		backgroundImage: `url('${imgURL}')`
 	}
 
+	const placeHolderStyle = {}
+
 	if ( setImageSize && imgDimensions ) {
-		selectorStyle.height = imgDimensions.height;
-		selectorStyle.width  = imgDimensions.width;
+		selectorStyle.height    = imgDimensions.height;
+		selectorStyle.width     = imgDimensions.width;
+		placeHolderStyle.height = imgDimensions.height;
+		placeHolderStyle.width  = imgDimensions.width;
 	}
 
 	return (
@@ -168,7 +172,10 @@ const ImageSelector = ( props ) => {
 				/>
 			</div>
 		:
-			<div className = 'img-placeholder'></div>	
+			<div 
+				className = 'img-placeholder'
+				style     = { placeHolderStyle }
+			></div>	
 	);
 
 	

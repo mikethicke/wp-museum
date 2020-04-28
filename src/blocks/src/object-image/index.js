@@ -1,7 +1,38 @@
+/**
+ * A block to display a single museum object image, with title and caption.
+ * 
+ * Attributes:
+ *  - align          {string}  Alignment for the block on the page ( left | right | center ).
+ *  - objectID       {number}  WordPress post_id for the object.
+ *  - catID          {string}  The museum catalogue id for the object.
+ *  - title          {string}  The object's title (name).
+ *  - captionText    {string}  A caption for the image, entered by user.
+ *  - imgHeight      {number}  Actual height of the image file.
+ *  - imgWidth       {number}  Actual width of the image file.
+ *  - imgURL         {string}  URL of the image file.
+ *  - imgIndex       {number}  Array index of the image in the object's image gallery.
+ *  - totalImages    {number}  The total number of images in the object's image gallery.
+ *  - objectURL      {string}  The URL of the object (ie. a WordPress frontend page).
+ *  - displayTitle   {boolean} Whether to display the object's title.
+ *  - displayCatID   {boolean} Whether to display the object's catalogue ID.
+ *  - displayCaption {boolean} Whether to display a caption for the object.
+ *  - linkToObject   {boolean} Whether clicking on image should link to the object.
+ *  - imgDimensions  {object}  The dimensions of the image for *display*.
+ *  - fontSize       {string}  Font size for the image's caption and catalogue ID (em).
+ *  - titleTag       {string}  Tag name for the title.
+ *  - appearance     {object}  User-controllable styles for the block.
+ */
+
+/**
+ * WordPress dependencies
+ */
 import { registerBlockType } from "@wordpress/blocks";
 
 import { __ } from "@wordpress/i18n";
 
+/**
+ * Internal dependencies
+ */
 import edit from './edit';
 import save from './save';
 

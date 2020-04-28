@@ -1,13 +1,27 @@
-import { hexToRgb } from '../util';
+/**
+ * Component for rendering infobox in Gutenberg editor.
+ */
 
-
+/**
+ * WordPress dependencies.
+ */
 import {
     useState,
 } from '@wordpress/element';
 
+/**
+ * Internal dependencies.
+ */
+import { hexToRgb } from '../util';
 import { ObjectSearchBox } from '../components/object-search-box';
 import ImageSelector from '../components/image-selector';
 
+/**
+ * Renders the editor content for the infobox.
+ * 
+ * @param {object} props The component properties.
+ * @see ./index.js for attribute descriptions.
+ */
 const InfoContent = ( props ) => {
 	const { 
 		title,
@@ -35,7 +49,7 @@ const InfoContent = ( props ) => {
 	let field_list = [];
 	if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
 		field_list = Object.keys(fields).filter( key => fields[key] ).map( key => 
-				<li key={ 'field_list_' + key } style={ { fontSize: fontSize + 'em'  } } >
+				<li key={ 'field_list_' + key } style ={ { fontSize: fontSize + 'em'  } } >
 					<span className = 'field-name'>{ fieldData[key]['name']}: </span>
 					<span className = 'field-data'>{ fieldData[key]['content'] }</span>
 				</li>
@@ -43,6 +57,19 @@ const InfoContent = ( props ) => {
 	}
 
 	const TitleTag = titleTag;
+
+	/**
+	 * Update image data attributes from ImageSelector.
+	 * 
+	 * @param {object} newImageData Image data returned from ImageSelector component
+	 */
+	const setImgData = ( newImageData ) => {
+		setAttributes( newImageData );
+
+		if ( ! newImageData.imgURL && newImageData.imgIndex != imgIndex ) {
+			setAttributes( { imgURL: null } );
+		}
+	}
 
 	const body = (
 			<div className = { `infobox-body-wrapper img-${imgAlignment}` }>
@@ -58,7 +85,7 @@ const InfoContent = ( props ) => {
 								imgIndex      = { imgIndex }
 								imgURL        = { imgURL }
 								imgDimensions = { imgDimensions }
-								setImgData    = { setAttributes }
+								setImgData    = { setImgData }
 								totalImages   = { totalImages }
 							/>
 							:
@@ -106,9 +133,9 @@ const InfoContent = ( props ) => {
 	const bRGB = hexToRgb( backgroundColor.toString(16) );
 
 	const divStyle = {
-		borderWidth: borderWidth,
-		borderColor: borderColor,
-		backgroundColor: `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
+		borderWidth     : borderWidth,
+		borderColor     : borderColor,
+		backgroundColor : `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
 	}
 	
 	return (

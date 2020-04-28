@@ -1,3 +1,10 @@
+/**
+ * Returns static HTML for frontend display of block.
+ */
+
+/**
+ * Internal dependencies
+ */
 import { hexToRgb } from '../util';
 
 export default function save ( props ) {
@@ -45,16 +52,16 @@ export default function save ( props ) {
 	const body = (
 		<div className = { `infobox-body-wrapper img-${imgAlignment}` }>
 			{ linkToObject &&
-				<a className='object-link' href={ objectURL }>Hidden Link Text</a>
+				<a className = 'object-link' href = { objectURL }>Hidden Link Text</a>
 			}
 			{ imgURL != null && displayImage &&
 				<div
 					className = {'infobox-img-wrapper'}
 				>
 					<img
-						src = { imgURL }
+						src    = { imgURL }
 						height = { height }
-						width = { width }
+						width  = { width }
 					/>
 				</div>
 			}
@@ -63,7 +70,7 @@ export default function save ( props ) {
 					<TitleTag>{ title }</TitleTag>
 				}
 				{ excerpt != null && displayExcerpt && 
-					<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
+					<p style = { { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
 				}
 				{ field_list.length > 0 &&
 					<ul>
@@ -77,7 +84,7 @@ export default function save ( props ) {
 	return (
 		<div
 			className = 'info-outer-div'
-			style = { outerDivStyle }
+			style     = { outerDivStyle }
 		>
 			{ body }	
 		</div>	

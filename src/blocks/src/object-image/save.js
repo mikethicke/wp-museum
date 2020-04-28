@@ -1,4 +1,11 @@
 
+/**
+ * Returns static HTML for frontend display of block.
+ */
+
+/**
+ * WordPress dependencies
+ */
 import { hexToRgb } from '../util';
 import { RichText } from '@wordpress/blockEditor';
 
