@@ -12,7 +12,7 @@ composer.lock
 vendor
 sql
 planning
-release
+release/
 src/blocks/build
 *.code-workspace
 .DS_Store
