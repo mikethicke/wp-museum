@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION_NUMBER=$(sed -n "s/\* Version: \(.*\)$/\1/p" ./src/wp-museum.php | tr -d '[:space:]')
+VERSION_NUMBER=$(sed -n "s/\* Version: \(.*\)$/\1/p" ./wp-museum.php | tr -d '[:space:]')
 BASE_RELEASE_DIR="./release"
 SUB_RELEASE_DIR="wp-museum-${VERSION_NUMBER}"
 RELEASE_DIR="${BASE_RELEASE_DIR}/${SUB_RELEASE_DIR}"
@@ -71,6 +71,7 @@ cp -r $SRC_DIR/classes $RELEASE_DIR
 cp -r $SRC_DIR/general $RELEASE_DIR
 cp -r $SRC_DIR/javascript $RELEASE_DIR
 cp -r $SRC_DIR/public $RELEASE_DIR
+cp -r $SRC_DIR/dependencies $RELEASE_DIR
 
 echo "Setting DEV_BUILD to false..."
 sed -i '' -e 's/const DEV_BUILD = true/const DEV_BUILD = false/' $RELEASE_DIR/wp-museum.php
