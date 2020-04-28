@@ -157,9 +157,9 @@ class ObjectGrid extends Component {
 	/**
 	 * Updates the image data for a particular image.
 	 * 
-	 * @param {number} index The array index of the image. 
-	 * @param {object} imgData The updated data for that image.
-	 * @param {string} imgData.imgURL New URL for that image.
+	 * @param {number} index            The array index of the image. 
+	 * @param {object} imgData          The updated data for that image.
+	 * @param {string} imgData.imgURL   New URL for that image.
 	 * @param {number} imgData.imgIndex New index for that image (refers to
 	 *                                  array index from a particular object's
 	 *                                  array of images, not the grid index).
