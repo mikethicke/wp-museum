@@ -251,7 +251,7 @@ function check_object_post( $post_id = null ) {
  * @param integer $post_id ID of the current post.
  * @return integer the ID of the thumbnail or the first image.
  */
-function object_thumbnail_id ( $post_id ) {
+function object_thumbnail_id( $post_id ) {
 	if ( has_post_thumbnail( $post_id ) ) {
 		$attach_id = get_post_thumbnail_id( $post_id );
 	} else {
