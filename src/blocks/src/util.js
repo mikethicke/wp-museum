@@ -13,3 +13,43 @@ export function hexToRgb(hex) {
 	  b: parseInt(result[3], 16)
 	} : null;
   }
+
+export function getBestImage( imgData, imgDimensions ) {
+	const bestFitImage = {
+		'URL'    : null,
+		'height' : 99999999,
+		'width'  : 99999999
+	};
+	
+	for ( let [ sizeSlug, dataArray ] of Object.entries( imgData ) ) {
+		let [
+			URL,
+			height,
+			width,
+			isIntermediate
+		] = dataArray;
+
+		if ( height >= imgDimensions.height && 
+				height <  bestFitImage.height && 
+				width  >= imgDimensions.width && 
+				width  <  bestFitImage.width ) {
+				bestFitImage.URL    = URL;
+				bestFitImage.height = height;
+				bestFitImage.width  = width;
+		}
+	}
+
+	if ( bestFitImage.URL === null ) {
+		const [
+			URL,
+			height,
+			width,
+			isIntermediate
+		] = selectedImageData['full'];
+		bestFitImage.URL    = URL;
+		bestFitImage.height = height;
+		bestFitImage.width  = width
+	}
+
+	return bestFitImage;
+}

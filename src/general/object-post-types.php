@@ -148,8 +148,8 @@ function link_objects_by_id( $content ) {
 		// See: wp-includes/formatting.php::wp_replace_in_html_tags().
 		for ( $index = 0; $index < $count_content_items; $index++ ) {
 			if ( 0 === $index % 2 && ! $inside_link_element ) {
-				preg_match( $pattern, $content_array[ $index ], $matches );
-				foreach ( $matches as $match ) {
+				preg_match_all( $pattern, $content_array[ $index ], $matches );
+				foreach ( $matches[0] as $match ) {
 					$args  = [
 						'post_type'   => $kind->type_name,
 						'post_status' => 'publish',
@@ -160,7 +160,8 @@ function link_objects_by_id( $content ) {
 					if ( ! empty( $posts ) && $posts[0]->ID !== $post->ID ) {
 						$changed  = true;
 						$post_url = get_permalink( $posts[0] );
-						$link     = "<a href='$post_url'>{$match}</a>";
+						$post_title = $posts[0]->post_title;
+						$link     = "<a href='$post_url' title='$post_title'>{$match}</a>";
 
 						$content_array[ $index ] = str_replace(
 							$match,

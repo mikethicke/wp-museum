@@ -1,0 +1,26 @@
+.object-gallery-block {
+	.gallery-image-placeholder {
+			flex-grow: 1;
+			flex-shrink: 0;
+			margin: 3px;
+			position: relative;
+			overflow: hidden;
+			background-color: #f1f2f3;
+			cursor: pointer;
+		.gallery-image-placeholder-plus {
+			position: absolute;
+			height: 0;
+			width: 100%;
+			text-align: center;
+			top: 50%;
+			overflow: visible;
+			font-size: 3em;
+			line-height: 0;
+		}
+		&:after {
+			content: '';
+			display: block;
+			padding-bottom: 100%;
+		}
+	}
+}

@@ -19,7 +19,6 @@ import { __ } from "@wordpress/i18n";
 import { 
 	PanelBody,
 	RangeControl,
-	CheckboxControl,
 } from '@wordpress/components';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -29,6 +28,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import GridImage from '../components/grid-image';
 import FontSizePanel from '../components/font-size-panel';
+import GridOptionsPanel from '../components/grid-options-panel';
 
 /**
  * Inspector panel controlling number of rows and columns for the grid.
@@ -68,52 +68,6 @@ const GridDimensionsPanel = ( props ) => {
 				max      = { 12 }
 			/>
 		</PanelBody>
-	);
-}
-
-/**
- * Inspector panel controlling whether to display title, caption for the block
- * and whether clicking on images will link to the associated object.
- * 
- * @param {object}   props                The component's properties.
- * @param {boolean}  props.displayTitle   Whether to display a title for the block.
- * @param {boolean}  props.displayCaption Whether to display a caption for the block.
- * @param {boolean}  props.linkToObject   Whether images should link to objects.
- * @param {boolean}  props.initialOpen    Whether panel should be open by default.
- * @param {function} props.setAttributes  Callback function to update block attributes.
- */
-const OptionsPanel = ( props ) => {
-	const {
-		displayTitle,
-		displayCaption,
-		linkToObject,
-		initialOpen,
-		setAttributes,
-	} = props;
-
-	return (
-		<PanelBody
-			title       = "Options"
-			initialOpen = { initialOpen }
-		>
-			<CheckboxControl
-				label = 'Display Title'
-				checked = { displayTitle }
-				onChange = { ( val ) => setAttributes( { displayTitle: val } ) }
-			/>
-			<CheckboxControl
-				label = 'Display Caption'
-				checked = { displayCaption }
-				onChange = { ( val ) => setAttributes( { displayCaption: val } ) }
-			/>
-			<CheckboxControl
-				label = 'Link to Objects'
-				checked = { linkToObject }
-				onChange = { ( val ) => setAttributes( { linkToObject: val } ) }
-			/>
-		</PanelBody>
-
-
 	);
 }
 
@@ -382,7 +336,7 @@ class ObjectGrid extends Component {
 						updateColumns = { this.updateColumns }
 						updateRows    = { this.updateRows }
 					/>
-					<OptionsPanel
+					<GridOptionsPanel
 						initialOpen    = { true }
 						displayTitle   = { displayTitle }
 						displayCaption = { displayCaption }
@@ -395,7 +349,6 @@ class ObjectGrid extends Component {
 						fontSize      = { fontSize }
 						initialOpen   = { false }
 					/>
-
 				</InspectorControls>
 				<div
 					className = 'object-grid-container'
