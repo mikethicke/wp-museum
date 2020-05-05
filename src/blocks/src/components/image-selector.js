@@ -16,6 +16,7 @@ import apiFetch from "@wordpress/api-fetch";
 import {
 	IconButton,
 } from '@wordpress/components'
+import { getBestImage } from '../util';
 
 /**
  * A component used by various blocks that allows the user to select a
@@ -83,12 +84,6 @@ const ImageSelector = ( props ) => {
 	 * image for the selected image and set that using the setImgData callback.
 	 */
 	useEffect( () => {
-		const bestFitImage = {
-			'URL'    : null,
-			'height' : 99999999,
-			'width'  : 99999999
-		};
-		
 		if ( objectID !== null ) {
 			if ( objectID !== fetchedObjectID ) {
 				updateFetchedObjectID( objectID );
@@ -97,35 +92,7 @@ const ImageSelector = ( props ) => {
 			if ( imageData === null ) {
 				apiFetch( { path: rest_path } ).then( result => updateImageData( result ) );
 			} else if ( imageData.length > 0 && ( imgURL === null || totalImages === 0 ) ) {
-				const selectedImageData = imageData[ imgIndex ];
-				for ( let [ sizeSlug, dataArray ] of Object.entries( selectedImageData ) ) {
-					let [
-						URL,
-						height,
-						width,
-						isIntermediate
-					] = dataArray;
-	
-					if ( height >= imgDimensions.height && 
-						 height <  bestFitImage.height && 
-						 width  >= imgDimensions.width && 
-						 width  <  bestFitImage.width ) {
-							bestFitImage.URL    = URL;
-							bestFitImage.height = height;
-							bestFitImage.width  = width;
-					}
-				}
-				if ( bestFitImage.URL === null ) {
-					const [
-						URL,
-						height,
-						width,
-						isIntermediate
-					] = selectedImageData['full'];
-					bestFitImage.URL    = URL;
-					bestFitImage.height = height;
-					bestFitImage.width  = width
-				}
+				const bestFitImage = getBestImage( imageData[ imgIndex ], imgDimensions );
 				setImgData ( {
 					imgURL      : bestFitImage.URL,
 					imgHeight   : bestFitImage.height,
