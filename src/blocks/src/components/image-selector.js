@@ -48,11 +48,13 @@ const ImageSelector = ( props ) => {
 		imgDimensions,
 		setImgData,
 		imgURL,
-		setImageSize
+		setImageSize,
 	} = props;
 
 	const [ imageData,       updateImageData       ] = useState( null );
 	const [ fetchedObjectID, updateFetchedObjectID ] = useState( null );
+	const [ currentImgD,     updateCurrentImgD     ] = useState( null );
+	const [ imageChanged,    updateImageChanged    ] = useState( false );
 
 	const rest_path = `/wp-museum/v1/all/${objectID}/images`;
 
@@ -88,10 +90,21 @@ const ImageSelector = ( props ) => {
 			if ( objectID !== fetchedObjectID ) {
 				updateFetchedObjectID( objectID );
 				updateImageData( null );
-			}
-			if ( imageData === null ) {
+			} else if  ( currentImgD === null || ( currentImgD.height != imgDimensions.height || currentImgD.width != imgDimensions.width ) ) {
+				updateImageData( null );
+				updateCurrentImgD( {
+					height: imgDimensions.height,
+					width:  imgDimensions.width
+				} );
+			} else if ( imageData === null ) {
 				apiFetch( { path: rest_path } ).then( result => updateImageData( result ) );
-			} else if ( imageData.length > 0 && ( imgURL === null || totalImages === 0 ) ) {
+				updateImageChanged( true );
+			} else if ( imageData.length > 0 && ( imageChanged || imgURL === null || totalImages === 0 ) ) {
+				updateCurrentImgD( {
+					height: imgDimensions.height,
+					width:  imgDimensions.width
+				} );
+				updateImageChanged( false );
 				const bestFitImage = getBestImage( imageData[ imgIndex ], imgDimensions );
 				setImgData ( {
 					imgURL      : bestFitImage.URL,
@@ -151,7 +164,7 @@ const ImageSelector = ( props ) => {
 // setImage size really only needs to be set by components that want to do
 // something special with the image layout, such as <ObjectGrid>.
 ImageSelector.defaultProps = {
-	setImageSize: true
+	setImageSize: true,
 }
 
 export default ImageSelector;
