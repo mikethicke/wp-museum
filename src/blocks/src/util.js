@@ -45,7 +45,7 @@ export function getBestImage( imgData, imgDimensions ) {
 			height,
 			width,
 			isIntermediate
-		] = selectedImageData['full'];
+		] = imgData['full'];
 		bestFitImage.URL    = URL;
 		bestFitImage.height = height;
 		bestFitImage.width  = width
