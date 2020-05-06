@@ -54,6 +54,7 @@ const ImageSelector = ( props ) => {
 	const [ imageData,       updateImageData       ] = useState( null );
 	const [ fetchedObjectID, updateFetchedObjectID ] = useState( null );
 	const [ currentImgD,     updateCurrentImgD     ] = useState( null );
+	const [ imageChanged,    updateImageChanged    ] = useState( false );
 
 	const rest_path = `/wp-museum/v1/all/${objectID}/images`;
 
@@ -97,11 +98,13 @@ const ImageSelector = ( props ) => {
 				} );
 			} else if ( imageData === null ) {
 				apiFetch( { path: rest_path } ).then( result => updateImageData( result ) );
-			} else if ( imageData.length > 0 && ( imgURL === null || totalImages === 0 ) ) {
+				updateImageChanged( true );
+			} else if ( imageData.length > 0 && ( imageChanged || imgURL === null || totalImages === 0 ) ) {
 				updateCurrentImgD( {
 					height: imgDimensions.height,
 					width:  imgDimensions.width
 				} );
+				updateImageChanged( false );
 				const bestFitImage = getBestImage( imageData[ imgIndex ], imgDimensions );
 				setImgData ( {
 					imgURL      : bestFitImage.URL,
