@@ -30,12 +30,13 @@ export function getBestImage( imgData, imgDimensions ) {
 		] = dataArray;
 
 		if ( height >= imgDimensions.height && 
-				height <  bestFitImage.height && 
-				width  >= imgDimensions.width && 
-				width  <  bestFitImage.width ) {
+			 height <  bestFitImage.height && 
+			 width  >= imgDimensions.width && 
+			 width  <  bestFitImage.width
+		   ) {
 				bestFitImage.URL    = URL;
-				bestFitImage.height = height;
-				bestFitImage.width  = width;
+			 	bestFitImage.height = height;
+			 	bestFitImage.width  = width;
 		}
 	}
 
