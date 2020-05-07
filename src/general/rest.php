@@ -329,6 +329,11 @@ function rest_routes() {
 	);
 }
 
+/**
+ * Filter to change the "Read More..." text into "..." for REST requests.
+ *
+ * @param string $more The original Read More text.
+ */
 function rest_excerpt_filter( $more ) {
 	return '...';
 }
