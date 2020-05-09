@@ -5,10 +5,10 @@
  * REST root: /wp-json/wp-museum/v1
  *
  * ## Objects ##
- * /wp-json/wp-museum/v1/<object type>/                 Objects with post type <object type>.
+ * /wp-json/wp-museum/v1/<object type>/[?s=|<field>=]   Objects with post type <object type>.
  * /wp-json/wp-museum/v1/<object type>/<post id>        Specific object.
  * /wp-json/wp-museum/v1/<object type>/<post id>/images Images associated with object.
- * /wp-json/wp-museum/v1/all/                           All museum objects, regardless of type.
+ * /wp-json/wp-museum/v1/all/[?s=|<field>=]             All museum objects, regardless of type.
  * /wp-json/wp-museum/v1/all/<post id>                  Specific object.
  * /wp-json/wp-museum/v1/all/<post id>/images           Images associated with object.
  * /wp-json/wp-musuem/v1/<object type>/custom           Public fields for <object type>.
@@ -18,8 +18,9 @@
  * /wp-json/wp-museum/v1/mobject_kinds/<object type>    A specific kind with <object type>.
  *
  * ## Collections ##
- * /wp-json/wp-museum/v1/collections                    All museum collections.
+ * /wp-json/wp-museum/v1/collections/[?s=]              All museum collections.
  * /wp-json/wp-museum/v1/collections/<post id>          A specific collection.
+ * /wp-json/wp-museum/v1/collections/<post id>/objects  Objects associated with a collection.
  *
  * @package MikeThicke\WPMuseum
  */
@@ -283,13 +284,21 @@ function rest_routes() {
 					$paged = 1;
 				}
 
-				$posts = get_posts(
-					[
-						'post_status' => 'publish',
-						'paged'       => $paged,
-						'post_type'   => WPM_PREFIX . 'collection',
-					]
-				);
+				$args  = [
+					'post_status' => 'publish',
+					'paged'       => $paged,
+					'post_type'   => WPM_PREFIX . 'collection',
+				];
+				$search_string = $request->get_param( 's' );
+				if ( ! empty( $search_string ) ) {
+					$args['s'] = $search_string;
+				}
+				$title_search = $request->get_param( 'post_title' );
+				if ( ! empty( $title_search ) ) {
+					$args['post_title'] = $title_search;
+				}
+				$posts = get_posts( $args );
+
 				$post_array = [];
 				foreach ( $posts as $post ) {
 					$post_data = combine_post_data( $post->ID );
@@ -324,6 +333,35 @@ function rest_routes() {
 				$associated_objects = get_associated_object_ids( $request['id'] );
 				$post_data['associated_objects'] = $associated_objects;
 				return $post_data;
+			},
+		]
+	);
+
+	/**
+	 * /wp-json/wp-museum/v1/collections/<post id>/objects  Objects associated with a collection.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/collections/(?P<id>[\d]+)/objects',
+		[
+			'methods' => 'GET',
+			'args'    =>
+				[
+					'id' =>
+						[
+							'validate_callback' => function( $param, $request, $key ) {
+								return is_numeric( $param );
+							},
+						],
+				],
+			'callback' => function ( $request ) {
+				$associated_objects = get_associated_objects( 'publish', $request['id'] );
+
+				$object_data = [];
+				foreach ( $associated_objects as $object ) {
+					$object_data[] = combine_post_data( $object );
+				}
+				return $object_data;
 			},
 		]
 	);
@@ -369,27 +407,13 @@ function combine_post_data( $post ) {
 		$cat_field = get_mobject_field( $kind->kind_id, $kind->cat_field_id );
 	}
 
-	if ( $cat_field ) {
+	if ( ! empty( $cat_field ) ) {
 		$cat_field_slug = $cat_field->slug;
 	} else {
 		$cat_field_slug = null;
 	}
 
-	if ( has_post_thumbnail( $post->ID ) ) {
-		$attach_id = get_post_thumbnail_id( $post->ID );
-	} else {
-		$attachments = get_object_image_attachments( $post->ID );
-		if ( count( $attachments ) > 0 ) {
-			reset( $attachments );
-			$attach_id = key( $attachments );
-		}
-	}
-
-	if ( isset( $attach_id ) ) {
-		$img_data = wp_get_attachment_image_src( $attach_id, 'thumb' );
-	} else {
-		$img_data = [];
-	}
+	$img_data = get_object_thumbnail( $post->ID );
 
 	add_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
 	$filtered_excerpt =

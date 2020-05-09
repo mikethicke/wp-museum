@@ -28,10 +28,11 @@ import {
  */
 import GridOptionsPanel from '../components/grid-options-panel';
 import FontSizePanel from '../components/font-size-panel';
+import AppearancePanel from '../components/appearance-panel';
 import {
 	ObjectEmbedPanel,
-	ObjectSearchBox
-} from '../components/object-search-box';
+	SearchBox
+} from '../components/search-box';
 import { getBestImage } from '../util';
 
 /**
@@ -118,7 +119,7 @@ const GalleryGrid = ( props ) => {
 				{ grid }
 			</div>
 			{ modalOpen &&
-				<ObjectSearchBox
+				<SearchBox
 					close          = { () => setModalOpen( false ) }
 					returnCallback = { onSearchModalReturn }
 				/>
@@ -149,6 +150,7 @@ const ObjectGallery = ( props ) => {
 		fontSize,
 		imgData,
 		imgDimensions,
+		appearance
 	} = attributes;
 
 	const TitleTag = titleTag;
@@ -217,44 +219,47 @@ const ObjectGallery = ( props ) => {
 					fontSize      = { fontSize }
 					initialOpen   = { false }
 				/>
+				<AppearancePanel
+					setAttributes = { setAttributes }
+					appearance    = { appearance }
+					initialOpen   = { false }
+				/>
 			</InspectorControls>
 			<div
 				className = 'object-gallery-block'
 			>
 				{ displayTitle &&
-					<>
-						<TitleTag>
-							{ title }
-						</TitleTag>
-						<GalleryGrid
-							imgData             = { imgData }
-							columns             = { columns }
-							onSearchModalReturn = { onSearchModalReturn}
-						/>
-						<div
-							className = 'bottom-text-wrapper'
-							style     = { { fontSize: fontSize + 'em' } }
-						>
-							{ displayCatID && 
-								<div
-									className = 'cat-id'
-								>
-									{ catID }
-								</div>
-							}
-							{ displayCaption &&
-								<RichText
-									tagName            = 'p'
-									className          = 'caption-text-field'
-									value              = { captionText } 
-									formattingControls = { [ 'bold', 'italic', 'link' ] } 
-									onChange           = { ( content ) => setAttributes( { captionText : content } ) } 
-									placeholder        = { __( 'Enter caption...' ) } 
-								/>
-							}
-						</div>
-					</>
+					<TitleTag>
+						{ title }
+					</TitleTag>
 				}
+				<GalleryGrid
+					imgData             = { imgData }
+					columns             = { columns }
+					onSearchModalReturn = { onSearchModalReturn}
+				/>
+				<div
+					className = 'bottom-text-wrapper'
+					style     = { { fontSize: fontSize + 'em' } }
+				>
+					{ displayCatID && 
+						<div
+							className = 'cat-id'
+						>
+							{ catID }
+						</div>
+					}
+					{ displayCaption &&
+						<RichText
+							tagName            = 'p'
+							className          = 'caption-text-field'
+							value              = { captionText } 
+							formattingControls = { [ 'bold', 'italic', 'link' ] } 
+							onChange           = { ( content ) => setAttributes( { captionText : content } ) } 
+							placeholder        = { __( 'Enter caption...' ) } 
+						/>
+					}
+				</div>
 			</div>
 		</>
 	);

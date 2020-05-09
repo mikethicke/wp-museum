@@ -35,7 +35,7 @@ const refreshInterval = 1000;
  *
  * @since 0.6.0
  */
-class ObjectSearchBox extends Component {
+class SearchBox extends Component {
 
     constructor ( props ) {
         super ( props );
@@ -69,7 +69,11 @@ class ObjectSearchBox extends Component {
      * @param {boolean} onlyTitle  Whether to search just the post title or everything.
      */
     fetchSearchResults ( searchText, onlyTitle ) {
-        const base_rest_path = '/wp-museum/v1/';
+        const {
+            restPath
+        } = this.props;
+
+        const restRoute = ( typeof restPath === 'undefined' ) ? '/wp-museum/v1/all/' : restPath
 
         this.lastRefresh = new Date();
 
@@ -80,7 +84,7 @@ class ObjectSearchBox extends Component {
             queryString = `?s=${searchText}`;
         }
 
-        apiFetch( { path: `${base_rest_path}all/${queryString}`} ).then( result => {
+        apiFetch( { path: restRoute + queryString } ).then( result => {
             this.setState( { results: result } );
         } );
     }
@@ -258,12 +262,15 @@ class ObjectSearchBox extends Component {
     render() {
         const {
             close,
+            title,
         } = this.props;
+
+        const boxTitle = typeof title === 'undefined' ? 'Search for Object' : title;
         
         return (
             <Modal
-                className      = 'wpm-object-search-box'
-                title          = 'Search For Object'
+                className      = 'wpm-search-box'
+                title          = { boxTitle }
                 onRequestClose = { close }
             >
                 <ToggleControl
@@ -371,10 +378,12 @@ const SearchResultsList = ( props ) => {
  * @param {function} props.returnCallback Function accepting WordPress post ID returned from search.
  * @param {object}   props.children       Children passed on to Button component.
  */
-const ObjectSearchButton = (props) => {
+const SearchButton = (props) => {
 	const {
         returnCallback,
-        children 
+        children,
+        restPath,
+        title,
     } = props;
 	
 	const [ isOpen, setOpen ] = useState( false );
@@ -390,9 +399,11 @@ const ObjectSearchButton = (props) => {
                 { children }
             </Button>
             { isOpen && (
-                <ObjectSearchBox 
+                <SearchBox 
                     close          = { closeModal }
                     returnCallback = { returnCallback }
+                    restPath       = { restPath }
+                    title          = { title }
                 />    
             ) }
         </>
@@ -416,7 +427,7 @@ const ObjectEmbedPanel = ( props ) => {
 	if ( objectID === null ) {
 		objectDescription = (
 			<div>
-				Click 'Search' to embed object.";
+				Click 'Search' to embed object.
 			</div>
 		);
 	} else {
@@ -424,28 +435,76 @@ const ObjectEmbedPanel = ( props ) => {
 			<div>
 				<div>{ title }</div>
 				<div>{ catID }</div>
-				<div><a href = { objectURL }>View Object</a></div>
+				<div><a href = { objectURL } target='_blank' >View Object</a></div>
 			</div>
 		);
 	}
 	
 	return (
 		<PanelBody
-			title = "Object"
+			title       = "Object"
 			initialOpen = { initialOpen }
 		>
 			<PanelRow>
 				{ objectDescription }
 			</PanelRow>
 			<PanelRow>
-				<ObjectSearchButton
+				<SearchButton
 					returnCallback = { onSearchModalReturn }
 				>
 					{ objectID ? 'Replace' : 'Search' }
-				</ObjectSearchButton>
+				</SearchButton>
 			</PanelRow>
 		</PanelBody>
 	);
 }
 
-export { ObjectSearchButton, ObjectSearchBox, ObjectEmbedPanel };
+const CollectionEmbedPanel = ( props ) => {
+    const {
+        collectionID,
+        title,
+        URL,
+        initialOpen,
+        onSearchModalReturn
+    } = props;
+
+    let collectionDescription;
+    if ( collectionID === null ) {
+        collectionDescription = (
+            <div>
+                Click 'Search' to embed Collection.
+            </div>
+        );
+    } else {
+        collectionDescription = (
+            <div>
+                <div>{ title }</div>
+                <div><a href = { URL } target='_blank'>View Collection</a></div>
+            </div>
+        );
+    }
+
+    const restPath = '/wp-museum/v1/collections/';
+
+    return (
+        <PanelBody
+            title       = "Collection"
+            initialOpen = { initialOpen}
+        >
+            <PanelRow>
+                { collectionDescription }
+            </PanelRow>
+            <PanelRow>
+                <SearchButton
+                    returnCallback = { onSearchModalReturn }
+                    restPath       = { restPath }
+                    title          = 'Search for Collection'
+                >
+                    { collectionID ? 'Replace' : 'Search' }
+                </SearchButton>
+            </PanelRow>
+        </PanelBody>
+    )
+}
+
+export { SearchButton, SearchBox, ObjectEmbedPanel, CollectionEmbedPanel };
