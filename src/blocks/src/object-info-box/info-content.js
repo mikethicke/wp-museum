@@ -13,7 +13,7 @@ import {
  * Internal dependencies.
  */
 import { hexToRgb } from '../util';
-import { ObjectSearchBox } from '../components/object-search-box';
+import { SearchBox } from '../components/search-box';
 import ImageSelector from '../components/image-selector';
 
 /**
@@ -72,62 +72,62 @@ const InfoContent = ( props ) => {
 	}
 
 	const body = (
-			<div className = { `infobox-body-wrapper img-${imgAlignment}` }>
-				{ displayImage &&
-					<div
-						className = { `infobox-img-wrapper` }
-					>
-						{ objectID ? 
-							<ImageSelector 
-								imgHeight     = { imgHeight }
-								imgWidth      = { imgWidth }
-								objectID      = { objectID }
-								imgIndex      = { imgIndex }
-								imgURL        = { imgURL }
-								imgDimensions = { imgDimensions }
-								setImgData    = { setImgData }
-								totalImages   = { totalImages }
-							/>
-							:
-							<>
+		<div className = { `infobox-body-wrapper img-${imgAlignment}` }>
+			{ displayImage &&
+				<div
+					className = { `infobox-img-wrapper` }
+				>
+					{ objectID ? 
+						<ImageSelector 
+							imgHeight     = { imgHeight }
+							imgWidth      = { imgWidth }
+							objectID      = { objectID }
+							imgIndex      = { imgIndex }
+							imgURL        = { imgURL }
+							imgDimensions = { imgDimensions }
+							setImgData    = { setImgData }
+							totalImages   = { totalImages }
+						/>
+						:
+						<>
+							<div
+								className = 'image-selector-placeholder'
+								style     = { { height: imgDimensions.height, width: imgDimensions.width } }
+								onClick   = { ( event ) => {
+									event.stopPropagation();
+									setModalOpen( true ) 
+								} } 
+							>
 								<div
-									className = 'image-selector-placeholder'
-									style     = { { height: imgDimensions.height, width: imgDimensions.width } }
-									onClick   = { ( event ) => {
-										event.stopPropagation();
-										setModalOpen( true ) 
-									} } 
+									className = 'image-selector-placeholder-plus'
 								>
-									<div
-										className = 'image-selector-placeholder-plus'
-									>
-										+
-									</div>
+									+
 								</div>
-								{ modalOpen &&
-									<ObjectSearchBox
-										close = { () => setModalOpen( false ) }
-										returnCallback = { onSearchModalReturn }
-									/>
-								}
-							</>
-						}
-					</div>
-				}
-				<div className = 'infobox-content-wrapper'>
-					{ title === null || 
-					<TitleTag>{ title }</TitleTag>
-					}
-					{ excerpt === null ||
-					<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
-					}
-					{ field_list.length === 0 ||
-						<ul>
-							{ field_list }
-						</ul>
+							</div>
+							{ modalOpen &&
+								<SearchBox
+									close = { () => setModalOpen( false ) }
+									returnCallback = { onSearchModalReturn }
+								/>
+							}
+						</>
 					}
 				</div>
+			}
+			<div className = 'infobox-content-wrapper'>
+				{ title === null || 
+				<TitleTag>{ title }</TitleTag>
+				}
+				{ excerpt === null ||
+				<p style={ { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
+				}
+				{ field_list.length === 0 ||
+					<ul>
+						{ field_list }
+					</ul>
+				}
 			</div>
+		</div>
 	);
 
 	const bRGB = hexToRgb( backgroundColor.toString(16) );

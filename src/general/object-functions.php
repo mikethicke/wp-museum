@@ -409,4 +409,32 @@ function build_rest_combined_query( $kinds, $request ) {
 	}
 }
 
+/**
+ * Gets thumbnail for object if there is one, or first image if not.
+ *
+ * @param int $post_id WordPress post_id of object.
+ *
+ * @return Array Array of image data [url, height, width] or [] if none.
+ */
+function get_object_thumbnail( $post_id ) {
+
+	if ( has_post_thumbnail( $post_id ) ) {
+		$attach_id = get_post_thumbnail_id( $post_id );
+	} else {
+		$attachments = get_object_image_attachments( $post_id );
+		if ( count( $attachments ) > 0 ) {
+			reset( $attachments );
+			$attach_id = key( $attachments );
+		}
+	}
+
+	if ( isset( $attach_id ) ) {
+		$img_data = wp_get_attachment_image_src( $attach_id, 'thumbnail' );
+	} else {
+		$img_data = [];
+	}
+
+	return $img_data;
+}
+
 
