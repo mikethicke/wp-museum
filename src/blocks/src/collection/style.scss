@@ -1,0 +1,79 @@
+.museum-collection-block {
+	.collection-block-upper-content {
+		display: flex;
+		flex-wrap: nowrap;
+		position: relative;
+
+		.thumbnail-wrapper {
+			max-width: 100%;
+
+			.thumbnail-placeholder {
+				padding-top: 50%;
+				padding-bottom: 50%;
+				background-color: #f1f2f3;
+				height: 0;
+				cursor: pointer;
+
+				.thumbnail-place-holder-plus {
+					position: absolute;
+					height: 0;
+					width: 100%;
+					text-align: center;
+					top: 50%;
+					overflow: visible;
+					font-size: 3em;
+					line-height: 0;
+				}
+			}
+		}
+		.collection-info {
+			min-width: 25%;
+			flex-grow: 1;
+			flex-basis: 25%;
+
+			.collection-excerpt {
+
+			}
+		}
+
+		&.img-left {
+			flex-direction: row;
+		}
+
+		&.img-right {
+			flex-direction: row-reverse;
+		}
+
+		&.img-center {
+			flex-direction: column;
+		}
+	}
+	.collection-block-lower-content {
+		display: flex;
+		flex-wrap: wrap;
+		position: relative;
+
+		.collection-object-image-wrapper {
+			flex-grow: 1;
+			flex-shrink: 0;
+			padding: 5px;
+			position: relative;
+			overflow: hidden;
+
+			img {
+				position: absolute;
+				height: 100%;
+				width: 100%;
+				object-fit: cover;
+				z-index: 0;
+			}
+
+			&:after {
+				content: '';
+				display: block;
+				padding-bottom: 100%;
+			}
+		}
+
+	}
+}

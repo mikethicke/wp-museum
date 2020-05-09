@@ -15,8 +15,8 @@ import {
 import ImageSelector from './image-selector';
 
 import {
-	ObjectSearchBox,
-} from './object-search-box';
+	SearchBox,
+} from './search-box';
 
 /**
  * A single museum object image in an <ObjectGrid> component. This component only 
@@ -136,7 +136,7 @@ const GridImage = ( props ) => {
 					</div>
 				</div>
 				{ modalOpen &&
-					<ObjectSearchBox
+					<SearchBox
 						close          = { () => setModalOpen( false ) }
 						returnCallback = { newObjectID => updateObjectIDCallback( newObjectID ) }
 					/>
