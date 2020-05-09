@@ -25,7 +25,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ObjectEmbedPanel } from '../components/object-search-box';
+import { ObjectEmbedPanel } from '../components/search-box';
 import AppearancePanel from '../components/appearance-panel';
 import ImageSizePanel from '../components/image-size-panel';
 import InfoContent from './info-content';
@@ -281,10 +281,9 @@ class ObjectInfoEdit extends Component {
 					<OptionsPanel { ...this.props } />
 					<ImageSizePanel
 						setAttributes = { setAttributes }
-						imgHeight     = { imgHeight }
-						imgWidth      = { imgWidth }
 						imgDimensions = { imgDimensions }
 						imgAlignment  = { imgAlignment }
+						initialOpen   = { true }
 					/>
 					<AppearancePanel
 						setAttributes = { setAttributes }

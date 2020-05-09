@@ -22,8 +22,6 @@ import { __ } from "@wordpress/i18n";
  * 
  * @param {object}   props               Component properties.
  * @param {function} props.setAttributes Function to set block attributes.
- * @param {number}   props.imgHeight     Base height of the image.
- * @param {number}   props.imgWidth      Base width of the image.
  * @param {object}   props.imgDimensions The current width, height, or size (thumbnail, medium,
  *                                       large, full) of the image.
  * @param {string}   props.imgAlignment  The current alignment of the image (left, center, right).
@@ -31,8 +29,6 @@ import { __ } from "@wordpress/i18n";
 const ImageSizePanel = ( props ) => {
 	const {
 		setAttributes,
-		imgHeight,
-		imgWidth,
 		imgDimensions,
 		imgAlignment,
 		initialOpen,
