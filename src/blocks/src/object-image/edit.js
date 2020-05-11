@@ -29,7 +29,6 @@ import {
 	ObjectEmbedPanel,
 	SearchBox
 } from '../components/search-box';
-import AppearancePanel from '../components/appearance-panel';
 import ImageSizePanel from '../components/image-size-panel';
 import ImageSelector from '../components/image-selector'
 import FontSizePanel from '../components/font-size-panel';
@@ -174,7 +173,6 @@ class ObjectImageEdit extends Component {
 			catID,
 			objectID,
 			objectURL,
-			appearance,
 			imgHeight,
 			imgWidth,
 			imgDimensions,
@@ -217,11 +215,6 @@ class ObjectImageEdit extends Component {
 					imgDimensions = { imgDimensions }
 					imgAlignment  = { null }
 					initialOpen   = { true }
-				/>
-				<AppearancePanel
-					setAttributes = { setAttributes }
-					appearance    = { appearance }
-					initialOpen   = { false }
 				/>
 				<FontSizePanel
 					setAttributes = { setAttributes }
@@ -286,7 +279,7 @@ class ObjectImageEdit extends Component {
 							tagName            = 'p'
 							className          = 'caption-text-field'
 							value              = { captionText } 
-							formattingControls = { [ 'bold', 'italic', 'link' ] } 
+							allowedFormats     = { [ 'core/bold', 'core/italic', 'core/link' ] } 
 							onChange           = { ( content ) => setAttributes( { captionText : content } ) } 
 							placeholder        = { __( 'Enter caption...' ) } 
 						/>

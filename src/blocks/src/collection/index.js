@@ -16,7 +16,6 @@
  *  - excerpt           {string}  Excerpt of the collection description.
  *  - fontSize          {number}  Fontsize for excerpt (em).
  *  - titleTag          {string}  HTML element for displaying title (h1, h2, p, etc.)
- *  - appearance        {object}  Style for the block.
  *  - imgAlignment      {string}  Alignment for thumbnail (left | center | right).
  *  - displayTitle      {booleam} Whether to display title.
  *  - linkToObjects     {boolean} Whether to link to collection objects.
