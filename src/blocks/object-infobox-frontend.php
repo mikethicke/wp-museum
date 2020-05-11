@@ -39,8 +39,195 @@ add_action(
 			'wp-museum/object-infobox',
 			[
 				'render_callback' => __NAMESPACE__ . '\render_object_infobox_block',
-
+				'attributes' => [
+					'align' => [
+						'type'    => 'string',
+						'default' => 'center',
+					],
+					'objectID' => [
+						'type'    => 'number',
+						'default' => null,
+					],
+					'catID' => [
+						'type'    => 'string',
+						'default' => null,
+					],
+					'title' => [
+						'type'    => 'string',
+						'default' => 'No Object Selected',
+					],
+					'excerpt' => [
+						'type'    => 'string',
+						'default' => 'No Object Selected',
+					],
+					'imgURL' => [
+						'type'    => 'string',
+						'default' => null,
+					],
+					'imgIndex' => [
+						'type'    => 'number',
+						'default' => 0,
+					],
+					'totalImages' => [
+						'type'    => 'number',
+						'default' => 0,
+					],
+					'imgHeight' => [
+						'type'    => 'number',
+						'default' => null,
+					],
+					'imgWidth' => [
+						'type'    => 'number',
+						'default' => null,
+					],
+					'objectURL' => [
+						'type'=> 'string',
+						'default'=> null,
+					],
+					'displayTitle' => [
+						'type'    => 'boolean',
+						'default' => true,
+					],
+					'displayExcerpt' => [
+						'type'    => 'boolean',
+						'default' => true,
+					],
+					'displayImage' => [
+						'type'    => 'boolean',
+						'default' => true,
+					],
+					'linkToObject' => [
+						'type'    => 'boolean',
+						'default' => true,
+					],
+					'fields' => [
+						'type'    => 'object',
+						'default' => [],
+					],
+					'fieldData' => [
+						'type'    => 'object',
+						'default' => [],
+					],
+					'imgDimensions' => [
+						'type'    => 'object',
+						'default' => [
+							'width'  => 150,
+							'height' => 150,
+							'size'   => 'thumbnail', // options => thumbnail, medium, large, full.
+						],
+					],
+					'imgAlignment' => [
+						'type'    => 'string',
+						'default' => 'left', // options=> left, center, right.
+					],
+					'fontSize' => [
+						'type'    => 'float',
+						'default' => 0.7,
+					],
+					'titleTag' => [
+						'type'    => 'string',
+						'default' => 'h6', // options=> h2, h3, h, h5, h6, p.
+					],
+				],
 			]
 		);
 	}
 );
+
+/**
+ * Renders the block frontend.
+ *
+ * This function mimics the React component as closely as possible, including
+ * coding style.
+ *
+ * @see blocks/src/object-infobox/
+ *
+ * @param Array $attributes The block attributes.
+ */
+function render_object_infobox_block( $attributes ) {
+	//phpcs:disable
+
+	$title          = $attributes['title'];
+	$excerpt        = $attributes['excerpt'];
+	$objectURL      = $attributes['objectURL'];
+	$displayTitle   = $attributes['displayTitle'];
+	$displayExcerpt = $attributes['displayExcerpt'];
+	$imgURL         = $attributes['imgURL'];
+	$displayImage   = $attributes['displayImage'];
+	$linkToObject   = $attributes['linkToObject'];
+	$fields         = $attributes['fields'];
+	$fieldData      = $attributes['fieldData'];
+	$imgDimensions  = $attributes['imgDimensions'];
+	$imgAlignment   = $attributes['imgAlignment'];
+	$fontSize       = $attributes['fontSize'];
+	$titleTag       = $attributes['titleTag'];
+
+	$width  = $imgDimensions['width'];
+	$height = $imgDimensions['height'];
+
+	$fieldList = [];
+	if ( count( $fields ) === count( $fieldData ) ) {
+		$fieldList = array_keys( $fields );
+		$fieldList = array_filter(
+			$fieldList,
+			function ( $key ) use ( $fields ) {
+				return ( $fields[ $key ] );
+			}
+		);
+		$fieldList = array_map(
+			function ( $key ) use ( $fontSize, $fieldData ) {
+				ob_start();
+				?>
+				<li key = '<?= $key ?>' style = 'font-size: <?= $fontSize ?>em'>
+					<span class = 'field-name'><?= $fieldData[$key]['name'] ?>: </span>
+					<span class = 'field-data'><?= $fieldData[$key]['content'] ?? '' ?> </span>
+				</li>
+				<?php
+				$output = ob_get_contents();
+				ob_end_clean();
+				return $output;
+			},
+			$fieldList
+		);
+	}
+	$fieldListHTML = '';
+	foreach ( $fieldList as $field ) {
+		$fieldListHTML .= $field;
+	}
+
+	ob_start();
+	?>
+	<div class = 'info-outer-div'>
+		<div class = 'infobox-body-wrapper img-<?= $imgAlignment ?>'>
+			<?php if ( $linkToObject ): ?>
+				<a class = 'object-link' href = '<?= $objectURL ?>'>Hidden Link Text</a>
+			<?php endif; ?>
+			<?php if ( ! is_null( $imgURL ) && $displayImage ): ?>
+				<div class = 'infobox-img-wrapper'>
+					<img
+						src    = '<?= $imgURL ?>'
+						height = '<?= $height ?>'
+						width  = '<?= $width  ?>'
+					/>
+				</div>
+			<?php endif; ?>
+			<div class = 'infobox-content-wrapper'>
+				<?php if ( null !== $title && $displayTitle ): ?>
+					<<?= $titleTag ?>><?= $title ?></<?= $titleTag ?>>
+				<?php endif; ?>
+				<?php if ( null !== $excerpt && $displayExcerpt ): ?>
+					<p style = 'font-size:<?= $fontSize ?>em'><?= $excerpt ?></p>
+				<?php endif; ?>
+				<?php if ( count( $fieldList ) > 0 ): ?>
+					<ul>
+						<?= $fieldListHTML ?>
+					</ul>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+	<?php
+	$output = ob_get_contents();
+	ob_end_clean();
+	return $output;
+}

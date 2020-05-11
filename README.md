@@ -19,6 +19,10 @@ To install Museum for WordPress, unzip the [latest
 release](https://github.com/mikethicke/wp-museum/releases/latest) in your
 WordPress plugins directory.
 
+## Requirements
+
+ * PHP 7.0+
+
 ## Development
 
 Museum for WordPress is under active development, with a 1.0 release targetted
