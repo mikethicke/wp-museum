@@ -35,7 +35,7 @@ import { __ } from "@wordpress/i18n";
 import edit from './edit';
 import save from './save';
 
-registerBlockType('wp-museum/object-info-box', {
+registerBlockType('wp-museum/object-infobox', {
 	title: __('Object Infobox'),
 	icon: 'archive',
 	category: 'wp-museum',
