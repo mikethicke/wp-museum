@@ -371,7 +371,7 @@ class ObjectGrid extends Component {
 								tagName            = 'p'
 								className          = 'caption-text-field'
 								value              = { captionText } 
-								formattingControls = { [ 'bold', 'italic', 'link' ] } 
+								allowedFormats     = { [ 'core/bold', 'core/italic', 'core/link' ] } 
 								onChange           = { ( content ) => setAttributes( { captionText : content } ) } 
 								placeholder        = { __( 'Enter caption...' ) } 
 							/>

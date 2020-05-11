@@ -26,7 +26,6 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import { ObjectEmbedPanel } from '../components/search-box';
-import AppearancePanel from '../components/appearance-panel';
 import ImageSizePanel from '../components/image-size-panel';
 import InfoContent from './info-content';
 import FontSizePanel from '../components/font-size-panel';
@@ -246,7 +245,6 @@ class ObjectInfoEdit extends Component {
 		const { setAttributes, attributes } = this.props;
 		const { 
 			fontSize,
-			appearance,
 			titleTag,
 			title,
 			catID,
@@ -285,10 +283,6 @@ class ObjectInfoEdit extends Component {
 						imgAlignment  = { imgAlignment }
 						initialOpen   = { true }
 					/>
-					<AppearancePanel
-						setAttributes = { setAttributes }
-						appearance    = { appearance }
-					/>
 					<FontSizePanel
 						setAttributes = { setAttributes }
 						titleTag      = { titleTag }
@@ -316,7 +310,6 @@ class ObjectInfoEdit extends Component {
 					imgDimensions       = { imgDimensions }
 					imgAlignment        = { imgAlignment }
 					fontSize            = { fontSize }
-					appearance          = { appearance }
 					titleTag            = { titleTag }
 					onSearchModalReturn = { this.onSearchModalReturn }
 					setAttributes       = { setAttributes }

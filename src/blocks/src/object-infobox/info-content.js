@@ -36,14 +36,12 @@ const InfoContent = ( props ) => {
 		imgDimensions,
 		imgAlignment,
 		fontSize,
-		appearance,
 		titleTag,
 		onSearchModalReturn,
 		objectID,
 		setAttributes,
 		totalImages
 	} = props;
-	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 	const [ modalOpen, setModalOpen ] = useState( false );
 
 	let field_list = [];
@@ -129,17 +127,9 @@ const InfoContent = ( props ) => {
 			</div>
 		</div>
 	);
-
-	const bRGB = hexToRgb( backgroundColor.toString(16) );
-
-	const divStyle = {
-		borderWidth     : borderWidth,
-		borderColor     : borderColor,
-		backgroundColor : `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
-	}
 	
 	return (
-		<div className = 'info-outer-div' style = { divStyle }>
+		<div className = 'info-outer-div'>
 			{ body }
 		</div>
 	);

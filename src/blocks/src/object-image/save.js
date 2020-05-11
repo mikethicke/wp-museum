@@ -24,19 +24,10 @@ export default function save ( { attributes } ) {
 		imgAlignment,
 		fontSize,
 		titleTag,
-		appearance
 	} = attributes;
-	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 
 	const TitleTag = titleTag;
 
-	const bRGB = hexToRgb( backgroundColor.toString(16) );
-
-	const outerDivStyle = {
-		borderWidth: borderWidth,
-		borderColor: borderColor,
-		backgroundColor: `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
-	}
 
 	const body = (
 		<>
@@ -76,7 +67,6 @@ export default function save ( { attributes } ) {
 	return (
 		<div 
 			className = 'image-selector'
-			style     = { outerDivStyle }
 		>
 			{ linkedBody }
 		</div>

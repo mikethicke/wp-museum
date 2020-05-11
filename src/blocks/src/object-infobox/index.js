@@ -131,15 +131,6 @@ registerBlockType('wp-museum/object-infobox', {
 			type    : 'string',
 			default : 'h6' //options: h2, h3, h, h5, h6, p
 		},
-		appearance: {
-			type    : 'object',
-			default : {
-				borderWidth       : 0,
-				borderColor       : '#000',
-				backgroundColor   : '#fff',
-				backgroundOpacity : 0
-			}
-		}
 	},
 	edit,
 	save

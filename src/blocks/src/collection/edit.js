@@ -27,7 +27,6 @@ import apiFetch from '@wordpress/api-fetch';
 
 import { CollectionEmbedPanel, SearchBox } from "../components/search-box";
 import FontSizePanel from "../components/font-size-panel";
-import AppearancePanel from "../components/appearance-panel";
 import ImageSizePanel from '../components/image-size-panel';
 
 
@@ -49,7 +48,6 @@ const Collection = ( props ) => {
 		excerpt,
 		fontSize,
 		titleTag,
-		appearance,
 		displayTitle,
 		linkToObjects,
 		displayExcerpt,
@@ -198,11 +196,6 @@ const Collection = ( props ) => {
 				setAttributes = { setAttributes }
 				titleTag      = { titleTag }
 				fontSize      = { fontSize }
-				initialOpen   = { false }
-			/>
-			<AppearancePanel
-				setAttributes = { setAttributes }
-				appearance    = { appearance }
 				initialOpen   = { false }
 			/>
 		</InspectorControls>
