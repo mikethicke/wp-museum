@@ -28,7 +28,6 @@ import {
  */
 import GridOptionsPanel from '../components/grid-options-panel';
 import FontSizePanel from '../components/font-size-panel';
-import AppearancePanel from '../components/appearance-panel';
 import {
 	ObjectEmbedPanel,
 	SearchBox
@@ -150,7 +149,6 @@ const ObjectGallery = ( props ) => {
 		fontSize,
 		imgData,
 		imgDimensions,
-		appearance
 	} = attributes;
 
 	const TitleTag = titleTag;
@@ -219,11 +217,6 @@ const ObjectGallery = ( props ) => {
 					fontSize      = { fontSize }
 					initialOpen   = { false }
 				/>
-				<AppearancePanel
-					setAttributes = { setAttributes }
-					appearance    = { appearance }
-					initialOpen   = { false }
-				/>
 			</InspectorControls>
 			<div
 				className = 'object-gallery-block'
@@ -254,7 +247,7 @@ const ObjectGallery = ( props ) => {
 							tagName            = 'p'
 							className          = 'caption-text-field'
 							value              = { captionText } 
-							formattingControls = { [ 'bold', 'italic', 'link' ] } 
+							allowedFormats     = { [ 'core/bold', 'core/italic', 'core/link' ] } 
 							onChange           = { ( content ) => setAttributes( { captionText : content } ) } 
 							placeholder        = { __( 'Enter caption...' ) } 
 						/>

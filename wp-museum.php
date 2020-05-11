@@ -101,4 +101,5 @@ require_once $require_prefix . 'general/database-upgrade.php';
  */
 require_once $require_prefix . 'blocks/blocks.php';
 require_once $require_prefix . 'blocks/collection-block-frontend.php';
+require_once $require_prefix . 'blocks/object-infobox-frontend.php';
 
