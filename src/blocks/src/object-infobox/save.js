@@ -29,9 +29,9 @@ export default function save ( props ) {
 
 	const TitleTag = titleTag;
 
-	let field_list = [];
+	let fieldList = [];
 	if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
-		field_list = Object.keys(fields).filter( key => fields[key] ).map( key => 
+		fieldList = Object.keys(fields).filter( key => fields[key] ).map( key => 
 			<li key={ key } style={ { fontSize: fontSize + 'em'  } } >
 				<span className = 'field-name'>{ fieldData[key]['name'] }: </span>
 				<span className = 'field-data'>{ fieldData[key]['content'] }</span>
@@ -62,9 +62,9 @@ export default function save ( props ) {
 				{ excerpt != null && displayExcerpt && 
 					<p style = { { fontSize: fontSize + 'em'  } } >{ excerpt } </p>
 				}
-				{ field_list.length > 0 &&
+				{ fieldList.length > 0 &&
 					<ul>
-						{ field_list }
+						{ fieldList }
 					</ul>
 				}
 			</div>
