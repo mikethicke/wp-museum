@@ -20,7 +20,6 @@
  *  - imgDimensions  {object}  The dimensions of the image for *display*.
  *  - fontSize       {string}  Font size for the image's caption and catalogue ID (em).
  *  - titleTag       {string}  Tag name for the title.
- *  - appearance     {object}  User-controllable styles for the block.
  */
 
 /**
@@ -120,15 +119,6 @@ registerBlockType( 'wp-museum/object-image', {
 			type    : 'string',
 			default : 'h6' //options: h2, h3, h, h5, h6, p
 		},
-		appearance: {
-			type    : 'object',
-			default : {
-				borderWidth       : 0,
-				borderColor       : '#000',
-				backgroundColor   : '#fff',
-				backgroundOpacity : 0
-			}
-		}
 	},
 	edit,
 	save

@@ -24,20 +24,10 @@ export default function save ( props ) {
 		imgAlignment,
 		fontSize,
 		titleTag,
-		appearance
 	} = attributes;
 	const { width, height } = imgDimensions;
-	const { borderWidth, borderColor, backgroundColor, backgroundOpacity } = appearance;
 
 	const TitleTag = titleTag;
-
-	const bRGB = hexToRgb( backgroundColor.toString(16) );
-
-	const outerDivStyle = {
-		borderWidth: borderWidth,
-		borderColor: borderColor,
-		backgroundColor: `rgba( ${bRGB.r}, ${bRGB.g}, ${bRGB.b}, ${backgroundOpacity} )`,
-	}
 
 	let field_list = [];
 	if ( Object.keys(fieldData).length === Object.keys(fields).length ) {
@@ -84,7 +74,6 @@ export default function save ( props ) {
 	return (
 		<div
 			className = 'info-outer-div'
-			style     = { outerDivStyle }
 		>
 			{ body }	
 		</div>	

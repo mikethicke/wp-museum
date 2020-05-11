@@ -17,7 +17,6 @@ export default function save ( { attributes } ) {
 		catID,
 		fontSize,
 		titleTag,
-		appearance,
 		displayTitle,
 		displayCaption,
 		linkToObject,
@@ -46,7 +45,6 @@ export default function save ( { attributes } ) {
 	return (
 		<div
 			className = 'object-gallery-block'
-			style     = { appearance }
 		>
 			{ linkToObject &&
 				<a className = 'object-link' href = { objectURL }>Hidden Link Text</a>

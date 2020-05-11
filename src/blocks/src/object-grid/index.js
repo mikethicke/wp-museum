@@ -17,8 +17,6 @@
  *                             file to use.
  *  - fontSize       {number}  Font size for caption text (em).
  *  - titleTag       {string}  Tag name for the title to use.
- *  - appearance     {object}  User-controllable style attributes for the
- *                             block.  
  */
 
 /**
@@ -87,15 +85,6 @@ registerBlockType( 'wp-museum/object-grid', {
 			type    : 'string',
 			default : 'h4' //options: h2, h3, h, h5, h6, p
 		},
-		appearance: {
-			type    : 'object',
-			default : {
-				borderWidth       : 0,
-				borderColor       : '#000',
-				backgroundColor   : '#fff',
-				backgroundOpacity : 0
-			}
-		}
 	},
 	edit,
 	save
