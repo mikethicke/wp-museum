@@ -1,7 +1,7 @@
 <?php
 /**
  * Render the Object Infobox block on the frontend.
- * 
+ *
  * @see blocks/src/object-infobox
  *
  *  Attribues:
