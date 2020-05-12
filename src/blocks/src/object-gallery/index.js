@@ -1,6 +1,8 @@
 /**
  * A grid of square images with a variable number of rows and columns showing
  * images for a particular museum object.
+ *
+ * @see blocks/object-gallery-frontend.php for attributes.
  * 
  * Attributes
  *  - columns        {number}  Number of columns in the grid.
@@ -33,74 +35,11 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import edit from './edit';
-import save from './save';
 
-registerBlockType( 'wp-musuem/object-gallery', {
+registerBlockType( 'wp-museum/object-gallery', {
 	title      : __( 'Object Gallery' ),
 	icon       : 'archive',
 	category   : 'wp-museum',
-	attributes : {
-		columns: {
-			type: 'number',
-			default: 3
-		},
-		objectID: {
-			type: 'number',
-			defult: null
-		},
-		objectURL: {
-			type    : 'string',
-			default : null
-		},
-		imgData: {
-			type: 'array',
-			default: []
-		},
-		imgDimensions: {
-			type    : 'object',
-			default : {
-				width  : 300,
-				height : 300,
-				size   : 'medium' //options: thumbnail, medium, large, full
-			}
-		},
-		captionText: {
-			type    : 'string',
-			default : null
-		},
-		title: {
-			type    : 'string',
-			default : 'No Object Selected'
-		},
-		catID: {
-			type    : 'string',
-			default : 'No Object Selected'
-		},
-		fontSize: {
-			type    : 'float',
-			default : 0.7
-		},
-		titleTag: {
-			type    : 'string',
-			default : 'h4' //options: h2, h3, h, h5, h6, p
-		},
-		displayTitle: {
-			type    : 'boolean',
-			default : true
-		},
-		displayCaption: {
-			type    : 'boolean',
-			default : true
-		},
-		linkToObject: {
-			type    : 'boolean',
-			default : true
-		},
-		displayCatID: {
-			type    : 'boolean',
-			default : false
-		},
-	},
 	edit,
-	save
+	save       : ( ) => 'hello'
 } );
