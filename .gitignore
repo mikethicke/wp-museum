@@ -2,6 +2,7 @@
 *.log
 *.bak
 *.lock
+*.sql
 .htaccess
 *.komodoproject
 *.komodotools

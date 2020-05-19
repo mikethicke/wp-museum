@@ -1,5 +1,5 @@
 <?php
-
+//phpcs:disable
 namespace CombinedQuery;
 
 /**
@@ -91,13 +91,16 @@ class Generator
 
             $unions  = '(' . join( ') ' . $union . ' (', $sqls ) . ' ) ';
 
-            $request = sprintf(
-		"SELECT SQL_CALC_FOUND_ROWS * FROM ( {$unions} ) as combined {$orderby} LIMIT %d, %d",
-                $ppp * ( $paged - 1 ) + $offset,
-                $ppp
-            );
+            if ( -1 != $ppp ) {
+                $request = sprintf(
+                    "SELECT SQL_CALC_FOUND_ROWS * FROM ( {$unions} ) as combined {$orderby} LIMIT %d, %d",
+                            $ppp * ( $paged - 1 ) + $offset,
+                            $ppp
+                        );
+            } else {
+                $request = "SELECT * FROM ( {$unions} ) as combined {$orderby}";
+            }
         }
-
         return $request;
     }
 

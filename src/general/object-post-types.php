@@ -66,7 +66,6 @@ function add_object_problem_div() {
 		if ( ! empty( $_SESSION[ WPM_PREFIX . 'object_problems' ] ) ) {
 			echo '>';
 			echo esc_html( $_SESSION[ WPM_PREFIX . 'object_problems' ] );
-			unset( $_SESSION[ WPM_PREFIX . 'object_problems' ] );
 		} else {
 			echo "style='display:none'>";
 		}
@@ -87,6 +86,7 @@ function add_object_problem_div() {
  * @param WP_POST $post The post.
  */
 function check_object_post_on_publish( $new_status, $old_status, $post ) {
+	unset( $_SESSION[ WPM_PREFIX . 'object_problems' ] );
 	if ( empty( $post ) || ! in_array( $post->post_type, get_object_type_names(), true ) ) {
 		return;
 	}
@@ -185,4 +185,26 @@ function link_objects_by_id( $content ) {
 	}
 
 	return $content;
+}
+
+/**
+ * Starts a session.
+ *
+ * Used for keeping track of errors on publish or save of posts.
+ *
+ * @see check_object_post_on_publish()
+ */
+function start_session() {
+	if ( ! session_id() ) {
+		session_start();
+	}
+}
+
+/**
+ * Ends a session.
+ */
+function end_session() {
+	if ( session_id() ) {
+		session_destroy();
+	}
 }

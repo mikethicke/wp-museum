@@ -41,5 +41,5 @@ registerBlockType( 'wp-museum/object-gallery', {
 	icon       : 'archive',
 	category   : 'wp-museum',
 	edit,
-	save       : ( ) => 'hello'
+	save       : ( ) => null
 } );

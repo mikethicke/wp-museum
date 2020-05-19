@@ -168,8 +168,10 @@ class CustomPostType {
 	 * @param string             $field_label Label of field in metabox form.
 	 * @param string             $field_type Type of field (text|textarea|select|radio|checkbox).
 	 * @param [string => string] $options Options for field element display:
-	 *                                        * 'style': CSS style for element
-	 *                                        * 'width': Width value for element.
+	 *                                 * 'style': CSS style for element
+	 *                                 * 'width': Width value for element.
+	 *                                 * 'data_type': Data type of field ('string', 'boolean', 'integer',
+	 *                                   'number', 'array', and 'object').
 	 */
 	public function add_meta_field( $field_name, $field_label, $field_type = 'text', $options = [] ) {
 		$this->meta_box_fields[ $field_name ] = [
@@ -182,7 +184,7 @@ class CustomPostType {
 			$this->options['type'],
 			$field_name,
 			[
-				'type'         => 'string',
+				'type'         => $options['data_type'] ?? 'string',
 				'description'  => $field_name,
 				'single'       => true,
 				'show_in_rest' => true,

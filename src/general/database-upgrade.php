@@ -45,3 +45,49 @@ function upgrade_0_13_to_0_15() {
 	$wpdb->query( "ALTER TABLE $new_fields_table CHANGE `object_id` `kind_id` MEDIUMINT(9);");
 	$wpdb->query( "DELETE FROM $new_fields_table WHERE `slug` = 'description'" );
 }
+
+/**
+ * Replace HTML entities in a string while leaving tags in place.
+ *
+ * @see https://www.php.net/manual/en/function.htmlspecialchars.php#101592
+ * @param string $text Text containing potential HTML entities for encoding.
+ */
+function fixtags( $text ) {
+	$text = htmlspecialchars( $text );
+	$text = preg_replace( '/=/', '=""', $text );
+	$text = preg_replace( '/&quot;/', '&quot;"', $text );
+
+	$tags = '/&lt;(\/|)(\w*)(\ |)(\w*)([\\\=]*)(?|(")"&quot;"|)(?|(.*)?&quot;(")|)([\ ]?)(\/|)&gt;/i';
+
+	$replacement = '<$1$2$3$4$5$6$7$8$9$10>';
+
+	$text = preg_replace( $tags, $replacement, $text );
+	$text = preg_replace( '/=""/', '=', $text );
+	$text = str_replace( '""', '"', $text );
+
+	return $text;
+}
+
+/**
+ * Encode HTML entities in meta fields that aren't part of proper tags. Otherwise
+ * they can break the RichText component.
+ */
+function fix_meta_html_entities() {
+	$posts = get_posts(
+		[
+			'numberposts' => -1,
+			'post_type'   => get_object_type_names(),
+			'post_status' => 'any',
+		]
+	);
+	foreach ( $posts as $object_post ) {
+		$custom = get_post_custom( $object_post->ID );
+		foreach ( $custom as $meta_key => $meta_value ) {
+			$updated_value = $meta_value[0];
+			$updated_value = htmlspecialchars( $updated_value );
+			$updated_value = str_replace( '&quot;', '"', $updated_value );
+			$updated_value = str_replace( '&apos;', "'", $updated_value );
+			update_post_meta( $object_post->ID, $meta_key, $updated_value );
+		}
+	}
+}

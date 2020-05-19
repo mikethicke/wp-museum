@@ -248,6 +248,15 @@ add_action( 'customize_register', __NAMESPACE__ . '\register_customization' );
  */
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_scripts' );
 
+/**
+ * Start and stop session. Used for keeping track of errors on post submission.
+ *
+ * @see object_post_types::start_session()
+ */
+add_action( 'init', __NAMESPACE__ . '\start_session' );
+add_action( 'wp-logout', __NAMESPACE__ . '\end_session' );
+add_action( 'wp-login', __NAMESPACE__ . '\end_session' );
+
 /*****************************************************************************
  *
  * Admin Filters

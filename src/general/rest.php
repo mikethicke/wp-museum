@@ -12,6 +12,7 @@
  * /wp-json/wp-museum/v1/all/<post id>                  Specific object.
  * /wp-json/wp-museum/v1/all/<post id>/images           Images associated with object.
  * /wp-json/wp-musuem/v1/<object type>/custom           Public fields for <object type>.
+ * /wp-json/wp-musuem/v1/<object type>/custom_all       All fields for <object type>.
  *
  * ## Kinds ##
  * /wp-json/wp-musuem/v1/mobject_kinds                  Object kinds
@@ -31,9 +32,7 @@ namespace MikeThicke\WPMuseum;
  * Register REST endpoints.
  */
 function rest_routes() {
-
 	$kinds = get_mobject_kinds();
-
 	foreach ( $kinds as $kind ) {
 		/**
 		 * /wp-json/wp-museum/v1/<object type>/ - Data for objects with post type <object type>.
@@ -132,7 +131,7 @@ function rest_routes() {
 				$kind->type_name . '/custom',
 				[
 					'methods'  => 'GET',
-					'callback' => function() use ( $kind ) {
+					'callback' => function( $request ) use ( $kind ) {
 						$fields = get_mobject_fields( $kind->kind_id );
 						$filtered_fields = [];
 						foreach ( $fields as $field ) {
@@ -141,6 +140,30 @@ function rest_routes() {
 							}
 						}
 						return $filtered_fields;
+					},
+				]
+			);
+		}
+
+		/**
+		 * /wp-json/wp-musuem/v1/<object type>/custom_all - Data for all fields for <object type>.
+		 */
+		foreach ( $kinds as $kind ) {
+			register_rest_route(
+				REST_NAMESPACE,
+				$kind->type_name . '/custom_all',
+				[
+					'methods'  => 'GET',
+					'callback' => function( $request ) use ( $kind ) {
+						$fields = get_mobject_fields( $kind->kind_id );
+						$filtered_fields = [];
+						foreach ( $fields as $field ) {
+							$filtered_fields[ $field->field_id ] = $field;
+						}
+						return $filtered_fields;
+					},
+					'permission_callback' => function () {
+						return current_user_can( 'edit_posts' );
 					},
 				]
 			);

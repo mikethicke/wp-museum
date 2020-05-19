@@ -207,7 +207,7 @@ function check_object_post( $post_id = null ) {
 		if ( ! empty( $custom[ $field->slug ] ) && $field->field_id === $kind->cat_field_id ) {
 			$args           = [
 				'post_type'   => $the_post->post_type,
-				'numberposts' => -1,
+				'numberposts' => 1,
 				'post_status' => 'any',
 				'meta_key'    => $field->slug,
 				'meta_value'  => $custom[ $field->slug ][0],
