@@ -92,7 +92,7 @@ class Main
     public function posts_request( $request, \WP_Query $q )
     {
         // Only run once:
-     	remove_filter( current_filter(), [ $this, __FUNCTION__ ], PHP_INT_MAX  );
+         remove_filter( current_filter(), [ $this, __FUNCTION__ ], PHP_INT_MAX  );
 
         // Combine all the sub-queries into a single SQL query.
         $generated_request = $this->generator->get_request( 

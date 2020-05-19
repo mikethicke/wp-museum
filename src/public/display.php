@@ -106,6 +106,7 @@ function object_content_filter( $content ) {
 					} else {
 						$field_text .= $custom[ $field->slug ][0];
 					}
+					$field_text = \html_entity_decode( $field_text );
 					$content .= apply_filters( 'the_content', $field_text );
 				}
 				$content .= '</div>';
