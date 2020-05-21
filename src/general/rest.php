@@ -478,12 +478,19 @@ function object_image_data( $post ) {
 
 	$associated_image_data = [];
 	foreach ( $images as $image_id => $sort_order ) {
+		$image_post = get_post( $image_id );
 		$image_data = [];
+
+		$image_data['title']       = $image_post->post_title;
+		$image_data['caption']     = $image_post->post_excerpt;
+		$image_data['description'] = $image_post->post_content;
+		$image_data['alt']         = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+
 		foreach ( $image_sizes as $size_slug ) {
 			$image_data[ $size_slug ] = wp_get_attachment_image_src( $image_id, $size_slug );
 		}
 		$image_data['full'] = wp_get_attachment_image_src( $image_id, 'full' );
-		$associated_image_data[] = $image_data;
+		$associated_image_data[ $image_id ] = $image_data;
 	}
 
 	return $associated_image_data;

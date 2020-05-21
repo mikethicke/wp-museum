@@ -2,7 +2,7 @@
 /**
  * Registers a Gutenberg block for entering data into Objects.
  *
- * @package MikeThicke\WPMuseum 
+ * @package MikeThicke\WPMuseum
  */
 
 namespace MikeThicke\WPMuseum;

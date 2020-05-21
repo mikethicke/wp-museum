@@ -91,3 +91,121 @@ function fix_meta_html_entities() {
 		}
 	}
 }
+
+/**
+ * Convert comma-deliniated wpm_gallery_attach_ids meta to array.
+ *
+ * @see object-functions.php::set_object_image_box_attachments()
+ * @see object-functions.php::get_object_image_box_attachments()
+ */
+function fix_wpm_gallery_attach_ids() {
+	$posts = get_posts(
+		[
+			'numberposts' => -1,
+			'post_type'   => get_object_type_names(),
+			'post_status' => 'any',
+		]
+	);
+	$exit_after_one = false;
+	foreach ( $posts as $object_post ) {
+		/**
+		 * This code is from the old get_object_image_attachment function, so
+		 * it will only work on the old sort order method.
+		 */
+
+		$custom = get_post_custom( $object_post->ID );
+		if (
+			! isset( $custom['wpm_gallery_attach_ids'] ) ||
+			! $custom['wpm_gallery_attach_ids'][0] ||
+			! is_string( $custom['wpm_gallery_attach_ids'][0] )
+		) {
+				continue;
+		} else {
+			$image_pairs_array = explode( ',', $custom['wpm_gallery_attach_ids'][0] );
+			$max_order         = 0;
+			$attached_image_array = [];
+			foreach ( $image_pairs_array as $image_pair_str ) {
+				$image_pair_arr = explode( ':', $image_pair_str );
+				if ( 2 === count( $image_pair_arr ) ) {
+					$attached_image_array[ $image_pair_arr[0] ] = $image_pair_arr[1];
+					if ( $image_pair_arr[1] >= $max_order ) {
+						$max_order = $image_pair_arr[1];
+					}
+				} elseif ( 1 === count( $image_pair_arr ) ) {
+					$max_order++;
+					$attached_image_array[ $image_pair_arr[0] ] = $max_order;
+				}
+			}
+			if ( is_array( $attached_image_array ) && count( $attached_image_array ) > 0 ) {
+				asort( $attached_image_array );
+				$new_attach_ids = [];
+				foreach ( $attached_image_array as $post_id => $sort_order ) {
+					$new_attach_ids[] = intval( $post_id );
+				}
+				$a = 1;
+				update_post_meta( $object_post->ID, 'wpm_gallery_attach_ids', $new_attach_ids );
+			}
+			if ( $exit_after_one ) {
+				break;
+			}
+		}
+	}
+}
+
+/**
+ * Converts wpm_gallery_attach_ids from post_id => sort_order associative array
+ * to simple array of post_id in sorted order. This makes it easier to use with
+ * REST API.
+ */
+function make_object_attach_ids_simple_array() {
+	$posts = get_posts(
+		[
+			'numberposts' => -1,
+			'post_type'   => get_object_type_names(),
+			'post_status' => 'any',
+		]
+	);
+	foreach ( $posts as $object_post ) {
+		$attach_ids = get_post_meta( $object_post->ID, 'wpm_gallery_attach_ids', true );
+		if ( is_array( $attach_ids ) && count( $attach_ids ) > 0 ) {
+			$new_attach_ids = [];
+			asort( $attach_ids );
+			foreach ( $attach_ids as $post_id => $sort_order ) {
+				$new_attach_ids[] = intval( $post_id );
+			}
+			$a = 1;
+			update_post_meta( $object_post->ID, 'wpm_gallery_attach_ids', $new_attach_ids );
+		}
+	}
+}
+
+/**
+ * Add meta fields and objeect image gallery blocks to existing posts, just by
+ * adding tags to the post content.
+ */
+function add_block_template() {
+	$posts = get_posts(
+		[
+			'numberposts' => -1,
+			'post_type'   => get_object_type_names(),
+			'post_status' => 'any',
+		]
+	);
+	foreach ( $posts as $object_post ) {
+		$content = $object_post->post_content;
+		if ( ! strpos( $content, 'object-meta-block' ) ) {
+			$content .= "\n\n<!-- wp:wp-museum/object-meta-block /-->\n\n<!-- wp:wp-museum/object-image-attachments-block /-->\n";
+			wp_update_post(
+				[
+					'ID'           => $object_post->ID,
+					'post_content' => $content,
+				]
+			);
+		}
+	}
+}
+
+//add_action( 'plugins_loaded', __NAMESPACE__ . '\add_block_template' );
+// add_action( 'plugins_loaded', __NAMESPACE__ . '\make_object_attach_ids_simple_array' );
+// add_action( 'plugins_loaded', __NAMESPACE__ . '\fix_wpm_gallery_attach_ids' );
+
