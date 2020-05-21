@@ -208,14 +208,6 @@ add_action( 'edit_form_top', __NAMESPACE__ . '\add_object_parent_link' );
 add_action( 'admin_notices', __NAMESPACE__ . '\add_object_problem_div' );
 
 /**
- * Check that museum object post meets requirements when published.
- *
- * @link https://developer.wordpress.org/reference/functions/add_action/ (for 10,3 explanation)
- * @see object-post-types.php::check_object_post_on_publish()
- */
-add_action( 'transition_post_status', __NAMESPACE__ . '\check_object_post_on_publish', 10, 3 );
-
-/**
  * Adds quick browse page to all museum object post types.
  *
  * @see quick-browse.php::add_quick_browse()

@@ -120,8 +120,6 @@ const ObjectMetaEdit = ( props ) => {
 	const [ currentDetailedInstructions, setCurrentDetailedInstructions ] = useState( null );
 	const [ catFieldIsGood, setCatFieldIsGood ] = useState( false );
 
-	const baseRestPath = '/wp-museum/v1';
-
 	const { createErrorNotice } = useDispatch( 'core/notices' );
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 
@@ -142,6 +140,8 @@ const ObjectMetaEdit = ( props ) => {
 		},
 		[]
 	);
+
+	const baseRestPath = '/wp-museum/v1';
 
 	if ( ! fieldData ) {
 		apiFetch( { path: `${baseRestPath}/${postType}/custom_all` } ).then( result => setFieldData( result ) );
@@ -230,7 +230,7 @@ const ObjectMetaEdit = ( props ) => {
 	}
 
 	if ( isSavingPost ) {
-		checkAllFields();
+		//checkAllFields();
 
 	}
 
@@ -247,12 +247,12 @@ const ObjectMetaEdit = ( props ) => {
 					<PanelBody
 						title = 'Help'
 					>
-						{ helpText && helpText }
+						{ helpText || '' }
 					</PanelBody>
 					<PanelBody
 						title = 'Detailed Instructions'
 					>
-						{ detailedInstructions && detailedInstructions }
+						{ detailedInstructions || '' }
 					</PanelBody>
 				</InspectorControls>
 				:
@@ -280,6 +280,7 @@ const ObjectMetaEdit = ( props ) => {
 
 	return (
 		<div className = 'object-meta-block'>
+			<h3>Fields</h3>
 			<FieldInstructions
 				helpText = { currentHelpText }
 				detailedInstructions = { currentDetailedInstructions }

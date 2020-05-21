@@ -59,6 +59,12 @@ class ObjectPostType {
 					'edit_published_posts' => WPM_PREFIX . 'edit_published_objects',
 				],
 				'map_meta_cap' => true,
+				'template'    => [
+					[ 'core/paragraph', [ 'placeholder' => 'A general description of the object...' ] ],
+					[ 'wp-museum/object-meta-block' ],
+					[ 'wp-museum/object-image-attachments-block' ],
+				],
+				'template_lock' => 'all',
 			],
 		];
 
@@ -90,49 +96,6 @@ class ObjectPostType {
 		}
 		echo '</table><br />';
 		echo "<button type='button' class='button button-large' onclick='new_obj(" . esc_html( $post->ID ) . ")'>New Part</button>";
-	}
-
-	/**
-	 * Callback for displaying object post's image attachments.
-	 */
-	public function display_gallery_box() {
-		global $post;
-		$custom = get_post_custom( $post->ID );
-		echo '<div>';
-		echo "<div id='object-image-box'>";
-		object_image_box_contents( $post->ID );
-		echo '</div>';
-		echo '<button type="button" id="insert-wpm-image-button" class="button"><span class="wp-media-buttons-icon"></span> Add Images</button></div>';
-		wp_nonce_field( 'k2GgFprmdAAG2VgQDycpUg2V)', 'wpm-display-gallery-box-nonce' );
-		echo '<input type="hidden" id="gallery_attach_ids">';
-		if ( isset( $custom['gallery_attach_ids'] ) ) {
-			echo esc_html( $custom['gallery_attach_ids'] );
-		}
-		echo '</input>';
-	}
-
-	/**
-	 * Save the image gallery box (callback).
-	 */
-	public function save_gallery_box() {
-		global $post;
-		if (
-			! in_array( get_post_type( $post ), get_object_type_names(), true ) ||
-			empty( $_POST )
-			) {
-			return;
-		}
-		if ( ! check_admin_referer( 'k2GgFprmdAAG2VgQDycpUg2V)', 'wpm-display-gallery-box-nonce' ) ) {
-			wp_die( esc_html__( 'Failed nonce check.', 'wp-museum' ) );
-		}
-		if ( isset( $_POST['gallery_attach_ids'] ) && ! is_null( $post ) ) {
-			/* check autosave */
-			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-				return $post->ID;
-			}
-			$custom = get_post_custom( $post->ID );
-			update_post_meta( $post->ID, 'gallery_attach_ids', sanitize_text_field( wp_unslash( $_POST['gallery_attach_ids'] ) ) );
-		}
 	}
 
 	/**
@@ -215,15 +178,26 @@ class ObjectPostType {
 		$children_box->context = 'side';
 		$this->object_post_type->add_custom_meta( $children_box );
 
-		// Creates a MetaBox for displaying and manipulating object post's image gallery.
-		$gallery_box = new MetaBox(
-			$this->kind->type_name . '-gallery',
-			$this->kind->label . ' Images',
-			array( $this, 'display_gallery_box' ),
-			array( $this, 'save_gallery_box' )
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			'wpm_gallery_attach_ids',
+			[
+				'type' => 'array',
+				'description' => 'Associated Images',
+				'single' => true,
+				'show_in_rest' => [
+					'schema' => [
+						'type' => 'array',
+						'items' => [
+							'type' => 'number',
+						],
+					],
+				],
+				'auth_callback'    => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			]
 		);
-		$this->object_post_type->add_custom_meta( $gallery_box );
-
 		add_action( 'pre_get_posts', array( $this, 'add_fields_to_search' ) );
 
 		$this->object_post_type->register();

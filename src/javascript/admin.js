@@ -129,20 +129,6 @@ function wpm_reorder_table(row_id, direction) {
     }
 }
 
-function check_object_post_for_publication() {
-    var data = {
-        'action': 'check_object_post_on_publish_aj',
-        'post_id': jQuery("#post_ID").val(),
-        'nonce': admin_ajax_data.nonce
-    };
-    jQuery.post(ajaxurl, data, function(response) {
-        if (response != '') {
-            jQuery("#wpm-post-check").html(response);
-            jQuery("#wpm-post-check").show();
-        }
-    });
-}
-
 /**
  * Creates a new child post of current object and loads edit screen for that object.
  *

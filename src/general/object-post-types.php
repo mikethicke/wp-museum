@@ -74,40 +74,6 @@ function add_object_problem_div() {
 }
 
 /**
- * Checks that objects meet requirements set in Object Admin on saving or
- * publishing an object post. Sets Session variable for display of problems
- * by add_objects_problem_div(). If there are problems and post is to be
- * published, prevent post from publishing.
- *
- * Called at transition_post_status.
- *
- * @param string  $new_status The new status of the post. Eg. 'publish'.
- * @param string  $old_status The old status of the post. Eg. 'draft'.
- * @param WP_POST $post The post.
- */
-function check_object_post_on_publish( $new_status, $old_status, $post ) {
-	unset( $_SESSION[ WPM_PREFIX . 'object_problems' ] );
-	if ( empty( $post ) || ! in_array( $post->post_type, get_object_type_names(), true ) ) {
-		return;
-	}
-	$problems      = check_object_post( $post->ID );
-	$problems_text = '';
-	if ( count( $problems ) > 0 ) {
-		$kind = kind_from_type( $post->post_type );
-		if ( $new_status !== $old_status && 'publish' === $new_status && $kind->strict_checking ) {
-			$post->post_status = $old_status;
-			wp_update_post( $post );
-		}
-		$problems_text .= '<ul>';
-		foreach ( $problems as $problem ) {
-			$problems_text .= "<li>$problem</li>";
-		}
-		$problems_text .= '</ul>';
-	}
-	$_SESSION[ WPM_PREFIX . 'object_problems' ] = $problems_text;
-}
-
-/**
  * Filter to add link text to content containing text patterns matching
  * schema of object's id field.
  *
@@ -185,19 +151,6 @@ function link_objects_by_id( $content ) {
 	}
 
 	return $content;
-}
-
-/**
- * Starts a session.
- *
- * Used for keeping track of errors on publish or save of posts.
- *
- * @see check_object_post_on_publish()
- */
-function start_session() {
-	if ( ! session_id() ) {
-		session_start();
-	}
 }
 
 /**
