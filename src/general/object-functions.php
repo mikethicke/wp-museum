@@ -53,30 +53,20 @@ function kind_from_post( $post_type ) {
 /**
  * Save object image gallery array.
  *
- * @param [int=>int] $attached_image_array Associative array of image_id => sort_order.
- * @param int        $post_id The id of post containing the image gallery.
+ * This function used to take an associative array of image_id => sort_order
+ * but now just takes a simple ordered array.
  *
- * @return bool      True if successful.
+ * @param array $attached_image_array Ordered array of image ids.
+ * @param int   $post_id The id of post containing the image gallery.
+ *
+ * @return bool  True if successful.
  */
 function set_object_image_box_attachments( $attached_image_array, $post_id ) {
 	if ( ! is_array( $attached_image_array ) ) {
 		return false;
 	}
-	$attached_images_str  = '';
-	$existing_sort_orders = [];
-	foreach ( $attached_image_array as $image_id => $sort_order ) {
-		if ( $image_id ) {
-			if ( $attached_images_str ) {
-				$attached_images_str .= ',';
-			}
-			if ( ! $sort_order || in_array( $sort_order, $existing_sort_orders, true ) ) {
-				$sort_order = max( $existing_sort_orders ) + 1;
-			}
-			$existing_sort_orders[] = $sort_order;
-			$attached_images_str   .= $image_id . ':' . $sort_order;
-		}
-	}
-	update_post_meta( $post_id, 'wpm_gallery_attach_ids', $attached_images_str );
+	update_post_meta( $post_id, 'wpm_gallery_attach_ids', $attached_image_array );
+
 	return true;
 }
 
@@ -89,27 +79,17 @@ function set_object_image_box_attachments( $attached_image_array, $post_id ) {
  */
 function get_object_image_attachments( $post_id ) {
 	$attached_image_array = [];
-	$custom               = get_post_custom( $post_id );
-	if ( ! isset( $custom['wpm_gallery_attach_ids'] ) ||
-		! $custom['wpm_gallery_attach_ids'][0] ) {
+	$attach_ids = get_post_meta( $post_id, 'wpm_gallery_attach_ids', true );
+	if ( ! is_array( $attach_ids ) ) {
 		return [];
 	}
-	$image_pairs_array = explode( ',', $custom['wpm_gallery_attach_ids'][0] );
-	$max_order         = 0;
-	foreach ( $image_pairs_array as $image_pair_str ) {
-		$image_pair_arr = explode( ':', $image_pair_str );
-		if ( 2 === count( $image_pair_arr ) ) {
-			$attached_image_array[ $image_pair_arr[0] ] = $image_pair_arr[1];
-			if ( $image_pair_arr[1] >= $max_order ) {
-				$max_order = $image_pair_arr[1];
-			}
-		} elseif ( 1 === count( $image_pair_arr ) ) {
-			$max_order++;
-			$attached_image_array[ $image_pair_arr[0] ] = $max_order;
-		}
-	}
-	asort( $attached_image_array );
-	return $attached_image_array;
+	$attach_ids = array_map(
+		function( $item ) {
+			return intval( $item );
+		},
+		$attach_ids
+	);
+	return array_flip( $attach_ids );
 }
 
 /**
@@ -167,82 +147,6 @@ function get_post_descendants( $post_id, $post_status = 'publish' ) {
 	}
 	$descendants = array_merge( $descendants, $children );
 	return $descendants;
-}
-
-/**
- * Checks a post upon save against requirementss set in object admin.
- *
- * @param int $post_id Id of post to check.
- *
- * @return [string] Array of error messages for failed requirements.
- */
-function check_object_post( $post_id = null ) {
-	global $post;
-	if ( ! $post_id ) {
-		if ( ! $post ) {
-			return false;
-		} else {
-			$post_id = $post->ID;
-		}
-	}
-
-	$the_post = get_post( $post_id );
-
-	$problems = array();
-
-	$custom = get_post_custom( $post_id );
-	$kind = kind_from_type( $the_post->post_type );
-	$fields = get_mobject_fields( $kind->kind_id );
-
-	foreach ( $fields as $field ) {
-		if ( 1 === $field->required && empty( $custom[ $field->slug ][0] ) ) {
-			$problems[] = "{$field->name} is required but empty.";
-		}
-		if ( ! empty( $field->field_schema ) && ! empty( $custom[ $field->slug ][0] ) ) {
-			$pattern = '/^' . stripslashes( $field->field_schema ) . '$/';
-			if ( ! preg_match( $pattern, $custom[ $field->slug ][0], $matches ) ) {
-				$problems[] = esc_html( "{$field->name} does not conform to required schema: {$pattern}." );
-			}
-		}
-		if ( ! empty( $custom[ $field->slug ] ) && $field->field_id === $kind->cat_field_id ) {
-			$args           = [
-				'post_type'   => $the_post->post_type,
-				'numberposts' => -1,
-				'post_status' => 'any',
-				'meta_key'    => $field->slug,
-				'meta_value'  => $custom[ $field->slug ][0],
-			];
-			$matching_posts = get_posts( $args );
-			foreach ( $matching_posts as $match ) {
-				if ( $match->ID !== $the_post->ID ) {
-					$problems[] = "{$field->name} must be unique, but is already possessed by <a href='post.php?post={$match->ID}&action=edit'>{$match->post_title}</a>.";
-				}
-			}
-		}
-	}
-	if ( $kind->categorized ) {
-		$post_category = get_the_category( $the_post->ID );
-		if ( 0 === count( $post_category ) ||
-				( 1 === count( $post_category ) &&
-					'Uncategorized' === $post_category[0]->name
-				)
-			) {
-				$problems[] = 'Post must be categorized.';
-		}
-	}
-	if ( $kind->must_featured_image ) {
-		$thumb = get_the_post_thumbnail( $the_post );
-		if ( empty( $thumb ) ) {
-			$problems[] = 'Post must have featured image.';
-		}
-	}
-	if ( $kind->must_gallery ) {
-		if ( ! isset( $custom[ WPM_PREFIX . 'gallery_attach_ids' ][0] ) ||
-			empty( $custom[ WPM_PREFIX . 'gallery_attach_ids' ][0] ) ) {
-				$problems[] = 'Post must have image gallery.';
-		}
-	}
-	return $problems;
 }
 
 /**
