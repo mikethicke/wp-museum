@@ -1,0 +1,52 @@
+.object-meta-block {
+	.object-meta-fields-container {
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+		font-size: 0.8em;
+
+		.object-meta-row {
+			margin-bottom: 0.5em;
+
+			.object-meta-info {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: nowrap;
+
+				.object-meta-label {
+					flex-basis: 100%;
+				}
+	
+				.object-meta-private {
+					font-style: italic;
+					color: grey;
+				}
+			}
+
+			.object-meta-input {
+				p {
+					border-style: solid;
+					border-color: gray;
+					border-radius: 3px;
+					border-width: 1px;
+					padding: 0.5em;
+					margin-top: 0px;
+					margin-bottom: 0px;
+					font-size: 0.8em;
+				}
+
+			}
+
+			.has-error {
+				p, input {
+					border-color: red;
+				}
+			}
+
+			.errorMessage {
+				font-style: italic;
+				color: grey;
+				min-height: 1.2em;
+				line-height: 1.2em;
+			}
+		}
+	}
+}

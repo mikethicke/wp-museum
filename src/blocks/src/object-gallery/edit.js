@@ -176,8 +176,9 @@ const ObjectGallery = ( props ) => {
 
 			apiFetch( { path: `${object_path}/images`} ).then( result => {
 				const newImgData = [];
-				for ( let index = 0; index < result.length; index++) {
-					let bestFitImage = getBestImage( result[ index ], imgDimensions );
+				const images = Object.values( result );
+				for ( let index = 0; index < images.length; index++) {
+					let bestFitImage = getBestImage( images[ index ], imgDimensions );
 					newImgData[ index ] = { imgURL: bestFitImage.URL };
 				}
 				setAttributes( {

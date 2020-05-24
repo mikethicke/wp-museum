@@ -116,7 +116,11 @@ class EmptyQuery extends \WP_Query
      */
     public function cq_get_sql( )
     {
-        return $this->sql;
+        if ( '' != $this->sql ) {
+            return $this->sql;
+        } else {
+            return $this->request;
+        }
     }
 
 } // end class

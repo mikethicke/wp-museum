@@ -10,8 +10,9 @@
  * /wp-json/wp-museum/v1/<object type>/<post id>/images Images associated with object.
  * /wp-json/wp-museum/v1/all/[?s=|<field>=]             All museum objects, regardless of type.
  * /wp-json/wp-museum/v1/all/<post id>                  Specific object.
- * /wp-json/wp-museum/v1/all/<post id>/images           Images associated with object.
+ * /wp-json/wp-museum/v1/all/<post id>/images           Images associated with object. 
  * /wp-json/wp-musuem/v1/<object type>/custom           Public fields for <object type>.
+ * /wp-json/wp-musuem/v1/<object type>/custom_all       All fields for <object type>.
  *
  * ## Kinds ##
  * /wp-json/wp-musuem/v1/mobject_kinds                  Object kinds
@@ -31,9 +32,7 @@ namespace MikeThicke\WPMuseum;
  * Register REST endpoints.
  */
 function rest_routes() {
-
 	$kinds = get_mobject_kinds();
-
 	foreach ( $kinds as $kind ) {
 		/**
 		 * /wp-json/wp-museum/v1/<object type>/ - Data for objects with post type <object type>.
@@ -106,21 +105,7 @@ function rest_routes() {
 		register_rest_route(
 			REST_NAMESPACE,
 			'/' . $kind->type_name . '/(?P<id>[\d]+)/images',
-			[
-				'methods'  => 'GET',
-				'args'     =>
-					[
-						'id' =>
-							[
-								'validate_callback' => function( $param, $request, $key ) {
-									return is_numeric( $param );
-								},
-							],
-					],
-				'callback' => function ( $request ) {
-					return object_image_data( $request['id'] );
-				},
-			]
+			images_routes_args()
 		);
 
 		/**
@@ -132,7 +117,7 @@ function rest_routes() {
 				$kind->type_name . '/custom',
 				[
 					'methods'  => 'GET',
-					'callback' => function() use ( $kind ) {
+					'callback' => function( $request ) use ( $kind ) {
 						$fields = get_mobject_fields( $kind->kind_id );
 						$filtered_fields = [];
 						foreach ( $fields as $field ) {
@@ -141,6 +126,30 @@ function rest_routes() {
 							}
 						}
 						return $filtered_fields;
+					},
+				]
+			);
+		}
+
+		/**
+		 * /wp-json/wp-musuem/v1/<object type>/custom_all - Data for all fields for <object type>.
+		 */
+		foreach ( $kinds as $kind ) {
+			register_rest_route(
+				REST_NAMESPACE,
+				$kind->type_name . '/custom_all',
+				[
+					'methods'  => 'GET',
+					'callback' => function( $request ) use ( $kind ) {
+						$fields = get_mobject_fields( $kind->kind_id );
+						$filtered_fields = [];
+						foreach ( $fields as $field ) {
+							$filtered_fields[ $field->field_id ] = $field;
+						}
+						return $filtered_fields;
+					},
+					'permission_callback' => function () {
+						return current_user_can( 'edit_posts' );
 					},
 				]
 			);
@@ -238,22 +247,8 @@ function rest_routes() {
 	 */
 	register_rest_route(
 		REST_NAMESPACE,
-		'/all/(?P<id>[\d]+)/images',
-		[
-			'methods'  => 'GET',
-			'args'     =>
-				[
-					'id' =>
-						[
-							'validate_callback' => function( $param, $request, $key ) {
-								return is_numeric( $param );
-							},
-						],
-				],
-			'callback' => function ( $request ) {
-				return object_image_data( $request['id'] );
-			},
-		]
+		'/all/(?P<id>[\d]+)/images/',
+		images_routes_args()
 	);
 
 	/**
@@ -455,13 +450,64 @@ function object_image_data( $post ) {
 
 	$associated_image_data = [];
 	foreach ( $images as $image_id => $sort_order ) {
+		$image_post = get_post( $image_id );
 		$image_data = [];
+
+		$image_data['title']       = $image_post->post_title;
+		$image_data['caption']     = $image_post->post_excerpt;
+		$image_data['description'] = $image_post->post_content;
+		$image_data['alt']         = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+
 		foreach ( $image_sizes as $size_slug ) {
 			$image_data[ $size_slug ] = wp_get_attachment_image_src( $image_id, $size_slug );
 		}
 		$image_data['full'] = wp_get_attachment_image_src( $image_id, 'full' );
-		$associated_image_data[] = $image_data;
+		$associated_image_data[ $image_id ] = $image_data;
 	}
 
 	return $associated_image_data;
 }
+
+/**
+ * Options for /images routes.
+ */
+function images_routes_args() {
+	return (
+		[
+			[
+				'methods'  => 'GET',
+				'args'     =>
+					[
+						'id' =>
+							[
+								'validate_callback' => function( $param, $request, $key ) {
+									return is_numeric( $param );
+								},
+							],
+					],
+				'callback' => function ( $request ) {
+					return object_image_data( $request['id'] );
+				},
+			],
+			[
+				'methods'  => 'POST',
+				'args'     =>
+					[
+						'id' =>
+							[
+								'validate_callback' => function( $param, $request, $key ) {
+									return ( is_numeric( $param ) && get_post_status( $param ) !== false );
+								},
+							],
+					],
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'callback' => function ( $request ) {
+					return set_object_image_box_attachments( $request['images'], $request['id'] );
+				},
+			],
+		]
+	);
+}
+

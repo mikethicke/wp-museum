@@ -97,7 +97,7 @@ const ImageSelector = ( props ) => {
 					width:  imgDimensions.width
 				} );
 			} else if ( imageData === null ) {
-				apiFetch( { path: rest_path } ).then( result => updateImageData( result ) );
+				apiFetch( { path: rest_path } ).then( result => updateImageData( Object.values( result ) ) );
 				updateImageChanged( true );
 			} else if ( imageData.length > 0 && ( imageChanged || imgURL === null || totalImages === 0 ) ) {
 				updateCurrentImgD( {
