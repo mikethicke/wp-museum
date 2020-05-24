@@ -57,7 +57,7 @@ function enqueue_block_style_frontend() {
 }
 
 /**
- * Callbacl to add 'Museum' block category.
+ * Callback to add 'Museum' block category.
  *
  * @link https://getwithgutenberg.com/2019/04/creating-a-block-category/
  *
@@ -78,6 +78,24 @@ function add_museum_block_category( $categories ) {
 					'icon'  => null,
 				],
 			]
+		);
+	}
+}
+
+/**
+ * Enqueues javascript to de-register Object Meta Fields and Object Image
+ * Gallery blocks for non Museum Objects, becaue they don't make sense for
+ * other post types.
+ */
+function unregister_object_blocks_for_non_objects() {
+	global $post;
+	if ( ! in_array( $post->post_type, get_object_type_names() ) ) {
+		wp_enqueue_script(
+			WPM_PREFIX . 'unregister-object-blocks',
+			WPM_BASE_URL . 'javascript/unregister-object-blocks.js',
+			array( 'wp-blocks', 'wp-dom-ready', 'wp-edit-post' ),
+			filemtime( plugin_dir_path( __FILE__ ) . '../javascript/unregister-object-blocks.js' ),
+			true
 		);
 	}
 }

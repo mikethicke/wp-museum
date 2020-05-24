@@ -52,6 +52,12 @@ if ( DEV_BUILD ) {
 	$require_prefix = '';
 }
 
+if ( DEV_BUILD ) {
+	define( 'WPM_BASE_URL', plugin_dir_url( __FILE__ ) . 'src/' );
+} else {
+	define( 'WPM_BASE_URL', plugin_dir_url( __FILE__ ) );
+}
+
 /**
  * Combine Query
  *
@@ -103,6 +109,6 @@ require_once $require_prefix . 'blocks/blocks.php';
 require_once $require_prefix . 'blocks/collection-block-frontend.php';
 require_once $require_prefix . 'blocks/object-infobox-frontend.php';
 require_once $require_prefix . 'blocks/object-gallery-frontend.php';
-require_once $require_prefix . 'blocks/customposttype-block.php';
+require_once $require_prefix . 'blocks/objectposttype-block.php';
 require_once $require_prefix . 'blocks/object-image-attachments-block.php';
 

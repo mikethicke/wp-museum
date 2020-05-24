@@ -1,7 +1,7 @@
 /**
  * A block for Museum Object fields.
  *
- * @see blocks/customposttype-block.php for attributes.
+ * @see blocks/objectposttype-block.php for attributes.
  */
 
 /**
