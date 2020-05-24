@@ -240,6 +240,15 @@ add_action( 'customize_register', __NAMESPACE__ . '\register_customization' );
  */
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_scripts' );
 
+/**
+ * Enqueues javascript to de-register Object Meta Fields and Object Image
+ * Gallery blocks for non Museum Objects, becaue they don't make sense for
+ * other post types.
+ *
+ * @see blocks.php
+ */
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\unregister_object_blocks_for_non_objects' );
+
 /*****************************************************************************
  *
  * Admin Filters
