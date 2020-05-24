@@ -11,12 +11,14 @@ import {
 	chevronUp,
 	chevronDown,
 	dragHandle,
+	trash
 } from '../icons';
 
 import {
 	Toolbar,
 	ToolbarButton,
-	Draggable
+	Draggable,
+	Button
 } from '@wordpress/components';
 
 
@@ -25,6 +27,7 @@ const MoveToolbar = ( props ) => {
 		dragId,
 		moveUp,
 		moveDown,
+		transferData,
 	} = props;
 
 	return (
@@ -35,15 +38,21 @@ const MoveToolbar = ( props ) => {
 			/>
 			<Draggable
 				elementId = { dragId }
+				transferData = { transferData }
 			>
 				{
 					( { onDraggableStart, onDraggableEnd } ) => {
 						return (
-							<ToolbarButton
-								className   = 'img-drag-handle'
-								icon        = { dragHandle }
-								isDraggable = { true }
-							/>
+							<div
+								draggable   = { true }
+								onDragStart = { onDraggableStart }
+								onDragEnd = { onDraggableEnd }
+							>
+								<ToolbarButton
+									className   = 'img-drag-handle'
+									icon        = { dragHandle }
+								/>
+							</div>
 						);
 					}
 				}
@@ -63,6 +72,8 @@ const ImgItem = ( props ) => {
 		onUpdate,
 		clientId,
 		moveItem,
+		removeItem,
+		imgIndex,
 	} = props;
 	
 	const {
@@ -79,6 +90,11 @@ const ImgItem = ( props ) => {
 	const [ captionVal, updateCaptionVal ] = useState( caption );
 	const [ descriptionVal, updateDescriptionVal ] = useState( description );
 	const [ altVal, updateAltVal ] = useState( alt );
+
+	const transferData = {
+		type: 'div',
+		srcIndex: imgIndex
+	}
 
 	const moveUp = () => {
 		moveItem( imgId, -1 );
@@ -97,6 +113,12 @@ const ImgItem = ( props ) => {
 			className = 'img-attach-img-edit'
 			id        = { dragId }
 		>
+			<Button
+				className = 'img-remove-button'
+				icon = { trash }
+				onClick = { () => removeItem( imgId ) }
+				title = 'Remove Image'
+			/>
 			<div className = 'img-attach-thumbnail'>
 				<img src = { thumbnail[0] } />
 			</div>

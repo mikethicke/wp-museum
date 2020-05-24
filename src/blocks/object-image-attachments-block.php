@@ -31,6 +31,11 @@ function register_object_image_attachments_block() {
 							'type' => 'number',
 						],
 					],
+					'imgAttachStr' => [
+						'type'   => 'string',
+						'source' => 'meta',
+						'meta'   => 'wpm_gallery_attach_ids_string',
+					],
 				],
 			]
 		);

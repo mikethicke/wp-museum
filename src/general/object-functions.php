@@ -53,23 +53,19 @@ function kind_from_post( $post_type ) {
 /**
  * Save object image gallery array.
  *
- * @param [int=>int] $attached_image_array Associative array of image_id => sort_order.
- * @param int        $post_id The id of post containing the image gallery.
+ * This function used to take an associative array of image_id => sort_order
+ * but now just takes a simple ordered array.
  *
- * @return bool      True if successful.
+ * @param array $attached_image_array Ordered array of image ids.
+ * @param int   $post_id The id of post containing the image gallery.
+ *
+ * @return bool  True if successful.
  */
 function set_object_image_box_attachments( $attached_image_array, $post_id ) {
 	if ( ! is_array( $attached_image_array ) ) {
 		return false;
 	}
-	asort( $attached_image_array );
-	$new_attached_image_array = [];
-	foreach ( $attached_image_array as $image_id => $sort_order ) {
-		if ( $image_id ) {
-			$new_attached_image_array[] = intval( $image_id );
-		}
-	}
-	update_post_meta( $post_id, 'wpm_gallery_attach_ids', $new_attached_image_array );
+	update_post_meta( $post_id, 'wpm_gallery_attach_ids', $attached_image_array );
 
 	return true;
 }
