@@ -198,6 +198,24 @@ class ObjectPostType {
 				},
 			]
 		);
+
+		/**
+		 * This is here just to make the original save. Can be removed
+		 * once WP saves array meta correctly.
+		 */
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			'wpm_gallery_attach_ids_string',
+			[
+				'type' => 'string',
+				'description' => 'Associated Images String',
+				'single' => true,
+				'show_in_rest' => true,
+				'auth_callback'    => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
 		add_action( 'pre_get_posts', array( $this, 'add_fields_to_search' ) );
 
 		$this->object_post_type->register();
