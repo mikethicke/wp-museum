@@ -35,10 +35,11 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import edit from './edit';
+import { museum } from '../icons';
 
 registerBlockType( 'wp-museum/object-gallery', {
 	title      : __( 'Object Gallery' ),
-	icon       : 'archive',
+	icon       : museum,
 	category   : 'wp-museum',
 	edit,
 	save       : ( ) => null

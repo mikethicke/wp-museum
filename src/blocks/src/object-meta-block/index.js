@@ -14,10 +14,11 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import edit from './edit';
+import { museum } from '../icons';
 
 registerBlockType( 'wp-museum/object-meta-block', {
 	title : __( 'Object Fields' ),
-	icon : 'archive',
+	icon : museum,
 	category : 'wp-museum',
 	edit,
 	save : () => null

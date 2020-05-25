@@ -47,7 +47,7 @@ class ObjectPostType {
 			'label'        => $this->kind->label,
 			'label_plural' => $this->kind->label . 's',
 			'description'  => $this->kind->description,
-			'menu_icon'    => 'dashicons-archive',
+			'menu_icon'    => museum_icon(),
 			'hierarchical' => false,
 			'options'      => [
 				'capabilities' => [

@@ -31,10 +31,11 @@ import { __ } from "@wordpress/i18n";
  */
 import edit from './edit';
 import save from './save';
+import { museum } from '../icons';
 
 registerBlockType( 'wp-museum/object-grid', {
 	title      : __( 'Object Grid'),
-	icon       : 'archive',
+	icon       : museum,
 	category   : 'wp-museum',
 	attributes : {
 		columns: {
