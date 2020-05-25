@@ -35,10 +35,11 @@ import { registerBlockType } from "@wordpress/blocks";
 import { __ } from "@wordpress/i18n";
 
 import edit from './edit';
+import { museum } from '../icons';
 
 registerBlockType('wp-museum/object-infobox', {
 	title: __('Object Infobox'),
-	icon: 'archive',
+	icon: museum,
 	category: 'wp-museum',
 	supports: {
 		align: [ 'left', 'right', 'center' ]

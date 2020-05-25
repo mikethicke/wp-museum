@@ -29,6 +29,8 @@ import { registerBlockType } from "@wordpress/blocks";
 
 import { __ } from "@wordpress/i18n";
 
+import { museum } from '../icons';
+
 /**
  * Internal dependencies
  */
@@ -37,7 +39,7 @@ import save from './save';
 
 registerBlockType( 'wp-museum/object-image', {
 	title      : __( 'Object Image'),
-	icon       : 'archive',
+	icon       : museum,
 	category   : 'wp-museum',
 	supports    : {
 		align: [ 'left', 'right', 'center' ]

@@ -89,6 +89,7 @@ require_once $require_prefix . 'general/custom-post-type-functions.php';
 require_once $require_prefix . 'general/rest.php';
 require_once $require_prefix . 'public/display.php';
 require_once $require_prefix . 'admin/customization.php';
+require_once $require_prefix . 'admin/admin-icon.php';
 
 /*
  * Scripts
