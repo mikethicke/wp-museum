@@ -46,7 +46,6 @@ function create_mobject_kinds_table() {
         hierarchical tinyint(1),
         must_featured_image tinyint(1),
         must_gallery tinyint(1),
-        strict_checking tinyint(1),
         PRIMARY KEY  (kind_id)
     );";
 
@@ -73,7 +72,11 @@ function create_mobject_fields_table() {
         required tinyint(1),
         quick_browse tinyint(1),
         help_text varchar(255),
+		detailed_instructions text,
+		public_description text,
         field_schema varchar(255),
+		max_length int(5),
+		dimensions varchar(255),
         PRIMARY KEY  (field_id)
     );";
 
