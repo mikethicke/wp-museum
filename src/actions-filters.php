@@ -249,6 +249,10 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_scrip
  */
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\unregister_object_blocks_for_non_objects' );
 
+add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_react' );
+
+add_action( 'admin_menu', __NAMESPACE__ . '\create_admin_react_pages' );
+
 /*****************************************************************************
  *
  * Admin Filters

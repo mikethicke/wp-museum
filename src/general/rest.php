@@ -166,6 +166,9 @@ function rest_routes() {
 				'callback' => function() use ( $kind ) {
 					return $kind->to_array();
 				},
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
 			]
 		);
 	}
