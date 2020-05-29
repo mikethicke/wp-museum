@@ -205,6 +205,18 @@ function add_block_template() {
 	}
 }
 
+/**
+ * Translates old field types ( varchar, text, tinyint ) to new ( plain, rich, flag ).
+ */
+function translate_field_types() {
+	global $wpdb;
+	$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
+	$wpdb->update( $table_name, [ 'type' => 'plain' ], [ 'type' => 'varchar' ] );
+	$wpdb->update( $table_name, [ 'type' => 'rich' ], [ 'type' => 'text' ] );
+	$wpdb->update( $table_name, [ 'type' => 'flag' ], [ 'type' => 'tinyint' ] );
+}
+
+//add_action( 'plugins_loaded', __NAMESPACE__ . '\translate_field_types' );
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\add_block_template' );
 // add_action( 'plugins_loaded', __NAMESPACE__ . '\make_object_attach_ids_simple_array' );
 // add_action( 'plugins_loaded', __NAMESPACE__ . '\fix_wpm_gallery_attach_ids' );

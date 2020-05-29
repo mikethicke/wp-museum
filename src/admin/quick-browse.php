@@ -208,7 +208,7 @@ function wpm_sort_by_field( &$target_array, $sort_col, $sort_dir ) {
 				if ( isset( $sort_field->field_schema ) && ! empty( $sort_field->field_schema ) ) {
 					$a_matches = [];
 					$b_matches = [];
-					$pattern   = '/' . stripslashes( $sort_field->field_schema ) . '/';
+					$pattern   = '/' . $sort_field->field_schema . '/';
 					if ( preg_match( $pattern, $a_field_val, $a_matches ) && preg_match( $pattern, $b_field_val, $b_matches ) ) {
 						$a_named_capture_keys = array_filter( array_keys( $a_matches ), 'is_string' );
 						$b_named_capture_keys = array_filter( array_keys( $b_matches ), 'is_string' );

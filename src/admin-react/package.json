@@ -7,11 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "wp-scripts build /src/index.js /src/style.scss --output-path=build",
     "start": "wp-scripts start /src/index.js /src/style.scss --output-path=build"
-
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@wordpress/components": "^9.7.0",
     "@wordpress/scripts": "^9.1.0"
   }
 }

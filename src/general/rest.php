@@ -11,8 +11,8 @@
  * /wp-json/wp-museum/v1/all/[?s=|<field>=]             All museum objects, regardless of type.
  * /wp-json/wp-museum/v1/all/<post id>                  Specific object.
  * /wp-json/wp-museum/v1/all/<post id>/images           Images associated with object. 
- * /wp-json/wp-musuem/v1/<object type>/custom           Public fields for <object type>.
- * /wp-json/wp-musuem/v1/<object type>/custom_all       All fields for <object type>.
+ * /wp-json/wp-musuem/v1/<object type>/fields           Public fields for <object type>.
+ * /wp-json/wp-musuem/v1/<object type>/fields_all       All fields for <object type>.
  *
  * ## Kinds ##
  * /wp-json/wp-musuem/v1/mobject_kinds                  Object kinds
@@ -109,12 +109,12 @@ function rest_routes() {
 		);
 
 		/**
-		 * /wp-json/wp-musuem/v1/<object type>/custom - Data for public fields for <object type>.
+		 * /wp-json/wp-musuem/v1/<object type>/fields - Data for public fields for <object type>.
 		 */
 		foreach ( $kinds as $kind ) {
 			register_rest_route(
 				REST_NAMESPACE,
-				$kind->type_name . '/custom',
+				$kind->type_name . '/fields',
 				[
 					'methods'  => 'GET',
 					'callback' => function( $request ) use ( $kind ) {
@@ -132,25 +132,41 @@ function rest_routes() {
 		}
 
 		/**
-		 * /wp-json/wp-musuem/v1/<object type>/custom_all - Data for all fields for <object type>.
+		 * /wp-json/wp-musuem/v1/<object type>/fields_all - Data for all fields for <object type>.
 		 */
 		foreach ( $kinds as $kind ) {
 			register_rest_route(
 				REST_NAMESPACE,
-				$kind->type_name . '/custom_all',
+				$kind->type_name . '/fields_all',
 				[
-					'methods'  => 'GET',
-					'callback' => function( $request ) use ( $kind ) {
-						$fields = get_mobject_fields( $kind->kind_id );
-						$filtered_fields = [];
-						foreach ( $fields as $field ) {
-							$filtered_fields[ $field->field_id ] = $field;
-						}
-						return $filtered_fields;
-					},
-					'permission_callback' => function () {
-						return current_user_can( 'edit_posts' );
-					},
+					[
+						'methods'  => 'GET',
+						'callback' => function( $request ) use ( $kind ) {
+							$fields = get_mobject_fields( $kind->kind_id );
+							$filtered_fields = [];
+							foreach ( $fields as $field ) {
+								$filtered_fields[ $field->field_id ] = $field;
+							}
+							return $filtered_fields;
+						},
+						'permission_callback' => function () {
+							return current_user_can( 'edit_posts' );
+						},
+					],
+					[
+						'methods' => 'POST',
+						'permission_callback' => function() {
+							return current_user_can( 'manage_options' );
+						},
+						'callback' => function( $request ) {
+							/**
+							 * We're going to get an array of fields to update.
+							 * We instantiate each item as an MObjectField, and
+							 * then update those fields in the database.
+							 */
+							$a = $request;
+						},
+					],
 				]
 			);
 		}
@@ -264,6 +280,9 @@ function rest_routes() {
 			'methods'  => 'GET',
 			'callback' => function() {
 				return get_mobject_kinds();
+			},
+			'permission_callback' => function() {
+				return current_user_can( 'edit_posts' );
 			},
 		)
 	);
@@ -488,7 +507,7 @@ function images_routes_args() {
 								},
 							],
 					],
-				'callback' => function ( $request ) {
+				'callback' => function( $request ) {
 					return object_image_data( $request['id'] );
 				},
 			],
@@ -503,10 +522,10 @@ function images_routes_args() {
 								},
 							],
 					],
-				'permission_callback' => function () {
+				'permission_callback' => function() {
 					return current_user_can( 'edit_posts' );
 				},
-				'callback' => function ( $request ) {
+				'callback' => function( $request ) {
 					return set_object_image_box_attachments( $request['images'], $request['id'] );
 				},
 			],
