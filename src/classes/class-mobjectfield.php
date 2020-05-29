@@ -34,21 +34,14 @@ class MObjectField {
 	public $kind_id;
 
 	/**
-	 * Name of HTML elements for forms containing this field.
+	 * Label of this field for user display.
 	 *
 	 * @var string $name
 	 */
 	public $name;
 
 	/**
-	 * Label of this field for user display.
-	 *
-	 * @var string $label
-	 */
-	public $label;
-
-	/**
-	 * Datatype of the field: varchar|text|date|tinyint.
+	 * Datatype of the field: plain|rich|date|factor|multiple|measure|flag.
 	 *
 	 * @var string $type
 	 */
@@ -91,24 +84,92 @@ class MObjectField {
 	public $help_text;
 
 	/**
+	 * Detailed instructions for editng the field.
+	 *
+	 * @var string $detailed_instructions
+	 */
+	public $detailed_instructions;
+
+	/**
+	 * Description of the site for visitors, to be displayed on the front end.
+	 *
+	 * @var string $public_description
+	 */
+	public $public_description;
+
+	/**
 	 * Regular expression that this field must conform to. Also used for sorting.
 	 *
 	 * @var string $field_schema
 	 */
 	public $field_schema;
 
-	public function __construct( $database_field ) {
-		$this->field_id        = intval( $database_field->field_id );
-		$this->slug            = $database_field->slug;
-		$this->kind_id         = intval( $database_field->kind_id );
-		$this->name            = $database_field->name;
-		$this->label           = $database_field->label;
-		$this->type            = $database_field->type;
-		$this->display_order   = intval( $database_field->display_order );
-		$this->public          = (bool) intval( $database_field->public );
-		$this->required        = (bool) intval( $database_field->required );
-		$this->quick_browse    = (bool) intval( $database_field->quick_browse );
-		$this->help_text       = $database_field->help_text;
-		$this->field_schema    = $database_field->field_schema;
+	/**
+	 * Maximum length of field. Only applies to plain or rich type. 0 = no limit.
+	 *
+	 * @var int $max_length
+	 */
+	public $max_length;
+
+	/**
+	 * Labels for each dimension (eg. Length, Width, Height). Only applies to measure type.
+	 *
+	 * @var [string] $dimensions
+	 */
+	public $dimensions;
+
+	/**
+	 * Measurement units (kg, cm, m, lbs, g, etc). Only applies to measure type.
+	 *
+	 * @var string $units
+	 */
+	public $units;
+
+	/**
+	 * List of allowed factors for the field. Only applies to factor and
+	 * multiple factor types.
+	 *
+	 * @var [string] $factors
+	 */
+	public $factors;
+
+	/**
+	 * Default constructor.
+	 */
+	public function __construct() {
 	}
+
+	/**
+	 * Create a new instance of MObjectField from a database row.
+	 *
+	 * @param Object $row A raw row fetched from the database.
+	 * @return MObjectField A new instance of MObjectField.
+	 */
+	public static function from_database( $row ) {
+		$instance = new self();
+
+		$instance->field_id              = intval( $row->field_id );
+		$instance->slug                  = trim( wp_unslash( $row->slug ) );
+		$instance->kind_id               = intval( $row->kind_id );
+		$instance->name                  = trim( wp_unslash( $row->name ) );
+		$instance->type                  = trim( wp_unslash( $row->type ) );
+		$instance->display_order         = intval( $row->display_order );
+		$instance->public                = (bool) intval( $row->public );
+		$instance->required              = (bool) intval( $row->required );
+		$instance->quick_browse          = (bool) intval( $row->quick_browse );
+		$instance->help_text             = trim( wp_unslash( $row->help_text ) );
+		$instance->detailed_instructions = trim( wp_unslash( $row->detailed_instructions ) );
+		$instance->public_description    = trim( wp_unslash( $row->public_description ) );
+		$instance->field_schema          = stripslashes( $row->field_schema );
+		$instance->max_length            = intval( $row->max_length );
+		$instance->dimensions            = json_decode( $row->dimensions, true, 2 );
+		$instance->units                 = trim( wp_unslash( $row->units ) );
+		$instance->factors               = json_decode( $row->factors, false, 1 );
+
+		return $instance;
+	}
+
+	/**
+	 * Create a new instance of MObjectField from REST POST request.
+	 */
 }

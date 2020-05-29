@@ -68,11 +68,13 @@ class ObjectPostType {
 			],
 		];
 
-		$this->object_post_type           = new CustomPostType( $options );
+		$this->object_post_type = new CustomPostType( $options );
+
 		$this->object_post_type->supports = [ 'title', 'thumbnail', 'author', 'editor', 'custom-fields' ];
 		$this->object_post_type->add_taxonomy( 'category' );
 
-		$this->fields                          = get_mobject_fields( $this->kind->kind_id );
+		$this->fields = get_mobject_fields( $this->kind->kind_id );
+
 		$this->object_post_type->custom_fields = $this->fields;
 	}
 
