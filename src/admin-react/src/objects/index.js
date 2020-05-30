@@ -9,17 +9,68 @@ import {
 
 import Edit from './edit';
 
-const PageSelector = () => {
+const ObjectAdminControl = () => {
 	const [ selectedPage, setSelectedPage ] = useState( {
 		page: 'main',
 		props: {}
+	} );
+
+	const baseRestPath = '/wp-museum/v1';
+	const [ objectKinds, setObjectKinds ] = useState( null );
+
+	useEffect( () => {
+		if ( ! objectKinds ) {
+			refreshKindData();
+		}
+	} );
+
+	const refreshKindData = () => {
+		apiFetch( { path: `${baseRestPath}/mobject_kinds` } ).then( setObjectKinds );
+	}
+
+	const updateKind = ( kindId, field, event ) => {
+		const kindIndex = objectKinds.findIndex( kindItem => kindItem.kind_id == kindId );
+		if ( kindIndex === -1 ) return;
+		
+		const newKindArray = objectKinds.concat([]);
+		if ( event.target.type === 'checkbox' ) {
+			if ( objectKinds[ kindIndex ][ field ] != event.target.checked ) {
+				newKindArray[ kindIndex ][ field ] = event.target.checked;
+				setObjectKinds( newKindArray );
+			}
+			return;
+		}
+
+		if ( objectKinds[ kindIndex ][ field ] != event.target.value ) {
+			newKindArray[ kindIndex ][ field ] = event.target.value;
+			setObjectKinds( newKindArray );
+		}
+	}
+
+	const saveKindData = () => {
+		apiFetch( {
+			path   : `${baseRestPath}/mobject_kinds`,
+			method : 'POST',
+			data   : objectKinds
+		} ).then( refreshKindData );
+	}
+
+	const editKind = ( kindItem ) => setSelectedPage( {
+		page: 'edit',
+		props: {
+			kinds        : objectKinds,
+			kindItem     : kindItem,
+			updateKind   : updateKind,
+			saveKindData : saveKindData
+		}
 	} );
 
 	switch ( selectedPage.page ) {
 		case 'main':
 			return ( 
 				<Main { ...selectedPage.props } 
-					setSelectedPage = { setSelectedPage }	
+					objectKinds = { objectKinds }
+					editKind    = { editKind }	
 				/>
 			);
 		case 'edit':
@@ -30,20 +81,11 @@ const PageSelector = () => {
 }
 
 const Main = ( props ) => {
-	const { setSelectedPage } = props;
-	const baseRestPath = '/wp-museum/v1';
-	const [ objectKinds, setObjectKinds ] = useState( null );
-
-	useEffect( () => {
-		if ( ! objectKinds ) {
-			apiFetch( { path: `${baseRestPath}/mobject_kinds` } ).then( setObjectKinds );
-		}
-	} );
-
-	const editKind = ( kindItem ) => setSelectedPage( {
-		page: 'edit',
-		props: { kind: kindItem }
-	} );
+	const {
+		objectKinds,
+		editKind
+	 } = props;
+	
 
 	if ( objectKinds ) {
 		const kindRows = objectKinds.map( ( kindItem, index ) => (
@@ -86,4 +128,4 @@ const Main = ( props ) => {
 	}
 }
 
-export { PageSelector as ObjectPage };
+export { ObjectAdminControl as ObjectPage };

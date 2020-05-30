@@ -4252,15 +4252,38 @@ div.components-toolbar > div + div.has-left-divider::before {
   width: auto;
   z-index: 100000; }
 
-.fields-edit-wrapper {
+.kind-edit-wrapper {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap; }
-  .fields-edit-wrapper .field-edit {
+  .kind-edit-wrapper .kind-edit {
     margin-left: 30px;
     flex-basis: 70%;
     flex-grow: 1; }
-    .fields-edit-wrapper .field-edit .field-form {
+    .kind-edit-wrapper .kind-edit input, .kind-edit-wrapper .kind-edit select, .kind-edit-wrapper .kind-edit textarea {
+      display: block;
+      width: 100%; }
+    .kind-edit-wrapper .kind-edit textarea {
+      height: 10em; }
+    .kind-edit-wrapper .kind-edit input[type='checkbox'] {
+      display: inline-block;
+      width: auto;
+      width: initial; }
+    .kind-edit-wrapper .kind-edit input[type='number'] {
+      width: 5em; }
+    .kind-edit-wrapper .kind-edit .kind-settings .kind-options {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      margin-top: 1em; }
+      .kind-edit-wrapper .kind-edit .kind-settings .kind-options label {
+        flex-basis: calc( 50% - 1em);
+        flex-grow: 0;
+        display: block;
+        margin: 0.5em; }
+      .kind-edit-wrapper .kind-edit .kind-settings .kind-options input {
+        margin-right: 0.5em; }
+    .kind-edit-wrapper .kind-edit .field-form {
       border-style: solid;
       border-color: grey;
       background-color: #f9f9f9;
@@ -4269,81 +4292,70 @@ div.components-toolbar > div + div.has-left-divider::before {
       margin: 5px;
       padding: 5px;
       position: relative; }
-      .fields-edit-wrapper .field-edit .field-form .delete-field {
+      .kind-edit-wrapper .kind-edit .field-form .delete-field {
         position: absolute;
         right: 5px; }
-      .fields-edit-wrapper .field-edit .field-form > .field-section {
+      .kind-edit-wrapper .kind-edit .field-form > .field-section {
         width: 400px; }
-      .fields-edit-wrapper .field-edit .field-form input, .fields-edit-wrapper .field-edit .field-form select, .fields-edit-wrapper .field-edit .field-form textarea {
-        display: block;
-        width: 100%; }
-      .fields-edit-wrapper .field-edit .field-form textarea {
-        height: 10em; }
-      .fields-edit-wrapper .field-edit .field-form input[type='checkbox'] {
-        display: inline-block;
-        width: auto;
-        width: initial; }
-      .fields-edit-wrapper .field-edit .field-form input[type='number'] {
-        width: 5em; }
-      .fields-edit-wrapper .field-edit .field-form .field-middle {
+      .kind-edit-wrapper .kind-edit .field-form .field-middle {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap; }
-        .fields-edit-wrapper .field-edit .field-form .field-middle .field-section {
+        .kind-edit-wrapper .kind-edit .field-form .field-middle .field-section {
           flex-basis: 400px; }
-      .fields-edit-wrapper .field-edit .field-form .field-type {
+      .kind-edit-wrapper .kind-edit .field-form .field-type {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap; }
-        .fields-edit-wrapper .field-edit .field-form .field-type .field-type-group {
+        .kind-edit-wrapper .kind-edit .field-form .field-type .field-type-group {
           display: flex;
           flex-direction: row;
           flex-wrap: nowrap;
           width: calc( 400px + 1em); }
-          .fields-edit-wrapper .field-edit .field-form .field-type .field-type-group .field-section {
+          .kind-edit-wrapper .kind-edit .field-form .field-type .field-type-group .field-section {
             width: -webkit-fit-content;
             width: -moz-fit-content;
             width: fit-content; }
-            .fields-edit-wrapper .field-edit .field-form .field-type .field-type-group .field-section.factor-button {
+            .kind-edit-wrapper .kind-edit .field-form .field-type .field-type-group .field-section.factor-button {
               display: flex;
               flex-direction: column-reverse; }
-          .fields-edit-wrapper .field-edit .field-form .field-type .field-type-group .units {
+          .kind-edit-wrapper .kind-edit .field-form .field-type .field-type-group .units {
             flex-shrink: 1;
             flex-grow: 1;
             width: auto; }
-          .fields-edit-wrapper .field-edit .field-form .field-type .field-type-group .dimension-labels .dimension-field {
+          .kind-edit-wrapper .kind-edit .field-form .field-type .field-type-group .dimension-labels .dimension-field {
             display: inline-block;
             margin: 0.5em;
             flex-basis: 33%;
             max-width: calc( ( 400px - 2em ) / 3); }
-      .fields-edit-wrapper .field-edit .field-form .field-checkboxes {
+      .kind-edit-wrapper .kind-edit .field-form .field-checkboxes {
         margin: 0.5em; }
-        .fields-edit-wrapper .field-edit .field-form .field-checkboxes label {
+        .kind-edit-wrapper .kind-edit .field-form .field-checkboxes label {
           display: inline-block;
           margin: 0.5em; }
-        .fields-edit-wrapper .field-edit .field-form .field-checkboxes input {
+        .kind-edit-wrapper .kind-edit .field-form .field-checkboxes input {
           margin-left: 0.5em; }
-    .fields-edit-wrapper .field-edit .field-section {
+    .kind-edit-wrapper .kind-edit .field-section {
       margin: 0.5em; }
-    .fields-edit-wrapper .field-edit .components-toolbar {
+    .kind-edit-wrapper .kind-edit .components-toolbar {
       display: block;
       position: absolute;
       left: -38px;
       border-color: rgba(66, 88, 99, 0.4);
       border-radius: 4px; }
-      .fields-edit-wrapper .field-edit .components-toolbar div {
+      .kind-edit-wrapper .kind-edit .components-toolbar div {
         margin-left: 0; }
-      .fields-edit-wrapper .field-edit .components-toolbar button {
+      .kind-edit-wrapper .kind-edit .components-toolbar button {
         width: 28px;
         height: 24px;
         padding: 0 !important;
         min-width: 24px !important; }
-      .fields-edit-wrapper .field-edit .components-toolbar .components-button:focus:before {
+      .kind-edit-wrapper .kind-edit .components-toolbar .components-button:focus:before {
         box-shadow: none !important; }
-      .fields-edit-wrapper .field-edit .components-toolbar svg {
+      .kind-edit-wrapper .kind-edit .components-toolbar svg {
         width: 28px;
         height: 24px; }
-  .fields-edit-wrapper .field-instructions {
+  .kind-edit-wrapper .field-instructions {
     flex-basis: 30%;
     flex-grow: 0; }
 
@@ -4387,6 +4399,11 @@ div.components-toolbar > div + div.has-left-divider::before {
 .factor-edit-modal .bottom-buttons {
   display: flex;
   justify-content: flex-end; }
+
+.do-save {
+  position: absolute;
+  top: 10px;
+  right: 10px; }
 
 
 /*# sourceMappingURL=style.css.map*/

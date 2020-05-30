@@ -61,11 +61,11 @@ const FieldEdit = props => {
 
 	const {
 		field_id              : fieldId,
-		name,
-		type,
+								name,
+								type,
 		display_order         : displayOrder,
 		public                : isPublic,
-		required,
+								required,
 		quick_browse          : quickBrowse,
 		help_text             : helpText,
 		detailed_instructions : detailedInstructions,
@@ -73,8 +73,8 @@ const FieldEdit = props => {
 		field_schema          : fieldSchema,
 		max_length            : maxLength,
 		dimensions            : dimensions,
-		factors,
-		units
+								factors,
+								units
 	} = fieldData;
 
 	const [ factorModalOpen, setFactorModalOpen ] = useState( false );

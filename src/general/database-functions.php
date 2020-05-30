@@ -41,11 +41,14 @@ function create_mobject_kinds_table() {
         name varchar(255),
 		type_name varchar(255),
         label varchar(255),
+		label_plural varchar(255),
         description text,
         categorized tinyint(1),
         hierarchical tinyint(1),
         must_featured_image tinyint(1),
         must_gallery tinyint(1),
+		exclude_from_search tinyint(1),
+		parent_kind_id mediumint(9),
         PRIMARY KEY  (kind_id)
     );";
 

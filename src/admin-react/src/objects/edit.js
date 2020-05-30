@@ -3,31 +3,61 @@ import {
 	useEffect
 } from '@wordpress/element';
 
+import {
+	Button,
+} from '@wordpress/components';
+
 import apiFetch from '@wordpress/api-fetch';
 
 import FieldEdit from './field-edit';
+import KindSettings from './kind-settings';
 
 const Edit = props => {
 	const {
-		kind
+		kindItem,
+		kinds,
+		updateKind,
+		saveKindData,
 	} = props;
 
 	const {
 		kind_id   : kindId,
 		label     : kindLabel,
 		type_name : kindPostType,
-	} = kind;
+	} = kindItem;
 
 	const baseRestPath = '/wp-museum/v1';
 
 	const [ fieldData, setFieldData ] = useState( null );
+	const [ newFieldCount, setNewFieldCount ] = useState( 0 );
 
 	useEffect( () => {
 		if ( ! fieldData ) {
-			apiFetch( { path: `${baseRestPath}/${kindPostType}/fields_all`} ).then( setFieldData );
+			refreshFieldData();
 		}
 	} );
 
+	const refreshFieldData = () => {
+		apiFetch( { path: `${baseRestPath}/${kindPostType}/fields_all`} ).then( setFieldData );
+	}
+
+	const updateKindData = ( field, event ) => {
+		updateKind( kindId, field, event );
+	}
+
+	const doSave = () => {
+		saveFieldData();
+		saveKindData();
+	}
+	
+	const saveFieldData = () => {
+		apiFetch( {
+			path   : `${baseRestPath}/${kindPostType}/fields_all`,
+			method : 'POST',
+			data   : fieldData
+		} ).then( refreshFieldData );
+	}
+	
 	const updateField = ( fieldId, fieldItem, changeEvent ) => {
 		const newFieldData = Object.assign( {}, fieldData );
 
@@ -49,6 +79,14 @@ const Edit = props => {
 			setFieldData( newFieldData );
 			return;
 		}
+
+		if ( changeEvent.target.type === 'checkbox' ) {
+			if ( fieldData[ fieldId ][ fieldItem ] != changeEvent.target.checked ) {
+				newFieldData[ fieldId ][ fieldItem ] = changeEvent.target.checked;
+				setFieldData( newFieldData );
+			}
+			return;
+		}
 		
 		if ( fieldData[ fieldId ][ fieldItem ] != changeEvent.target.value ) {
 			newFieldData[ fieldId ][ fieldItem ] = changeEvent.target.value;
@@ -58,7 +96,7 @@ const Edit = props => {
 
 	const deleteField = ( fieldId ) => {
 		const newFieldData = Object.assign( {}, fieldData );
-		delete newFieldData[ fieldId ];
+		newFieldData[ fieldId ]['delete'] = true;
 		setFieldData( newFieldData );
 	}
 
@@ -87,9 +125,42 @@ const Edit = props => {
 		setFieldData( newFieldData );
 	}
 
+	const defaultFieldData = {
+		field_id              : 0 - ( newFieldCount + 1 ),
+		slug                  : '',
+		kind_id               : kindId,
+		name                  : '',
+		type                  : 'plain',
+		display_order         : 0,
+		public                : true,
+		required              : false,
+		quick_browse          : false,
+		help_text             : '',
+		detailed_instructions : '',
+		public_description    : '',
+		field_schema          : '',
+		max_length            : 0,
+		dimensions            : '',
+		factors               : '',
+		units                 : ''
+	};
+	if ( fieldData ) {
+		const sortedFields = Object.values( fieldData )
+			.sort( (a, b) => a['display_order'] < b['display_order'] ? 1 : -1 );
+		defaultFieldData.display_order = sortedFields[0].display_order + 1;
+	}
+
+	const addField = () => {
+		const updatedFieldData = fieldData ? Object.assign( {}, fieldData ) : {};
+		updatedFieldData[ defaultFieldData.field_id ] = defaultFieldData;
+		setNewFieldCount( newFieldCount + 1 );
+		setFieldData( updatedFieldData );
+	}
+
 	let fieldForms;
 	if ( fieldData ) {
 		fieldForms = Object.entries( fieldData )
+			.filter( ( [ fieldId, dataItem ] ) => ( typeof dataItem.delete == 'undefined' || ! dataItem.delete ) )
 			.sort( (a, b) => a[1]['display_order'] > b[1]['display_order'] ? 1 : -1 )
 			.map( ( [ fieldId, dataItem ] ) => {
 				return (
@@ -104,14 +175,39 @@ const Edit = props => {
 				);
 			} );
 	}
-	
 
 	return (
 		<div>
+			<div className = 'do-save'>
+				<Button
+					onClick = { doSave }
+					isPrimary
+					isLarge
+				>
+					Save
+				</Button>
+			</div>
 			<h1>{ kindLabel }</h1>
-			<div className = 'fields-edit-wrapper'>
-				<div className = 'field-edit'>
+			<div className = 'kind-edit-wrapper'>
+				<div className = 'kind-edit'>
+					<div className = 'kind-settings'>
+						<KindSettings
+							kindData = { kindItem }
+							fieldData = { fieldData }
+							kinds = { kinds }
+							updateKindData = { updateKindData }
+						/>
+					</div>
+					<h2>Fields</h2>
 					{ !! fieldForms && fieldForms }
+					<Button
+						className = 'new-field-button'
+						onClick   = { addField }
+						isLarge
+						isSecondary
+					>
+						Add New Field
+					</Button>
 				</div>
 				<div className = 'field-instructions'></div>
 			</div>

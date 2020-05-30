@@ -42,10 +42,16 @@ class ObjectPostType {
 		global $wpdb;
 		$this->kind  = $kind;
 
+		if ( $this->kind->label_plural ) {
+			$label_plural = $this->kind->label_plural;
+		} else {
+			$label_plural = $this->kind->label . 's';
+		}
+
 		$options = [
 			'type'         => $this->kind->type_name,
 			'label'        => $this->kind->label,
-			'label_plural' => $this->kind->label . 's',
+			'label_plural' => $label_plural,
 			'description'  => $this->kind->description,
 			'menu_icon'    => museum_icon(),
 			'hierarchical' => false,

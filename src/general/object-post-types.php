@@ -152,12 +152,3 @@ function link_objects_by_id( $content ) {
 
 	return $content;
 }
-
-/**
- * Ends a session.
- */
-function end_session() {
-	if ( session_id() ) {
-		session_destroy();
-	}
-}
