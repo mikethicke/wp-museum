@@ -1,13 +1,50 @@
-.fields-edit-wrapper {
+.kind-edit-wrapper {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
 
-	
-	.field-edit {
+	.kind-edit {
 		margin-left: 30px;
 		flex-basis: 70%;
 		flex-grow: 1;
+
+		input, select, textarea {
+			display: block;
+			width: 100%;
+		}
+
+		textarea {
+			height: 10em;
+		}
+	
+		input[ type = 'checkbox' ] {
+			display: inline-block;
+			width: initial;
+		}
+
+		input[ type = 'number' ] {
+			width: 5em;
+		}
+
+		.kind-settings {
+			.kind-options {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				margin-top: 1em;
+				
+				label {
+					flex-basis: calc( 50% - 1em );
+					flex-grow: 0;
+					display: block;
+					margin: 0.5em;
+				}
+
+				input {
+					margin-right: 0.5em;
+				}
+			}
+		}
 
 		.field-form {
 			border-style: solid;
@@ -26,24 +63,6 @@
 
 			> .field-section {
 				width: 400px;
-			}
-		
-			input, select, textarea {
-				display: block;
-				width: 100%;
-			}
-
-			textarea {
-				height: 10em;
-			}
-		
-			input[ type = 'checkbox' ] {
-				display: inline-block;
-				width: initial;
-			}
-
-			input[ type = 'number' ] {
-				width: 5em;
 			}
 
 			.field-middle {
@@ -205,4 +224,10 @@
 		display: flex;
 		justify-content: flex-end;
 	}
+}
+
+.do-save {
+	position: absolute;
+	top: 10px;
+	right: 10px;
 }

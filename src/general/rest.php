@@ -164,7 +164,20 @@ function rest_routes() {
 							 * We instantiate each item as an MObjectField, and
 							 * then update those fields in the database.
 							 */
-							$a = $request;
+							global $wpdb;
+							$field_data = json_decode( $request->get_body(), false );
+							$success = true;
+							$failed_queries = [];
+							foreach ( $field_data as $field_id => $field_object ) {
+								$mobject_field = MObjectField::from_database( $field_object );
+								if ( isset( $field_object->delete ) && true === $field_object->delete ) {
+									$mobject_field->delete_from_db();
+								} else if ( false === $mobject_field->save_to_db() ) {
+									$success = false;
+									$failed_queries[] = $wpdb->last_query;
+								};
+							}
+							return $success;
 						},
 					],
 				]
@@ -276,15 +289,35 @@ function rest_routes() {
 	register_rest_route(
 		REST_NAMESPACE,
 		'/mobject_kinds/',
-		array(
-			'methods'  => 'GET',
-			'callback' => function() {
-				return get_mobject_kinds();
-			},
-			'permission_callback' => function() {
-				return current_user_can( 'edit_posts' );
-			},
-		)
+		[
+			[
+				'methods'  => 'GET',
+				'callback' => function() {
+					return get_mobject_kinds();
+				},
+				'permission_callback' => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			],
+			[
+				'methods' => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback' => function ( $request ) {
+					global $wpdb;
+					$updated_kinds = json_decode( $request->get_body(), false );
+					$success = true;
+					foreach ( $updated_kinds as $kind_data ) {
+						$kind = new ObjectKind( $kind_data );
+						if ( ! $kind->save_to_db() ) {
+							$success = false;
+						};
+					}
+					return $success;
+				},
+			],
+		]
 	);
 
 	/**
