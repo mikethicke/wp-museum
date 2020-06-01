@@ -57,6 +57,8 @@ const FieldEdit = props => {
 		updateFactors,
 		deleteField,
 		moveItem,
+		saveFieldData,
+		dimensionsDefault,
 	} = props;
 
 	const {
@@ -79,20 +81,7 @@ const FieldEdit = props => {
 
 	const [ factorModalOpen, setFactorModalOpen ] = useState( false );
 
-	const dimensionData = dimensions ?
-		JSON.parse( dimensions ) :
-		{
-			n : 1,
-			labels: [ '', '', '' ]
-		};
-	
-	const factorData = factors ?
-		JSON.parse( factors ) :
-		[];
-	
-	const updateFactorData = newFactorData => {
-		updateFactors( fieldId, JSON.stringify( newFactorData ) );
-	}
+	const dimensionsData = dimensions ? dimensions : dimensionsDefault;
 
 	const deleteThisField = () => {
 		let confirmDelete = confirm( 'Really delete field? This cannot be undone. Deleting field will not remove data from database, but it will be inaccessible unless a new field with the same name is created.');
@@ -129,8 +118,8 @@ const FieldEdit = props => {
 	) );
 
 	let dimensionElements = [];
-	if ( dimensionData.n > 1 ) {
-		for ( let i = 0; i < dimensionData.n; i++ ) {
+	if ( dimensionsData.n > 1 ) {
+		for ( let i = 0; i < dimensionsData.n; i++ ) {
 			dimensionElements[i] = (
 				<div
 					className = 'dimension-field'
@@ -140,7 +129,7 @@ const FieldEdit = props => {
 						Dimension { i + 1}
 						<input
 							type = 'text'
-							value = { dimensionData.labels[i] }
+							value = { dimensionsData.labels[i] }
 							onChange = { event => updateField( fieldId, `dimension.labels.${i}`, event ) }
 						/>
 					</label>	
@@ -152,7 +141,10 @@ const FieldEdit = props => {
 	const newField = ! fieldData;
 
 	return (
-		<div className = 'field-form'>
+		<div 
+			className = 'field-form'
+			onBlur    = { saveFieldData }
+		>
 			<MoveToolbar
 				moveUp   = { moveUp }
 				moveDown = { moveDown }
@@ -210,8 +202,8 @@ const FieldEdit = props => {
 							</Button>
 							{ factorModalOpen && 
 								<FactorEditModal
-									factorData = { factorData }
-									updateFactorData = { updateFactorData }
+									factors = { factors }
+									updateFactors = { newFactors => updateFactors( fieldId, newFactors ) }
 									close = { () => setFactorModalOpen( false ) }
 								/>
 							}
@@ -223,7 +215,7 @@ const FieldEdit = props => {
 							<label>
 								Dimensions
 								<select
-									value = { dimensionData.n }
+									value = { dimensionsData.n }
 									onChange = { event => updateField( fieldId, 'dimension.n', event ) }
 								>
 									<option value = '1'>1</option>
@@ -245,7 +237,7 @@ const FieldEdit = props => {
 						</>
 					}
 				</div>
-				{ ! newField && type == 'measure' && dimensionData.n > 1 &&
+				{ ! newField && type == 'measure' && dimensionsData.n > 1 &&
 					<div className = 'field-type-group' >
 						<div className = 'dimension-labels'>
 							{ dimensionElements }

@@ -4400,10 +4400,21 @@ div.components-toolbar > div + div.has-left-divider::before {
   display: flex;
   justify-content: flex-end; }
 
-.do-save {
-  position: absolute;
-  top: 10px;
-  right: 10px; }
+.edit-header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline; }
+  .edit-header .do-save-button {
+    margin-left: 1em; }
+
+.museum-admin-main .object-action-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap; }
+
+.museum-admin-main button {
+  margin: 0.5em; }
 
 
 /*# sourceMappingURL=style.css.map*/

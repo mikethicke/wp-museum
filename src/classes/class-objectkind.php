@@ -132,6 +132,11 @@ class ObjectKind {
 	 */
 	private function set_type_name_from_name() {
 		global $wpdb;
+
+		if ( is_null( $this->name ) ) {
+			return;
+		}
+
 		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
 		$type_name = WPM_PREFIX . $this->name;
 		if ( strlen( $type_name ) > 20 ) {
@@ -209,6 +214,14 @@ class ObjectKind {
 		if ( isset( $kind_row->strict_checking ) ) {
 			$this->strict_checking = (bool) intval( $kind_row->strict_checking );
 		}
+		if ( isset( $kind_row->exclude_from_search ) ) {
+			$this->exclude_from_search = (bool) intval( $kind_row->exclude_from_search );
+		}
+		if ( isset( $kind_row->parent_kind_id ) ) {
+			$this->parent_kind_id = intval( $kind_row->parent_kind_id );
+		}
+
+
 		if ( $this->label && ! $this->name ) {
 			$this->name = self::name_from_label( $this->label );
 		}
@@ -218,12 +231,13 @@ class ObjectKind {
 		if ( strlen( $this->type_name ) > 20 ) {
 			$this->type_name = substr( $type_name, 0, 19 );
 		}
-		if ( isset( $kind_row->exclude_from_search ) ) {
-			$this->exclude_from_search = (bool) intval( $kind_row->exclude_from_search );
-		}
-		if ( isset( $kind_row->parent_kind_id ) ) {
-			$this->parent_kind_id = intval( $kind_row->parent_kind_id );
-		}
+	}
+
+	/**
+	 * Returns array of fields associated with this kind.
+	 */
+	public function get_fields() {
+		return get_mobject_fields( $this->kind_id );
 	}
 
 	/**
@@ -252,9 +266,6 @@ class ObjectKind {
 	 * Save kind to database.
 	 */
 	public function save_to_db() {
-		if ( ! $this->label || ! $this->name || ! $this->type_name ) {
-			return false;
-		}
 		global $wpdb;
 		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
 
@@ -264,9 +275,27 @@ class ObjectKind {
 		if ( is_null( $saved_kind ) ) {
 			$insert_array = $this->to_array();
 			unset( $insert_array['kind_id'] );
-			return $wpdb->insert( $table_name, $this->to_array() );
+			return $wpdb->insert( $table_name, $insert_array );
 		} else {
 			return $wpdb->update( $table_name, $this->to_array(), [ 'kind_id' => $this->kind_id ] );
 		}
+	}
+
+	/**
+	 * Deletes kind from database.
+	 */
+	public function delete_from_db() {
+		global $wpdb;
+		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+
+		if ( is_null( $this->kind_id ) || 0 > $this->kind_id ) {
+			return false;
+		}
+
+		$fields = $this->get_fields();
+		foreach ( $fields as $field ) {
+			$field->delete_from_db();
+		}
+		return $wpdb->delete( $table_name, [ 'kind_id' => $this->kind_id ] );
 	}
 }

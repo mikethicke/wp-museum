@@ -5,6 +5,7 @@ import {
 
 import {
 	Button,
+	Spinner
 } from '@wordpress/components';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -18,6 +19,8 @@ const Edit = props => {
 		kinds,
 		updateKind,
 		saveKindData,
+		isSaving,
+		setIsSaving,
 	} = props;
 
 	const {
@@ -28,8 +31,13 @@ const Edit = props => {
 
 	const baseRestPath = '/wp-museum/v1';
 
+	const dimensionsDefault = {
+		n : 1,
+		labels : [ '', '', '' ]
+	}
+
 	const [ fieldData, setFieldData ] = useState( null );
-	const [ newFieldCount, setNewFieldCount ] = useState( 0 );
+	const [ nextFieldId, setNextFieldId ] = useState( -1 );
 
 	useEffect( () => {
 		if ( ! fieldData ) {
@@ -50,12 +58,19 @@ const Edit = props => {
 		saveKindData();
 	}
 	
-	const saveFieldData = () => {
+	const saveFieldData = ( refreshNeeded = false, updatedFieldData = null ) => {
+		setIsSaving( true );
+		const saveData = updatedFieldData ? updatedFieldData : fieldData;
 		apiFetch( {
 			path   : `${baseRestPath}/${kindPostType}/fields_all`,
 			method : 'POST',
-			data   : fieldData
-		} ).then( refreshFieldData );
+			data   : saveData
+		} ).then( () => { 
+			if ( refreshNeeded ) {
+				refreshFieldData();
+			}
+			setIsSaving( false );
+		} );
 	}
 	
 	const updateField = ( fieldId, fieldItem, changeEvent ) => {
@@ -64,18 +79,13 @@ const Edit = props => {
 		if ( fieldItem.startsWith('dimension') ) {
 			const [ dimension, key, index ] = fieldItem.split( '.' );
 			const dimensionsField = fieldData[ fieldId ]['dimensions'];
-			const newDimensionData = dimensionsField ?
-				JSON.parse( dimensionsField ) :
-				{
-					n : 1,
-					labels : [ '', '', '' ]
-				};
+			const newDimensionData = dimensionsField ? dimensionsField : dimensionsDefault;
 			if ( key == 'n' ) {
 				newDimensionData.n = changeEvent.target.value;
 			} else {
 				newDimensionData[key][index] = changeEvent.target.value;
 			}
-			newFieldData[ fieldId ]['dimensions'] = JSON.stringify( newDimensionData );
+			newFieldData[ fieldId ]['dimensions'] = newDimensionData;
 			setFieldData( newFieldData );
 			return;
 		}
@@ -98,10 +108,11 @@ const Edit = props => {
 		const newFieldData = Object.assign( {}, fieldData );
 		newFieldData[ fieldId ]['delete'] = true;
 		setFieldData( newFieldData );
+		saveFieldData( true, newFieldData );
 	}
 
 	const updateFactors = ( fieldId, newFactors ) => {
-		if ( fieldData[ fieldId ]['factors'] != newFactors ) {
+		if ( JSON.stringify( fieldData[ fieldId ]['factors'] ) != JSON.stringify( newFactors ) ) {
 			const newFieldData = Object.assign( {}, fieldData );
 			newFieldData[ fieldId ]['factors'] = newFactors;
 			setFieldData( newFieldData );
@@ -126,7 +137,7 @@ const Edit = props => {
 	}
 
 	const defaultFieldData = {
-		field_id              : 0 - ( newFieldCount + 1 ),
+		field_id              : 0,
 		slug                  : '',
 		kind_id               : kindId,
 		name                  : '',
@@ -140,57 +151,69 @@ const Edit = props => {
 		public_description    : '',
 		field_schema          : '',
 		max_length            : 0,
-		dimensions            : '',
-		factors               : '',
+		dimensions            : dimensionsDefault,
+		factors               : [],
 		units                 : ''
 	};
-	if ( fieldData ) {
-		const sortedFields = Object.values( fieldData )
-			.sort( (a, b) => a['display_order'] < b['display_order'] ? 1 : -1 );
-		defaultFieldData.display_order = sortedFields[0].display_order + 1;
-	}
 
 	const addField = () => {
 		const updatedFieldData = fieldData ? Object.assign( {}, fieldData ) : {};
-		updatedFieldData[ defaultFieldData.field_id ] = defaultFieldData;
-		setNewFieldCount( newFieldCount + 1 );
+		updatedFieldData[ nextFieldId ] = defaultFieldData;
+		updatedFieldData[ nextFieldId ]['field_id'] = nextFieldId;
+		if ( fieldData && Object.values( fieldData ).length > 0 ) {
+			const sortedFields = Object.values( fieldData )
+				.sort( (a, b) => a['display_order'] < b['display_order'] ? 1 : -1 );
+			updatedFieldData[ nextFieldId ]['display_order'] = sortedFields[0]['display_order'] + 1;
+		}
+		setNextFieldId( nextFieldId - 1 );
 		setFieldData( updatedFieldData );
+		saveFieldData( true, updatedFieldData );
 	}
 
 	let fieldForms;
 	if ( fieldData ) {
-		fieldForms = Object.entries( fieldData )
-			.filter( ( [ fieldId, dataItem ] ) => ( typeof dataItem.delete == 'undefined' || ! dataItem.delete ) )
-			.sort( (a, b) => a[1]['display_order'] > b[1]['display_order'] ? 1 : -1 )
-			.map( ( [ fieldId, dataItem ] ) => {
-				return (
+		fieldForms = Object.values( fieldData )
+			.filter( ( dataItem ) => ( typeof dataItem.delete == 'undefined' || ! dataItem.delete ) )
+			.sort( (a, b) => a['display_order'] > b['display_order'] ? 1 : -1 )
+			.map( ( dataItem ) => (
 					<FieldEdit
-						key           = { fieldId }
-						fieldData     = { dataItem }
-						updateField   = { updateField }
-						updateFactors = { updateFactors }
-						deleteField   = { deleteField }
-						moveItem      = { moveItem }
+						key               = { dataItem['field_id'] }
+						fieldData         = { dataItem }
+						updateField       = { updateField }
+						updateFactors     = { updateFactors }
+						deleteField       = { deleteField }
+						moveItem          = { moveItem }
+						saveFieldData     = { saveFieldData }
+						dimensionsDefault = { dimensionsDefault }
 					/>
-				);
-			} );
+			) );
 	}
 
 	return (
 		<div>
-			<div className = 'do-save'>
+			<div className = 'edit-header'>
+				<h1>{ kindLabel }</h1>
 				<Button
+					className = 'do-save-button'
 					onClick = { doSave }
 					isPrimary
 					isLarge
 				>
 					Save
 				</Button>
-			</div>
-			<h1>{ kindLabel }</h1>
+				{ isSaving &&
+					<div className='is-saving'>
+						<Spinner />
+						Saving...
+					</div>
+				}
+			</div>	
 			<div className = 'kind-edit-wrapper'>
 				<div className = 'kind-edit'>
-					<div className = 'kind-settings'>
+					<div 
+						className = 'kind-settings'
+						onBlur    = { saveKindData }
+					>
 						<KindSettings
 							kindData = { kindItem }
 							fieldData = { fieldData }

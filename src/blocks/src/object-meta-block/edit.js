@@ -49,14 +49,14 @@ const ObjectMetaField = ( props ) => {
 	}
 
 	let inputElement;
-	if ( fieldType == 'tinyint' ) {
+	if ( fieldType == 'flag' ) {
 		inputElement = (
 			<CheckboxControl
 				checked  = { fieldValue }
 				onChange = { onChange }
 			/>
 		);
-	} else if ( fieldType == 'text' ) {
+	} else if ( fieldType == 'rich' ) {
 		inputElement = (
 			<RichText
 				tagName             = 'p'
@@ -66,7 +66,7 @@ const ObjectMetaField = ( props ) => {
 				preserveWhiteSpace
 			/>
 		);
-	} else if ( fieldType == 'varchar' ) {
+	} else if ( fieldType == 'plain' ) {
 		inputElement = (
 			<RichText
 				tagName             = 'p'
@@ -83,6 +83,11 @@ const ObjectMetaField = ( props ) => {
 				value    = { fieldValue }
 				onChange = { onChange }
 			/>
+		);
+	}
+	else if ( fieldType == 'factor') {
+		inputElement = (
+			null
 		);
 	} else {
 		inputElement = (

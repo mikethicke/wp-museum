@@ -139,35 +139,6 @@ module.exports = _arrayWithoutHoles;
 
 /***/ }),
 
-/***/ "./node_modules/@babel/runtime/helpers/extends.js":
-/*!********************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/extends.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function _extends() {
-  module.exports = _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-module.exports = _extends;
-
-/***/ }),
-
 /***/ "./node_modules/@babel/runtime/helpers/iterableToArray.js":
 /*!****************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/iterableToArray.js ***!
@@ -397,21 +368,27 @@ var Edit = function Edit(props) {
   var kindItem = props.kindItem,
       kinds = props.kinds,
       updateKind = props.updateKind,
-      saveKindData = props.saveKindData;
+      saveKindData = props.saveKindData,
+      isSaving = props.isSaving,
+      setIsSaving = props.setIsSaving;
   var kindId = kindItem.kind_id,
       kindLabel = kindItem.label,
       kindPostType = kindItem.type_name;
   var baseRestPath = '/wp-museum/v1';
+  var dimensionsDefault = {
+    n: 1,
+    labels: ['', '', '']
+  };
 
   var _useState = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(null),
       _useState2 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState, 2),
       fieldData = _useState2[0],
       setFieldData = _useState2[1];
 
-  var _useState3 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(0),
+  var _useState3 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(-1),
       _useState4 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState3, 2),
-      newFieldCount = _useState4[0],
-      setNewFieldCount = _useState4[1];
+      nextFieldId = _useState4[0],
+      setNextFieldId = _useState4[1];
 
   Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useEffect"])(function () {
     if (!fieldData) {
@@ -435,11 +412,21 @@ var Edit = function Edit(props) {
   };
 
   var saveFieldData = function saveFieldData() {
+    var refreshNeeded = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    var updatedFieldData = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    setIsSaving(true);
+    var saveData = updatedFieldData ? updatedFieldData : fieldData;
     _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3___default()({
       path: "".concat(baseRestPath, "/").concat(kindPostType, "/fields_all"),
       method: 'POST',
-      data: fieldData
-    }).then(refreshFieldData);
+      data: saveData
+    }).then(function () {
+      if (refreshNeeded) {
+        refreshFieldData();
+      }
+
+      setIsSaving(false);
+    });
   };
 
   var updateField = function updateField(fieldId, fieldItem, changeEvent) {
@@ -453,10 +440,7 @@ var Edit = function Edit(props) {
           index = _fieldItem$split2[2];
 
       var dimensionsField = fieldData[fieldId]['dimensions'];
-      var newDimensionData = dimensionsField ? JSON.parse(dimensionsField) : {
-        n: 1,
-        labels: ['', '', '']
-      };
+      var newDimensionData = dimensionsField ? dimensionsField : dimensionsDefault;
 
       if (key == 'n') {
         newDimensionData.n = changeEvent.target.value;
@@ -464,7 +448,7 @@ var Edit = function Edit(props) {
         newDimensionData[key][index] = changeEvent.target.value;
       }
 
-      newFieldData[fieldId]['dimensions'] = JSON.stringify(newDimensionData);
+      newFieldData[fieldId]['dimensions'] = newDimensionData;
       setFieldData(newFieldData);
       return;
     }
@@ -488,10 +472,11 @@ var Edit = function Edit(props) {
     var newFieldData = Object.assign({}, fieldData);
     newFieldData[fieldId]['delete'] = true;
     setFieldData(newFieldData);
+    saveFieldData(true, newFieldData);
   };
 
   var updateFactors = function updateFactors(fieldId, newFactors) {
-    if (fieldData[fieldId]['factors'] != newFactors) {
+    if (JSON.stringify(fieldData[fieldId]['factors']) != JSON.stringify(newFactors)) {
       var newFieldData = Object.assign({}, fieldData);
       newFieldData[fieldId]['factors'] = newFactors;
       setFieldData(newFieldData);
@@ -515,7 +500,7 @@ var Edit = function Edit(props) {
   };
 
   var defaultFieldData = {
-    field_id: 0 - (newFieldCount + 1),
+    field_id: 0,
     slug: '',
     kind_id: kindId,
     name: '',
@@ -529,64 +514,65 @@ var Edit = function Edit(props) {
     public_description: '',
     field_schema: '',
     max_length: 0,
-    dimensions: '',
-    factors: '',
+    dimensions: dimensionsDefault,
+    factors: [],
     units: ''
   };
 
-  if (fieldData) {
-    var sortedFields = Object.values(fieldData).sort(function (a, b) {
-      return a['display_order'] < b['display_order'] ? 1 : -1;
-    });
-    defaultFieldData.display_order = sortedFields[0].display_order + 1;
-  }
-
   var addField = function addField() {
     var updatedFieldData = fieldData ? Object.assign({}, fieldData) : {};
-    updatedFieldData[defaultFieldData.field_id] = defaultFieldData;
-    setNewFieldCount(newFieldCount + 1);
+    updatedFieldData[nextFieldId] = defaultFieldData;
+    updatedFieldData[nextFieldId]['field_id'] = nextFieldId;
+
+    if (fieldData && Object.values(fieldData).length > 0) {
+      var sortedFields = Object.values(fieldData).sort(function (a, b) {
+        return a['display_order'] < b['display_order'] ? 1 : -1;
+      });
+      updatedFieldData[nextFieldId]['display_order'] = sortedFields[0]['display_order'] + 1;
+    }
+
+    setNextFieldId(nextFieldId - 1);
     setFieldData(updatedFieldData);
+    saveFieldData(true, updatedFieldData);
   };
 
   var fieldForms;
 
   if (fieldData) {
-    fieldForms = Object.entries(fieldData).filter(function (_ref) {
-      var _ref2 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_ref, 2),
-          fieldId = _ref2[0],
-          dataItem = _ref2[1];
-
+    fieldForms = Object.values(fieldData).filter(function (dataItem) {
       return typeof dataItem.delete == 'undefined' || !dataItem.delete;
     }).sort(function (a, b) {
-      return a[1]['display_order'] > b[1]['display_order'] ? 1 : -1;
-    }).map(function (_ref3) {
-      var _ref4 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_ref3, 2),
-          fieldId = _ref4[0],
-          dataItem = _ref4[1];
-
+      return a['display_order'] > b['display_order'] ? 1 : -1;
+    }).map(function (dataItem) {
       return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_field_edit__WEBPACK_IMPORTED_MODULE_4__["default"], {
-        key: fieldId,
+        key: dataItem['field_id'],
         fieldData: dataItem,
         updateField: updateField,
         updateFactors: updateFactors,
         deleteField: deleteField,
-        moveItem: moveItem
+        moveItem: moveItem,
+        saveFieldData: saveFieldData,
+        dimensionsDefault: dimensionsDefault
       });
     });
   }
 
   return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
-    className: "do-save"
-  }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["Button"], {
+    className: "edit-header"
+  }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("h1", null, kindLabel), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["Button"], {
+    className: "do-save-button",
     onClick: doSave,
     isPrimary: true,
     isLarge: true
-  }, "Save")), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("h1", null, kindLabel), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+  }, "Save"), isSaving && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+    className: "is-saving"
+  }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["Spinner"], null), "Saving...")), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
     className: "kind-edit-wrapper"
   }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
     className: "kind-edit"
   }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
-    className: "kind-settings"
+    className: "kind-settings",
+    onBlur: saveKindData
   }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_kind_settings__WEBPACK_IMPORTED_MODULE_5__["default"], {
     kindData: kindItem,
     fieldData: fieldData,
@@ -651,8 +637,8 @@ var deleteIcon = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createE
 }));
 
 var FactorEditModal = function FactorEditModal(props) {
-  var factorData = props.factorData,
-      updateFactorData = props.updateFactorData,
+  var factors = props.factors,
+      updateFactors = props.updateFactors,
       close = props.close;
   var textInput = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["useRef"])(null);
   Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["useEffect"])(function () {
@@ -669,27 +655,27 @@ var FactorEditModal = function FactorEditModal(props) {
   };
 
   var addItem = function addItem() {
-    if (currentInputText && !factorData.includes(currentInputText)) {
-      var newFactorData = factorData.concat([currentInputText]);
-      updateFactorData(newFactorData);
+    if (currentInputText && !factors.includes(currentInputText)) {
+      var newFactors = factors.concat([currentInputText]);
+      updateFactors(newFactors);
       updateCurrentInputText('');
     }
   };
 
   var removeItem = function removeItem(factorItem) {
-    var itemIndex = factorData.indexOf(factorItem);
+    var itemIndex = factors.indexOf(factorItem);
 
     if (itemIndex != -1) {
-      var newFactorData = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(factorData);
+      var newFactors = _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0___default()(factors);
 
-      newFactorData.splice(itemIndex, 1);
-      updateFactorData(newFactorData);
+      newFactors.splice(itemIndex, 1);
+      updateFactors(newFactors);
     }
   };
 
   var clearItems = function clearItems() {
-    if (factorData.length > 0) {
-      updateFactorData([]);
+    if (factors.length > 0) {
+      updateFactors([]);
     }
   };
 
@@ -707,7 +693,7 @@ var FactorEditModal = function FactorEditModal(props) {
     }
   };
 
-  var factorListItems = factorData.map(function (factorItem, index) {
+  var factorListItems = factors.map(function (factorItem, index) {
     return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])("div", {
       key: index,
       tabIndex: "0",
@@ -823,9 +809,11 @@ var MoveToolbar = function MoveToolbar(props) {
 var FieldEdit = function FieldEdit(props) {
   var fieldData = props.fieldData,
       updateField = props.updateField,
-      updateFactors = props.updateFactors,
+      _updateFactors = props.updateFactors,
       deleteField = props.deleteField,
-      moveItem = props.moveItem;
+      moveItem = props.moveItem,
+      saveFieldData = props.saveFieldData,
+      dimensionsDefault = props.dimensionsDefault;
   var fieldId = fieldData.field_id,
       name = fieldData.name,
       type = fieldData.type,
@@ -847,15 +835,7 @@ var FieldEdit = function FieldEdit(props) {
       factorModalOpen = _useState2[0],
       setFactorModalOpen = _useState2[1];
 
-  var dimensionData = dimensions ? JSON.parse(dimensions) : {
-    n: 1,
-    labels: ['', '', '']
-  };
-  var factorData = factors ? JSON.parse(factors) : [];
-
-  var updateFactorData = function updateFactorData(newFactorData) {
-    updateFactors(fieldId, JSON.stringify(newFactorData));
-  };
+  var dimensionsData = dimensions ? dimensions : dimensionsDefault;
 
   var deleteThisField = function deleteThisField() {
     var confirmDelete = confirm('Really delete field? This cannot be undone. Deleting field will not remove data from database, but it will be inaccessible unless a new field with the same name is created.');
@@ -903,28 +883,29 @@ var FieldEdit = function FieldEdit(props) {
   });
   var dimensionElements = [];
 
-  if (dimensionData.n > 1) {
+  if (dimensionsData.n > 1) {
     var _loop = function _loop(i) {
       dimensionElements[i] = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
         className: "dimension-field",
         key: i
       }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("label", null, "Dimension ", i + 1, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("input", {
         type: "text",
-        value: dimensionData.labels[i],
+        value: dimensionsData.labels[i],
         onChange: function onChange(event) {
           return updateField(fieldId, "dimension.labels.".concat(i), event);
         }
       })));
     };
 
-    for (var i = 0; i < dimensionData.n; i++) {
+    for (var i = 0; i < dimensionsData.n; i++) {
       _loop(i);
     }
   }
 
   var newField = !fieldData;
   return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
-    className: "field-form"
+    className: "field-form",
+    onBlur: saveFieldData
   }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(MoveToolbar, {
     moveUp: moveUp,
     moveDown: moveDown
@@ -970,15 +951,17 @@ var FieldEdit = function FieldEdit(props) {
     },
     title: "Open factors modal"
   }, "Edit Factors"), factorModalOpen && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_factor_edit__WEBPACK_IMPORTED_MODULE_3__["default"], {
-    factorData: factorData,
-    updateFactorData: updateFactorData,
+    factors: factors,
+    updateFactors: function updateFactors(newFactors) {
+      return _updateFactors(fieldId, newFactors);
+    },
     close: function close() {
       return setFactorModalOpen(false);
     }
   })), !newField && type == 'measure' && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["Fragment"], null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
     className: "field-section"
   }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("label", null, "Dimensions", Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("select", {
-    value: dimensionData.n,
+    value: dimensionsData.n,
     onChange: function onChange(event) {
       return updateField(fieldId, 'dimension.n', event);
     }
@@ -996,7 +979,7 @@ var FieldEdit = function FieldEdit(props) {
     onChange: function onChange(event) {
       return updateField(fieldId, 'units', event);
     }
-  }))))), !newField && type == 'measure' && dimensionData.n > 1 && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+  }))))), !newField && type == 'measure' && dimensionsData.n > 1 && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
     className: "field-type-group"
   }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
     className: "dimension-labels"
@@ -1069,18 +1052,15 @@ var FieldEdit = function FieldEdit(props) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ObjectPage", function() { return ObjectAdminControl; });
-/* harmony import */ var _babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/extends */ "./node_modules/@babel/runtime/helpers/extends.js");
-/* harmony import */ var _babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/slicedToArray.js");
-/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _edit__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./edit */ "./src/objects/edit.js");
-
+/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/slicedToArray.js");
+/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _edit__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./edit */ "./src/objects/edit.js");
 
 
 
@@ -1089,31 +1069,69 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var ObjectAdminControl = function ObjectAdminControl() {
-  var _useState = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["useState"])({
-    page: 'main',
-    props: {}
-  }),
-      _useState2 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1___default()(_useState, 2),
+  var _useState = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])('main'),
+      _useState2 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState, 2),
       selectedPage = _useState2[0],
       setSelectedPage = _useState2[1];
 
+  var _useState3 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(false),
+      _useState4 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState3, 2),
+      isSaving = _useState4[0],
+      setIsSaving = _useState4[1];
+
+  var _useState5 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(null),
+      _useState6 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState5, 2),
+      kindItem = _useState6[0],
+      setKindItem = _useState6[1];
+
+  var _useState7 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(1),
+      _useState8 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState7, 2),
+      newKindCount = _useState8[0],
+      updateNewKindCount = _useState8[1];
+
   var baseRestPath = '/wp-museum/v1';
 
-  var _useState3 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["useState"])(null),
-      _useState4 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1___default()(_useState3, 2),
-      objectKinds = _useState4[0],
-      setObjectKinds = _useState4[1];
+  var _useState9 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(null),
+      _useState10 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState9, 2),
+      objectKinds = _useState10[0],
+      updateObjectKinds = _useState10[1];
 
-  Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["useEffect"])(function () {
+  var _useState11 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(null),
+      _useState12 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState11, 2),
+      kindIds = _useState12[0],
+      setKindIds = _useState12[1];
+
+  Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useEffect"])(function () {
     if (!objectKinds) {
       refreshKindData();
     }
   });
+  Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useEffect"])(function () {
+    return maybeSaveKindData();
+  }, [objectKinds]);
 
   var refreshKindData = function refreshKindData() {
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3___default()({
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
       path: "".concat(baseRestPath, "/mobject_kinds")
-    }).then(setObjectKinds);
+    }).then(function (result) {
+      if (!objectKinds || JSON.stringify(result) != JSON.stringify(objectKinds)) {
+        setObjectKinds(result);
+      }
+    });
+  };
+
+  var setObjectKinds = function setObjectKinds(newKindArray) {
+    updateObjectKinds(newKindArray);
+    if (!kindItem || !newKindArray) return;
+    var kindItemIndex = newKindArray.findIndex(function (item) {
+      return item.kind_id == kindItem.kind_id;
+    });
+
+    if (kindItemIndex === -1) {
+      setKindItem(null);
+    } else {
+      setKindItem(newKindArray[kindItemIndex]);
+    }
   };
 
   var updateKind = function updateKind(kindId, field, event) {
@@ -1138,57 +1156,137 @@ var ObjectAdminControl = function ObjectAdminControl() {
     }
   };
 
+  var defaultKind = {
+    kind_id: 0 - newKindCount,
+    cat_field_id: null,
+    name: null,
+    type_name: null,
+    label: 'New Object Type',
+    label_plural: null,
+    description: null,
+    categorized: false,
+    hierarchical: false,
+    must_featured_image: false,
+    must_gallery: false,
+    strict_checking: false,
+    exclude_from_search: false,
+    parent_kind_id: null
+  };
+
+  var newKind = function newKind() {
+    var newKind = Object.assign({}, defaultKind);
+    var newObjectKinds = objectKinds.concat([newKind]);
+    setObjectKinds(newObjectKinds);
+    saveKindData();
+  };
+
   var saveKindData = function saveKindData() {
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3___default()({
+    setIsSaving(true);
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
       path: "".concat(baseRestPath, "/mobject_kinds"),
       method: 'POST',
       data: objectKinds
-    }).then(refreshKindData);
-  };
-
-  var editKind = function editKind(kindItem) {
-    return setSelectedPage({
-      page: 'edit',
-      props: {
-        kinds: objectKinds,
-        kindItem: kindItem,
-        updateKind: updateKind,
-        saveKindData: saveKindData
-      }
+    }).then(function () {
+      refreshKindData();
+      setIsSaving(false);
     });
   };
 
-  switch (selectedPage.page) {
+  var maybeSaveKindData = function maybeSaveKindData() {
+    var currentIds = objectKinds ? JSON.stringify(objectKinds.map(function (kindItem) {
+      return kindItem.kind_id;
+    })) : null;
+
+    if (!kindIds || kindIds != currentIds) {
+      setKindIds(currentIds);
+      saveKindData();
+    }
+  };
+
+  var deleteKind = function deleteKind(kindItem) {
+    var confirmDelete = confirm('Really delete kind? Objects associated with this kind will remain in database but will be inaccessible.');
+
+    if (confirmDelete) {
+      kindItem.delete = true;
+      saveKindData();
+    }
+  };
+
+  var editKind = function editKind(newKindItem) {
+    setKindItem(newKindItem);
+    setSelectedPage('edit');
+  };
+
+  switch (selectedPage) {
     case 'main':
-      return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(Main, _babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0___default()({}, selectedPage.props, {
+      return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(Main, {
         objectKinds: objectKinds,
-        editKind: editKind
-      }));
+        editKind: editKind,
+        newKind: newKind,
+        deleteKind: deleteKind
+      });
 
     case 'edit':
-      return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(_edit__WEBPACK_IMPORTED_MODULE_5__["default"], _babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0___default()({}, selectedPage.props, {
-        setSelectedPage: setSelectedPage
-      }));
+      if (kindItem) {
+        return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_edit__WEBPACK_IMPORTED_MODULE_4__["default"], {
+          kinds: objectKinds,
+          kindItem: kindItem,
+          updateKind: updateKind,
+          saveKindData: saveKindData,
+          isSaving: isSaving,
+          setIsSaving: setIsSaving,
+          setSelectedPage: setSelectedPage
+        });
+      } else {
+        return null;
+      }
+
   }
 };
 
 var Main = function Main(props) {
   var objectKinds = props.objectKinds,
-      editKind = props.editKind;
+      editKind = props.editKind,
+      newKind = props.newKind,
+      deleteKind = props.deleteKind;
 
   if (objectKinds) {
-    var kindRows = objectKinds.map(function (kindItem, index) {
-      return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])("div", {
+    var kindRows = objectKinds.filter(function (kindItem) {
+      return typeof kindItem.delete === 'undefined' || !kindItem.delete;
+    }).map(function (kindItem, index) {
+      return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
         key: index
-      }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])("div", null, kindItem.label), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])("div", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__["Button"], {
+      }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", null, kindItem.label), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+        className: "object-action-buttons"
+      }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__["Button"], {
         onClick: function onClick() {
           return editKind(kindItem);
+        },
+        isLarge: true,
+        isSecondary: true
+      }, "Edit"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__["Button"], {
+        isLarge: true,
+        isSecondary: true,
+        onClick: function onClick() {
+          return deleteKind(kindItem);
         }
-      }, "Edit"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__["Button"], null, "Delete"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__["Button"], null, "Export CSV"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__["Button"], null, "Import CSV")));
+      }, "Delete"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__["Button"], {
+        isLarge: true,
+        isSecondary: true
+      }, "Export CSV"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__["Button"], {
+        isLarge: true,
+        isSecondary: true
+      }, "Import CSV")));
     });
-    return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["Fragment"], null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])("div", null, kindRows), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])("div", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__["Button"], null, "Add New")));
+    return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+      className: "museum-admin-main"
+    }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("h1", null, "Museum Administration"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", null, kindRows), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__["Button"], {
+      onClick: newKind,
+      isLarge: true,
+      isSecondary: true
+    }, "Add New")));
   } else {
-    return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__["createElement"])("div", null);
+    return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", null);
   }
 };
 
