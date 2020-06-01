@@ -35,8 +35,8 @@ const deleteIcon = (
 
 const FactorEditModal = props => {
 	const {
-		factorData,
-		updateFactorData,
+		factors,
+		updateFactors,
 		close
 	} = props;
 
@@ -51,25 +51,25 @@ const FactorEditModal = props => {
 	}
 
 	const addItem = () => {
-		if ( currentInputText && ! factorData.includes( currentInputText ) ) {
-			const newFactorData = factorData.concat( [ currentInputText ] );
-			updateFactorData( newFactorData );
+		if ( currentInputText && ! factors.includes( currentInputText ) ) {
+			const newFactors = factors.concat( [ currentInputText ] );
+			updateFactors( newFactors );
 			updateCurrentInputText( '' );
 		}
 	}
 
 	const removeItem = factorItem => {
-		const itemIndex = factorData.indexOf( factorItem )
+		const itemIndex = factors.indexOf( factorItem )
 		if ( itemIndex != -1 ) {
-			const newFactorData = [ ...factorData ];
-			newFactorData.splice( itemIndex, 1 );
-			updateFactorData( newFactorData );
+			const newFactors = [ ...factors ];
+			newFactors.splice( itemIndex, 1 );
+			updateFactors( newFactors );
 		}
 	}
 
 	const clearItems = () => {
-		if ( factorData.length > 0 ) {
-			updateFactorData( [] );
+		if ( factors.length > 0 ) {
+			updateFactors( [] );
 		}
 	}
 
@@ -87,7 +87,7 @@ const FactorEditModal = props => {
 		}
 	}
 
-	const factorListItems = factorData.map( ( factorItem, index ) => 
+	const factorListItems = factors.map( ( factorItem, index ) => 
 		<div
 			key = { index }
 			tabIndex = '0'

@@ -143,13 +143,12 @@ class MObjectField {
 	 * Create a new instance of MObjectField from a database row.
 	 *
 	 * @param Object $row A raw row fetched from the database.
-	 * @return MObjectField A new instance of MObjectField.
+	* @return MObjectField A new instance of MObjectField.
 	 */
 	public static function from_database( $row ) {
 		$instance = new self();
 
 		$instance->field_id              = intval( $row->field_id );
-		$instance->slug                  = trim( wp_unslash( $row->slug ) );
 		$instance->kind_id               = intval( $row->kind_id );
 		$instance->name                  = trim( wp_unslash( $row->name ) );
 		$instance->type                  = trim( wp_unslash( $row->type ) );
@@ -162,9 +161,46 @@ class MObjectField {
 		$instance->public_description    = trim( wp_unslash( $row->public_description ) );
 		$instance->field_schema          = stripslashes( $row->field_schema );
 		$instance->max_length            = intval( $row->max_length );
-		$instance->dimensions            = json_decode( $row->dimensions, true, 2 );
+		$instance->dimensions            = json_decode( $row->dimensions, true, 4 );
 		$instance->units                 = trim( wp_unslash( $row->units ) );
-		$instance->factors               = json_decode( $row->factors, false, 1 );
+		$instance->factors               = json_decode( $row->factors, false, 2 );
+
+		// Ensure that slug exists and is unique.
+		$instance->set_field_slug_from_name();
+
+		return $instance;
+	}
+
+	/**
+	 * Create a new instance of MObjectField from a REST POST request.
+	 *
+	 * Note: Call json_decode with assoc parameter set to true.
+	 *
+	 * @param Object $field_data Data from REST request as associative array.
+	 * @return MObjectField A new instance of MObjectField.
+	 */
+	public static function from_rest( $field_data ) {
+		$instance = new self();
+
+		$instance->field_id              = intval( $field_data['field_id'] );
+		$instance->kind_id               = intval( $field_data['kind_id'] );
+		$instance->name                  = trim( wp_unslash( $field_data['name'] ) );
+		$instance->type                  = trim( wp_unslash( $field_data['type'] ) );
+		$instance->display_order         = intval( $field_data['display_order'] );
+		$instance->public                = (bool) intval( $field_data['public'] );
+		$instance->required              = (bool) intval( $field_data['required'] );
+		$instance->quick_browse          = (bool) intval( $field_data['quick_browse'] );
+		$instance->help_text             = trim( wp_unslash( $field_data['help_text'] ) );
+		$instance->detailed_instructions = trim( wp_unslash( $field_data['detailed_instructions'] ) );
+		$instance->public_description    = trim( wp_unslash( $field_data['public_description'] ) );
+		$instance->field_schema          = stripslashes( $field_data['field_schema'] );
+		$instance->max_length            = intval( $field_data['max_length'] );
+		$instance->dimensions            = $field_data['dimensions'];
+		$instance->units                 = trim( wp_unslash( $field_data['units'] ) );
+		$instance->factors               = $field_data['factors'];
+
+		// Ensure that slug exists and is unique.
+		$instance->set_field_slug_from_name();
 
 		return $instance;
 	}
@@ -222,6 +258,7 @@ class MObjectField {
 		$arr['slug']                  = $this->slug;
 		$arr['kind_id']               = $this->kind_id;
 		$arr['name']                  = $this->name;
+		$arr['type']                  = $this->type;
 		$arr['display_order']         = $this->display_order;
 		$arr['public']                = $this->public;
 		$arr['required']              = $this->required;
@@ -239,23 +276,29 @@ class MObjectField {
 	}
 
 	/**
+	 * Return properties as associative array with array items encoded as JSON.
+	 */
+	public function to_json_array() {
+		$arr = $this->to_array();
+		foreach ( $arr as &$item ) {
+			if ( is_array( $item ) ) {
+				$item = json_encode( $item );
+			}
+		}
+		return $arr;
+	}
+
+	/**
 	 * Saves the field to db, inserting if new, updating otherwise.
 	 */
 	public function save_to_db() {
 		global $wpdb;
 		$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
 
-		if ( is_null( $this->name ) || '' === $this->name ) {
-			return false;
-		}
-
-		// Ensure that slug exists and is unique.
-		$this->set_field_slug_from_name();
-
-		$field_array = $this->to_array();
+		$field_array = $this->to_json_array();
 
 		if ( $this->field_id < 0 ) {
-			// New field.
+			// New field, so unset field_id placeholder.
 			unset( $field_array['field_id'] );
 			return $wpdb->insert( $table_name, $field_array );
 		} else {

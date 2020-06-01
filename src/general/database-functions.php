@@ -109,7 +109,7 @@ function get_kind( $id ) {
 				$id
 			)
 		);
-		if ( is_null( $results ) ) {
+		if ( is_null( $results ) || 0 === count( $results ) ) {
 			return null;
 		}
 		$kind  = new ObjectKind( $results[0] );

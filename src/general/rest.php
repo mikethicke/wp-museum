@@ -165,12 +165,12 @@ function rest_routes() {
 							 * then update those fields in the database.
 							 */
 							global $wpdb;
-							$field_data = json_decode( $request->get_body(), false );
+							$field_data = json_decode( $request->get_body(), true );
 							$success = true;
 							$failed_queries = [];
 							foreach ( $field_data as $field_id => $field_object ) {
-								$mobject_field = MObjectField::from_database( $field_object );
-								if ( isset( $field_object->delete ) && true === $field_object->delete ) {
+								$mobject_field = MObjectField::from_rest( $field_object );
+								if ( isset( $field_object['delete'] ) && true === $field_object['delete'] ) {
 									$mobject_field->delete_from_db();
 								} else if ( false === $mobject_field->save_to_db() ) {
 									$success = false;
@@ -308,11 +308,15 @@ function rest_routes() {
 					global $wpdb;
 					$updated_kinds = json_decode( $request->get_body(), false );
 					$success = true;
-					foreach ( $updated_kinds as $kind_data ) {
-						$kind = new ObjectKind( $kind_data );
-						if ( ! $kind->save_to_db() ) {
-							$success = false;
-						};
+					if ( $updated_kinds ) {
+						foreach ( $updated_kinds as $kind_data ) {
+							$kind = new ObjectKind( $kind_data );
+							if ( isset( $kind_data->delete ) && true === $kind_data->delete ) {
+								$kind->delete_from_db();
+							} else if ( ! $kind->save_to_db() ) {
+								$success = false;
+							};
+						}
 					}
 					return $success;
 				},
