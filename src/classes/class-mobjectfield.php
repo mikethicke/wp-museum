@@ -143,7 +143,7 @@ class MObjectField {
 	 * Create a new instance of MObjectField from a database row.
 	 *
 	 * @param Object $row A raw row fetched from the database.
-	* @return MObjectField A new instance of MObjectField.
+	 * @return MObjectField A new instance of MObjectField.
 	 */
 	public static function from_database( $row ) {
 		$instance = new self();
@@ -161,12 +161,14 @@ class MObjectField {
 		$instance->public_description    = trim( wp_unslash( $row->public_description ) );
 		$instance->field_schema          = stripslashes( $row->field_schema );
 		$instance->max_length            = intval( $row->max_length );
-		$instance->dimensions            = json_decode( $row->dimensions, true, 4 );
 		$instance->units                 = trim( wp_unslash( $row->units ) );
 		$instance->factors               = json_decode( $row->factors, false, 2 );
 
 		// Ensure that slug exists and is unique.
 		$instance->set_field_slug_from_name();
+
+		// Clean dimensions object.
+		$instance->set_dimensions( json_decode( $row->dimensions, false, 4 ) );
 
 		return $instance;
 	}
@@ -195,12 +197,12 @@ class MObjectField {
 		$instance->public_description    = trim( wp_unslash( $field_data['public_description'] ) );
 		$instance->field_schema          = stripslashes( $field_data['field_schema'] );
 		$instance->max_length            = intval( $field_data['max_length'] );
-		$instance->dimensions            = $field_data['dimensions'];
 		$instance->units                 = trim( wp_unslash( $field_data['units'] ) );
 		$instance->factors               = $field_data['factors'];
 
 		// Ensure that slug exists and is unique.
 		$instance->set_field_slug_from_name();
+		$instance->set_dimensions( $field_data['dimensions'] );
 
 		return $instance;
 	}
@@ -247,6 +249,29 @@ class MObjectField {
 			}
 		}
 		$this->slug = $slug;
+	}
+
+	/**
+	 * Verifies, cleans, and sets new $dimension value.
+	 *
+	 * @var Object $new_dimensions
+	 * @var Int|String $new_dimensions.n
+	 * @var [String] $new_dimensions.labels
+	 */
+	public function set_dimensions( $new_dimensions ) {
+		if (
+			! is_object( $new_dimensions ) ||
+			! isset( $new_dimensions->n ) ||
+			! is_array( $new_dimensions->labels )
+		) {
+			return;
+		}
+
+		$clean_dimensions         = new \stdClass();
+		$clean_dimensions->n      = intval( $new_dimensions->n );
+		$clean_dimensions->labels = $new_dimensions->labels;
+
+		$this->dimensions = $clean_dimensions;
 	}
 
 	/**

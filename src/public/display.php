@@ -28,7 +28,6 @@ function object_content_filter( $content ) {
 			! $wpm_object_content_filter_in_progress
 		) {
 		$wpm_object_content_filter_in_progress = true;
-		$custom = get_post_custom( $post->ID );
 
 		$object_kind     = kind_from_type( $post->post_type );
 		$fields          = get_mobject_fields( $object_kind->kind_id );
@@ -74,43 +73,52 @@ function object_content_filter( $content ) {
 		// Custom fields.
 		foreach ( $fields as $field ) {
 			// Public can only view fields marked as "public".
-			if (
-					isset( $custom[ $field->slug ][0] ) &&
-					$custom[ $field->slug ][0] &&
-					( $field->public || current_user_can( 'read_private_posts' ) )
-				) {
+			$meta_value = get_post_meta( $post->ID, $field->slug, true );
+			if ( ! $field->public && ! current_user_can( 'read_private_posts' ) ) {
+				return;
+			}
+			if ( ! $field->public ) {
+				$priv = ' ' . WPM_PREFIX . 'obj-private-field';
+			} else {
 				$priv = '';
-				if ( ! $field->public ) {
-					$priv = ' ' . WPM_PREFIX . 'obj-private-field';
+			}
+			$content .= "<div class='" . WPM_PREFIX . "field-text $priv'>";
+			if (
+					'flag' === $field->type &&
+					'list' === $display_options['yes_no_display']
+				) {
+				if ( '1' === $meta_value ) {
+					$bool_yes_fields[] = $field->name;
 				}
-				$content .= "<div class='" . WPM_PREFIX . "field-text $priv'>";
-				if (
-						'tinyint' === $field->type &&
-						'list' === $display_options['yes_no_display']
-					) {
-					if ( '1' === $custom[ $field->slug ][0] ) {
-						$bool_yes_fields[] = $field->name;
+			} else {
+				if ( ! is_string( $meta_value ) || strlen( $meta_value ) > 39 ) {
+					$field_text = '<div class="' . WPM_PREFIX . 'field-label-div">' . $field->name . ':</div>';
+				} else {
+					$field_text = '<span class="' . WPM_PREFIX . 'field-label">' . $field->name . ':</span> ';
+				}
+				if ( 'flag' === $field->type ) {
+					if ( '1' === $meta_value ) {
+						$field_text .= 'Yes';
+					} else {
+						$field_text .= 'No';
+					}
+				} elseif ( 'multiple' === $field->type ) {
+					$field_text .= implode( '; ', $meta_value );
+				} elseif ( 'measure' === $field->type ) {
+					if ( 1 === $field->dimensions->n ) {
+						$field_text .= $meta_value[0];
+					} else {
+						for ( $i = 0; $i < $field->dimensions->n; $i++ ) {
+							$field_text .= $field->dimensions->labels[ $i ] . ': ' . $meta_value[ $i ] . ' ' . $field->units . ' ';
+						}
 					}
 				} else {
-					if ( strlen( $custom[ $field->slug ][0] ) > 39 ) {
-							$field_text = '<div class="' . WPM_PREFIX . 'field-label-div">' . $field->name . ':</div>';
-					} else {
-						$field_text = '<span class="' . WPM_PREFIX . 'field-label">' . $field->name . ':</span> ';
-					}
-					if ( 'tinyint' === $field->type ) {
-						if ( '1' === $custom[ $field->slug ][0] ) {
-							$field_text .= 'Yes';
-						} else {
-							$field_text .= 'No';
-						}
-					} else {
-						$field_text .= $custom[ $field->slug ][0];
-					}
-					$field_text = \html_entity_decode( $field_text );
-					$content .= apply_filters( 'the_content', $field_text );
+					$field_text .= $meta_value;
 				}
-				$content .= '</div>';
+				$field_text = \html_entity_decode( $field_text );
+				$content .= apply_filters( 'the_content', $field_text );
 			}
+			$content .= '</div>';
 		}
 		if ( count( $bool_yes_fields ) > 0 ) {
 			$content .= '<ul>';

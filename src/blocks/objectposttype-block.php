@@ -42,6 +42,9 @@ function register_object_meta_block() {
 				'source' => 'meta',
 				'meta'   => $field->slug,
 			];
+			if ( 'measure' === $field->type ) {
+				$attributes[ $field_name ]['items'] = 'number';
+			}
 		}
 		$attributes['fieldErrors'] = [
 			'type'    => 'object',
