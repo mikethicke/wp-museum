@@ -150,8 +150,29 @@ class ObjectPostType {
 	public function register_fields_meta() {
 		if ( current_user_can( 'edit_posts' ) ) {
 			foreach ( $this->fields as $field ) {
-				if ( 'tinyint' === $field->type ) {
+				$show_in_rest = true;
+				if ( 'flag' === $field->type ) {
 					$type = 'boolean';
+				} elseif ( 'multiple' === $field->type ) {
+					$type = 'array';
+					$show_in_rest = [
+						'schema' => [
+							'type' => 'array',
+							'items' => [
+								'type' => 'string',
+							],
+						],
+					];
+				} elseif ( 'measure' === $field->type ) {
+					$type = 'array';
+					$show_in_rest = [
+						'schema' => [
+							'type' => 'array',
+							'items' => [
+								'type' => 'number',
+							],
+						],
+					];
 				} else {
 					$type = 'string';
 				}
@@ -163,7 +184,7 @@ class ObjectPostType {
 						'type'          => $type,
 						'description'   => $field->name,
 						'single'        => true,
-						'show_in_rest'  => true,
+						'show_in_rest'  => $show_in_rest,
 						'auth_callback' => function () {
 							return current_user_can( 'edit_posts' );
 						},

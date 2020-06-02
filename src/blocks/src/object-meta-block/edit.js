@@ -12,6 +12,7 @@ import {
 import { 
 	PanelBody,
 	CheckboxControl,
+	SelectControl,
 } from '@wordpress/components';
 
 import { stripslashes } from '../util';
@@ -33,6 +34,7 @@ const ObjectMetaField = ( props ) => {
 		name      : fieldName,
 		public    : isPublic,
 		required,
+		units,
 	} = fieldData;
 
 	// Placeholder
@@ -46,6 +48,16 @@ const ObjectMetaField = ( props ) => {
 
 	const elementBlur = () => {
 		onBlur( fieldData );
+	}
+
+	const onDateChange = ( event ) => {
+		onChange( event.target.value );
+	}
+
+	const onMeasureChange = ( event, dimensionIndex ) => {
+		const newFieldValue = [ ...fieldValue ];
+		newFieldValue[ dimensionIndex ] = event.target.value;
+		onChange( newFieldValue );
 	}
 
 	let inputElement;
@@ -73,6 +85,7 @@ const ObjectMetaField = ( props ) => {
 				className           = 'object-meta-short-text'
 				value               = { fieldValue }
 				onChange            = { onChange }
+				allowedFormats     = { [] } 
 				preserveWhiteSpace
 			/>
 		);
@@ -81,15 +94,68 @@ const ObjectMetaField = ( props ) => {
 			<input
 				type     = 'date'
 				value    = { fieldValue }
-				onChange = { onChange }
+				onChange = { onDateChange }
 			/>
 		);
 	}
 	else if ( fieldType == 'factor') {
+		const factorOptions = fieldData.factors.map( factor => (
+			{ 
+				label: factor, 
+				value: factor
+			}
+		) );
 		inputElement = (
-			null
+			<SelectControl
+				onChange = { onChange}
+				value    = { fieldValue }
+				options  = { factorOptions }
+			/>
 		);
-	} else {
+	} else if ( fieldType == 'multiple' ) {
+		const factorOptions = fieldData.factors.map( factor => (
+			{ 
+				label: factor, 
+				value: factor
+			}
+		) );
+		inputElement = (
+			<SelectControl
+				multiple
+				onChange = { onChange}
+				value    = { fieldValue || [] }
+				options  = { factorOptions }
+			/>
+		);
+	} else if ( fieldType == 'measure') {
+		if ( fieldData.dimensions.n == 1 ) {
+			inputElement = (
+				<input
+					type     = 'number'
+					value    = { fieldValue[0] }
+					onChange = { ( event ) => onMeasureChange( event, 0 ) }
+				/>
+			);
+		} else {
+			const dimensionElements = fieldData.dimensions.labels
+				.map( ( dimensionLabel, index ) => (
+					<label
+						key      = { index }
+					>
+						<div className = 'input-element-dimension-label'>{ dimensionLabel }</div>
+						<input
+							type     = 'number'
+							value    = { fieldValue[ index ] }
+							onChange = { ( event ) => onMeasureChange( event, index ) }
+						/>
+					</label>
+				) );
+			inputElement = (
+				<div className = 'dimension-elements-input-wrapper'>{ dimensionElements }</div>
+			);
+		}
+	}
+	else {
 		inputElement = (
 			<div>
 				{ fieldValue }
@@ -97,10 +163,14 @@ const ObjectMetaField = ( props ) => {
 		);
 	}
 
+	const unitLabel = units && fieldType == 'measure' ? ` (${units})` : '';
+
 	return (
 		<div className = 'object-meta-row'>
 			<div className = 'object-meta-info'>
-				<div className = 'object-meta-label'>{ fieldLabel }</div>
+				<div className = 'object-meta-label'>
+					{ fieldLabel }{ unitLabel }
+				</div>
 				<div className = 'object-meta-private'>{ isPublic ? '' : 'Private'}</div>
 			</div>
 			<div 
