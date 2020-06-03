@@ -28,8 +28,12 @@ function register_object_meta_block() {
 		$attributes = [];
 		foreach ( $fields as $field ) {
 			$field_name = $field->slug;
-			if ( 'tinyint' === $field->type ) {
+			if ( 'flag' === $field->type ) {
 				$type = 'boolean';
+			} elseif ( 'multiple' === $field->type ) {
+				$type = 'array';
+			} elseif ( 'measure' === $field->type ) {
+				$type = 'array';
 			} else {
 				$type = 'string';
 			}
@@ -38,6 +42,9 @@ function register_object_meta_block() {
 				'source' => 'meta',
 				'meta'   => $field->slug,
 			];
+			if ( 'measure' === $field->type ) {
+				$attributes[ $field_name ]['items'] = 'number';
+			}
 		}
 		$attributes['fieldErrors'] = [
 			'type'    => 'object',

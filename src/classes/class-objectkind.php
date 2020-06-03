@@ -27,7 +27,7 @@ class ObjectKind {
 	public $cat_field_id = null;
 
 	/**
-	 * Machine-readible name of kind. Derrived from label.
+	 * Machine-readable name of kind. Derrived from label.
 	 *
 	 * @var string $name
 	 */
@@ -42,11 +42,18 @@ class ObjectKind {
 	public $type_name = null;
 
 	/**
-	 * Human-readible name of kind. User generated.
+	 * Human-readable name of kind. User generated.
 	 *
 	 * @var string $label
 	 */
 	public $label = null;
+
+	/**
+	 * Human-readable plural name of kind. User generated.
+	 *
+	 * @var string $label_plural
+	 */
+	public $label_plural = null;
 
 	/**
 	 * Short, human-readible description of the kind.
@@ -95,6 +102,21 @@ class ObjectKind {
 	public $strict_checking = null;
 
 	/**
+	 * Whether objects of this kind should be excluded from searches. This is
+	 * mostly applicable for child kinds.
+	 *
+	 * @var bool $exclude_from_search
+	 */
+	public $exclude_from_search = null;
+
+	/**
+	 * Kind_id of parent kind. Setting this makes this a child kind.
+	 *
+	 * @var int $parent_kind_id
+	 */
+	public $parent_kind_id = null;
+
+	/**
 	 * Converts museum object kind's label to name: all lowercase, spaces replaced by dashes.
 	 *
 	 * @param   string $kind_label The object kind's label.
@@ -103,6 +125,53 @@ class ObjectKind {
 	 */
 	public static function name_from_label( $kind_label ) {
 		return strtolower( str_replace( ' ', '-', $kind_label ) );
+	}
+
+	/**
+	 * Generates type name from name.
+	 */
+	private function set_type_name_from_name() {
+		global $wpdb;
+
+		if ( is_null( $this->name ) ) {
+			return;
+		}
+
+		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+		$type_name = WPM_PREFIX . $this->name;
+		if ( strlen( $type_name ) > 20 ) {
+			$type_name = substr( $type_name, 0, 19 );
+		}
+
+		$duplicates = true;
+		$duplicate_counter = 0;
+		$unique_type_name = $type_name;
+		while ( $duplicates ) {
+			if ( is_null( $this->kind_id ) || is_null( get_kind( $this->kind_id ) ) ) {
+				$results = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT type_name FROM $table_name WHERE type_name = %s",
+						$unique_type_name
+					)
+				);
+			} else {
+				$results = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT type_name FROM $table_name WHERE type_name = %s AND kind_id != %s",
+						$unique_type_name,
+						$this->kind_id
+					)
+				);
+			}
+			if ( 0 < count( $results ) ) {
+				$unique_type_name = substr( $type_name, 0, 18 ) . '_' . $duplicate_counter;
+				$duplicate_counter++;
+			} else {
+				$duplicates = false;
+			}
+		}
+
+		$this->type_name = $unique_type_name;
 	}
 
 	/**
@@ -127,6 +196,9 @@ class ObjectKind {
 		if ( isset( $kind_row->label ) ) {
 			$this->label = $kind_row->label;
 		}
+		if ( isset( $kind_row->label_plural ) ) {
+			$this->label_plural = $kind_row->label_plural;
+		}
 		if ( isset( $kind_row->description ) ) {
 			$this->description = $kind_row->description;
 		}
@@ -140,14 +212,21 @@ class ObjectKind {
 			$this->must_gallery = (bool) intval( $kind_row->must_gallery );
 		}
 		if ( isset( $kind_row->strict_checking ) ) {
-			$this->strict_checking     = (bool) intval( $kind_row->strict_checking );
+			$this->strict_checking = (bool) intval( $kind_row->strict_checking );
 		}
+		if ( isset( $kind_row->exclude_from_search ) ) {
+			$this->exclude_from_search = (bool) intval( $kind_row->exclude_from_search );
+		}
+		if ( isset( $kind_row->parent_kind_id ) ) {
+			$this->parent_kind_id = intval( $kind_row->parent_kind_id );
+		}
+
 
 		if ( $this->label && ! $this->name ) {
 			$this->name = self::name_from_label( $this->label );
 		}
 		if ( $this->name && ! $this->type_name ) {
-			$this->type_name = WPM_PREFIX . $this->name;
+			$this->set_type_name_from_name();
 		}
 		if ( strlen( $this->type_name ) > 20 ) {
 			$this->type_name = substr( $type_name, 0, 19 );
@@ -155,19 +234,31 @@ class ObjectKind {
 	}
 
 	/**
+	 * Returns array of fields associated with this kind.
+	 */
+	public function get_fields() {
+		return get_mobject_fields( $this->kind_id );
+	}
+
+	/**
 	 * Return properties as associative array.
 	 */
 	public function to_array() {
 		$arr                        = [];
+		$arr['kind_id']             = $this->kind_id;
 		$arr['cat_field_id']        = $this->cat_field_id;
 		$arr['name']                = $this->name;
 		$arr['type_name']           = $this->type_name;
 		$arr['label']               = $this->label;
+		$arr['label_plural']        = $this->label_plural;
 		$arr['description']         = $this->description;
+		$arr['categorized']         = $this->categorized;
 		$arr['hierarchical']        = $this->hierarchical;
 		$arr['must_featured_image'] = $this->must_featured_image;
 		$arr['must_gallery']        = $this->must_gallery;
 		$arr['strict_checking']     = $this->strict_checking;
+		$arr['exclude_from_search'] = $this->exclude_from_search;
+		$arr['parent_kind_id']      = $this->parent_kind_id;
 		return $arr;
 	}
 
@@ -175,27 +266,36 @@ class ObjectKind {
 	 * Save kind to database.
 	 */
 	public function save_to_db() {
-		if ( ! $this->label || ! $this->name || ! $this->type_name ) {
-			return false;
-		}
 		global $wpdb;
 		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
 
+		$this->set_type_name_from_name();
+
 		$saved_kind = get_kind( $this->kind_id );
 		if ( is_null( $saved_kind ) ) {
-			// Collision checking.
-			$results = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT type_name FROM $table_name WHERE type_name LIKE %s",
-					'%' . $wpdb->esc_like( $type_name ) . '%'
-				)
-			);
-			if ( 0 < count( $results ) ) {
-				$this->type_name = substr( $this->type_name, 0, 18 ) . '_' . count( $results );
-			}
-			return $wpdb->insert( $table_name, $this->to_array() );
+			$insert_array = $this->to_array();
+			unset( $insert_array['kind_id'] );
+			return $wpdb->insert( $table_name, $insert_array );
 		} else {
 			return $wpdb->update( $table_name, $this->to_array(), [ 'kind_id' => $this->kind_id ] );
 		}
+	}
+
+	/**
+	 * Deletes kind from database.
+	 */
+	public function delete_from_db() {
+		global $wpdb;
+		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+
+		if ( is_null( $this->kind_id ) || 0 > $this->kind_id ) {
+			return false;
+		}
+
+		$fields = $this->get_fields();
+		foreach ( $fields as $field ) {
+			$field->delete_from_db();
+		}
+		return $wpdb->delete( $table_name, [ 'kind_id' => $this->kind_id ] );
 	}
 }

@@ -1,0 +1,251 @@
+.kind-edit-wrapper {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+
+	.kind-edit {
+		margin-left: 30px;
+		flex-basis: 70%;
+		flex-grow: 1;
+
+		input, select, textarea {
+			display: block;
+			width: 100%;
+		}
+
+		textarea {
+			height: 10em;
+		}
+	
+		input[ type = 'checkbox' ] {
+			display: inline-block;
+			width: initial;
+		}
+
+		input[ type = 'number' ] {
+			width: 5em;
+		}
+
+		.kind-settings {
+			.kind-options {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				margin-top: 1em;
+				
+				label {
+					flex-basis: calc( 50% - 1em );
+					flex-grow: 0;
+					display: block;
+					margin: 0.5em;
+				}
+
+				input {
+					margin-right: 0.5em;
+				}
+			}
+		}
+
+		.field-form {
+			border-style: solid;
+			border-color: grey;
+			background-color: #f9f9f9;
+			border-radius: 3px;
+			border-width: 1px;
+			margin: 5px;
+			padding: 5px;
+			position: relative;
+
+			.delete-field {
+				position: absolute;
+				right: 5px;
+			}
+
+			> .field-section {
+				width: 400px;
+			}
+
+			.field-middle {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+
+				.field-section {
+					flex-basis: 400px;
+				}
+			}
+
+			.field-type {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+
+				.field-type-group {
+					display: flex;
+					flex-direction: row;
+					flex-wrap: nowrap;
+					width: calc( 400px + 1em );
+		
+					.field-section {
+						width: fit-content;
+
+						&.factor-button {
+							display: flex;
+							flex-direction: column-reverse;
+						}
+					}
+
+					.units {
+						flex-shrink: 1;
+						flex-grow: 1;
+						width: auto;
+					}
+					
+					.dimension-labels {
+						.dimension-field {
+							display: inline-block;
+							margin: 0.5em;
+							flex-basis: 33%;
+							max-width: calc( ( 400px - 2em ) / 3 );
+						}
+					}
+				}
+			}
+
+			.field-checkboxes {
+				margin: 0.5em;
+
+				label {
+					display: inline-block;
+					margin: 0.5em;
+				}
+
+				input {
+					margin-left: 0.5em;
+				}
+			}
+		}
+
+		.field-section {
+			margin: 0.5em;
+		}
+
+		.components-toolbar {
+			display: block;
+			position: absolute;
+			left: -38px;
+			border-color: rgba(66, 88, 99, 0.4);
+			border-radius: 4px;
+
+			div {
+				margin-left: 0;
+			}
+
+			button {
+				width: 28px;
+				height: 24px;
+				padding: 0 !important;
+				min-width: 24px !important;
+			}
+
+			.components-button {
+				&:focus {
+					&:before {
+						box-shadow: none !important;
+					}
+				}
+			}
+
+			svg {
+				width: 28px;
+				height: 24px;
+			}
+		}
+	}
+
+	.field-instructions {
+		flex-basis: 30%;
+		flex-grow: 0;
+	}
+}
+
+.factor-edit-modal {
+	.factor-button {
+		margin-right: 5px;
+		margin-left: 5px;
+	}
+	
+	.factor-list {
+		min-height: 10em;
+		border-style: solid;
+		border-radius: 3px;
+		border-color: grey;
+		border-width: 1px;
+		margin-bottom: 1em;
+	}
+
+	.factor-edit-input {
+		display: flex;
+		flex-direction: row;
+		margin-bottom: 0.5em;
+
+		input {
+			flex-grow: 1;
+			margin-right: 5px;
+		}
+	}
+
+	.factor-list-item {
+		display: flex;
+		flex-direction: row;
+		height: 1.5em;
+		padding: 0.2em;
+
+		&:focus {
+			background-color: #0da0d1;
+		}
+	}
+
+	.remove-item-div {
+		display: inline-block;
+		margin-left: 3px;
+		margin-right: 3px;
+		cursor: pointer;
+		min-height: 100%;
+
+		svg {
+			&:hover {
+				fill: red;
+			}
+		}
+	}
+
+	.bottom-buttons {
+		display: flex;
+		justify-content: flex-end;
+	}
+}
+
+.edit-header {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	align-items: baseline;
+
+	.do-save-button {
+		margin-left: 1em;
+	}
+}
+
+.museum-admin-main {
+	.object-action-buttons {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+	}
+
+	button {
+		margin: 0.5em;
+	}
+}
+

@@ -31,7 +31,9 @@ const MoveToolbar = ( props ) => {
 	} = props;
 
 	return (
-		<Toolbar>
+		<Toolbar
+			className = 'image-item-move-toolbar'
+		>
 			<ToolbarButton
 				icon    = { chevronUp }
 				onClick = { moveUp }
