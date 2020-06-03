@@ -74,6 +74,10 @@ class ObjectPostType {
 			],
 		];
 
+		if ( ! ( is_null( $this->kind->parent_kind_id ) || ' ' === $this->kind->parent_kind_id ) ) {
+			$options['options']['show_in_menu'] = false;
+		}
+
 		$this->object_post_type = new CustomPostType( $options );
 
 		$this->object_post_type->supports = [ 'title', 'thumbnail', 'author', 'editor', 'custom-fields' ];
@@ -195,6 +199,50 @@ class ObjectPostType {
 	}
 
 	/**
+	 * Register parent and child meta fields.
+	 */
+	public function register_relationship_meta() {
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			WPM_PREFIX . 'child_objects',
+			[
+				'type'          => 'object',
+				'description'   => 'Child objects',
+				'single'        => true,
+				'show_in_rest'  => [
+					'schema' => [
+						'type'  => 'object',
+						'properties' => [],
+						'additionalProperties' => [
+							'type'  => 'array',
+							'items' => [
+								'type' => 'number',
+							],
+						],
+					],
+				],
+				'auth_callback' => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
+
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			WPM_PREFIX . 'parent_object',
+			[
+				'type'          => 'number',
+				'description'   => 'Parent post',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
+	}
+
+	/**
 	 * Register the object as custom post type.
 	 */
 	public function register() {
@@ -249,6 +297,7 @@ class ObjectPostType {
 
 		$this->object_post_type->register();
 		$this->register_fields_meta();
+		$this->register_relationship_meta();
 	}
 }
 
