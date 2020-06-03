@@ -41,11 +41,14 @@ function create_mobject_kinds_table() {
         name varchar(255),
 		type_name varchar(255),
         label varchar(255),
+		label_plural varchar(255),
         description text,
         categorized tinyint(1),
         hierarchical tinyint(1),
         must_featured_image tinyint(1),
         must_gallery tinyint(1),
+		exclude_from_search tinyint(1),
+		parent_kind_id mediumint(9),
         PRIMARY KEY  (kind_id)
     );";
 
@@ -65,7 +68,6 @@ function create_mobject_fields_table() {
         slug varchar(255),
         kind_id mediumint(9),
         name varchar(255),
-        label varchar(255),
         type varchar(255),
         display_order int(5),
         public tinyint(1),
@@ -77,6 +79,8 @@ function create_mobject_fields_table() {
         field_schema varchar(255),
 		max_length int(5),
 		dimensions varchar(255),
+		units varchar(255),
+		factors text,
         PRIMARY KEY  (field_id)
     );";
 
@@ -105,7 +109,7 @@ function get_kind( $id ) {
 				$id
 			)
 		);
-		if ( is_null( $results ) ) {
+		if ( is_null( $results ) || 0 === count( $results ) ) {
 			return null;
 		}
 		$kind  = new ObjectKind( $results[0] );
@@ -234,7 +238,7 @@ function get_mobject_fields( $kind_id ) {
 		);
 		$fields = [];
 		foreach ( $results as $result ) {
-			$new_field = new MObjectField( $result );
+			$new_field = MObjectField::from_database( $result );
 			$fields[ $new_field->slug ] = $new_field;
 		}
 		wp_cache_add( 'get_mobject_fields', $fields, CACHE_GROUP );
@@ -264,7 +268,7 @@ function get_mobject_field( $kind_id, $field_id ) {
 		);
 		if ( count( $results ) > 0 ) {
 			$result = $results[0];
-			$field = new MObjectField( $result );
+			$field = MObjectField::from_database( $result );
 		} else {
 			$field = null;
 		}
