@@ -1152,6 +1152,11 @@ var ObjectAdminControl = function ObjectAdminControl() {
 
     if (objectKinds[kindIndex][field] != event.target.value) {
       newKindArray[kindIndex][field] = event.target.value;
+
+      if (newKindArray[kindIndex][field] == '') {
+        newKindArray[kindIndex][field] = null;
+      }
+
       setObjectKinds(newKindArray);
     }
   };
