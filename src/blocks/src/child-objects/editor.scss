@@ -1,0 +1,78 @@
+.child-objects-block {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	.child-kind {
+		.child-object {
+			border-style: solid;
+			border-width: 1px;
+			border-radius: 3px;
+			border-color: grey;
+			
+			
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			margin: 0.5em;
+			padding: 0.5em;
+
+			.child-object-remove-button {
+				position: absolute;
+				bottom: 1em;
+				right: 1em;
+			}
+
+			.child-object-image-div {
+				margin: 0.5em;
+			
+				
+				img {
+					width: 100px;
+					height: 100px;
+					min-width: 100px;
+					object-fit: cover;
+				}
+
+				.child-object-image-placeholder {
+					width: 100px;
+					height: 100px;
+					border-style: dashed;
+					border-width: 1px;
+					border-color: grey;
+					border-radius: 3px;
+					background-color: #f1f2f3;
+				}
+			}
+
+			.child-object-content {
+				width: 100%;
+				margin: 0.5em;
+
+				.child-object-info {
+					width: 100%;
+					display: flex;
+					flex-direction: row;
+					flex-wrap: nowrap;
+
+					.child-object-title-input {
+						border-style: solid;
+						border-width: 1px;
+						border-radius: 3px;
+						border-color: grey;
+						flex-basis: 100%;
+						flex-grow: 1;
+						padding: 0.5em;
+						font-size: 0.8em;
+					}
+				}
+				
+				.child-object-actions {
+					position: relative;
+					
+					a {
+						margin: 0.5em;
+					}
+				}
+			}
+		}
+	}
+}
