@@ -168,7 +168,7 @@ class MObjectField {
 		$instance->set_field_slug_from_name();
 
 		// Clean dimensions object.
-		$instance->set_dimensions( json_decode( $row->dimensions, false, 4 ) );
+		$instance->set_dimensions( json_decode( $row->dimensions, true, 4 ) );
 
 		return $instance;
 	}
@@ -254,23 +254,29 @@ class MObjectField {
 	/**
 	 * Verifies, cleans, and sets new $dimension value.
 	 *
-	 * @var Object $new_dimensions
+	 * @var Object $new_dimensions New Dimensions.
 	 * @var Int|String $new_dimensions.n
 	 * @var [String] $new_dimensions.labels
 	 */
 	public function set_dimensions( $new_dimensions ) {
-		if (
-			! is_object( $new_dimensions ) ||
-			! isset( $new_dimensions->n ) ||
-			! is_array( $new_dimensions->labels )
-		) {
-			return;
+		$clean_dimensions = [
+			'n'      => null,
+			'labels' => [],
+		];
+
+		if ( is_object( $new_dimensions ) ) {
+			if ( ! isset( $new_dimensions->n ) || ! is_array( $new_dimensions->labels ) ) {
+				return;
+			}
+			$clean_dimensions['n']      = intval( $new_dimensions->n );
+			$clean_dimensions['labels'] = $new_dimensions->labels;
+		} elseif ( is_array( $new_dimensions ) ) {
+			if ( ! isset( $new_dimensions['n'] ) || ! is_array( $new_dimensions['labels'] ) ) {
+				return;
+			}
+			$clean_dimensions['n']      = intval( $new_dimensions['n'] );
+			$clean_dimensions['labels'] = $new_dimensions['labels'];
 		}
-
-		$clean_dimensions         = new \stdClass();
-		$clean_dimensions->n      = intval( $new_dimensions->n );
-		$clean_dimensions->labels = $new_dimensions->labels;
-
 		$this->dimensions = $clean_dimensions;
 	}
 

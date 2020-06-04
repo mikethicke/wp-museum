@@ -15,6 +15,7 @@ sql
 planning
 release/
 src/blocks/build
+src/admin-react/build
 *.code-workspace
 .DS_Store
 node_modules

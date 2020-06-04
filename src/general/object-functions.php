@@ -341,4 +341,3 @@ function get_object_thumbnail( $post_id ) {
 	return $img_data;
 }
 
-

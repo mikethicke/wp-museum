@@ -69,6 +69,7 @@ class ObjectPostType {
 					[ 'core/paragraph', [ 'placeholder' => 'A general description of the object...' ] ],
 					[ 'wp-museum/object-meta-block' ],
 					[ 'wp-museum/object-image-attachments-block' ],
+					[ 'wp-museum/child-objects-block' ],
 				],
 				'template_lock' => 'all',
 			],
@@ -229,7 +230,21 @@ class ObjectPostType {
 
 		register_post_meta(
 			$this->object_post_type->options['type'],
-			WPM_PREFIX . 'parent_object',
+			WPM_PREFIX . 'child_objects_str',
+			[
+				'type'          => 'string',
+				'description'   => 'Child objects',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
+
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			'wpm_parent_object',
 			[
 				'type'          => 'number',
 				'description'   => 'Parent post',
