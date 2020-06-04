@@ -180,7 +180,7 @@ function make_object_attach_ids_simple_array() {
 }
 
 /**
- * Add meta fields and objeect image gallery blocks to existing posts, just by
+ * Add meta fields and object image gallery blocks to existing posts, just by
  * adding tags to the post content.
  */
 function add_block_template() {
@@ -206,6 +206,31 @@ function add_block_template() {
 }
 
 /**
+ * Add child object block to existing posts.
+ */
+function add_child_block() {
+	$posts = get_posts(
+		[
+			'numberposts' => -1,
+			'post_type'   => get_object_type_names(),
+			'post_status' => 'any',
+		]
+	);
+	foreach ( $posts as $object_post ) {
+		$content = $object_post->post_content;
+		if ( ! strpos( $content, 'child-objects-block' ) ) {
+			$content .= "\n\n<!-- wp:wp-museum/child-objects-block /-->\n";
+			wp_update_post(
+				[
+					'ID'           => $object_post->ID,
+					'post_content' => $content,
+				]
+			);
+		}
+	}
+}
+
+/**
  * Translates old field types ( varchar, text, tinyint ) to new ( plain, rich, flag ).
  */
 function translate_field_types() {
@@ -215,7 +240,7 @@ function translate_field_types() {
 	$wpdb->update( $table_name, [ 'type' => 'rich' ], [ 'type' => 'text' ] );
 	$wpdb->update( $table_name, [ 'type' => 'flag' ], [ 'type' => 'tinyint' ] );
 }
-
+//add_action( 'plugins_loaded', __NAMESPACE__ . '\add_child_block' );
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\translate_field_types' );
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\add_block_template' );
 // add_action( 'plugins_loaded', __NAMESPACE__ . '\make_object_attach_ids_simple_array' );

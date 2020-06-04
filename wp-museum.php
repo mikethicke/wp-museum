@@ -8,7 +8,7 @@
  * @wordpress-plugin
  * Plugin Name: Museum for WordPress
  * Description: Manages a database of museum objects.
- * Version: 0.6.1
+ * Version: 0.6.2
  * Author: Mike Thicke
  * Author URI: http://www.mikethicke.com
  * Text Domain: wp-museum
@@ -117,4 +117,5 @@ require_once $require_prefix . 'blocks/object-infobox-frontend.php';
 require_once $require_prefix . 'blocks/object-gallery-frontend.php';
 require_once $require_prefix . 'blocks/objectposttype-block.php';
 require_once $require_prefix . 'blocks/object-image-attachments-block.php';
+require_once $require_prefix . 'blocks/child-objects-block.php';
 
