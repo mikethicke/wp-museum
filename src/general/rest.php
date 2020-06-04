@@ -5,14 +5,16 @@
  * REST root: /wp-json/wp-museum/v1
  *
  * ## Objects ##
- * /wp-json/wp-museum/v1/<object type>/[?s=|<field>=]   Objects with post type <object type>.
- * /wp-json/wp-museum/v1/<object type>/<post id>        Specific object.
- * /wp-json/wp-museum/v1/<object type>/<post id>/images Images associated with object.
- * /wp-json/wp-museum/v1/all/[?s=|<field>=]             All museum objects, regardless of type.
- * /wp-json/wp-museum/v1/all/<post id>                  Specific object.
- * /wp-json/wp-museum/v1/all/<post id>/images           Images associated with object. 
- * /wp-json/wp-musuem/v1/<object type>/fields           Public fields for <object type>.
- * /wp-json/wp-musuem/v1/<object type>/fields_all       All fields for <object type>.
+ * /wp-json/wp-museum/v1/<object type>/[?s=|<field>=]     Objects with post type <object type>.
+ * /wp-json/wp-museum/v1/<object type>/<post id>          Specific object.
+ * /wp-json/wp-museum/v1/<object type>/<post id>/images   Images associated with object.
+ * /wp-json/wp-museum/v1/<object type>/<post id>/children Child objects of object.
+ * /wp-json/wp-museum/v1/all/[?s=|<field>=]               All museum objects, regardless of type.
+ * /wp-json/wp-museum/v1/all/<post id>                    Specific object.
+ * /wp-json/wp-museum/v1/all/<post id>/images             Images associated with object.
+ * /wp-json/wp-museum/v1/all/<post id>/children           Child objects of object.
+ * /wp-json/wp-musuem/v1/<object type>/fields             Public fields for <object type>.
+ * /wp-json/wp-musuem/v1/<object type>/fields_all         All fields for <object type>.
  *
  * ## Kinds ##
  * /wp-json/wp-musuem/v1/mobject_kinds                  Object kinds
@@ -109,80 +111,85 @@ function rest_routes() {
 		);
 
 		/**
+		 * /wp-json/wp-museum/v1/<object type>/<post id>/children Child objects of object.
+		 */
+		register_rest_route(
+			REST_NAMESPACE,
+			'/' . $kind->type_name . '/(?P<id>[\d]+)/children',
+			child_objects_routes_args()
+		);
+
+		/**
 		 * /wp-json/wp-musuem/v1/<object type>/fields - Data for public fields for <object type>.
 		 */
-		foreach ( $kinds as $kind ) {
-			register_rest_route(
-				REST_NAMESPACE,
-				$kind->type_name . '/fields',
+		register_rest_route(
+			REST_NAMESPACE,
+			$kind->type_name . '/fields',
+			[
+				'methods'  => 'GET',
+				'callback' => function( $request ) use ( $kind ) {
+					$fields = get_mobject_fields( $kind->kind_id );
+					$filtered_fields = [];
+					foreach ( $fields as $field ) {
+						if ( $field->public ) {
+							$filtered_fields[ $field->field_id ] = $field;
+						}
+					}
+					return $filtered_fields;
+				},
+			]
+		);
+
+		/**
+		 * /wp-json/wp-musuem/v1/<object type>/fields_all - Data for all fields for <object type>.
+		 */
+		register_rest_route(
+			REST_NAMESPACE,
+			$kind->type_name . '/fields_all',
+			[
 				[
 					'methods'  => 'GET',
 					'callback' => function( $request ) use ( $kind ) {
 						$fields = get_mobject_fields( $kind->kind_id );
 						$filtered_fields = [];
 						foreach ( $fields as $field ) {
-							if ( $field->public ) {
-								$filtered_fields[ $field->field_id ] = $field;
-							}
+							$filtered_fields[ $field->field_id ] = $field;
 						}
 						return $filtered_fields;
 					},
-				]
-			);
-		}
-
-		/**
-		 * /wp-json/wp-musuem/v1/<object type>/fields_all - Data for all fields for <object type>.
-		 */
-		foreach ( $kinds as $kind ) {
-			register_rest_route(
-				REST_NAMESPACE,
-				$kind->type_name . '/fields_all',
+					'permission_callback' => function () {
+						return current_user_can( 'edit_posts' );
+					},
+				],
 				[
-					[
-						'methods'  => 'GET',
-						'callback' => function( $request ) use ( $kind ) {
-							$fields = get_mobject_fields( $kind->kind_id );
-							$filtered_fields = [];
-							foreach ( $fields as $field ) {
-								$filtered_fields[ $field->field_id ] = $field;
-							}
-							return $filtered_fields;
-						},
-						'permission_callback' => function () {
-							return current_user_can( 'edit_posts' );
-						},
-					],
-					[
-						'methods' => 'POST',
-						'permission_callback' => function() {
-							return current_user_can( 'manage_options' );
-						},
-						'callback' => function( $request ) {
-							/**
-							 * We're going to get an array of fields to update.
-							 * We instantiate each item as an MObjectField, and
-							 * then update those fields in the database.
-							 */
-							global $wpdb;
-							$field_data = json_decode( $request->get_body(), true );
-							$success = true;
-							$failed_queries = [];
-							foreach ( $field_data as $field_id => $field_object ) {
-								$mobject_field = MObjectField::from_rest( $field_object );
-								if ( isset( $field_object['delete'] ) && true === $field_object['delete'] ) {
-									$mobject_field->delete_from_db();
-								} else if ( false === $mobject_field->save_to_db() ) {
-									$success = false;
-									$failed_queries[] = $wpdb->last_query;
-								};
-							}
-							return $success;
-						},
-					],
-				]
-			);
-		}
+					'methods' => 'POST',
+					'permission_callback' => function() {
+						return current_user_can( 'manage_options' );
+					},
+					'callback' => function( $request ) {
+						/**
+						 * We're going to get an array of fields to update.
+						 * We instantiate each item as an MObjectField, and
+						 * then update those fields in the database.
+						 */
+						global $wpdb;
+						$field_data = json_decode( $request->get_body(), true );
+						$success = true;
+						$failed_queries = [];
+						foreach ( $field_data as $field_id => $field_object ) {
+							$mobject_field = MObjectField::from_rest( $field_object );
+							if ( isset( $field_object['delete'] ) && true === $field_object['delete'] ) {
+								$mobject_field->delete_from_db();
+							} else if ( false === $mobject_field->save_to_db() ) {
+								$success = false;
+								$failed_queries[] = $wpdb->last_query;
+							};
+						}
+						return $success;
+					},
+				],
+			]
+		);
 
 		/**
 		 * /wp-json/wp-museum/v1/mobject_kinds/<object type> - Data for a specific kind with <object type>.
@@ -193,14 +200,14 @@ function rest_routes() {
 			[
 				'methods' => 'GET',
 				'callback' => function() use ( $kind ) {
-					return $kind->to_array();
+					return $kind->to_rest_array();
 				},
 				'permission_callback' => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			]
 		);
-	}
+	} // foreach( $kinds as $kind ).
 
 	/**
 	 * /wp-json/wp-museum/v1/all/ - Data for all museum objects, regardless of type.
@@ -284,6 +291,15 @@ function rest_routes() {
 	);
 
 	/**
+	 * /wp-json/wp-museum/v1/all/<post id>/children Child objects of object.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/all/(?P<id>[\d]+)/children/',
+		child_objects_routes_args()
+	);
+
+	/**
 	 * /wp-json/wp-musuem/v1/mobject_kinds - Data for object kinds
 	 */
 	register_rest_route(
@@ -293,7 +309,12 @@ function rest_routes() {
 			[
 				'methods'  => 'GET',
 				'callback' => function() {
-					return get_mobject_kinds();
+					$kinds_array = [];
+					$kinds = get_mobject_kinds();
+					foreach ( $kinds as $kind ) {
+						$kinds_array[] = $kind->to_rest_array();
+					}
+					return $kinds_array;
 				},
 				'permission_callback' => function() {
 					return current_user_can( 'edit_posts' );
@@ -566,6 +587,41 @@ function images_routes_args() {
 					return set_object_image_box_attachments( $request['images'], $request['id'] );
 				},
 			],
+		]
+	);
+}
+
+/**
+ * Args for object/child endpoints.
+ */
+function child_objects_routes_args() {
+	return (
+		[
+			'methods' => 'GET',
+			'args'     =>
+				[
+					'id' =>
+						[
+							'validate_callback' => function( $param, $request, $key ) {
+								return is_numeric( $param );
+							},
+						],
+				],
+			'callback' => function( $request ) {
+				$meta = get_post_meta( $request['id'], WPM_PREFIX . 'child_objects', true );
+				$data_array = [];
+				if ( $meta ) {
+					foreach ( $meta as $kind_id => $object_ids ) {
+						$data_array[ $kind_id ] = [];
+						if ( $object_ids ) {
+							foreach ( $object_ids as $object_id ) {
+								$data_array[ $kind_id ][] = combine_post_data( $object_id );
+							}
+						}
+					}
+				}
+				return $data_array;
+			},
 		]
 	);
 }

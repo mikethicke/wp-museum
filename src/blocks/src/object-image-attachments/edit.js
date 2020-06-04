@@ -68,7 +68,7 @@ const ObjectImageAttachmentEdit = ( props ) => {
 	} );
 
 	useEffect( () => {
-		if ( isSavingPost ) {
+		if ( isSavingPost && imgData ) {
 			Object.entries( imgData ).map( ( [ itemId, itemData ] ) => {
 				apiFetch( {
 					path: `/wp/v2/media/${itemId}`,

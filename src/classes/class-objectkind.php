@@ -175,6 +175,23 @@ class ObjectKind {
 	}
 
 	/**
+	 * Updates type name when name changes. This updates the post type of all
+	 * associated posts.
+	 */
+	private function update_type_name() {
+		$posts = $this->get_all_posts();
+		$this->set_type_name_from_name();
+		foreach ( $posts as $post ) {
+			wp_update_post(
+				[
+					'ID'        => $post->ID,
+					'post_type' => $this->type_name,
+				]
+			);
+		}
+	}
+
+	/**
 	 * Constructor.
 	 *
 	 * @param StdObj $kind_row A row of the mobject_kinds_table where keys are
@@ -220,17 +237,20 @@ class ObjectKind {
 		if ( isset( $kind_row->parent_kind_id ) ) {
 			$this->parent_kind_id = intval( $kind_row->parent_kind_id );
 		}
+	}
 
-
-		if ( $this->label && ! $this->name ) {
-			$this->name = self::name_from_label( $this->label );
-		}
-		if ( $this->name && ! $this->type_name ) {
-			$this->set_type_name_from_name();
-		}
-		if ( strlen( $this->type_name ) > 20 ) {
-			$this->type_name = substr( $type_name, 0, 19 );
-		}
+	/**
+	 * Gets all posts associated with this kind.
+	 */
+	public function get_all_posts() {
+		$posts = get_posts(
+			[
+				'numberposts' => -1,
+				'status'      => 'any',
+				'post_type'   => $this->type_name,
+			]
+		);
+		return $posts;
 	}
 
 	/**
@@ -238,6 +258,56 @@ class ObjectKind {
 	 */
 	public function get_fields() {
 		return get_mobject_fields( $this->kind_id );
+	}
+
+	/**
+	 * Returns array of kinds that are children of this kind.
+	 */
+	public function get_children() {
+		$children  = [];
+		$all_kinds = get_mobject_kinds();
+		foreach ( $all_kinds as $kind ) {
+			if ( $kind->parent_kind_id === $this->kind_id ) {
+				$children[] = $kind;
+			}
+		}
+		return $children;
+	}
+
+	/**
+	 * Returns array of kind arrays of children of this kind.
+	 */
+	public function get_children_array() {
+		$children = $this->get_children();
+		$children_array = array_map(
+			function ( $child ) { 
+				return $child->to_array(); 
+			},
+			$children
+		);
+		return $children_array;
+	}
+
+	/**
+	 * Returns array of kind types that are children of this kind.
+	 */
+	public function get_child_types() {
+		$children = $this->get_children();
+		$child_types = array_map(
+			function( $kind ) {
+				return $kind->type_name;
+			},
+			$children
+		);
+		return $child_types;
+	}
+
+	/**
+	 * Returns block template for this kind.
+	 */
+	public function block_template() {
+		$post_type_object = get_post_type_object( $this->type_name );
+		return $post_type_object->template;
 	}
 
 	/**
@@ -263,13 +333,51 @@ class ObjectKind {
 	}
 
 	/**
+	 * Return properties as associative array.
+	 */
+	public function to_rest_array() {
+		$arr                        = [];
+		$arr['kind_id']             = $this->kind_id;
+		$arr['cat_field_id']        = $this->cat_field_id;
+		$arr['name']                = $this->name;
+		$arr['type_name']           = $this->type_name;
+		$arr['label']               = $this->label;
+		$arr['label_plural']        = $this->label_plural;
+		$arr['description']         = $this->description;
+		$arr['categorized']         = $this->categorized;
+		$arr['hierarchical']        = $this->hierarchical;
+		$arr['must_featured_image'] = $this->must_featured_image;
+		$arr['must_gallery']        = $this->must_gallery;
+		$arr['strict_checking']     = $this->strict_checking;
+		$arr['exclude_from_search'] = $this->exclude_from_search;
+		$arr['parent_kind_id']      = $this->parent_kind_id;
+		$arr['block_template']      = $this->block_template();
+		$arr['children']            = $this->get_children_array();
+		return $arr;
+	}
+
+
+	/**
 	 * Save kind to database.
 	 */
 	public function save_to_db() {
 		global $wpdb;
 		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
 
-		$this->set_type_name_from_name();
+		if ( $this->label ) {
+			$this->name = self::name_from_label( $this->label );
+			if ( !$this->label_plural ) {
+				$this->label_plural = $this->label . 's';
+			}
+		}
+
+		if ( $this->name ) {
+			if ( $this->type_name ) {
+				$this->update_type_name();
+			} else {
+				$this->set_type_name_from_name();
+			}
+		}
 
 		$saved_kind = get_kind( $this->kind_id );
 		if ( is_null( $saved_kind ) ) {
