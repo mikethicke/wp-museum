@@ -42,10 +42,16 @@ class ObjectPostType {
 		global $wpdb;
 		$this->kind  = $kind;
 
+		if ( $this->kind->label_plural ) {
+			$label_plural = $this->kind->label_plural;
+		} else {
+			$label_plural = $this->kind->label . 's';
+		}
+
 		$options = [
 			'type'         => $this->kind->type_name,
 			'label'        => $this->kind->label,
-			'label_plural' => $this->kind->label . 's',
+			'label_plural' => $label_plural,
 			'description'  => $this->kind->description,
 			'menu_icon'    => museum_icon(),
 			'hierarchical' => false,
@@ -63,16 +69,23 @@ class ObjectPostType {
 					[ 'core/paragraph', [ 'placeholder' => 'A general description of the object...' ] ],
 					[ 'wp-museum/object-meta-block' ],
 					[ 'wp-museum/object-image-attachments-block' ],
+					[ 'wp-museum/child-objects-block' ],
 				],
 				'template_lock' => 'all',
 			],
 		];
 
-		$this->object_post_type           = new CustomPostType( $options );
+		if ( ! ( is_null( $this->kind->parent_kind_id ) || ' ' === $this->kind->parent_kind_id ) ) {
+			$options['options']['show_in_menu'] = false;
+		}
+
+		$this->object_post_type = new CustomPostType( $options );
+
 		$this->object_post_type->supports = [ 'title', 'thumbnail', 'author', 'editor', 'custom-fields' ];
 		$this->object_post_type->add_taxonomy( 'category' );
 
-		$this->fields                          = get_mobject_fields( $this->kind->kind_id );
+		$this->fields = get_mobject_fields( $this->kind->kind_id );
+
 		$this->object_post_type->custom_fields = $this->fields;
 	}
 
@@ -120,8 +133,29 @@ class ObjectPostType {
 	public function register_fields_meta() {
 		if ( current_user_can( 'edit_posts' ) ) {
 			foreach ( $this->fields as $field ) {
-				if ( 'tinyint' === $field->type ) {
+				$show_in_rest = true;
+				if ( 'flag' === $field->type ) {
 					$type = 'boolean';
+				} elseif ( 'multiple' === $field->type ) {
+					$type = 'array';
+					$show_in_rest = [
+						'schema' => [
+							'type' => 'array',
+							'items' => [
+								'type' => 'string',
+							],
+						],
+					];
+				} elseif ( 'measure' === $field->type ) {
+					$type = 'array';
+					$show_in_rest = [
+						'schema' => [
+							'type' => 'array',
+							'items' => [
+								'type' => 'number',
+							],
+						],
+					];
 				} else {
 					$type = 'string';
 				}
@@ -133,7 +167,7 @@ class ObjectPostType {
 						'type'          => $type,
 						'description'   => $field->name,
 						'single'        => true,
-						'show_in_rest'  => true,
+						'show_in_rest'  => $show_in_rest,
 						'auth_callback' => function () {
 							return current_user_can( 'edit_posts' );
 						},
@@ -141,6 +175,64 @@ class ObjectPostType {
 				);
 			}
 		}
+	}
+
+	/**
+	 * Register parent and child meta fields.
+	 */
+	public function register_relationship_meta() {
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			WPM_PREFIX . 'child_objects',
+			[
+				'type'          => 'object',
+				'description'   => 'Child objects',
+				'single'        => true,
+				'show_in_rest'  => [
+					'schema' => [
+						'type'  => 'object',
+						'properties' => [],
+						'additionalProperties' => [
+							'type'  => 'array',
+							'items' => [
+								'type' => 'number',
+							],
+						],
+					],
+				],
+				'auth_callback' => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
+
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			WPM_PREFIX . 'child_objects_str',
+			[
+				'type'          => 'string',
+				'description'   => 'Child objects',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
+
+		register_post_meta(
+			$this->object_post_type->options['type'],
+			'wpm_parent_object',
+			[
+				'type'          => 'number',
+				'description'   => 'Parent post',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
 	}
 
 	/**
@@ -189,6 +281,7 @@ class ObjectPostType {
 
 		$this->object_post_type->register();
 		$this->register_fields_meta();
+		$this->register_relationship_meta();
 	}
 }
 

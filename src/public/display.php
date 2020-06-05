@@ -20,15 +20,12 @@ function object_content_filter( $content ) {
 	global $wpdb;
 	global $post;
 
-	$a = 0;
-
 	if (
 			in_the_loop() &&
 			is_singular( get_object_type_names() ) &&
 			! $wpm_object_content_filter_in_progress
 		) {
 		$wpm_object_content_filter_in_progress = true;
-		$custom = get_post_custom( $post->ID );
 
 		$object_kind     = kind_from_type( $post->post_type );
 		$fields          = get_mobject_fields( $object_kind->kind_id );
@@ -73,44 +70,55 @@ function object_content_filter( $content ) {
 
 		// Custom fields.
 		foreach ( $fields as $field ) {
+			$meta_value = get_post_meta( $post->ID, $field->slug, true );
 			// Public can only view fields marked as "public".
-			if (
-					isset( $custom[ $field->slug ][0] ) &&
-					$custom[ $field->slug ][0] &&
-					( $field->public || current_user_can( 'read_private_posts' ) )
-				) {
+			if ( ! $field->public && ! current_user_can( 'read_private_posts' ) ) {
+				return;
+			}
+			if ( ! $field->public ) {
+				$priv = ' ' . WPM_PREFIX . 'obj-private-field';
+			} else {
 				$priv = '';
-				if ( ! $field->public ) {
-					$priv = ' ' . WPM_PREFIX . 'obj-private-field';
+			}
+			$content .= "<div class='" . WPM_PREFIX . "field-text $priv'>";
+			if (
+					'flag' === $field->type &&
+					'list' === $display_options['yes_no_display']
+				) {
+				if ( '1' === $meta_value ) {
+					$bool_yes_fields[] = $field->name;
 				}
-				$content .= "<div class='" . WPM_PREFIX . "field-text $priv'>";
-				if (
-						'tinyint' === $field->type &&
-						'list' === $display_options['yes_no_display']
-					) {
-					if ( '1' === $custom[ $field->slug ][0] ) {
-						$bool_yes_fields[] = $field->name;
+			} else {
+				if ( ! is_string( $meta_value ) || strlen( $meta_value ) > 39 ) {
+					$field_text = '<div class="' . WPM_PREFIX . 'field-label-div">' . $field->name . ':</div>';
+				} else {
+					$field_text = '<span class="' . WPM_PREFIX . 'field-label">' . $field->name . ':</span> ';
+				}
+				if ( 'flag' === $field->type ) {
+					if ( '1' === $meta_value ) {
+						$field_text .= 'Yes';
+					} else {
+						$field_text .= 'No';
+					}
+				} elseif ( 'multiple' === $field->type ) {
+					$field_text .= implode( '; ', $meta_value );
+				} elseif ( 'measure' === $field->type ) {
+					if ( count( $meta_value ) > 0 ) {
+						if ( 1 === $field->dimensions['n'] ) {
+							$field_text .= $meta_value[0];
+						} else {
+							for ( $i = 0; $i < $field->dimensions['n']; $i++ ) {
+								$field_text .= $field->dimensions['labels'][ $i ] . ': ' . $meta_value[ $i ] . ' ' . $field->units . ' ';
+							}
+						}
 					}
 				} else {
-					if ( strlen( $custom[ $field->slug ][0] ) > 39 ) {
-							$field_text = '<div class="' . WPM_PREFIX . 'field-label-div">' . $field->name . ':</div>';
-					} else {
-						$field_text = '<span class="' . WPM_PREFIX . 'field-label">' . $field->name . ':</span> ';
-					}
-					if ( 'tinyint' === $field->type ) {
-						if ( '1' === $custom[ $field->slug ][0] ) {
-							$field_text .= 'Yes';
-						} else {
-							$field_text .= 'No';
-						}
-					} else {
-						$field_text .= $custom[ $field->slug ][0];
-					}
-					$field_text = \html_entity_decode( $field_text );
-					$content .= apply_filters( 'the_content', $field_text );
+					$field_text .= $meta_value;
 				}
-				$content .= '</div>';
+				$field_text = \html_entity_decode( $field_text );
+				$content .= apply_filters( 'the_content', $field_text );
 			}
+			$content .= '</div>';
 		}
 		if ( count( $bool_yes_fields ) > 0 ) {
 			$content .= '<ul>';
@@ -119,10 +127,42 @@ function object_content_filter( $content ) {
 			}
 			$content .= '</ul>';
 		}
+
+		// Children.
+		$child_kinds = $object_kind->get_children();
+		$child_ids = get_post_meta( $post->ID, WPM_PREFIX . 'child_objects', true );
+		if ( $child_kinds && $child_ids ) {
+			foreach ( $child_kinds as $child_kind ) {
+				if (
+					isset( $child_ids[ $child_kind->kind_id ] ) &&
+					count( $child_ids[ $child_kind->kind_id ] ) > 0
+				) {
+					$content .= "<div class='child-kind'>";
+					$content .= "<h2>$child_kind->label_plural</h2>";
+					foreach ( $child_ids[ $child_kind->kind_id ] as $child_id ) {
+						$child_post = get_post( $child_id );
+						$thumbnail  = get_object_thumbnail( $child_post->ID );
+						$link       = get_permalink( $child_post );
+						$title      = get_the_title( $child_post );
+
+						$content .= "<div class='child-object'>";
+						$content .= "<img class='child-object-thumb' src='{$thumbnail[0]}' />";
+						$content .= "<div class='child-object-content'>";
+						$content .= "<h3>$title</h3>";
+						$content .= get_the_excerpt( $child_post );
+						$content .= "<div class='child-view-link'><a href='$link'>View</a></div>";
+						$content .= '</div>';
+						$content .= '</div>';
+					}
+					$content .= '</div>';
+				}
+			}
+		}
 		if ( 'bottom' === $display_options['image_gallery_position'] ) {
 			$content .= $image_gallery_content;
 		}
 	}
+
 	$object_content_filter_in_progress = false;
 	return $content;
 }
@@ -406,6 +446,18 @@ function object_css() {
 				$styles[ '.' . WPM_PREFIX . 'obj-image' ]['margin-right'] = $display_options['image_margin'] . 'px';
 				break;
 		}
+
+		/**
+		 * Child object div
+		 */
+		$styles['.child-object']['display']            = 'flex';
+		$styles['.child-object']['flex-direction']     = 'row';
+		$styles['.child-object']['flex-wrap']          = 'nowrap';
+		$styles['.child-object-thumb']['width']        = '100px';
+		$styles['.child-object-thumb']['height']       = '100px';
+		$styles['.child-object-thumb']['min-width']    = '100px';
+		$styles['.child-object-thumb']['object-fit']   = 'cover';
+		$styles['.child-object-thumb']['margin-right'] = '1em';
 
 		echo '<style type="text/css">';
 		echo esc_html( css_from_array( $styles ) );
