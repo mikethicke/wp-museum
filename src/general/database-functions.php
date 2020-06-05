@@ -13,17 +13,17 @@ namespace MikeThicke\WPMuseum;
 function db_version_check() {
 	$version = get_site_option( 'wpm_db_version' );
 	if ( DB_VERSION !== $version ) {
-		if ( $version === '0.0.13' ) {
+		if ( version_compare( $version, '0.6.0', '<' ) ) {
 			upgrade_0_13_to_0_15();
-		}
-		if ( version_compare( $version, '0.5.9', '<' ) ) {
-			//fix_meta_html_entities();
-		}
-		if ( version_compare( $version, '0.5.10', '<' ) ) {
-			//fix_wpm_gallery_attach_ids();
 		}
 		create_mobject_kinds_table();
 		create_mobject_fields_table();
+		if ( version_compare( $version, '0.6.0', '<' ) ) {
+			fix_meta_html_entities();
+			fix_wpm_gallery_attach_ids();
+			make_object_attach_ids_simple_array();
+			add_block_template();
+		}
 		update_option( 'wpm_db_version', DB_VERSION );
 	}
 }

@@ -77,28 +77,6 @@ class ObjectPostType {
 	}
 
 	/**
-	 * Callback for displaying object post's children.
-	 */
-	public function display_object_children() {
-		global $post;
-		$children = get_children(
-			[
-				'numberposts' => -1,
-				'post_status' => 'any',
-				'post_type'   => $this->object_post_type->options['type'],
-				'post_parent' => $post->ID,
-			]
-		);
-		echo '<table>';
-		foreach ( $children as $child ) {
-			$permalink = get_permalink( $child->ID );
-			echo "<tr><td><a href='post.php?post=" . esc_html( $child->ID ) . "&action=edit'>" . esc_html( $child->post_title ) . '</a></td></tr>';
-		}
-		echo '</table><br />';
-		echo "<button type='button' class='button button-large' onclick='new_obj(" . esc_html( $post->ID ) . ")'>New Part</button>";
-	}
-
-	/**
 	 * Add fields to default WordPress search.
 	 *
 	 * Note: All custom post types get added to search already.
@@ -169,15 +147,6 @@ class ObjectPostType {
 	 * Register the object as custom post type.
 	 */
 	public function register() {
-		// Creates a MetaBox displaying an object's child posts.
-		$children_box          = new MetaBox(
-			$this->kind->type_name . '-children',
-			$this->kind->label . ' Parts',
-			array( $this, 'display_object_children' )
-		);
-		$children_box->context = 'side';
-		$this->object_post_type->add_custom_meta( $children_box );
-
 		register_post_meta(
 			$this->object_post_type->options['type'],
 			'wpm_gallery_attach_ids',
