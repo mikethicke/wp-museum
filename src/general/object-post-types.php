@@ -102,7 +102,7 @@ function link_objects_by_id( $content ) {
 		// The pattern is based on user-inputtted regular expression with some
 		// special syntax for group ordering in sort. We convert that into an
 		// expression that will match correctly.
-		$pattern       = '/' . stripslashes( $id_field->field_schema ) . '/';
+		$pattern       = '/' . $id_field->field_schema . '/';
 		$pattern       = preg_replace( '/<.*?>/', ':', $pattern );
 		$matches       = array();
 
@@ -151,13 +151,4 @@ function link_objects_by_id( $content ) {
 	}
 
 	return $content;
-}
-
-/**
- * Ends a session.
- */
-function end_session() {
-	if ( session_id() ) {
-		session_destroy();
-	}
 }

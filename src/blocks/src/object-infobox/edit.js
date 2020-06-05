@@ -178,7 +178,7 @@ class ObjectInfoEdit extends Component {
 				apiFetch(
 					{ path: base_rest_path + 
 							result.post_type +
-							'/custom'
+							'/fields'
 					}
 				).then( result => {
 					const { fields }      = that.props.attributes;

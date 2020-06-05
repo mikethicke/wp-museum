@@ -67,6 +67,15 @@ function create_admin_react_pages() {
 
 	add_submenu_page(
 		'wpm-react-admin',
+		'Objects',
+		'Objects',
+		'manage_options',
+		'wpm-react-admin-objects',
+		__NAMESPACE__ . '\react_admin_objects'
+	);
+
+	add_submenu_page(
+		'wpm-react-admin',
 		'Museum Remote',
 		'Museum Remote',
 		'manage_options',
@@ -93,6 +102,12 @@ function react_admin_dashboard() {
 function react_admin_general() {
 	echo (
 		"<div id='wpm-react-admin-app-container-general'></div>"
+	);
+}
+
+function react_admin_objects() {
+	echo (
+		"<div id='wpm-react-admin-app-container-objects'></div>"
 	);
 }
 
