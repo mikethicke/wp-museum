@@ -20,6 +20,14 @@ function upgrade_0_13_to_0_15() {
 	$result = $wpdb->query( "ALTER TABLE $old_table_name RENAME TO `$new_table_name`;" );
 	$result = $wpdb->query( "ALTER TABLE `$new_table_name` CHANGE `object_id` `kind_id` MEDIUMINT(9) NOT NULL AUTO_INCREMENT;" );
 
+	$old_fields_table = $wpdb->prefix . WPM_PREFIX . 'object_fields';
+	$new_fields_table = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
+	$wpdb->query( "ALTER TABLE $old_fields_table RENAME TO $new_fields_table ;" );
+	$wpdb->query( "ALTER TABLE $new_fields_table CHANGE `object_id` `kind_id` MEDIUMINT(9);");
+}
+
+function description_to_content() {
+	global $wpdb;
 	$object_posts = get_posts(
 		[
 			'numberposts' => -1,
@@ -35,17 +43,11 @@ function upgrade_0_13_to_0_15() {
 			$result = $wpdb->query( $wpdb->prepare( $query, $custom['description'][0], $object_post->ID ) );
 		}
 	}
-
+	$new_fields_table = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
+	$wpdb->query( "DELETE FROM $new_fields_table WHERE `slug` = 'description'" );
 	$postmeta_table = $wpdb->prefix . 'postmeta';
 	$wpdb->query( "DELETE FROM $postmeta_table WHERE meta_key = 'description'" );
-
-	$old_fields_table = $wpdb->prefix . WPM_PREFIX . 'object_fields';
-	$new_fields_table = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
-	$wpdb->query( "ALTER TABLE $old_fields_table RENAME TO $new_fields_table ;" );
-	$wpdb->query( "ALTER TABLE $new_fields_table CHANGE `object_id` `kind_id` MEDIUMINT(9);");
-	$wpdb->query( "DELETE FROM $new_fields_table WHERE `slug` = 'description'" );
 }
-
 /**
  * Replace HTML entities in a string while leaving tags in place.
  *
@@ -112,15 +114,15 @@ function fix_wpm_gallery_attach_ids() {
 		 * it will only work on the old sort order method.
 		 */
 
-		$custom = get_post_custom( $object_post->ID );
+		$gallery_attach_meta = get_post_meta( $object_post->ID, 'wpm_gallery_attach_ids', true );
 		if (
-			! isset( $custom['wpm_gallery_attach_ids'] ) ||
-			! $custom['wpm_gallery_attach_ids'][0] ||
-			! is_string( $custom['wpm_gallery_attach_ids'][0] )
+			! isset( $gallery_attach_meta ) ||
+			! $gallery_attach_meta ||
+			! is_string( $gallery_attach_meta )
 		) {
 				continue;
 		} else {
-			$image_pairs_array = explode( ',', $custom['wpm_gallery_attach_ids'][0] );
+			$image_pairs_array = explode( ',', $gallery_attach_meta );
 			$max_order         = 0;
 			$attached_image_array = [];
 			foreach ( $image_pairs_array as $image_pair_str ) {
@@ -219,6 +221,33 @@ function fix_collection_post_types() {
 	$wpdb->update( $table_name, [ 'post_type' => 'wpm_collection' ], [ 'post_type' => 'collection' ] );
 }
 
+function refresh_kinds() {
+	$kinds = get_mobject_kinds();
+	foreach ( $kinds as $kind ) {
+		$kind->save_to_db();
+	}
+}
+
+function put_back_spurious_instruments() {
+	$posts = get_posts(
+		[
+			'numberposts' => -1,
+			'post_type'   => get_object_type_names(),
+			'post_status' => 'any',
+		]
+	);
+	foreach ( $posts as $post ) {
+		$acnum = get_post_meta( $post->ID, 'accession-number', true );
+		if ( ! $acnum ) {
+			wp_update_post(
+				[
+					'ID'        => $post->ID,
+					'post_type' => 'post',
+				]
+			);
+		}
+	}
+}
 
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\add_child_block' );
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\translate_field_types' );
