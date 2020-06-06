@@ -130,7 +130,7 @@ class ObjectKind {
 	/**
 	 * Generates type name from name.
 	 */
-	private function set_type_name_from_name() {
+	private function type_name_from_name() {
 		global $wpdb;
 
 		if ( is_null( $this->name ) ) {
@@ -171,7 +171,7 @@ class ObjectKind {
 			}
 		}
 
-		$this->type_name = $unique_type_name;
+		return $unique_type_name;
 	}
 
 	/**
@@ -179,15 +179,19 @@ class ObjectKind {
 	 * associated posts.
 	 */
 	private function update_type_name() {
-		$posts = $this->get_all_posts();
-		$this->set_type_name_from_name();
-		foreach ( $posts as $post ) {
-			wp_update_post(
-				[
-					'ID'        => $post->ID,
-					'post_type' => $this->type_name,
-				]
-			);
+		$old_type_name = $this->type_name;
+		$new_type_name = $this->type_name_from_name();
+		if ( $old_type_name !== $new_type_name ) {
+			$posts = $this->get_all_posts();
+			foreach ( $posts as $post ) {
+				wp_update_post(
+					[
+						'ID'        => $post->ID,
+						'post_type' => $new_type_name,
+					]
+				);
+			}
+			$this->type_name = $new_type_name;
 		}
 	}
 
@@ -366,20 +370,17 @@ class ObjectKind {
 
 		if ( $this->label ) {
 			$this->name = self::name_from_label( $this->label );
-			if ( !$this->label_plural ) {
+			if ( ! $this->label_plural ) {
 				$this->label_plural = $this->label . 's';
 			}
 		}
 
+		$saved_kind = get_kind( $this->kind_id );
+
 		if ( $this->name ) {
-			if ( $this->type_name ) {
-				$this->update_type_name();
-			} else {
-				$this->set_type_name_from_name();
-			}
+			$this->update_type_name();
 		}
 
-		$saved_kind = get_kind( $this->kind_id );
 		if ( is_null( $saved_kind ) ) {
 			$insert_array = $this->to_array();
 			unset( $insert_array['kind_id'] );
