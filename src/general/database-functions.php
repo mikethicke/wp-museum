@@ -12,17 +12,38 @@ namespace MikeThicke\WPMuseum;
  */
 function db_version_check() {
 	$version = get_site_option( 'wpm_db_version' );
+	if ( WP_DEBUG ) {
+		$logfile = \fopen( 'db_upgrade_log.txt', 'w' );
+		\fwrite( $logfile, "DB: $version PHP: " . DB_VERSION . "\n");
+	}
 	if ( DB_VERSION !== $version ) {
+		if ( WP_DEBUG ) {
+			\fwrite( $logfile, "Doing upgrade.");
+		}
 		if ( version_compare( $version, '0.6.0', '<' ) ) {
+			if ( WP_DEBUG ) {
+				\fwrite( $logfile, "First upgrade.");
+			}
 			upgrade_0_13_to_0_15();
 		}
 		create_mobject_kinds_table();
 		create_mobject_fields_table();
 		if ( version_compare( $version, '0.6.0', '<' ) ) {
+			if ( WP_DEBUG ) {
+				\fwrite( $logfile, "Second upgrade.");
+			}
 			fix_meta_html_entities();
 			fix_wpm_gallery_attach_ids();
-			make_object_attach_ids_simple_array();
 			add_block_template();
+			add_child_block();
+			translate_field_types();
+			fix_collection_post_types();
+			if ( WP_DEBUG ) {
+				\fwrite( $logfile, "Finished upgrade.");
+			}
+		}
+		if ( WP_DEBUG ) {
+			\fclose( $logfile );
 		}
 		update_option( 'wpm_db_version', DB_VERSION );
 	}

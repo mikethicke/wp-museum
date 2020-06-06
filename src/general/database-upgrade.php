@@ -29,7 +29,7 @@ function upgrade_0_13_to_0_15() {
 	);
 	foreach ( $object_posts as $object_post ) {
 		$custom      = get_post_custom( $object_post->ID );
-		if ( ! empty( $custom['description'] ) && empty( $object_post->post_content ) ) {
+		if ( ! empty( $custom['description'] ) ) {
 			$posts_table = $wpdb->prefix . 'posts';
 			$query       = "UPDATE $posts_table SET `post_content` = %s WHERE `ID` = %s;";
 			$result = $wpdb->query( $wpdb->prepare( $query, $custom['description'][0], $object_post->ID ) );
@@ -106,7 +106,6 @@ function fix_wpm_gallery_attach_ids() {
 			'post_status' => 'any',
 		]
 	);
-	$exit_after_one = false;
 	foreach ( $posts as $object_post ) {
 		/**
 		 * This code is from the old get_object_image_attachment function, so
@@ -142,39 +141,8 @@ function fix_wpm_gallery_attach_ids() {
 				foreach ( $attached_image_array as $post_id => $sort_order ) {
 					$new_attach_ids[] = intval( $post_id );
 				}
-				$a = 1;
 				update_post_meta( $object_post->ID, 'wpm_gallery_attach_ids', $new_attach_ids );
 			}
-			if ( $exit_after_one ) {
-				break;
-			}
-		}
-	}
-}
-
-/**
- * Converts wpm_gallery_attach_ids from post_id => sort_order associative array
- * to simple array of post_id in sorted order. This makes it easier to use with
- * REST API.
- */
-function make_object_attach_ids_simple_array() {
-	$posts = get_posts(
-		[
-			'numberposts' => -1,
-			'post_type'   => get_object_type_names(),
-			'post_status' => 'any',
-		]
-	);
-	foreach ( $posts as $object_post ) {
-		$attach_ids = get_post_meta( $object_post->ID, 'wpm_gallery_attach_ids', true );
-		if ( is_array( $attach_ids ) && count( $attach_ids ) > 0 ) {
-			$new_attach_ids = [];
-			asort( $attach_ids );
-			foreach ( $attach_ids as $post_id => $sort_order ) {
-				$new_attach_ids[] = intval( $post_id );
-			}
-			$a = 1;
-			update_post_meta( $object_post->ID, 'wpm_gallery_attach_ids', $new_attach_ids );
 		}
 	}
 }
@@ -240,6 +208,18 @@ function translate_field_types() {
 	$wpdb->update( $table_name, [ 'type' => 'rich' ], [ 'type' => 'text' ] );
 	$wpdb->update( $table_name, [ 'type' => 'flag' ], [ 'type' => 'tinyint' ] );
 }
+
+
+/**
+ * Makes all collections type wpm_collection rather than collection.
+ */
+function fix_collection_post_types() {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'posts';
+	$wpdb->update( $table_name, [ 'post_type' => 'wpm_collection' ], [ 'post_type' => 'collection' ] );
+}
+
+
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\add_child_block' );
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\translate_field_types' );
 //add_action( 'plugins_loaded', __NAMESPACE__ . '\add_block_template' );
