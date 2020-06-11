@@ -39,6 +39,7 @@ function create_mobject_kinds_table() {
         must_featured_image tinyint(1),
         must_gallery tinyint(1),
 		exclude_from_search tinyint(1),
+		strict_checking tinyint(1),
 		parent_kind_id mediumint(9),
         PRIMARY KEY  (kind_id)
     );";

@@ -95,7 +95,7 @@ function create_admin_react_pages() {
 
 function react_admin_dashboard() {
 	echo (
-		"<div id='wpm-react-admin-app-container-dashboard'>Hello</div>"
+		"<div id='wpm-react-admin-app-container-dashboard'></div>"
 	);
 }
 

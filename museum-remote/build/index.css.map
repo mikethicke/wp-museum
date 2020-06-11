@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///admin.scss"],"names":[],"mappings":"AAAA;EACE,WAAW;EACX,cAAc;EACd,cAAc;EACd,aAAa,EAAE;;AAEjB;EACE,aAAa,EAAE","file":"index.css","sourcesContent":[".remote-admin-page input {\n  width: 30em;\n  display: block;\n  padding: 0.5em;\n  margin: 0.5em; }\n\n.remote-admin-page button {\n  margin: 0.5em; }\n"],"sourceRoot":""}

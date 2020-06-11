@@ -181,7 +181,7 @@ class ObjectKind {
 	private function update_type_name() {
 		$old_type_name = $this->type_name;
 		$new_type_name = $this->type_name_from_name();
-		if ( $old_type_name !== $new_type_name ) {
+		if ( ! is_null( $old_type_name ) && $old_type_name !== $new_type_name ) {
 			$posts = $this->get_all_posts();
 			foreach ( $posts as $post ) {
 				wp_update_post(
@@ -191,8 +191,8 @@ class ObjectKind {
 					]
 				);
 			}
-			$this->type_name = $new_type_name;
 		}
+		$this->type_name = $new_type_name;
 	}
 
 	/**
