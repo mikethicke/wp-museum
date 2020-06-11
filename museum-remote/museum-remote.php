@@ -24,11 +24,6 @@ namespace MikeThicke\MuseumRemote;
  */
 const DEV_BUILD = true;
 
-/**
- * Root for rest routes.
- */
-const REST_NAMESPACE = 'wp-museum/v1';
-
 define( 'REQUIRE_PREFIX', plugin_dir_path( __FILE__ ) );
 
 if ( DEV_BUILD ) {
@@ -41,3 +36,4 @@ if ( DEV_BUILD ) {
 
 require_once REQUIRE_PREFIX . 'admin.php';
 require_once REQUIRE_PREFIX . 'react.php';
+require_once REQUIRE_PREFIX . 'rest.php';

@@ -243,44 +243,178 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+var SiteInfo = function SiteInfo(props) {
+  var currentlyConnecting = props.currentlyConnecting,
+      connectionError = props.connectionError,
+      siteData = props.siteData;
+  var title = siteData.title,
+      description = siteData.description,
+      url = siteData.url,
+      collections = siteData.collections,
+      objectCount = siteData.object_count;
+  var collectionCount = Array.isArray(collections) ? collections.length : 0;
+
+  if (currentlyConnecting) {
+    return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+      className: "site-info"
+    }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+      className: "connection-status connecting"
+    }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["Spinner"], null), "Connecting..."));
+  }
+
+  if (connectionError) {
+    return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+      className: "site-info"
+    }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+      className: "connection-status error"
+    }, "Connection error: ", connectionError));
+  }
+
+  return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+    className: "site-info"
+  }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+    className: "connection-status success"
+  }, "Connected"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("table", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("tbody", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("tr", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, "Site:"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, title)), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("tr", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, "URL:"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, url)), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("tr", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, "Collection count:"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, collectionCount)), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("tr", null, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, "Object count:"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("td", null, objectCount)))));
+};
+
 var RemoteAdminPage = function RemoteAdminPage() {
   var wpmRestBase = '/wp-json/wp-museum/v1';
-  var wordPressRestBase = '/wp-json/wp/v2';
+  var mrRestBase = '/museum-remote/v1';
 
   var _useState = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(null),
       _useState2 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState, 2),
       remoteURL = _useState2[0],
       setRemoteURL = _useState2[1];
 
-  var _useState3 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(null),
+  var _useState3 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])({}),
       _useState4 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState3, 2),
       siteData = _useState4[0],
       setSiteData = _useState4[1];
+
+  var _useState5 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(false),
+      _useState6 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState5, 2),
+      currentlyConnecting = _useState6[0],
+      setCurrentlyConnecting = _useState6[1];
+
+  var _useState7 = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useState"])(null),
+      _useState8 = _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0___default()(_useState7, 2),
+      connectionError = _useState8[0],
+      setConnectionError = _useState8[1];
+
+  var textInput = Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useRef"])(null);
+  Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useEffect"])(function () {
+    return textInput.current.focus();
+  }, []);
+  Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["useEffect"])(function () {
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3___default()({
+      path: "".concat(mrRestBase, "/remote_url")
+    }).then(function (result) {
+      if (result) {
+        setRemoteURL(result);
+        doConnect(result);
+      }
+    });
+  }, []);
+
+  var updateRemoteUrlOption = function updateRemoteUrlOption() {
+    var newUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var data = newUrl != null ? newUrl : remoteURL;
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_3___default()({
+      path: "".concat(mrRestBase, "/remote_url"),
+      method: 'POST',
+      data: data
+    }).then(function (result) {
+      return console.log(result);
+    });
+  };
 
   var onUrlChange = function onUrlChange(event) {
     setRemoteURL(event.target.value);
   };
 
+  var onUrlBlur = function onUrlBlur() {
+    var newUrl = cleanUrl();
+    updateRemoteUrlOption(newUrl);
+  };
+
+  var cleanUrl = function cleanUrl() {
+    var newUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var cleanedUrl = newUrl ? newUrl : remoteURL;
+    cleanedUrl = cleanedUrl.trim();
+    cleanedUrl = cleanedUrl.endsWith('/') ? cleanedUrl.slice(0, -1) : cleanedUrl;
+    cleanedUrl = cleanedUrl.startsWith('http://') || cleanedUrl.startsWith('https://') ? cleanedUrl : 'http://' + cleanedUrl;
+    setRemoteURL(cleanedUrl);
+    return cleanedUrl;
+  };
+  /**
+   * Connects to remote site, checks response, and if everything is ok update the site data.
+   *
+   * @see https://developers.google.com/web/ilt/pwa/working-with-the-fetch-api
+   */
+
+
   var doConnect = function doConnect() {
-    var trimmedUrl = remoteURL.endsWith('/') ? remoteURL.slice(0, -1) : remoteURL;
-    fetch("".concat(trimmedUrl).concat(wordPressRestBase, "/settings")).then(function (result) {
-      console.log(result);
-    });
+    var newUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    setCurrentlyConnecting(true);
+    setConnectionError(null);
+    var cleanedUrl = cleanUrl(newUrl);
+    updateRemoteUrlOption(cleanedUrl);
+
+    var validateResponse = function validateResponse(response) {
+      if (!response.ok) {
+        throw Error(response.statusText);
+      }
+
+      return response;
+    };
+
+    var readJSONResponse = function readJSONResponse(response) {
+      response.json().then(function (data) {
+        return setSiteData(data);
+      });
+    };
+
+    var stopConnecting = function stopConnecting() {
+      setCurrentlyConnecting(false);
+    };
+
+    var catchError = function catchError(error) {
+      stopConnecting();
+      setConnectionError(error.message);
+      console.log('Error fetching: ' + error);
+    };
+
+    fetch("".concat(cleanedUrl).concat(wpmRestBase, "/site_data")).then(validateResponse).then(readJSONResponse).then(stopConnecting).catch(catchError);
+  };
+
+  var maybeConnect = function maybeConnect(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      doConnect();
+    }
   };
 
   return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
     className: "remote-admin-page"
   }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("h2", null, "Museum Remote Configuration"), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("label", null, "Remote Museum URL:", Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("input", {
     type: "url",
-    placeholder: "http://example.com/",
+    ref: textInput,
+    placeholder: "http://example.com",
     pattern: "https?:\\/\\/.*",
     onChange: onUrlChange,
+    onBlur: onUrlBlur,
+    onKeyDown: maybeConnect,
     value: remoteURL
   })), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__["Button"], {
     isLarge: true,
     isPrimary: true,
     onClick: doConnect
-  }, "Connect"));
+  }, "Connect"), (currentlyConnecting || connectionError || Object.keys(siteData).length > 0) && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])(SiteInfo, {
+    currentlyConnecting: currentlyConnecting,
+    connectionError: connectionError,
+    siteData: siteData
+  }));
 };
 
 if (!!document.getElementById('museum-remote-admin-container')) {

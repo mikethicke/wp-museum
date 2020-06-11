@@ -4,26 +4,29 @@
  *
  * REST root: /wp-json/wp-museum/v1
  *
+ * ## General ##
+ * /site_data                        Overview data for the site.
+ *
  * ## Objects ##
- * /wp-json/wp-museum/v1/<object type>/[?s=|<field>=]     Objects with post type <object type>.
- * /wp-json/wp-museum/v1/<object type>/<post id>          Specific object.
- * /wp-json/wp-museum/v1/<object type>/<post id>/images   Images associated with object.
- * /wp-json/wp-museum/v1/<object type>/<post id>/children Child objects of object.
- * /wp-json/wp-museum/v1/all/[?s=|<field>=]               All museum objects, regardless of type.
- * /wp-json/wp-museum/v1/all/<post id>                    Specific object.
- * /wp-json/wp-museum/v1/all/<post id>/images             Images associated with object.
- * /wp-json/wp-museum/v1/all/<post id>/children           Child objects of object.
- * /wp-json/wp-musuem/v1/<object type>/fields             Public fields for <object type>.
- * /wp-json/wp-musuem/v1/<object type>/fields_all         All fields for <object type>.
+ * /<object type>/[?s=|<field>=]     Objects with post type <object type>.
+ * /<object type>/<post id>          Specific object.
+ * /<object type>/<post id>/images   Images associated with object.
+ * /<object type>/<post id>/children Child objects of object.
+ * /all/[?s=|<field>=]               All museum objects, regardless of type.
+ * /all/<post id>                    Specific object.
+ * /all/<post id>/images             Images associated with object.
+ * /all/<post id>/children           Child objects of object.
+ * /<object type>/fields             Public fields for <object type>.
+ * /<object type>/fields_all         All fields for <object type>.
  *
  * ## Kinds ##
- * /wp-json/wp-musuem/v1/mobject_kinds                  Object kinds
- * /wp-json/wp-museum/v1/mobject_kinds/<object type>    A specific kind with <object type>.
+ * /mobject_kinds                  Object kinds
+ * /mobject_kinds/<object type>    A specific kind with <object type>.
  *
  * ## Collections ##
- * /wp-json/wp-museum/v1/collections/[?s=]              All museum collections.
- * /wp-json/wp-museum/v1/collections/<post id>          A specific collection.
- * /wp-json/wp-museum/v1/collections/<post id>/objects  Objects associated with a collection.
+ * /collections/[?s=]              All museum collections.
+ * /collections/<post id>          A specific collection.
+ * /collections/<post id>/objects  Objects associated with a collection.
  *
  * @package MikeThicke\WPMuseum
  */
@@ -34,6 +37,63 @@ namespace MikeThicke\WPMuseum;
  * Register REST endpoints.
  */
 function rest_routes() {
+	/**
+	 * /site_data                        Overview data for the site.
+	 *
+	 * @return Array Array of site data.
+	 *
+	 * [
+	 *    'title'        => Title of site.
+	 *    'description'  => Site tagline.
+	 *    'url'          => Site URL.
+	 *    'collections'  => List of available collections.
+	 *    'object_count' => Total number of public objects.
+	 * ]
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/site_data',
+		[
+			'methods' => 'GET',
+			'callback' => function() {
+				$collections = get_collections();
+
+				$collection_names = array_map(
+					function( $collection ) {
+						return $collection->post_title;
+					},
+					$collections
+				);
+
+				$object_posts = get_object_posts( null, 'publish' );
+
+				return (
+					[
+						'title'        =>
+							sanitize_text_field(
+								html_entity_decode(
+									get_bloginfo( 'name' ),
+									ENT_QUOTES | ENT_XML1,
+									'UTF-8'
+								)
+							),
+						'description'  =>
+							sanitize_text_field(
+								html_entity_decode(
+									get_bloginfo( 'description' ),
+									ENT_QUOTES | ENT_XML1,
+									'UTF-8'
+								)
+							),
+						'url'          => esc_url( get_bloginfo( 'url' ) ),
+						'collections'  => $collection_names,
+						'object_count' => count( $object_posts ),
+					]
+				);
+			},
+		]
+	);
+
 	$kinds = get_mobject_kinds();
 	foreach ( $kinds as $kind ) {
 		/**
