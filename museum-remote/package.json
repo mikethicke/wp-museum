@@ -1,0 +1,27 @@
+{
+  "name": "museum-remote",
+  "version": "0.0.1",
+  "description": "Remote museum plugin",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "wp-scripts build /src/index.js --output-path=build",
+    "start": "wp-scripts start /src/index.js --output-path=build"
+  },
+  "author": "Mike Thicke",
+  "license": "ISC",
+  "devDependencies": {
+    "@wordpress/api-fetch": "^3.16.0",
+    "@wordpress/components": "^9.7.0",
+    "@wordpress/element": "^2.14.0",
+    "@wordpress/scripts": "^10.0.0",
+    "css-loader": "^3.5.3",
+    "ignore-emit-webpack-plugin": "^2.0.2",
+    "mini-css-extract-plugin": "^0.9.0",
+    "node-sass": "^4.14.1",
+    "path": "^0.12.7",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "sass-loader": "^8.0.2"
+  }
+}
