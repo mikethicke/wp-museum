@@ -16,7 +16,7 @@ planning
 release/
 src/blocks/build
 src/admin-react/build
-remote/build
+museum-remote/build
 *.code-workspace
 .DS_Store
 node_modules

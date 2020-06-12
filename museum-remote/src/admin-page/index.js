@@ -150,7 +150,6 @@ const RemoteAdminPage = () => {
 		const catchError = error => {
 			stopConnecting();
 			setConnectionError( error.message );
-			console.log( 'Error fetching: ' + error );
 		}
 		
 		fetch( `${cleanedUrl}${wpmRestBase}/site_data` )
