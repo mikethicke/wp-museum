@@ -2,7 +2,7 @@
 /**
  * Functions for interfacing with custom database tables (mobject_kinds & mobject_fields).
  *
- * @package MikeThicke\WordPress
+ * @package MikeThicke\WPMuseum
  */
 
 namespace MikeThicke\WPMuseum;
@@ -15,6 +15,7 @@ function db_version_check() {
 	if ( DB_VERSION !== $version ) {
 		create_mobject_kinds_table();
 		create_mobject_fields_table();
+		create_remote_clients_table();
 		update_option( 'wpm_db_version', DB_VERSION );
 	}
 }
@@ -76,6 +77,27 @@ function create_mobject_fields_table() {
         PRIMARY KEY  (field_id)
     );";
 
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	dbDelta( $sql );
+}
+
+/**
+ * Create / sync table for remote museum clients.
+ */
+function create_remote_clients_table() {
+	global $wpdb;
+	$table_name        = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+	$wpdb->show_errors = DB_SHOW_ERRORS;
+	$sql               =
+		"CREATE TABLE $table_name (
+			client_id mediumint(9) NOT NULL AUTO_INCREMENT,
+			uuid VARCHAR(36) UNIQUE,
+			title TEXT,
+			url TEXT,
+			blocked BOOLEAN,
+			registration_time DATETIME,
+			PRIMARY KEY (client_id)
+		);";
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	dbDelta( $sql );
 }

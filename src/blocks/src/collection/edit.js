@@ -25,7 +25,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies.
  */
 
-import { CollectionEmbedPanel, SearchBox } from "../components/search-box";
+import { CollectionEmbedPanel, ObjectSearchBox } from "../components/search-box";
 import FontSizePanel from "../components/font-size-panel";
 import ImageSizePanel from '../components/image-size-panel';
 
@@ -216,7 +216,7 @@ const Collection = ( props ) => {
 							>
 								<div className = 'thumbnail-placeholder-plus'>+</div>
 								{ modalOpen && 
-									<SearchBox
+									<ObjectSearchBox
 										close = { () => setModalOpen( false ) }
 										returnCallback = { onSearchModalReturn }
 									/>

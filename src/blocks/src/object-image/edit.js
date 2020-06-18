@@ -27,7 +27,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	ObjectEmbedPanel,
-	SearchBox
+	ObjectSearchBox
 } from '../components/search-box';
 import ImageSizePanel from '../components/image-size-panel';
 import ImageSelector from '../components/image-selector'
@@ -254,7 +254,7 @@ class ObjectImageEdit extends Component {
 						</div>
 					</div>
 					{ this.state.modalOpen &&
-						<SearchBox
+						<ObjectSearchBox
 							close          = { () => this.setModalOpen( false ) }
 							returnCallback = { newObjectID => this.onSearchModalReturn( newObjectID ) }
 						/>

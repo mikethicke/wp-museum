@@ -10,6 +10,8 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
+import { generateUUID } from '../util'; 
+
 const SiteInfo = props => {
 	const {
 		currentlyConnecting,
@@ -69,7 +71,7 @@ const RemoteAdminPage = () => {
 	const wpmRestBase = '/wp-json/wp-museum/v1';
 	const mrRestBase = '/museum-remote/v1'
 
-	const [ remoteURL, setRemoteURL ] = useState( null );
+	const [ remoteData, setRemoteData ] = useState( {} );
 	const [ siteData, setSiteData ] = useState( {} );
 	const [ currentlyConnecting, setCurrentlyConnecting ] = useState( false );
 	const [ connectionError, setConnectionError ] = useState( null );
@@ -79,21 +81,25 @@ const RemoteAdminPage = () => {
 
 	useEffect(
 		() => {
-			apiFetch( { path: `${mrRestBase}/remote_url` } )
-				.then( result => {
-					if ( result ) {
-						setRemoteURL( result );
-						doConnect( result );
-					}
-				} );
+			refreshRemoteData().then( result => doConnect( result ) );
 		}, []
 	);
 
-	const updateRemoteUrlOption = ( newUrl = null ) => {
-		const data = newUrl != null ? newUrl : remoteURL;
-		apiFetch(
+	const refreshRemoteData = () => {
+		return apiFetch( { path: `${mrRestBase}/remote_data` } )
+			.then( result => {
+				if ( result ) {
+					setRemoteData( result );
+				}
+				return result;
+			} );
+	}
+
+	const updateRemoteDataOption = ( newData = null ) => {
+		const data = newData != null ? newData : remoteData;
+		return apiFetch(
 			{
-				path   : `${mrRestBase}/remote_url`,
+				path   : `${mrRestBase}/remote_data`,
 				method : 'POST',
 				data   : data,
 			}
@@ -101,24 +107,37 @@ const RemoteAdminPage = () => {
 	}
 	
 	const onUrlChange = event => {
-		setRemoteURL( event.target.value );
+		setRemoteData( { ...remoteData, url: event.target.value } );
 	}
 
 	const onUrlBlur = () => {
 		const newUrl = cleanUrl();
-		updateRemoteUrlOption( newUrl );
+		updateRemoteDataOption( { ...remoteData, url: newUrl } );
 	}
 
 	const cleanUrl = ( newUrl = null ) => {
-		let cleanedUrl = newUrl ? newUrl : remoteURL;
+		let cleanedUrl = newUrl ? newUrl : remoteData.url;
 		cleanedUrl = cleanedUrl.trim();
 		cleanedUrl = cleanedUrl.endsWith('/') ? cleanedUrl.slice(0, -1 ) : cleanedUrl;
 		cleanedUrl = cleanedUrl
 			.startsWith('http://') || cleanedUrl.startsWith('https://' ) ?
 			cleanedUrl :
 			'http://' + cleanedUrl;
-		setRemoteURL( cleanedUrl );
+		setRemoteData( { ...remoteData, url: cleanedUrl } );
 		return cleanedUrl;
+	}
+
+	const getUUID = ( newData = null ) => {
+		const data = newData === null ? remoteData : newData;
+		const oldUUID = data.uuid;
+		if ( oldUUID ) {
+			setRemoteData( { ...data, uuid: oldUUID } );
+			return oldUUID;
+		}
+
+		const newUUID = generateUUID();
+		setRemoteData( { ...data, uuid: newUUID } );
+		return newUUID;
 	}
 
 	/**
@@ -126,11 +145,12 @@ const RemoteAdminPage = () => {
 	 *
 	 * @see https://developers.google.com/web/ilt/pwa/working-with-the-fetch-api
 	 */
-	const doConnect = ( newUrl = null ) => {
+	const doConnect = ( newData = null) => {
 		setCurrentlyConnecting( true );
 		setConnectionError( null );
-		const cleanedUrl = cleanUrl( newUrl );
-		updateRemoteUrlOption( cleanedUrl );
+		const data = newData === null ? remoteData : newData;
+		const cleanedUrl = cleanUrl( data.url );
+		const uuid = getUUID( newData );
 
 		const validateResponse = response => {
 			if ( ! response.ok ) {
@@ -152,7 +172,19 @@ const RemoteAdminPage = () => {
 			setConnectionError( error.message );
 		}
 		
-		fetch( `${cleanedUrl}${wpmRestBase}/site_data` )
+		fetch( `${cleanedUrl}${wpmRestBase}/register_remote`, {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json, text/plain, */*',
+				'Content-Type': 'application/json',
+				//'Access-Control-Allow-Origin': '*',
+			},
+			body: JSON.stringify( {
+				url   : cleanedUrl,
+				uuid  : uuid,
+				title : data.title
+			} ) 
+		} )
 			.then( validateResponse )
 			.then( readJSONResponse )
 			.then( stopConnecting )
@@ -180,13 +212,13 @@ const RemoteAdminPage = () => {
 					onChange = { onUrlChange }
 					onBlur   = { onUrlBlur }
 					onKeyDown = { maybeConnect }
-					value = { remoteURL }
+					value = { remoteData.url }
 				/>
 			</label>
 			<Button
 				isLarge
 				isPrimary
-				onClick = { doConnect }
+				onClick = { () => doConnect() }
 			>
 				Connect
 			</Button>

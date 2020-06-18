@@ -56,41 +56,22 @@ function rest_routes() {
 		[
 			'methods' => 'GET',
 			'callback' => function() {
-				$collections = get_collections();
-
-				$collection_names = array_map(
-					function( $collection ) {
-						return $collection->post_title;
-					},
-					$collections
-				);
-
-				$object_posts = get_object_posts( null, 'publish' );
-
-				return (
-					[
-						'title'        =>
-							sanitize_text_field(
-								html_entity_decode(
-									get_bloginfo( 'name' ),
-									ENT_QUOTES | ENT_XML1,
-									'UTF-8'
-								)
-							),
-						'description'  =>
-							sanitize_text_field(
-								html_entity_decode(
-									get_bloginfo( 'description' ),
-									ENT_QUOTES | ENT_XML1,
-									'UTF-8'
-								)
-							),
-						'url'          => esc_url( get_bloginfo( 'url' ) ),
-						'collections'  => $collection_names,
-						'object_count' => count( $object_posts ),
-					]
-				);
+				return get_site_data();
 			},
+		]
+	);
+
+	/**
+	 * /register_remote
+	 *
+	 * @return Array | WP_ERROR Array of site data or error if registration unsuccessful.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/register_remote',
+		[
+			'methods' => 'POST',
+			'callback' => __NAMESPACE__ . '\register_remote_client',
 		]
 	);
 
@@ -682,6 +663,46 @@ function child_objects_routes_args() {
 				}
 				return $data_array;
 			},
+		]
+	);
+}
+
+/**
+ * Basic data about the site.
+ */
+function get_site_data() {
+	$collections = get_collections();
+
+	$collection_names = array_map(
+		function( $collection ) {
+			return $collection->post_title;
+		},
+		$collections
+	);
+
+	$object_posts = get_object_posts( null, 'publish' );
+
+	return (
+		[
+			'title'        =>
+				sanitize_text_field(
+					html_entity_decode(
+						get_bloginfo( 'name' ),
+						ENT_QUOTES | ENT_XML1,
+						'UTF-8'
+					)
+				),
+			'description'  =>
+				sanitize_text_field(
+					html_entity_decode(
+						get_bloginfo( 'description' ),
+						ENT_QUOTES | ENT_XML1,
+						'UTF-8'
+					)
+				),
+			'url'          => esc_url( get_bloginfo( 'url' ) ),
+			'collections'  => $collection_names,
+			'object_count' => count( $object_posts ),
 		]
 	);
 }
