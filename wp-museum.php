@@ -20,7 +20,7 @@ const WPM_PREFIX     = 'wpm_';                 // Prefix for database tables.
 const CSS_VERSION    = '0.5.2';                // Change to force reload of CSS.
 const SCRIPT_VERSION = '0.5.2';                // Change to force reload of JS.
 const CACHE_GROUP    = 'MikeThicke\WPMuseum';  // For caching db queries.
-const DB_VERSION     = '0.5.22';               // Change to update db structure.
+const DB_VERSION     = '0.5.23';               // Change to update db structure.
 const DB_SHOW_ERRORS = true;                   // Have WP report db errors.
 const IMAGE_DIR      = 'wp-museum';            // Directory to save exported images.
 const REST_NAMESPACE = 'wp-museum/v1';         // Root for rest routes.
@@ -81,6 +81,7 @@ require_once $require_prefix . 'classes/class-metabox.php';
 require_once $require_prefix . 'classes/class-objectposttype.php';
 require_once $require_prefix . 'classes/class-objectkind.php';
 require_once $require_prefix . 'classes/class-mobjectfield.php';
+require_once $require_prefix . 'classes/class-remoteclient.php';
 
 /*
  * Functions
@@ -94,6 +95,7 @@ require_once $require_prefix . 'general/rest.php';
 require_once $require_prefix . 'public/display.php';
 require_once $require_prefix . 'admin/customization.php';
 require_once $require_prefix . 'admin/admin-icon.php';
+require_once $require_prefix . 'general/remote.php';
 
 /*
  * Scripts

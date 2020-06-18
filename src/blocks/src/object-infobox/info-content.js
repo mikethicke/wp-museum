@@ -13,7 +13,7 @@ import {
  * Internal dependencies.
  */
 import { hexToRgb } from '../util';
-import { SearchBox } from '../components/search-box';
+import { ObjectSearchBox } from '../components/search-box';
 import ImageSelector from '../components/image-selector';
 
 /**
@@ -103,7 +103,7 @@ const InfoContent = ( props ) => {
 								</div>
 							</div>
 							{ modalOpen &&
-								<SearchBox
+								<ObjectSearchBox
 									close = { () => setModalOpen( false ) }
 									returnCallback = { onSearchModalReturn }
 								/>

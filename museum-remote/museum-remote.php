@@ -37,3 +37,4 @@ if ( DEV_BUILD ) {
 require_once REQUIRE_PREFIX . 'admin.php';
 require_once REQUIRE_PREFIX . 'react.php';
 require_once REQUIRE_PREFIX . 'rest.php';
+require_once REQUIRE_PREFIX . 'collection-block.php';

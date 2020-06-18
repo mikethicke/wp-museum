@@ -178,7 +178,7 @@ class MObjectField {
 	 *
 	 * Note: Call json_decode with assoc parameter set to true.
 	 *
-	 * @param Object $field_data Data from REST request as associative array.
+	 * @param Array $field_data Data from REST request as associative array.
 	 * @return MObjectField A new instance of MObjectField.
 	 */
 	public static function from_rest( $field_data ) {
