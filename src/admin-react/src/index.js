@@ -1,7 +1,10 @@
+import './admin.scss';
+
 import { render } from '@wordpress/element';
 
 import Dashboard from './dashboard';
 import { ObjectPage } from './objects';
+import RemoteAdmin from './remote';
 
 if ( !! document.getElementById( 'wpm-react-admin-app-container-dashboard') ) {
 	render( 
@@ -12,5 +15,10 @@ if ( !! document.getElementById( 'wpm-react-admin-app-container-dashboard') ) {
 	render( 
 		<ObjectPage />,
 		document.getElementById( 'wpm-react-admin-app-container-objects')
+	);
+} else if ( !! document.getElementById( 'wpm-react-admin-app-container-remote') ) {
+	render( 
+		<RemoteAdmin />,
+		document.getElementById( 'wpm-react-admin-app-container-remote')
 	);
 }

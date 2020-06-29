@@ -25,9 +25,11 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies.
  */
 
-import { CollectionEmbedPanel, ObjectSearchBox } from "../components/search-box";
+import { CollectionEmbedPanel, CollectionSearchBox } from "../components/search-box";
 import FontSizePanel from "../components/font-size-panel";
 import ImageSizePanel from '../components/image-size-panel';
+import ObjectImageGrid from '../components/object-image-grid';
+import ThumbnailImage from '../components/thumbnail-image';
 
 
 const Collection = ( props ) => {
@@ -62,38 +64,6 @@ const Collection = ( props ) => {
 
 	const [ modalOpen, setModalOpen ] = useState( false );
 
-	const percentWidth = Math.round( 1 / columns * 100 ) + '%';
-	const imgStyle = {
-		flexBasis: percentWidth
-	}
-
-	const collectionImages = collectionObjects
-		.filter( object => object.imgURL )
-		.map( ( object, index ) => {
-			return (
-				<div 
-					className = 'collection-object-image-wrapper'
-					style     = { imgStyle }
-					key       = { 'collection-object-image-' + index }
-				>
-					{ linkToObjects ?
-						<a href= { object.URL }>
-							<img
-								src    = { object.imgURL }
-								title = { object.title }
-							/>
-						</a>
-						:
-						<img
-							src   = { object.imgURL }
-							title = { object.title }
-						/>
-					}			
-				</div>
-			);
-		} )
-		.slice( 0, numObjects );
-
 	const onSearchModalReturn = ( newCollectionID ) => {
 		setAttributes( { collectionID: newCollectionID } );
 
@@ -106,7 +76,7 @@ const Collection = ( props ) => {
 
 				setAttributes( {
 					title          : result['post_title'],
-					collectuionURL : result['link'],
+					collectionURL  : result['link'],
 					thumbnailURL   : newThumbnailURL,
 					excerpt        : result['excerpt'],
 				} );
@@ -119,7 +89,8 @@ const Collection = ( props ) => {
 							return ( {
 								imgURL : objImgURL,
 								title  : result['post_title'],
-								URL    : result['link']
+								URL    : result['link'],
+								ID     : result['ID']
 							} );
 						} );
 						setAttributes( {
@@ -176,6 +147,11 @@ const Collection = ( props ) => {
 					onChange = { val => setAttributes( { displayExcerpt: val } ) }
 				/>
 				<CheckboxControl
+					label = 'Display Collection Thumbnail'
+					checked = { displayThumbnail }
+					onChange = { val => setAttributes( { displayThumbnail: val } ) }
+				/>
+				<CheckboxControl
 					label = 'Display Object Images'
 					checked = { displayObjects }
 					onChange = { val => setAttributes( { displayObjects: val } ) }
@@ -203,32 +179,25 @@ const Collection = ( props ) => {
 			<div className = { `collection-block-upper-content img-${imgAlignment}` } >
 				{ displayThumbnail &&
 					<div className = 'thumbnail-wrapper'>
-						{ thumbnailURL ?
-							<img src = { thumbnailURL } />
-							:
-							<div
-								className = 'thumbnail-placeholder'
-								style     = { { height: imgDimensions.height, width: imgDimensions.width } }
-								onClick   = { event => {
-									event.stopPropagation();
-									setModalOpen( true )
-								} }
-							>
-								<div className = 'thumbnail-placeholder-plus'>+</div>
-								{ modalOpen && 
-									<ObjectSearchBox
-										close = { () => setModalOpen( false ) }
-										returnCallback = { onSearchModalReturn }
-									/>
-								}
-							</div>
+						{ thumbnailURL &&
+							<ThumbnailImage
+								thumbnailURL       = { thumbnailURL }
+								imgDimensions      = { imgDimensions }
+								setSearchModalOpen = { setModalOpen }
+							/>
+						}
+						{ modalOpen && 
+							<CollectionSearchBox
+								close = { () => setModalOpen( false ) }
+								returnCallback = { onSearchModalReturn }
+							/>
 						}
 					</div>
 				}
 				<div className = 'collection-info'>
 					{ displayTitle && title &&
 						<TitleTag>
-							{ title }
+							<a href = { collectionURL }> { title }</a>
 						</TitleTag>
 					}
 					{ displayExcerpt && excerpt &&
@@ -237,13 +206,21 @@ const Collection = ( props ) => {
 							style     = { { fontSize: fontSize + 'em' } }
 						>
 							{ excerpt }
+							{ collectionURL && 
+								<span> (<a href = { collectionURL }>Read More</a>)</span>
+							}
 						</div>
 					}
 				</div>
 			</div>
 			<div className = 'collection-block-lower-content'>
-					{ displayObjects && collectionObjects.length > 0 &&
-						collectionImages
+					{ displayObjects &&
+						<ObjectImageGrid
+							objects       = { collectionObjects }
+							numObjects    = { numObjects }
+							columns       = { columns }
+							linkToObjects = { linkToObjects }
+						/>
 					}
 			</div>
 		</div>

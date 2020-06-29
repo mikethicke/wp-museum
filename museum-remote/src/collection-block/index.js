@@ -33,7 +33,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * WP-Museum
  */
-import museum from '../wp-museum/museum';
+import museum from '../icons/museum';
 
 /**
  * Internal dependencies
@@ -41,10 +41,10 @@ import museum from '../wp-museum/museum';
 import edit from './edit';
 import save from './save';
 
-registerBlockType( 'museum-remote/collection', {
+registerBlockType( 'museum-remote/collection-block', {
 	title: __( 'Museum Collection' ),
 	icon: museum,
 	category: 'embed',
-	edit: () => null,
+	edit,
 	save: () => null
 } );

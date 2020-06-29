@@ -95,6 +95,7 @@ function register_collecton_block() {
 		]
 	);
 }
+add_action( 'plugins_loaded', __NAMESPACE__ . '\register_collecton_block' );
 
 /**
  * Renders collection block on frontend.

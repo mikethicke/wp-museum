@@ -66,10 +66,85 @@ class RemoteClient {
 		$instance->uuid              = trim( wp_unslash( $row->uuid ) );
 		$instance->title             = trim( wp_unslash( $row->title ) );
 		$instance->url               = trim( wp_unslash( $row->url ) );
-		$instance->url               = (bool) intval( $row->blocked );
+		$instance->blocked           = (bool) intval( $row->blocked );
 		$instance->registration_time = trim( wp_unslash( $row->registration_time ) );
 
 		return $instance;
+	}
+
+	/**
+	 * Get all client records from database and return as array.
+	 *
+	 * @return [RemoteClients] All remote clients.
+	 */
+	public static function get_all_clients() {
+		global $wpdb;
+
+		$client_array = wp_cache_get( 'all_museum_remote_clients', CACHE_GROUP );
+		if ( $client_array ) {
+			return $client_array;
+		}
+		$client_array = [];
+
+		$wpdb->show_errors = DB_SHOW_ERRORS;
+		$table_name = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM $table_name WHERE 1"
+			)
+		);
+		if ( ! is_null( $results ) && count( $results ) > 0 ) {
+			foreach ( $results as $result ) {
+				$client_array[] = self::from_database( $result );
+			}
+		}
+		return $client_array;
+	}
+
+	/**
+	 * Get all client records and return as array of associative arrays.
+	 *
+	 * @return [[ field => value ]] Array of associative arrays.
+	 */
+	public static function get_all_clients_assoc_array() {
+		$client_objects = self::get_all_clients();
+		$client_array = [];
+		foreach ( $client_objects as $client_object ) {
+			$client_array[] = $client_object->to_array();
+		}
+		return $client_array;
+	}
+
+	/**
+	 * Get client record from database based on client_id.
+	 *
+	 * @param int $client_id Primary key of the client in database.
+	 * @return RemoteClient | false The remote client or false if not found.
+	 */
+	public static function from_client_id( $client_id ) {
+		global $wpdb;
+
+		$instance = wp_cache_get( 'remote_client_from_client_id_' . $client_id, CACHE_GROUP );
+		if ( $instance ) {
+			return $instance;
+		}
+
+		$wpdb->show_errors = DB_SHOW_ERRORS;
+		$table_name = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM $table_name WHERE client_id=%s",
+				$client_id
+			)
+		);
+		if ( ! is_null( $results ) && count( $results ) === 1 ) {
+			$instance = self::from_database( $results[0] );
+			wp_cache_add( 'remote_client_from_client_id_' . $client_id, $instance, CACHE_GROUP );
+			return $instance;
+		}
+		return false;
 	}
 
 	/**
@@ -142,7 +217,7 @@ class RemoteClient {
 			$instance->registration_time :
 			trim( wp_unslash( $rest_data['registration_time'] ) );
 
-		$instance->blocked = empty( $rest_data['blocked'] ) ?
+		$instance->blocked = ! isset( $rest_data['blocked'] ) || is_null( $rest_data['blocked'] ) ?
 			$instance->blocked :
 			(bool) $rest_data['blocked'];
 

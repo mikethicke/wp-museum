@@ -13,7 +13,7 @@ add_action(
 		register_block_type(
 			'wp-museum/collection',
 			[
-				'render_callback' => __NAMESPACE__ . '\render_museum_block',
+				'render_callback' => __NAMESPACE__ . '\render_collection_block',
 				'attributes'      => [
 					'numObjects'        => [
 						'type'    => 'number',
@@ -52,19 +52,19 @@ add_action(
 					],
 					'title'             => [
 						'type'    => 'string',
-						'default' => 'No Object Selected',
+						'default' => 'Collection Title',
 					],
 					'excerpt'           => [
 						'type'    => 'string',
-						'default' => null,
+						'default' => "Click 'search' on right to select a collection.",
 					],
 					'fontSize'          => [
 						'type'    => 'float',
-						'default' => 0.7,
+						'default' => 1,
 					],
 					'titleTag'          => [
 						'type'    => 'string',
-						'default' => 'h4', // options => h2, h3, h, h5, h6, p.
+						'default' => 'h3', // options => h2, h3, h, h5, h6, p.
 					],
 					'imgAlignment'      => [
 						'type'    => 'string',
@@ -88,7 +88,7 @@ add_action(
 					],
 					'displayThumbnail'  => [
 						'type'    => 'boolean',
-						'default' => true,
+						'default' => false,
 					],
 				],
 			]
@@ -105,17 +105,17 @@ add_action(
  *
  * @param Array $attributes The block attributes.
  */
-function render_museum_block( $attributes ) {
+function render_collection_block( $attributes ) {
 	// phpcs:disable
 	
 	$numObjects       = $attributes['numObjects'];
 	$columns          = $attributes['columns'];
-	$collectionID     = $attributes['collectionID'];
+	$collectionID     = $attributes['collectionID'] ?? null;
 	$displayTitle     = $attributes['displayTitle'];
 	$titleTag         = $attributes['titleTag'];
 	$imgAlignment     = $attributes['imgAlignment'];
 	$displayThumbnail = $attributes['displayThumbnail'];
-	$thumbnailURL     = $attributes['thumbnailURL'];
+	$thumbnailURL     = $attributes['thumbnailURL'] ?? null;
 	$displayExcerpt   = $attributes['displayExcerpt'];
 	$fontSize         = $attributes['fontSize'];
 	$displayObjects   = $attributes['displayObjects'];
