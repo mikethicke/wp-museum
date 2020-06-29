@@ -1,0 +1,48 @@
+.wpm-object-modal {
+	width: 50%;
+	a {
+		word-wrap: break-word;
+	}
+	.object-modal-image-scroll {
+		
+
+		.img-wrapper {
+			position: relative;
+			width: 100%;
+
+			img {
+				object-fit: cover;
+				width: 100%;
+				height: 100%;
+				position: absolute;
+			}
+
+			&:after {
+				content: '';
+				display: block;
+				padding-bottom: 100%;
+				background-color: #f1f2f3;
+			}
+		}		
+
+		.image-scroll-button {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+			z-index: 1;
+			background-color: white;
+
+			&.inc {
+				right: 30px;
+			}
+
+			&.dec {
+				left: 30px;
+			}
+		}
+	}
+
+	.object-modal-info {
+		width: 100%;
+	}
+}

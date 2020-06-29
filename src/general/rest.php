@@ -6,6 +6,7 @@
  *
  * ## General ##
  * /site_data                        Overview data for the site.
+ * /admin_options                    Site-wide options.
  *
  * ## Objects ##
  * /<object type>/[?s=|<field>=]     Objects with post type <object type>.
@@ -27,6 +28,9 @@
  * /collections/[?s=]              All museum collections.
  * /collections/<post id>          A specific collection.
  * /collections/<post id>/objects  Objects associated with a collection.
+ *
+ * ## Remote Clients ##
+ * /remote_clients                All remote clients
  *
  * @package MikeThicke\WPMuseum
  */
@@ -58,6 +62,33 @@ function rest_routes() {
 			'callback' => function() {
 				return get_site_data();
 			},
+		]
+	);
+
+	/**
+	 * /admin_options                    Site-wide options.
+	 *
+	 * Get and set site-wide options for the museum plugin. Can be read by
+	 * authors+ and changed by administrators.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/admin_options',
+		[
+			[
+				'methods' => 'GET',
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'callback' => __NAMESPACE__ . '\get_admin_options',
+			],
+			[
+				'methods' => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback' => __NAMESPACE__ . '\set_admin_options',
+			],
 		]
 	);
 
@@ -481,6 +512,32 @@ function rest_routes() {
 			},
 		]
 	);
+
+	/**
+	 * /remote_clients                All remote clients
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/remote_clients',
+		[
+			[
+				'methods' => 'GET',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback' => function () {
+					return RemoteClient::get_all_clients_assoc_array();
+				},
+			],
+			[
+				'methods' => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback' => __NAMESPACE__ . '\update_clients_from_rest',
+			],
+		]
+	);
 }
 
 /**
@@ -548,8 +605,10 @@ function combine_post_data( $post ) {
 		'cat_field' => $cat_field_slug,
 	];
 
+	$default_post_data = $post->to_array();
+	$default_post_data['post_content'] = apply_filters( 'the_content', get_the_content( null, false, $post ) );
 	$post_data = array_merge(
-		$post->to_array(),
+		$default_post_data,
 		$custom,
 		$additional_fields
 	);
@@ -706,4 +765,61 @@ function get_site_data() {
 		]
 	);
 }
+
+$admin_options = [
+	'allow_remote_requests'       => 'bool',
+	'allow_unregistered_requests' => 'bool',
+	'rest_authorized_domains'     => 'string',
+];
+
+/**
+ * Returns museum site wite options as associative array.
+ */
+function get_admin_options() {
+	global $admin_options;
+
+	$admin_data = [];
+	foreach ( $admin_options as $admin_option => $option_type ) {
+		$option_value = get_option( $admin_option );
+		if ( false === $option_value ) {
+			$option_value = null;
+		} elseif ( 'bool' === $option_type ) {
+			$option_value = (bool) intval( $option_value );
+		} elseif ( 'int' === $option_type ) {
+			$option_value = intval( $option_value );
+		}
+		$admin_data[ $admin_option ] = $option_value;
+	}
+	return $admin_data;
+}
+
+/**
+ * Sets museum site-wide options from REST request.
+ *
+ * @param WP_REST_Request $request A REST POST request json encoded.
+ */
+function set_admin_options( $request ) {
+	global $admin_options;
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return new WP_Error(
+			'permission-denied',
+			'You do not have permission to access this resource',
+			[ 'status' => 403 ]
+		);
+	}
+
+	$option_values = $request->get_json_params();
+	foreach ( $admin_options as $admin_option => $option_type ) {
+		if (
+			isset( $option_values[ $admin_option ] ) &&
+			! is_null( $option_values[ $admin_option ] )
+		) {
+			update_option( $admin_option, $option_values[ $admin_option ] );
+		}
+	}
+	return true;
+}
+
+
 

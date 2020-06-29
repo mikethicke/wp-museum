@@ -10,7 +10,7 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
-import { generateUUID } from '../util'; 
+import { generateUUID, isEmpty } from '../util'; 
 
 const SiteInfo = props => {
 	const {
@@ -69,7 +69,7 @@ const SiteInfo = props => {
 
 const RemoteAdminPage = () => {
 	const wpmRestBase = '/wp-json/wp-museum/v1';
-	const mrRestBase = '/museum-remote/v1'
+	const mrRestBase = '/museum-remote/v1';
 
 	const [ remoteData, setRemoteData ] = useState( {} );
 	const [ siteData, setSiteData ] = useState( {} );
@@ -97,6 +97,9 @@ const RemoteAdminPage = () => {
 
 	const updateRemoteDataOption = ( newData = null ) => {
 		const data = newData != null ? newData : remoteData;
+		if ( ! isEmpty( siteData ) ) {
+			data.host_title = siteData.title;
+		}
 		return apiFetch(
 			{
 				path   : `${mrRestBase}/remote_data`,
@@ -177,7 +180,6 @@ const RemoteAdminPage = () => {
 			headers: {
 				'Accept': 'application/json, text/plain, */*',
 				'Content-Type': 'application/json',
-				//'Access-Control-Allow-Origin': '*',
 			},
 			body: JSON.stringify( {
 				url   : cleanedUrl,

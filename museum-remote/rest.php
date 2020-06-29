@@ -47,6 +47,9 @@ function rest_routes() {
 							null :
 							sanitize_text_field( $request_data['uuid'] ),
 						'title' => sanitize_text_field( get_bloginfo( 'name' ) ),
+						'host_title' => empty( $request_data['host_title'] ) ?
+							null :
+							sanitize_text_field( $request_data['host_title'] ),
 					];
 					return update_option(
 						'museum-remote-data',

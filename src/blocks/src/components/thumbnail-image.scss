@@ -1,0 +1,16 @@
+.thumbnail-placeholder {
+	background-color: #f1f2f3;
+	cursor: pointer;
+	position: relative;
+
+	.thumbnail-placeholder-plus {
+		position: absolute;
+		height: 0;
+		width: 100%;
+		text-align: center;
+		top: 50%;
+		overflow: visible;
+		font-size: 3em;
+		line-height: 0;
+	}
+}
