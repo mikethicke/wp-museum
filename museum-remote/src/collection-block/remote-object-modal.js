@@ -25,6 +25,11 @@ const RemoteObjectModal = props => {
 		}
 	}, [ objectID ] );
 
+	const doClose = () => {
+		setImageData( {} );
+		closeModal();
+	}
+
 	const fetchObjectData = () => {
 		fetch( `${remoteData.url}${wpmRestBase}/all/${objectID}?uuid=${remoteData.uuid}` )
 			.then( response => {
@@ -66,7 +71,7 @@ const RemoteObjectModal = props => {
 				url      = { link }
 				linkText = { `View the full entry at ${remoteData.host_title}` }
 				images   = { Object.values( imageData ) }
-				close    = { closeModal }
+				close    = { doClose }
 			/>
 		}
 		</>

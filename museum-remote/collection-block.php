@@ -16,31 +16,12 @@ function register_collecton_block() {
 		[
 			'render_callback' => __NAMESPACE__ . '\render_collection_block',
 			'attributes' => [
-				'numObjects'        => [
-					'type'    => 'number',
-					'default' => 4,
-				],
 				'columns'          => [
 					'type'    => 'number',
 					'default' => 4,
 				],
 				'collectionID'      => [
 					'type'    => 'number',
-					'default' => null,
-				],
-				'collectionURL'     => [
-					'type'    => 'string',
-					'default' => null,
-				],
-				'collectionObjects' => [
-					'type'    => 'array',
-					'default' => [],
-					'items'   => [
-						'type' => 'array',
-					],
-				],
-				'thumbnailURL'      => [
-					'type'    => 'string',
 					'default' => null,
 				],
 				'imgDimensions'     => [
@@ -50,14 +31,6 @@ function register_collecton_block() {
 						'height' => 150,
 						'size'   => 'thumbnail', // options => thumbnail, medium, large, full.
 					],
-				],
-				'title'             => [
-					'type'    => 'string',
-					'default' => 'No Object Selected',
-				],
-				'excerpt'           => [
-					'type'    => 'string',
-					'default' => null,
 				],
 				'fontSize'          => [
 					'type'    => 'float',
@@ -72,10 +45,6 @@ function register_collecton_block() {
 					'default' => 'left', // options => left, center, right.
 				],
 				'displayTitle'      => [
-					'type'    => 'boolean',
-					'default' => true,
-				],
-				'linkToObjects'     => [
 					'type'    => 'boolean',
 					'default' => true,
 				],
@@ -103,6 +72,20 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\register_collecton_block' );
  * @param Array $attributes The block attributes.
  */
 function render_collection_block( $attributes ) {
-	return '';
+	if ( ! is_admin() ) {
+		wp_enqueue_script(
+			'museum-remote-react-front',
+			plugins_url( MR_REACT_PATH . 'index.js', __FILE__ ),
+			[ 'wp-i18n', 'wp-element', 'wp-blocks', 'wp-components', 'wp-editor', 'wp-api-fetch', 'wp-api' ],
+			filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.js' ),
+			true
+		);
+		$object_name = 'attributesCollection' . $attributes['collectionID'];
+		$element_id  = 'collection' . $attributes['collectionID'];
+
+		wp_localize_script( 'museum-remote-react-front', $object_name, $attributes );
+
+		return "<div class='wpm-remote-collection-block-front' id='$element_id'>Remote Collection Block</div>";
+	}
 }
 

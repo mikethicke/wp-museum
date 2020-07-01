@@ -165,7 +165,7 @@ function get_post_descendants( $post_id, $post_status = 'publish' ) {
 		]
 	);
 	foreach ( $children as $child ) {
-		$grand_children = get_post_descendants( $child, $post_status );
+		$grand_children = get_post_descendants( $child->ID, $post_status );
 		$descendants    = array_merge( $descendants, $grand_children );
 	}
 	$descendants = array_merge( $descendants, $children );
