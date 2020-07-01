@@ -432,9 +432,10 @@ function rest_routes() {
 				}
 
 				$args  = [
-					'post_status' => 'publish',
-					'paged'       => $paged,
-					'post_type'   => WPM_PREFIX . 'collection',
+					'post_status'      => 'publish',
+					'paged'            => $paged,
+					'post_type'        => WPM_PREFIX . 'collection',
+					'suppress_filters' => false,
 				];
 				$search_string = $request->get_param( 's' );
 				if ( ! empty( $search_string ) ) {

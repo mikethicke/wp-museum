@@ -49,6 +49,12 @@ function enqueue_frontend_styles() {
 		[],
 		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'style-index.css' )
 	);
+	wp_enqueue_style(
+		'wordpress-components-styles',
+		includes_url( '/css/dist/components/style.min.css' ),
+		[],
+		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.css' )
+	);
 }
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_styles' );
 

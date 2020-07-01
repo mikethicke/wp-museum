@@ -4,7 +4,7 @@
 		word-wrap: break-word;
 	}
 	.object-modal-image-scroll {
-		
+		position: relative;
 
 		.img-wrapper {
 			position: relative;
@@ -33,11 +33,11 @@
 			background-color: white;
 
 			&.inc {
-				right: 30px;
+				right: 15px;
 			}
 
 			&.dec {
-				left: 30px;
+				left: 15px;
 			}
 		}
 	}
