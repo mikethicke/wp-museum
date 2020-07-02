@@ -29,7 +29,7 @@ const RemoteCollectionGrid = props => {
 		displayExcerpt,
 		fontSize,
 		columns,
-		collectionID,
+		collectionSlug,
 		imgAlignment,
 		displayObjects
 	} = attributes;
@@ -40,6 +40,7 @@ const RemoteCollectionGrid = props => {
 	const [ excerpt, setExcerpt ] = useState( '' );
 	const [ collectionURL, setCollectionURL ] = useState( '' );
 	const [ thumbnailURL, setThumbnailURL ] = useState( '' );
+	const [ collectionID, setCollectionID ] = useState( null );
 
 	const mrRestBase = '/museum-remote/v1';
 
@@ -48,6 +49,11 @@ const RemoteCollectionGrid = props => {
 	}, [ attributes, remoteData ] );
 
 	useEffect( () => refreshRemoteData(), [] );
+
+	if ( typeof attributes.collectionID !== 'undefined' &&
+	     collectionID !== attributes.collectionID ) {
+		setCollectionID( attributes.collectionID );
+	} 
 
 	const refreshRemoteData = () => {
 		apiFetch( { path: `${mrRestBase}/remote_data` } )
@@ -59,27 +65,10 @@ const RemoteCollectionGrid = props => {
 				} );
 	}
 
-	const refreshCollectionData = () => {
-		if ( ! remoteData || isEmpty( remoteData ) ) {
-			return;
-		}
-		
-		const collectionRestURL = `${remoteData.url}${wpmRestBase}/collections/${collectionID}/?uuid=${remoteData.uuid}`;
-		fetch( collectionRestURL ).then( response => {
-			if ( ! response.ok ) {
-				console.log( response.statusText );
-				return;
-			}
-			response.json().then( result => {
-				const newThumbnailURL = result['thumbnail'].length > 0 ? result['thumbnail'][0] : null;
-				setTitle( result['post_title'] );
-				setExcerpt( result['excerpt'] );
-				setCollectionURL( result['link'] );
-				setThumbnailURL( newThumbnailURL );
-			} );
-		} );
+	const refreshObjectData = ( newCollectionID = null ) => {
+		const cID = newCollectionID === null ? collectionID : newCollectionID;
 
-		const objectsRestURL = `${remoteData.url}${wpmRestBase}/collections/${collectionID}/objects/?uuid=${remoteData.uuid}`;
+		const objectsRestURL = `${remoteData.url}${wpmRestBase}/collections/${cID}/objects/?uuid=${remoteData.uuid}`;
 		fetch( objectsRestURL ).then( response => {
 			if ( ! response.ok ) {
 				console.log( response.statusText );
@@ -100,6 +89,45 @@ const RemoteCollectionGrid = props => {
 				}
 			} );
 		} );
+	}
+
+	const refreshCollectionData = () => {
+		if ( ! remoteData || isEmpty( remoteData ) ) {
+			return;
+		}
+
+		let collectionRestURL;
+		if ( collectionID ) {
+			collectionRestURL = `${remoteData.url}${wpmRestBase}/collections/${collectionID}/?uuid=${remoteData.uuid}`;
+		} else if ( collectionSlug ) {
+			collectionRestURL = `${remoteData.url}${wpmRestBase}/collections/?uuid=${remoteData.uuid}&slug=${collectionSlug}`;
+		} else {
+			return;
+		}
+		
+		fetch( collectionRestURL ).then( response => {
+			if ( ! response.ok ) {
+				console.log( response.statusText );
+				return;
+			}
+			response.json().then( result => {
+				const newThumbnailURL = result['thumbnail'].length > 0 ? result['thumbnail'][0] : null;
+				setTitle( result['post_title'] );
+				setExcerpt( result['excerpt'] );
+				setCollectionURL( result['link'] );
+				setCollectionID( result['ID'] );
+				setThumbnailURL( newThumbnailURL );
+				if ( collectionID === null || collectionID === '' ) {
+					refreshObjectData( result['ID'] );
+				}
+			} );
+		} );
+
+		if ( collectionID !== null && collectionID !== '' ) {
+			refreshObjectData();
+		} else if ( typeof attributes.collectionID !== 'undefined' ) {
+			refreshObjectData( attributes.collectionID );
+		}
 	}
 
 	const fetchObjectImages = objectID => {
