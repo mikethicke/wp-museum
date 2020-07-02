@@ -426,6 +426,10 @@ function rest_routes() {
 		[
 			'methods' => 'GET',
 			'callback' => function( $request ) {
+				if ( ! empty( $request->get_param( 'slug' ) ) ) {
+					return get_collection_data( $request );
+				}
+
 				$paged = $request->get_param( 'page' );
 				if ( ! isset( $paged ) || empty( $paged ) ) {
 					$paged = 1;
@@ -476,12 +480,7 @@ function rest_routes() {
 							},
 						],
 				],
-			'callback' => function ( $request ) {
-				$post_data = combine_post_data( $request['id'] );
-				$associated_objects = get_associated_object_ids( $request['id'] );
-				$post_data['associated_objects'] = $associated_objects;
-				return $post_data;
-			},
+			'callback' => __NAMESPACE__ . '\get_collection_data',
 		]
 	);
 
@@ -647,6 +646,41 @@ function object_image_data( $post ) {
 	}
 
 	return $associated_image_data;
+}
+
+/**
+ * Get data for a specific collection.
+ *
+ * @param WP_REST_Request $request REST request.
+ */
+function get_collection_data( $request ) {
+	if ( ! isset( $request['id'] ) ) {
+		$slug = $request->get_param( 'slug' );
+		if ( $slug ) {
+			$posts = get_posts(
+				[
+					'numberposts' => 1,
+					'post_type'   => WPM_PREFIX . 'collection',
+					'post_status' => 'publish',
+					'name'        => sanitize_text_field( $slug ),
+				]
+			);
+			if ( 1 === count( $posts ) ) {
+				$post_id = $posts[0]->ID;
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	} else {
+		$post_id = $request['id'];
+	}
+
+	$post_data = combine_post_data( $post_id );
+	$associated_objects = get_associated_object_ids( $post_id );
+	$post_data['associated_objects'] = $associated_objects;
+	return $post_data;
 }
 
 /**
