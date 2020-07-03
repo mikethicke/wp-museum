@@ -17,6 +17,7 @@ release/
 src/blocks/build
 src/admin-react/build
 museum-remote/build
+museum-remote/release
 *.code-workspace
 .DS_Store
 node_modules
