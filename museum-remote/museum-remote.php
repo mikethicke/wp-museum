@@ -8,7 +8,7 @@
  * @wordpress-plugin
  * Plugin Name: Museum for WordPress - Remote
  * Description: Allows a WordPress site to remotely connect to another Museum for WordPress site.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: Mike Thicke
  * Author URI: http://www.mikethicke.com
  * Text Domain: museum-remote
