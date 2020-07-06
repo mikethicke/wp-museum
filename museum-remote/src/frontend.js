@@ -8,9 +8,13 @@ const cleanAttributes = attributes => {
 	for ( const [ key, value ] of Object.entries( attributes) ) {
 		if ( ! isNaN( value ) ) {
 			let newValue = value;
-			newValue = parseInt( value );
-			if ( newValue === 0 ) {
-				newValue = false;
+			if ( newValue === '' ) {
+				newValue = null;
+			} else {
+				newValue = parseInt( value );
+				if ( newValue === 0 ) {
+					newValue = false;
+				}
 			}
 			attributes[key] = newValue;
 		}
