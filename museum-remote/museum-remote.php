@@ -8,7 +8,7 @@
  * @wordpress-plugin
  * Plugin Name: Museum for WordPress - Remote
  * Description: Allows a WordPress site to remotely connect to another Museum for WordPress site.
- * Version: 0.0.1
+ * Version: 0.1.1
  * Author: Mike Thicke
  * Author URI: http://www.mikethicke.com
  * Text Domain: museum-remote
@@ -24,11 +24,6 @@ namespace MikeThicke\MuseumRemote;
  */
 const DEV_BUILD = true;
 
-/**
- * Root for rest routes.
- */
-const REST_NAMESPACE = 'wp-museum/v1';
-
 define( 'REQUIRE_PREFIX', plugin_dir_path( __FILE__ ) );
 
 if ( DEV_BUILD ) {
@@ -41,3 +36,5 @@ if ( DEV_BUILD ) {
 
 require_once REQUIRE_PREFIX . 'admin.php';
 require_once REQUIRE_PREFIX . 'react.php';
+require_once REQUIRE_PREFIX . 'rest.php';
+require_once REQUIRE_PREFIX . 'collection-block.php';

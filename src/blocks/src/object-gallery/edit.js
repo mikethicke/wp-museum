@@ -30,7 +30,7 @@ import GridOptionsPanel from '../components/grid-options-panel';
 import FontSizePanel from '../components/font-size-panel';
 import {
 	ObjectEmbedPanel,
-	SearchBox
+	ObjectSearchBox
 } from '../components/search-box';
 import { getBestImage } from '../util';
 
@@ -118,7 +118,7 @@ const GalleryGrid = ( props ) => {
 				{ grid }
 			</div>
 			{ modalOpen &&
-				<SearchBox
+				<ObjectSearchBox
 					close          = { () => setModalOpen( false ) }
 					returnCallback = { onSearchModalReturn }
 				/>

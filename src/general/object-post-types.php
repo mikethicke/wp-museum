@@ -84,6 +84,9 @@ function add_object_problem_div() {
  */
 function link_objects_by_id( $content ) {
 	global $post;
+	if ( is_null( $post ) ) {
+		return $content;
+	}
 
 	$kinds               = get_mobject_kinds();
 	$content_array       = wp_html_split( $content );

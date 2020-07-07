@@ -344,7 +344,7 @@ add_filter( 'the_content', __NAMESPACE__ . '\object_content_filter' );
  *
  * @see display.php::collection_content_filter()
  */
-add_filter( 'the_content', __NAMESPACE__ . '\collection_content_filter' );
+//add_filter( 'the_content', __NAMESPACE__ . '\collection_content_filter' );
 
 /**
  * Generates excerpts for museum objects.

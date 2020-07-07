@@ -4,26 +4,33 @@
  *
  * REST root: /wp-json/wp-museum/v1
  *
+ * ## General ##
+ * /site_data                        Overview data for the site.
+ * /admin_options                    Site-wide options.
+ *
  * ## Objects ##
- * /wp-json/wp-museum/v1/<object type>/[?s=|<field>=]     Objects with post type <object type>.
- * /wp-json/wp-museum/v1/<object type>/<post id>          Specific object.
- * /wp-json/wp-museum/v1/<object type>/<post id>/images   Images associated with object.
- * /wp-json/wp-museum/v1/<object type>/<post id>/children Child objects of object.
- * /wp-json/wp-museum/v1/all/[?s=|<field>=]               All museum objects, regardless of type.
- * /wp-json/wp-museum/v1/all/<post id>                    Specific object.
- * /wp-json/wp-museum/v1/all/<post id>/images             Images associated with object.
- * /wp-json/wp-museum/v1/all/<post id>/children           Child objects of object.
- * /wp-json/wp-musuem/v1/<object type>/fields             Public fields for <object type>.
- * /wp-json/wp-musuem/v1/<object type>/fields_all         All fields for <object type>.
+ * /<object type>/[?s=|<field>=]     Objects with post type <object type>.
+ * /<object type>/<post id>          Specific object.
+ * /<object type>/<post id>/images   Images associated with object.
+ * /<object type>/<post id>/children Child objects of object.
+ * /all/[?s=|<field>=]               All museum objects, regardless of type.
+ * /all/<post id>                    Specific object.
+ * /all/<post id>/images             Images associated with object.
+ * /all/<post id>/children           Child objects of object.
+ * /<object type>/fields             Public fields for <object type>.
+ * /<object type>/fields_all         All fields for <object type>.
  *
  * ## Kinds ##
- * /wp-json/wp-musuem/v1/mobject_kinds                  Object kinds
- * /wp-json/wp-museum/v1/mobject_kinds/<object type>    A specific kind with <object type>.
+ * /mobject_kinds                  Object kinds
+ * /mobject_kinds/<object type>    A specific kind with <object type>.
  *
  * ## Collections ##
- * /wp-json/wp-museum/v1/collections/[?s=]              All museum collections.
- * /wp-json/wp-museum/v1/collections/<post id>          A specific collection.
- * /wp-json/wp-museum/v1/collections/<post id>/objects  Objects associated with a collection.
+ * /collections/[?s=]              All museum collections.
+ * /collections/<post id>          A specific collection.
+ * /collections/<post id>/objects  Objects associated with a collection.
+ *
+ * ## Remote Clients ##
+ * /remote_clients                All remote clients
  *
  * @package MikeThicke\WPMuseum
  */
@@ -34,6 +41,71 @@ namespace MikeThicke\WPMuseum;
  * Register REST endpoints.
  */
 function rest_routes() {
+	/**
+	 * /site_data                        Overview data for the site.
+	 *
+	 * @return Array Array of site data.
+	 *
+	 * [
+	 *    'title'        => Title of site.
+	 *    'description'  => Site tagline.
+	 *    'url'          => Site URL.
+	 *    'collections'  => List of available collections.
+	 *    'object_count' => Total number of public objects.
+	 * ]
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/site_data',
+		[
+			'methods' => 'GET',
+			'callback' => function() {
+				return get_site_data();
+			},
+		]
+	);
+
+	/**
+	 * /admin_options                    Site-wide options.
+	 *
+	 * Get and set site-wide options for the museum plugin. Can be read by
+	 * authors+ and changed by administrators.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/admin_options',
+		[
+			[
+				'methods' => 'GET',
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'callback' => __NAMESPACE__ . '\get_admin_options',
+			],
+			[
+				'methods' => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback' => __NAMESPACE__ . '\set_admin_options',
+			],
+		]
+	);
+
+	/**
+	 * /register_remote
+	 *
+	 * @return Array | WP_ERROR Array of site data or error if registration unsuccessful.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/register_remote',
+		[
+			'methods' => 'POST',
+			'callback' => __NAMESPACE__ . '\register_remote_client',
+		]
+	);
+
 	$kinds = get_mobject_kinds();
 	foreach ( $kinds as $kind ) {
 		/**
@@ -354,15 +426,20 @@ function rest_routes() {
 		[
 			'methods' => 'GET',
 			'callback' => function( $request ) {
+				if ( ! empty( $request->get_param( 'slug' ) ) ) {
+					return get_collection_data( $request );
+				}
+
 				$paged = $request->get_param( 'page' );
 				if ( ! isset( $paged ) || empty( $paged ) ) {
 					$paged = 1;
 				}
 
 				$args  = [
-					'post_status' => 'publish',
-					'paged'       => $paged,
-					'post_type'   => WPM_PREFIX . 'collection',
+					'post_status'      => 'publish',
+					'paged'            => $paged,
+					'post_type'        => WPM_PREFIX . 'collection',
+					'suppress_filters' => false,
 				];
 				$search_string = $request->get_param( 's' );
 				if ( ! empty( $search_string ) ) {
@@ -403,12 +480,7 @@ function rest_routes() {
 							},
 						],
 				],
-			'callback' => function ( $request ) {
-				$post_data = combine_post_data( $request['id'] );
-				$associated_objects = get_associated_object_ids( $request['id'] );
-				$post_data['associated_objects'] = $associated_objects;
-				return $post_data;
-			},
+			'callback' => __NAMESPACE__ . '\get_collection_data',
 		]
 	);
 
@@ -438,6 +510,32 @@ function rest_routes() {
 				}
 				return $object_data;
 			},
+		]
+	);
+
+	/**
+	 * /remote_clients                All remote clients
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/remote_clients',
+		[
+			[
+				'methods' => 'GET',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback' => function () {
+					return RemoteClient::get_all_clients_assoc_array();
+				},
+			],
+			[
+				'methods' => 'POST',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback' => __NAMESPACE__ . '\update_clients_from_rest',
+			],
 		]
 	);
 }
@@ -507,8 +605,10 @@ function combine_post_data( $post ) {
 		'cat_field' => $cat_field_slug,
 	];
 
+	$default_post_data = $post->to_array();
+	$default_post_data['post_content'] = apply_filters( 'the_content', get_the_content( null, false, $post ) );
 	$post_data = array_merge(
-		$post->to_array(),
+		$default_post_data,
 		$custom,
 		$additional_fields
 	);
@@ -546,6 +646,41 @@ function object_image_data( $post ) {
 	}
 
 	return $associated_image_data;
+}
+
+/**
+ * Get data for a specific collection.
+ *
+ * @param WP_REST_Request $request REST request.
+ */
+function get_collection_data( $request ) {
+	if ( ! isset( $request['id'] ) ) {
+		$slug = $request->get_param( 'slug' );
+		if ( $slug ) {
+			$posts = get_posts(
+				[
+					'numberposts' => 1,
+					'post_type'   => WPM_PREFIX . 'collection',
+					'post_status' => 'publish',
+					'name'        => sanitize_text_field( $slug ),
+				]
+			);
+			if ( 1 === count( $posts ) ) {
+				$post_id = $posts[0]->ID;
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	} else {
+		$post_id = $request['id'];
+	}
+
+	$post_data = combine_post_data( $post_id );
+	$associated_objects = get_associated_object_ids( $post_id );
+	$post_data['associated_objects'] = $associated_objects;
+	return $post_data;
 }
 
 /**
@@ -625,4 +760,101 @@ function child_objects_routes_args() {
 		]
 	);
 }
+
+/**
+ * Basic data about the site.
+ */
+function get_site_data() {
+	$collections = get_collections();
+
+	$collection_names = array_map(
+		function( $collection ) {
+			return $collection->post_title;
+		},
+		$collections
+	);
+
+	$object_posts = get_object_posts( null, 'publish' );
+
+	return (
+		[
+			'title'        =>
+				sanitize_text_field(
+					html_entity_decode(
+						get_bloginfo( 'name' ),
+						ENT_QUOTES | ENT_XML1,
+						'UTF-8'
+					)
+				),
+			'description'  =>
+				sanitize_text_field(
+					html_entity_decode(
+						get_bloginfo( 'description' ),
+						ENT_QUOTES | ENT_XML1,
+						'UTF-8'
+					)
+				),
+			'url'          => esc_url( get_bloginfo( 'url' ) ),
+			'collections'  => $collection_names,
+			'object_count' => count( $object_posts ),
+		]
+	);
+}
+
+$admin_options = [
+	'allow_remote_requests'       => 'bool',
+	'allow_unregistered_requests' => 'bool',
+	'rest_authorized_domains'     => 'string',
+];
+
+/**
+ * Returns museum site wite options as associative array.
+ */
+function get_admin_options() {
+	global $admin_options;
+
+	$admin_data = [];
+	foreach ( $admin_options as $admin_option => $option_type ) {
+		$option_value = get_option( $admin_option );
+		if ( false === $option_value ) {
+			$option_value = null;
+		} elseif ( 'bool' === $option_type ) {
+			$option_value = (bool) intval( $option_value );
+		} elseif ( 'int' === $option_type ) {
+			$option_value = intval( $option_value );
+		}
+		$admin_data[ $admin_option ] = $option_value;
+	}
+	return $admin_data;
+}
+
+/**
+ * Sets museum site-wide options from REST request.
+ *
+ * @param WP_REST_Request $request A REST POST request json encoded.
+ */
+function set_admin_options( $request ) {
+	global $admin_options;
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return new WP_Error(
+			'permission-denied',
+			'You do not have permission to access this resource',
+			[ 'status' => 403 ]
+		);
+	}
+
+	$option_values = $request->get_json_params();
+	foreach ( $admin_options as $admin_option => $option_type ) {
+		if (
+			isset( $option_values[ $admin_option ] ) &&
+			! is_null( $option_values[ $admin_option ] )
+		) {
+			update_option( $admin_option, $option_values[ $admin_option ] );
+		}
+	}
+	return true;
+}
+
+
 

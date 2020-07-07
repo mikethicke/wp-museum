@@ -15,7 +15,7 @@ import {
 import ImageSelector from './image-selector';
 
 import {
-	SearchBox,
+	ObjectSearchBox,
 } from './search-box';
 
 /**
@@ -136,7 +136,7 @@ const GridImage = ( props ) => {
 					</div>
 				</div>
 				{ modalOpen &&
-					<SearchBox
+					<ObjectSearchBox
 						close          = { () => setModalOpen( false ) }
 						returnCallback = { newObjectID => updateObjectIDCallback( newObjectID ) }
 					/>
