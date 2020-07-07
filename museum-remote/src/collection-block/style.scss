@@ -1,12 +1,23 @@
+@import '../components/object-modal.scss';
+@import '../components/search-box.scss';
+@import '../components/object-image-grid.scss';
+@import '../components/thumbnail-image.scss';
+
 .museum-collection-block {
 	.collection-block-upper-content {
 		display: flex;
 		flex-wrap: nowrap;
 		position: relative;
+		margin-bottom: 1em;
 
 		.remote-collection-title {
 			margin-top: 0;
 			margin-bottom: 0.5em;
+
+			a {
+				text-decoration: none;
+				color: inherit;
+			}
 		}
 
 		.thumbnail-wrapper {

@@ -31,7 +31,19 @@ const refreshInterval = 1000;
  * A modal search box that live updates through REST api and returns the
  * WordPress post ID of the selected object.
  *
- * @param 
+ * @param Object   props                    The component properties.
+ * @param Function props.fetchSearchResults Callback to fetch results for the search.
+ *                           Callback should accept following parameters:
+ *                           ( 
+ *                             searchText,         string   The current search text.
+ *                             onlyTitle,          boolean  Whether to search just by title.
+ *                             updateLastRefresh,  Date     Time of the last refresh.
+ *                             updateResults       Function Callback to update results.
+ *                           )
+ * @param Function props.close              Callback to close the search modal.
+ * @param Function props.returnCallback     Callback to send results of search on close.
+ * @param string   props.title              Title for search box, or null for 'Search for Object'.
+ * 
  *
  * @since 0.6.0
  */
@@ -42,7 +54,6 @@ class SearchBox extends Component {
 
         this.onChangeSearchText = this.onChangeSearchText.bind( this );
         this.onTitleToggle      = this.onTitleToggle.bind( this );
-        this.fetchSearchResults = this.fetchSearchResults.bind( this );
         this.onKeyUp            = this.onKeyUp.bind( this );
         this.onButtonItemFocus  = this.onButtonItemFocus.bind( this );
         this.onButtonItemClick  = this.onButtonItemClick.bind( this );
@@ -61,32 +72,22 @@ class SearchBox extends Component {
     }
 
     /**
-     * Fetch search results from REST api.
-     *
-     * @see wp-museum/src/general/rest.php
-     *
-     * @param {string}  searchText Current search text to find.
-     * @param {boolean} onlyTitle  Whether to search just the post title or everything.
+     * Fetch search results
      */
-    fetchSearchResults ( searchText, onlyTitle ) {
+    fetchSearchResults( searchText, onlyTitle ) {
         const {
-            restPath
+            fetchSearchResults
         } = this.props;
 
-        const restRoute = ( typeof restPath === 'undefined' ) ? '/wp-museum/v1/all/' : restPath
-
-        this.lastRefresh = new Date();
-
-        let queryString;
-        if ( onlyTitle ) {
-            queryString = `?post_title=${searchText}`;
-        } else {
-            queryString = `?s=${searchText}`;
+        const updateLastRefresh = refreshDate => {
+            this.lastRefresh = refreshDate;
         }
 
-        apiFetch( { path: restRoute + queryString } ).then( result => {
-            this.setState( { results: result } );
-        } );
+        const updateResults = updatedResults => {
+            this.setState( { results: updatedResults } );
+        }
+
+        fetchSearchResults( searchText, onlyTitle, updateLastRefresh, updateResults );
     }
 
     /**
@@ -399,7 +400,7 @@ const SearchButton = (props) => {
                 { children }
             </Button>
             { isOpen && (
-                <SearchBox 
+                <ObjectSearchBox 
                     close          = { closeModal }
                     returnCallback = { returnCallback }
                     restPath       = { restPath }
@@ -408,6 +409,101 @@ const SearchButton = (props) => {
             ) }
         </>
     )
+}
+
+/**
+ * Search box for musem objects
+ * @param {*} props 
+ */
+const ObjectSearchBox = props => {
+    const {
+        restPath,
+        close,
+        title,
+        returnCallback
+    } = props;
+
+    /**
+     * Fetch search results from REST api.
+     *
+     * @see wp-museum/src/general/rest.php
+     *
+     * @param {string}  searchText Current search text to find.
+     * @param {boolean} onlyTitle  Whether to search just the post title or everything.
+     */
+    const fetchSearchResults = ( searchText, onlyTitle, updateLastRefresh, updateResults ) => {
+        const restRoute = ( typeof restPath === 'undefined' ) ? '/wp-museum/v1/all/' : restPath
+
+        updateLastRefresh( new Date() );
+
+        let queryString;
+        if ( onlyTitle ) {
+            queryString = `?post_title=${searchText}`;
+        } else {
+            queryString = `?s=${searchText}`;
+        }
+
+        apiFetch( { path: restRoute + queryString } ).then( result => {
+            updateResults( result );
+        } );
+    }
+
+    return (
+        <SearchBox
+            close = { close }
+            title = { title }
+            fetchSearchResults = { fetchSearchResults }
+            returnCallback = { returnCallback }
+        />
+    );
+
+}
+
+/**
+ * Search box for musem collections
+ * @param {*} props 
+ */
+const CollectionSearchBox = props => {
+    const {
+        close,
+        title,
+        returnCallback
+    } = props;
+
+    /**
+     * Fetch search results from REST api.
+     *
+     * @see wp-museum/src/general/rest.php
+     *
+     * @param {string}  searchText Current search text to find.
+     * @param {boolean} onlyTitle  Whether to search just the post title or everything.
+     */
+    const fetchSearchResults = ( searchText, onlyTitle, updateLastRefresh, updateResults ) => {
+        const restRoute = '/wp-museum/v1/collections';
+
+        updateLastRefresh( new Date() );
+
+        let queryString;
+        if ( onlyTitle ) {
+            queryString = `?post_title=${searchText}`;
+        } else {
+            queryString = `?s=${searchText}`;
+        }
+
+        apiFetch( { path: restRoute + queryString } ).then( result => {
+            updateResults( result );
+        } );
+    }
+
+    return (
+        <SearchBox
+            close = { close }
+            title = { title }
+            fetchSearchResults = { fetchSearchResults }
+            returnCallback = { returnCallback }
+        />
+    );
+
 }
 
 /**
@@ -507,4 +603,11 @@ const CollectionEmbedPanel = ( props ) => {
     )
 }
 
-export { SearchButton, SearchBox, ObjectEmbedPanel, CollectionEmbedPanel };
+export {
+    SearchButton,
+    ObjectSearchBox,
+    ObjectEmbedPanel,
+    CollectionEmbedPanel,
+    SearchBox,
+    CollectionSearchBox
+};

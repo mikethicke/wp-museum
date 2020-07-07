@@ -22,6 +22,10 @@ export function getBestImage( imgData, imgDimensions ) {
 	};
 	
 	for ( let [ sizeSlug, dataArray ] of Object.entries( imgData ) ) {
+		if ( ! Array.isArray( dataArray ) || dataArray.length < 4 ) {
+			continue;
+		}
+
 		let [
 			URL,
 			height,
@@ -53,6 +57,13 @@ export function getBestImage( imgData, imgDimensions ) {
 	}
 
 	return bestFitImage;
+}
+
+export function getFirstObjectImage( imgData ) {
+	if ( isEmpty( imgData ) ) {
+		return null;
+	}
+	return Object.values( imgData )[0];
 }
 
 /**
@@ -90,4 +101,34 @@ export function stripslashes (str) {
 			return n1
 		}
 	  })
-  }
+}
+
+/**
+ * Generates a UUID to uniquely identify remote site to central site.
+ *
+ * @see https://stackoverflow.com/questions/105034/how-to-create-guid-uuid/2117523#2117523
+ */
+export function generateUUID() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	  var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+	  return v.toString(16);
+	});
+}
+
+/**
+ * Efficient test if an object is empty (ie. {} ).
+ * 
+ * @see https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
+ * @param {Object} obj Object to test for being empty
+ */
+export function isEmpty(obj) {
+	if ( obj === null ) {
+		return true;
+	}
+
+	for( let prop in obj ) {
+        if( obj.hasOwnProperty( prop ) )
+            return false;
+    }
+    return true;
+}

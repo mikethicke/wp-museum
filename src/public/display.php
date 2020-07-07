@@ -169,7 +169,7 @@ function object_content_filter( $content ) {
 
 $collection_content_filter_in_progress = false;
 /**
- * Filter content for single colleciton to display custom fields.
+ * Filter content for single collection to display custom fields.
  *
  * @param string $content Post content to be filtered.
  */

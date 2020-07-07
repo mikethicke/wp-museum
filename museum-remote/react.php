@@ -30,6 +30,12 @@ function enqueue_admin_scripts_and_styles() {
 		[],
 		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.css' )
 	);
+	wp_enqueue_style(
+		'museum-remote-style-front',
+		plugins_url( MR_REACT_PATH . 'style-index.css', __FILE__ ),
+		[],
+		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'style-index.css' )
+	);
 }
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_scripts_and_styles' );
 
@@ -39,9 +45,15 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_scripts_and
 function enqueue_frontend_styles() {
 	wp_enqueue_style(
 		'museum-remote-style-front',
-		plugins_url( MR_REACT_PATH . 'style.css', __FILE__ ),
+		plugins_url( MR_REACT_PATH . 'style-index.css', __FILE__ ),
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'style.css' )
+		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'style-index.css' )
+	);
+	wp_enqueue_style(
+		'wordpress-components-styles',
+		includes_url( '/css/dist/components/style.min.css' ),
+		[],
+		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.css' )
 	);
 }
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_styles' );

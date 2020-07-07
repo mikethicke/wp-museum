@@ -23,6 +23,29 @@ function get_object_type_names() {
 }
 
 /**
+ * Get all Museum Object posts.
+ *
+ * @param string|null $type Retrieve objects of a specific type.
+ * @param string      $post_status Publication status of posts to retrieve.
+ *
+ * @return [WP_POST] Array of posts with object post types.
+ */
+function get_object_posts( $type = null, $post_status = 'any' ) {
+	if ( $type ) {
+		$post_types = [ $type ];
+	} else {
+		$post_types = get_object_type_names();
+	}
+	return get_posts(
+		[
+			'numberposts' => -1,
+			'post_type'   => $post_types,
+			'post_status' => $post_status,
+		]
+	);
+}
+
+/**
  * Finds custom post object for a WordPress custom post type name.
  *
  * @param string $type_name The WordPress custom post type name.
@@ -142,7 +165,7 @@ function get_post_descendants( $post_id, $post_status = 'publish' ) {
 		]
 	);
 	foreach ( $children as $child ) {
-		$grand_children = get_post_descendants( $child, $post_status );
+		$grand_children = get_post_descendants( $child->ID, $post_status );
 		$descendants    = array_merge( $descendants, $grand_children );
 	}
 	$descendants = array_merge( $descendants, $children );

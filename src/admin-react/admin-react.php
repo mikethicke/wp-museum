@@ -26,10 +26,17 @@ function enqueue_admin_react() {
 	);
 
 	wp_enqueue_style(
-		WPM_PREFIX . 'admin-react-style',
-		plugins_url( $index_path . 'style.css', __FILE__ ),
+		'wordpress-components-styles',
+		includes_url( '/css/dist/components/style.min.css' ),
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . $index_path . 'style.css' )
+		filemtime( plugin_dir_path( __FILE__ ) . $index_path . 'index.css' )
+	);
+
+	wp_enqueue_style(
+		WPM_PREFIX . 'admin-react-style',
+		plugins_url( $index_path . 'index.css', __FILE__ ),
+		[],
+		filemtime( plugin_dir_path( __FILE__ ) . $index_path . 'index.css' )
 	);
 }
 
