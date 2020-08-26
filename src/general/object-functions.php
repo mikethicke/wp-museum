@@ -556,16 +556,6 @@ function do_advanced_search( $request ) {
 			10,
 			2
 		);
-		add_filter(
-			'posts_request',
-			function( $request, $the_query ) {
-				$out = fopen( './wp-content/plugins/wp-museum/sqltest.sql', 'w' );
-				fwrite( $out, $request );
-				return $request;
-			},
-			10,
-			2
-		);
 	}
 
 	$found_posts = get_posts( $query_args );
