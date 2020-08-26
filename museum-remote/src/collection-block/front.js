@@ -12,10 +12,10 @@ const CollectionBlockFront = props => {
 
 	return (
 		<RemoteCollectionGrid
-			attributes = { attributes }
-			remoteData = { remoteData }
+			attributes    = { attributes }
+			remoteData    = { remoteData }
 			setRemoteData = { setRemoteData }
-			wpmRestBase = { wpmRestBase }
+			wpmRestBase   = { wpmRestBase }
 		/>
 	);
 }

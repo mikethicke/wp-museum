@@ -315,7 +315,7 @@ add_action( 'wp_head', __NAMESPACE__ . '\collection_css' );
  *
  * @see blocks.php::enqueue_block_scripts()
  */
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_scripts' );
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_frontend_scripts' );
 
 /*****************************************************************************
  *
