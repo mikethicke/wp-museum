@@ -1,26 +1,13 @@
+/**
+ * Render any blocks in frontend posts. Blocks are found by class name.
+ */
+
 import {
 	render
 } from '@wordpress/element';
 
-import CollectionBlockFront from './collection-block/front'
-
-const cleanAttributes = attributes => {
-	for ( const [ key, value ] of Object.entries( attributes) ) {
-		if ( ! isNaN( value ) ) {
-			let newValue = value;
-			if ( newValue === '' ) {
-				newValue = null;
-			} else {
-				newValue = parseInt( value );
-				if ( newValue === 0 ) {
-					newValue = false;
-				}
-			}
-			attributes[key] = newValue;
-		}
-	}
-	return null;
-}
+import CollectionBlockFront from './collection-block/front';
+import { cleanAttributes } from './util';
 
 const collectionElements = document.getElementsByClassName( 'wpm-remote-collection-block-front');
 if ( !! collectionElements ) {

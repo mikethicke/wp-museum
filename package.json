@@ -5,8 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "wp-scripts build /src/blocks/src/index.js /src/blocks/src/style.scss /src/blocks/src/editor.scss --output-path=src/blocks/build",
-        "start": "wp-scripts start /src/blocks/src/index.js /src/blocks/src/style.scss /src/blocks/src/editor.scss --output-path=src/blocks/build"
+        "build": "wp-scripts build /src/blocks/src/index.js /src/blocks/src/frontend.js --output-path=src/blocks/build",
+        "start": "wp-scripts start /src/blocks/src/index.js /src/blocks/src/frontend.js --output-path=src/blocks/build"
     },
     "repository": {
         "type": "git",
@@ -19,28 +19,28 @@
     },
     "homepage": "https://github.com/mikethicke/wp-museum#readme",
     "devDependencies": {
-        "@babel/plugin-proposal-class-properties": "^7.8.3",
-        "@wordpress/scripts": "^5.1.0",
-        "autoprefixer": "^9.7.6",
+        "@babel/plugin-proposal-class-properties": "^7.10.4",
+        "@wordpress/scripts": "^12.1.1",
+        "autoprefixer": "^9.8.5",
         "classnames": "^2.2.6",
-        "css-loader": "^3.5.3",
+        "css-loader": "^3.6.0",
         "cssnano": "^4.1.10",
         "extract-loader": "^4.0.3",
         "file-loader": "^5.1.0",
         "ignore-emit-webpack-plugin": "^2.0.2",
         "mini-css-extract-plugin": "^0.9.0",
-        "node-sass": "^4.14.0",
+        "node-sass": "^4.14.1",
         "path": "^0.12.7",
         "postcss-loader": "^3.0.0",
         "postcss-preset-env": "^6.7.0",
-        "sass": "^1.26.5",
+        "sass": "^1.26.10",
         "sass-loader": "^8.0.2",
         "style-loader": "^1.2.1"
     },
     "dependencies": {
-        "@wordpress/api-fetch": "^3.13.1",
-        "@wordpress/data": "^4.16.1",
-        "@wordpress/icons": "^2.0.0",
+        "@wordpress/api-fetch": "^3.18.0",
+        "@wordpress/data": "^4.22.1",
+        "@wordpress/icons": "^2.4.0",
         "react-select": "^2.4.4"
     }
 }
