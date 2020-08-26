@@ -262,12 +262,14 @@ function rest_routes() {
 						$fields = get_mobject_fields( $kind->kind_id );
 						$filtered_fields = [];
 						foreach ( $fields as $field ) {
-							$filtered_fields[ $field->field_id ] = $field;
+							if ( $field->public || current_user_can( 'edit_posts' ) ) {
+								$filtered_fields[ $field->field_id ] = $field;
+							}
 						}
 						return $filtered_fields;
 					},
 					'permission_callback' => function () {
-						return current_user_can( 'edit_posts' );
+						return true;
 					},
 				],
 				[
@@ -428,12 +430,16 @@ function rest_routes() {
 					$kinds_array = [];
 					$kinds = get_mobject_kinds();
 					foreach ( $kinds as $kind ) {
-						$kinds_array[] = $kind->to_rest_array();
+						if ( current_user_can( 'edit_posts' ) ) {
+							$kinds_array[] = $kind->to_rest_array();
+						} else {
+							$kinds_array[] = $kind->to_public_rest_array();
+						}
 					}
 					return $kinds_array;
 				},
 				'permission_callback' => function() {
-					return current_user_can( 'edit_posts' );
+					return true;
 				},
 			],
 			[
