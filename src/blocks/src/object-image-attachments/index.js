@@ -21,3 +21,4 @@ registerBlockType( 'wp-museum/object-image-attachments-block', {
 	edit,
 	save : () => null
 } );
+
