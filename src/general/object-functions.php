@@ -364,3 +364,211 @@ function get_object_thumbnail( $post_id ) {
 	return $img_data;
 }
 
+/**
+ * Do an advanced search of objects and return results.
+ *
+ * @param WP_REST_Request $request A REST POST request json encoded.
+ */
+function do_advanced_search( $request ) {
+	global $wpdb;
+
+	$search_terms = $request->get_json_params();
+	$number_posts = DEFAULT_NUMBERPOSTS;
+	$post_status  = 'publish';
+
+	if ( isset( $search_terms['page'] ) ) {
+		$paged = $search_terms['page'];
+	} else {
+		$paged = 1;
+	}
+
+	if ( isset( $search_terms['selectedKind'] ) ) {
+		$kind = get_kind( $search_terms['selectedKind'] );
+	} else {
+		$kinds = get_mobject_kinds();
+		if ( empty( $kinds ) ) {
+			return ( [] );
+		}
+		$kind = $kinds[0];
+	}
+
+	$query_args = [
+		'post_status'      => $post_status,
+		'paged'            => $paged,
+		'post_type'        => $kind->type_name,
+		'numberposts'      => $number_posts,
+		'suppress_filters' => false,
+	];
+
+	if ( ! empty( $search_terms['searchText'] ) ) {
+		if ( empty( $search_terms['onlyTitle'] ) ) {
+			$query_args['s'] = $search_terms['searchText'];
+		} else {
+			$query_args['post_title'] = $search_terms['searchText'];
+		}
+	}
+
+	$included_categories = [];
+	if ( ! empty( $search_terms['selectedCollections'] ) ) {
+		foreach ( $search_terms['selectedCollections'] as $collection_id ) {
+			$post_custom = get_post_custom( $collection_id );
+			if ( ! empty( $post_custom['associated_category'] ) ) {
+				$included_categories = array_merge(
+					$included_categories,
+					$post_custom['associated_category']
+				);
+			}
+			if (
+				isset( $post_custom['include_sub_collections'] ) &&
+				'1' === $post_custom['include_sub_collections'][0]
+			) {
+				$descendants = get_post_descendants( $collection_id, $post_status );
+				foreach ( $descendants as $descendant ) {
+					$d_custom            = get_post_custom( $descendant->ID );
+					$included_categories = array_merge( $included_categories, $d_custom['associated_category'] );
+				}
+			}
+		}
+	}
+	if ( ! empty( $included_categories ) ) {
+		$query_args['category__in'] = $included_categories;
+	}
+
+	/**
+	 * Handle meta queries
+	 *
+	 * Search has do deal with post meta in three ways:
+	 *     (1) If not searching just the title, does meta value match search text?
+	 *     (2) Filter against checked flags.
+	 *     (3) Filter against search fields.
+	 *
+	 * The standard meta_query parameter only filters results, so it cannot
+	 * handle (1). Therefore we use WP_Meta_Query to generate the WHERE and
+	 * JOIN clauses for the meta query and then add them to the final query
+	 * using filters.
+	 *
+	 * First, if ! only_title, we construct (1), OR it to the existing WHERE clause,
+	 * and put parentheses around it.
+	 *
+	 * Then, we construct (2) and (3) with a different WP_Meta_Query object, and
+	 * AND that to the WHERE clause.
+	 *
+	 * Finally, we add the postmeta table to the JOIN clause.
+	 *
+	 * TODO: use this method for all searches rather than the combined_query
+	 * method, which is buggy.
+	 */
+	$search_all_fields_sql = [];
+	$meta_fields_sql       = [];
+	if ( empty( $search_terms['onlyTitle'] ) && ! empty( $search_terms['searchText'] ) ) {
+		$search_all_fields_args = [
+			'relation' => 'OR',
+		];
+		$mobject_fields = get_mobject_fields( $kind->kind_id );
+		foreach ( $mobject_fields as $field ) {
+			$search_all_fields_args[] = [
+				'key'     => $field->slug,
+				'value'   => $search_terms['searchText'],
+				'compare' => 'LIKE',
+			];
+		}
+		$search_all_fields_query = new \WP_Meta_Query( $search_all_fields_args );
+		$search_all_fields_sql = $search_all_fields_query->get_sql(
+			'post',
+			$wpdb->posts,
+			'ID',
+			null
+		);
+		$join_clause = $search_all_fields_sql['join'];
+	}
+	$meta_filter_args = [
+		'relation' => 'AND',
+	];
+	if ( ! empty( $search_terms['selectedFlags'] ) ) {
+		foreach ( $search_terms['selectedFlags'] as $set_flag ) {
+			$meta_filter_args[] = [
+				'key'     => $set_flag,
+				'value'   => '1',
+				'compare' => '=',
+			];
+		}
+	}
+	if ( ! empty( $search_terms['searchFields'] ) ) {
+		foreach ( $search_terms['searchFields'] as $field => $search ) {
+			$meta_filter_args[] = [
+				'key'     => $field,
+				'value'   => $search,
+				'compare' => 'LIKE',
+			];
+		}
+	}
+	if ( count( $meta_filter_args ) > 1 ) {
+		$meta_filter_query = new \WP_Meta_Query( $meta_filter_args );
+		$meta_fields_sql = $meta_filter_query->get_sql(
+			'post',
+			$wpdb->posts,
+			'ID',
+			null
+		);
+		$join_clause = $meta_fields_sql['join'];
+	}
+	if ( isset( $join_clause ) ) {
+		add_filter(
+			'posts_where',
+			function( $where, $the_query ) use ( $search_all_fields_sql, $meta_fields_sql ) {
+				global $wpdb;
+				$new_where = '';
+				if ( ! empty( $search_all_fields_sql ) ) {
+					$start_index = strpos( $where, $wpdb->posts . '.post_title' );
+					if ( false === $start_index ) {
+						return ( [] );
+					}
+					$where_first_part  = substr( $where, 0, $start_index );
+					$where_last_part   = substr( $where, $start_index );
+					$where_middle_part = substr( $search_all_fields_sql['where'], 7 );
+					$where_middle_part = substr( $where_middle_part, 0, -2 );
+					$new_where         = $where_first_part . $where_middle_part . ' OR ' . $where_last_part;
+				}
+				if ( '' === $new_where ) {
+					$new_where = $where;
+				}
+				if ( ! empty( $meta_fields_sql ) ) {
+					$new_where .= $meta_fields_sql['where'];
+				}
+				return $new_where;
+			},
+			10,
+			2
+		);
+		add_filter(
+			'posts_join',
+			function( $join, $the_query ) use ( $join_clause ) {
+				return $join . $join_clause;
+			},
+			10,
+			2
+		);
+		add_filter(
+			'posts_distinct',
+			function( $distinct, $the_query ) {
+				return ' DISTINCT ';
+			},
+			10,
+			2
+		);
+		add_filter(
+			'posts_request',
+			function( $request, $the_query ) {
+				$out = fopen( './wp-content/plugins/wp-museum/sqltest.sql', 'w' );
+				fwrite( $out, $request );
+				return $request;
+			},
+			10,
+			2
+		);
+	}
+
+	$found_posts = get_posts( $query_args );
+	return ( combine_post_data_array( $found_posts ) );
+}
+

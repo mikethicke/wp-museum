@@ -7,6 +7,7 @@
  * ## General ##
  * /site_data                        Overview data for the site.
  * /admin_options                    Site-wide options.
+ * /search                           For advanced search of objects.
  *
  * ## Objects ##
  * /<object type>/[?s=|<field>=]     Objects with post type <object type>.
@@ -37,6 +38,8 @@
 
 namespace MikeThicke\WPMuseum;
 
+const DEFAULT_NUMBERPOSTS = -1;
+
 /**
  * Register REST endpoints.
  */
@@ -59,6 +62,9 @@ function rest_routes() {
 		'/site_data',
 		[
 			'methods' => 'GET',
+			'permission_callback' => function() {
+				return true;
+			},
 			'callback' => function() {
 				return get_site_data();
 			},
@@ -93,6 +99,24 @@ function rest_routes() {
 	);
 
 	/**
+	 * /search                           For advanced search of objects.
+	 *
+	 * Run an advanced search and return the result. Search parameters passed
+	 * through POST request.
+	 */
+	register_rest_route(
+		REST_NAMESPACE,
+		'/search',
+		[
+			'methods' => 'POST',
+			'permission_callback' => function() {
+				return true;
+			},
+			'callback' => __NAMESPACE__ . '\do_advanced_search',
+		]
+	);
+
+	/**
 	 * /register_remote
 	 *
 	 * @return Array | WP_ERROR Array of site data or error if registration unsuccessful.
@@ -102,6 +126,9 @@ function rest_routes() {
 		'/register_remote',
 		[
 			'methods' => 'POST',
+			'permission_callback' => function() {
+				return true;
+			},
 			'callback' => __NAMESPACE__ . '\register_remote_client',
 		]
 	);
@@ -116,6 +143,9 @@ function rest_routes() {
 			'/' . $kind->type_name,
 			[
 				'methods'  => 'GET',
+				'permission_callback' => function() {
+					return true;
+				},
 				'callback' => function( $request ) use ( $kind ) {
 					$paged = $request->get_param( 'page' );
 					if ( ! isset( $paged ) || empty( $paged ) ) {
@@ -130,6 +160,7 @@ function rest_routes() {
 						'post_type'        => $kind->type_name,
 						'combined_query'   => $combined_query,
 						'suppress_filters' => false,
+						'numberposts'      => DEFAULT_NUMBERPOSTS,
 					];
 					$title_query   = $request->get_param( 'post_title' );
 					$content_query = $request->get_param( 'post_content' );
@@ -158,6 +189,9 @@ function rest_routes() {
 			'/' . $kind->type_name . '/(?P<id>[\d]+)',
 			[
 				'methods'  => 'GET',
+				'permission_callback' => function() {
+					return true;
+				},
 				'args'     =>
 					[
 						'id' =>
@@ -199,6 +233,9 @@ function rest_routes() {
 			$kind->type_name . '/fields',
 			[
 				'methods'  => 'GET',
+				'permission_callback' => function() {
+					return true;
+				},
 				'callback' => function( $request ) use ( $kind ) {
 					$fields = get_mobject_fields( $kind->kind_id );
 					$filtered_fields = [];
@@ -289,6 +326,9 @@ function rest_routes() {
 		'/all',
 		[
 			'methods'  => 'GET',
+			'permission_callback' => function() {
+				return true;
+			},
 			'callback' => function ( $request ) use ( $kinds ) {
 				$post_data = [];
 				$paged     = $request->get_param( 'page' );
@@ -312,6 +352,7 @@ function rest_routes() {
 					'post_type'        => $kind_type_list,
 					'combined_query'   => $combined_query,
 					'suppress_filters' => false,
+					'numberposts'      => DEFAULT_NUMBERPOSTS,
 				];
 				$title_query   = $request->get_param( 'post_title' );
 				$content_query = $request->get_param( 'post_content' );
@@ -338,6 +379,9 @@ function rest_routes() {
 		'/all/(?P<id>[\d]+)',
 		[
 			'methods'  => 'GET',
+			'permission_callback' => function() {
+				return true;
+			},
 			'args'     =>
 				[
 					'id' =>
@@ -425,6 +469,9 @@ function rest_routes() {
 		'/collections/',
 		[
 			'methods' => 'GET',
+			'permission_callback' => function() {
+				return true;
+			},
 			'callback' => function( $request ) {
 				if ( ! empty( $request->get_param( 'slug' ) ) ) {
 					return get_collection_data( $request );
@@ -440,6 +487,7 @@ function rest_routes() {
 					'paged'            => $paged,
 					'post_type'        => WPM_PREFIX . 'collection',
 					'suppress_filters' => false,
+					'numberposts'      => DEFAULT_NUMBERPOSTS,
 				];
 				$search_string = $request->get_param( 's' );
 				if ( ! empty( $search_string ) ) {
@@ -471,6 +519,9 @@ function rest_routes() {
 		'/collections/(?P<id>[\d]+)',
 		[
 			'methods' => 'GET',
+			'permission_callback' => function() {
+				return true;
+			},
 			'args'    =>
 				[
 					'id' =>
@@ -492,6 +543,9 @@ function rest_routes() {
 		'/collections/(?P<id>[\d]+)/objects',
 		[
 			'methods' => 'GET',
+			'permission_callback' => function() {
+				return true;
+			},
 			'args'    =>
 				[
 					'id' =>
@@ -571,7 +625,10 @@ function combine_post_data( $post ) {
 		$filtered_custom = [];
 		$fields          = get_mobject_fields( $kind->kind_id );
 		foreach ( $custom as $field_slug => $field_data ) {
-			if ( isset( $fields[ $field_slug ] ) && $fields[ $field_slug ]->public ) {
+			if (
+				isset( $fields[ $field_slug ] ) &&
+				( $fields[ $field_slug ]->public || current_user_can( 'edit_posts' ) )
+			) {
 				$filtered_custom[ $field_slug ] = $field_data;
 			}
 		}
@@ -613,6 +670,15 @@ function combine_post_data( $post ) {
 		$additional_fields
 	);
 	return $post_data;
+}
+
+/**
+ * Combine post data for array of posts.
+ *
+ * @param [WP_Post] $posts Array of WP_Post objects.
+ */
+function combine_post_data_array( $posts ) {
+	return array_map( __NAMESPACE__ . '\combine_post_data', $posts );
 }
 
 /**
@@ -691,6 +757,9 @@ function images_routes_args() {
 		[
 			[
 				'methods'  => 'GET',
+				'permission_callback' => function() {
+					return true;
+				},
 				'args'     =>
 					[
 						'id' =>
@@ -733,6 +802,9 @@ function child_objects_routes_args() {
 	return (
 		[
 			'methods' => 'GET',
+			'permission_callback' => function() {
+				return true;
+			},
 			'args'     =>
 				[
 					'id' =>
@@ -855,6 +927,5 @@ function set_admin_options( $request ) {
 	}
 	return true;
 }
-
 
 

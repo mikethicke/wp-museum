@@ -85,7 +85,7 @@ const ObjectMetaField = ( props ) => {
 				className           = 'object-meta-short-text'
 				value               = { fieldValue }
 				onChange            = { onChange }
-				allowedFormats     = { [] } 
+				allowedFormats      = { [] } 
 				preserveWhiteSpace
 			/>
 		);

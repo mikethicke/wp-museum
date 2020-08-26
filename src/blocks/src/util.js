@@ -132,3 +132,28 @@ export function isEmpty(obj) {
     }
     return true;
 }
+
+/**
+ * Takes attributes passed from wp_localize_script to frontend scripts and
+ * parses and recasts them to match the format of attributes in the editor.
+ *
+ * @param {Object} attributes Attributes of a block, passed from
+ *                            wp_localize_script.
+ */
+export function cleanAttributes( attributes ) {
+	for ( const [ key, value ] of Object.entries( attributes) ) {
+		if ( ! isNaN( value ) ) {
+			let newValue = value;
+			if ( newValue === '' ) {
+				newValue = null;
+			} else {
+				newValue = parseInt( value );
+				if ( newValue === 0 ) {
+					newValue = false;
+				}
+			}
+			attributes[key] = newValue;
+		}
+	}
+	return null;
+}
