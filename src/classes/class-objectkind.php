@@ -360,6 +360,24 @@ class ObjectKind {
 		return $arr;
 	}
 
+	/**
+	 * Return public properties as associative array.
+	 */
+	public function to_public_rest_array() {
+		$arr                        = [];
+		$arr['kind_id']             = $this->kind_id;
+		$arr['cat_field_id']        = $this->cat_field_id;
+		$arr['name']                = $this->name;
+		$arr['type_name']           = $this->type_name;
+		$arr['label']               = $this->label;
+		$arr['label_plural']        = $this->label_plural;
+		$arr['description']         = $this->description;
+		$arr['categorized']         = $this->categorized;
+		$arr['hierarchical']        = $this->hierarchical;
+		$arr['parent_kind_id']      = $this->parent_kind_id;
+		$arr['children']            = $this->get_children_array();
+		return $arr;
+	}
 
 	/**
 	 * Save kind to database.
