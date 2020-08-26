@@ -1,0 +1,26 @@
+.search-results {
+	
+	.object-row-content {
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+
+		p {
+			margin-top: 0;
+		}
+		
+		.object-row-image {
+			flex-basis: 150px;
+			flex-grow: 0;
+			flex-shrink: 0;
+			margin-right: 0.5em;
+		}
+
+		.object-info {
+			flex-basis: 50%;
+			flex-grow: 1;
+		}
+
+	}
+
+}

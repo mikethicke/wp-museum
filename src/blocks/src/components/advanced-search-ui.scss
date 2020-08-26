@@ -1,0 +1,88 @@
+.advanced-search-editor-buttons {
+	margin: 0.5em;
+	button {
+		margin: 0.5em;
+	}
+}
+
+.advanced-search-form-wrapper {
+	& > div {
+		margin: 5px;
+	}
+
+	select {
+		padding: 5px;
+		line-height: 1.2em;
+	}
+
+	input[type='checkbox'] {
+		margin-right: 5px;
+	}
+	
+	.search-visible, &.search-visible {
+		border-width: 1px;
+		padding: 5px;
+		border-color: transparent;
+		border-style: solid;
+	}
+	
+	.search-hidden, &.search-hidden {
+		border-style: dashed;
+		border-width: 1px;
+		padding: 5px;
+		border-color: grey;
+		border-radius: 5px;
+	}
+
+	.advanced-search-main-input {
+		display: flex;
+		flex-direction: row;
+
+		input {
+			flex-grow: 1;
+			margin-right: 0.5em;
+		}
+	}
+
+	.advanced-search-toggles {
+		display: flex;
+		flex-direction: row;
+
+		.components-base-control {
+			label {
+				display: inline-block;
+				margin-right: 0.5em;
+			}
+		}
+	}
+
+	.advanced-search-select-controls {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+
+		.components-base-control {
+			display: block;
+			margin-right: 0.5em;
+		}
+	}
+
+	.advanced-search-fields {
+		.field-search-element {
+			display: flex;
+			flex-direction: row;
+			margin-bottom: 1em;
+
+			.field-search-input  {
+				flex-grow: 1;
+				margin-left: 1em;
+			}
+		}
+	}
+
+	.components-base-control {
+		label {
+			display: block;
+		}
+	}
+}
