@@ -373,13 +373,18 @@ function do_advanced_search( $request ) {
 	global $wpdb;
 
 	$search_terms = $request->get_json_params();
-	$number_posts = DEFAULT_NUMBERPOSTS;
 	$post_status  = 'publish';
 
 	if ( isset( $search_terms['page'] ) ) {
 		$paged = $search_terms['page'];
 	} else {
 		$paged = 1;
+	}
+
+	if ( isset( $search_terms['numberposts'] ) ) {
+		$number_posts = $search_terms['numberposts'];
+	} else {
+		$number_posts = DEFAULT_NUMBERPOSTS;
 	}
 
 	if ( isset( $search_terms['selectedKind'] ) ) {

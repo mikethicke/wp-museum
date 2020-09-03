@@ -4,11 +4,12 @@ import './object-infobox';
 import './object-image';
 import './object-grid';
 import './object-gallery';
-import './collection';
+import './collection-view';
 import './object-meta-block';
 import './object-image-attachments';
 import './child-objects';
 import './advanced-search';
+import './collection';
 
 import './editor.scss';
 

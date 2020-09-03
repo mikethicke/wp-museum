@@ -31,7 +31,7 @@ $collection_options   = [
 	],
 ];
 $collection_post_type = new CustomPostType( $collection_options );
-$collection_post_type->add_support( [ 'thumbnail' ] );
+$collection_post_type->add_support( [ 'thumbnail', 'custom-fields' ] );
 $collection_post_type->add_taxonomy( 'category' );
 
 /*
@@ -42,9 +42,10 @@ $category_options = [ -1 => '' ];
 foreach ( $categories as $category ) {
 	$category_options[ $category->cat_ID ] = $category->name;
 }
-$collection_post_type->add_meta_field( 'associated_category', 'Associated Category', 'select', $options = [ 'options' => $category_options ] );
-$collection_post_type->add_meta_field( 'include_sub_collections', 'Include Sub Collections', 'checkbox' );
-$collection_post_type->add_meta_field( 'include_child_categories', 'Include Child Categories', 'checkbox' );
+$collection_post_type->register_post_meta( 'associated_category', 'string', 'Associated Category' );
+$collection_post_type->register_post_meta( 'include_sub_collections', 'boolean', 'Include Sub Collections' );
+$collection_post_type->register_post_meta( 'include_child_categories', 'boolean', 'Include Child Categories' );
+$collection_post_type->register_post_meta( 'single_page', 'boolean', 'Single Page View', [ 'default' => true ] );
 
 /*
  * Displays a metabox containing a table of associated objects.
