@@ -1,3 +1,8 @@
+import apiFetch from "@wordpress/api-fetch";
+
+
+export const baseRestPath = '/wp-museum/v1/';
+
 // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 export function hexToRgb(hex) {
 	// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -156,4 +161,39 @@ export function cleanAttributes( attributes ) {
 		}
 	}
 	return null;
+}
+
+/**
+ * Optionally links to or calls onClick callback when clicked on.
+ * 
+ * @param {*} props The component's properties
+ */
+export const MaybeLink = props => {
+	const {
+		href,
+		onClickCallback,
+		children,
+		doLink
+	} = props
+	
+	if ( doLink ) {
+		return (
+			<a href = { href }>{ children }</a>
+		)
+	}
+	if ( !! onClickCallback ) {
+		return (
+			<a onClick = { onClickCallback }>{ children }</a>
+		)
+	}
+	return ( <>{ children }</> );
+}
+
+/**
+ * Returns a promise that returns image data for a museum object.
+ */
+export const fetchObjectImages = objectID => {
+	const baseRestPath = '/wp-museum/v1/';
+
+	return apiFetch( { path: `${baseRestPath}/all/${objectID}/images` } );
 }

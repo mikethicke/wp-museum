@@ -90,7 +90,7 @@ const ObjectModal = props => {
 				</div>
 			</div>
 		</Modal>
-	)
+	);
 }
 
 export default ObjectModal;

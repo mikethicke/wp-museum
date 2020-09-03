@@ -562,7 +562,11 @@ function rest_routes() {
 						],
 				],
 			'callback' => function ( $request ) {
-				$associated_objects = get_associated_objects( 'publish', $request['id'] );
+				if ( current_user_can( 'edit_posts' ) ) {
+					$associated_objects = get_associated_objects( 'any', $request['id'] );
+				} else {
+					$associated_objects = get_associated_objects( 'publish', $request['id'] );
+				}
 
 				$object_data = [];
 				foreach ( $associated_objects as $object ) {
@@ -669,7 +673,11 @@ function combine_post_data( $post ) {
 	];
 
 	$default_post_data = $post->to_array();
-	$default_post_data['post_content'] = apply_filters( 'the_content', get_the_content( null, false, $post ) );
+	$default_post_data['post_content'] =
+		apply_filters( 'the_content', get_the_content( null, false, $post ) );
+	$default_post_data['post_status_label'] =
+		get_post_status_object( $default_post_data['post_status'] )->label;
+
 	$post_data = array_merge(
 		$default_post_data,
 		$custom,
