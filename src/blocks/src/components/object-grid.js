@@ -161,7 +161,7 @@ const ObjectGrid = props => {
 
 	const percentWidth = Math.round( 1 / columns * 100 ) + '%';
 	const imgStyle = {
-		flexBasis: percentWidth
+		flexBasis: `calc(${percentWidth} - 10px)`
 	}
 
 	const gridObjects = mObjects.map( mObject => (
