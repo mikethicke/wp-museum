@@ -1,0 +1,48 @@
+.paginated-component {
+	margin-top: 1em;
+
+	.pagination {
+		ol {
+			list-style-type: none;
+			display: flex;
+			flex-direction: row;
+			margin: 1em 0 1em 0;
+			padding: 0;
+
+			li {
+				display: block;
+				border-style: solid;
+				border-color: #e8e8e8;
+				border-width: 1px;
+				margin-right: -1px;
+				flex-basis: 1em;
+				max-width: 2em;
+				flex-grow: 1;
+				flex-shrink: 0;
+				text-align: center;
+
+				a {
+					display: block;
+					text-decoration: none !important;
+					cursor: pointer;	
+				}
+
+				&:hover {
+					background-color: #e8e8e8;
+				}
+
+				&.page-list-selected {
+					background-color: #e8e8e8;
+				}
+			}
+
+			li:first-child {
+				border-radius: 3px 0 0 3px;
+			}
+
+			li:last-child {
+				border-radius: 0 3px 3px 0;
+			}
+		}
+	}
+}

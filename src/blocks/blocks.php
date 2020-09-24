@@ -61,6 +61,12 @@ function enqueue_block_frontend_scripts() {
 		[],
 		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'style-frontend.css' )
 	);
+	wp_enqueue_style(
+		'wordpress-components-styles',
+		includes_url( '/css/dist/components/style.min.css' ),
+		[],
+		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'frontend.js' )
+	);
 }
 
 /**

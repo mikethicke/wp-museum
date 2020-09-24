@@ -162,6 +162,33 @@ class CustomPostType {
 	}
 
 	/**
+	 * Register a custom post meta.
+	 *
+	 * @param string $name Name of the meta that will be used to identify the meta value.
+	 * @param string $type Data type of the meta.
+	 * @param string $description Description of the meta.
+	 * @param Array  $options Further options.
+	 *
+	 * @see https://developer.wordpress.org/reference/functions/register_meta/
+	 */
+	public function register_post_meta( $name, $type = 'string', $description = '', $options = [] ) {
+		$args = array_merge(
+			[
+				'type'         => $type,
+				'description'  => $description,
+				'single'       => true,
+				'show_in_rest' => true,
+			],
+			$options
+		);
+
+		register_post_meta(
+			$this->options['type'],
+			$name,
+			$args
+		);
+	}
+	/**
 	 * Add a field to main metabox.
 	 *
 	 * @param string             $field_name Name of the field (will be name of option in templates, etc.).
@@ -180,15 +207,12 @@ class CustomPostType {
 			'options' => $options,
 		];
 
-		register_post_meta(
-			$this->options['type'],
+		$this->register_post_meta(
 			$field_name,
-			[
-				'type'         => $options['data_type'] ?? 'string',
-				'description'  => $field_name,
-				'single'       => true,
-				'show_in_rest' => true,
-			]
+			$options['data_type'] ?? 'string',
+			$field_name,
+			true,
+			true
 		);
 	}
 
