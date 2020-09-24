@@ -4,6 +4,7 @@
 
  import {
 	 useState,
+	 useEffect
  } from '@wordpress/element';
 
 import {
@@ -38,40 +39,42 @@ const ObjectGridBox = props => {
 	let useImgURL;
 	if ( imgURL ) {
 		useImgURL = imgURL;
-	} else if ( thumbnail ) {
-		useImgURL = thumbnail[0];
 	} else {
 		useImgURL = null;
 	}
 
 	return (
-		<MaybeLink
-			href            = { link }
-			doLink          = { linkToObject }
-			onClickCallback = { onClickCallback }
+		<div
+			className = 'object-grid-box-wrapper'
+			style     = { imgStyle }
 		>
-			<div 
-				className = 'object-grid-box'
-				imgStyle  = { imgStyle }
+			<MaybeLink
+				href            = { link }
+				doLink          = { linkToObject }
+				onClickCallback = { onClickCallback }
 			>
-				<div className = 'object-grid-thumbnail-div'>
-					{ !! thumbnailURL &&
-						<img src = { useImgURL } />
-					}
+				<div 
+					className = 'object-grid-box'
+				>
+					<div className = 'object-grid-thumbnail-div'>
+						{ !! useImgURL &&
+							<img src = { useImgURL } />
+						}
+					</div>
+					<div className = 'object-grid-caption-div'>
+						{ displayDate && !! postDate &&
+							<div className = 'ogc-date'>{ postDate }</div>
+						}
+						{ displayTitle && !! postTitle &&
+							<h3>{ postTitle }</h3>
+						}
+						{ displayExcerpt && !! excerpt &&
+							<div className = 'ogc-excerpt'>{ excerpt }</div>
+						}
+					</div>
 				</div>
-				<div className = 'object-grid-caption-div'>
-					{ displayDate && !! postDate &&
-						<div className = 'ogc-date'>{ postDate }</div>
-					}
-					{ displayTitle && !! postTitle &&
-						<h3>{ postTitle }</h3>
-					}
-					{ displayExcerpt && !! excerpt &&
-						<div className = 'ogc-excerpt'>{ excerpt }</div>
-					}
-				</div>
-			</div>
-		</MaybeLink>
+			</MaybeLink>
+		</div>
 	);
 }
 
@@ -99,6 +102,7 @@ const ObjectGridBoxDynamicImage = props => {
 	const [ modalOpen, setModalOpen ] = useState( false );
 
 	useEffect( () => {
+		setImgData( null );
 		fetchObjectImages( mObject.ID ).then( result => {
 			if ( result ) {
 				setImgData( result );
@@ -106,10 +110,13 @@ const ObjectGridBoxDynamicImage = props => {
 		} );
 	}, [ mObject ] );
 
-	const bestImage = getBestImage(
-		getFirstObjectImage( imgData ),
-		{ width: targetWidthHeight, height: targetWidthHeight }
-	);
+	let bestImage = null;
+	if ( imgData != null && Object.entries(imgData).length > 0 ) {
+		bestImage = getBestImage(
+			getFirstObjectImage( imgData ),
+			{ width: targetWidthHeight, height: targetWidthHeight }
+		);
+	}
 
 	return (
 		<>
@@ -121,7 +128,7 @@ const ObjectGridBoxDynamicImage = props => {
 				displayExcerpt  = { displayExcerpt }
 				linkToObject    = { linkToObject }
 				onClickCallback = { () => setModalOpen( true ) }
-				imgURL          = { bestImage.URL }
+				imgURL          = { !! bestImage ? bestImage.URL : null }
 			/>
 			{ doObjectModal && modalOpen && 
 				<ObjectModal
@@ -157,7 +164,7 @@ const ObjectGrid = props => {
 		flexBasis: percentWidth
 	}
 
-	gridObjects = mObjects.map( mObject => (
+	const gridObjects = mObjects.map( mObject => (
 		<ObjectGridBoxDynamicImage
 			mObject        = { mObject }
 			imgStyle       = { imgStyle }

@@ -121,4 +121,5 @@ require_once $require_prefix . 'blocks/objectposttype-block.php';
 require_once $require_prefix . 'blocks/object-image-attachments-block.php';
 require_once $require_prefix . 'blocks/child-objects-block.php';
 require_once $require_prefix . 'blocks/advanced-search-block.php';
+require_once $require_prefix . 'blocks/collection-objects-block.php';
 

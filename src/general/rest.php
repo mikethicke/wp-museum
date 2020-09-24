@@ -38,7 +38,7 @@
 
 namespace MikeThicke\WPMuseum;
 
-const DEFAULT_NUMBERPOSTS = -1;
+const DEFAULT_NUMBERPOSTS = 50;
 
 /**
  * Register REST endpoints.
@@ -148,8 +148,12 @@ function rest_routes() {
 				},
 				'callback' => function( $request ) use ( $kind ) {
 					$paged = $request->get_param( 'page' );
-					if ( ! isset( $paged ) || empty( $paged ) ) {
+					if ( empty( $paged ) ) {
 						$paged = 1;
+					}
+					$per_page = $request->get_param( 'per_page' );
+					if ( empty( $per_page ) ) {
+						$per_page = DEFAULT_NUMBERPOSTS;
 					}
 
 					$combined_query = build_rest_combined_query( [ $kind ], $request );
@@ -160,7 +164,7 @@ function rest_routes() {
 						'post_type'        => $kind->type_name,
 						'combined_query'   => $combined_query,
 						'suppress_filters' => false,
-						'numberposts'      => DEFAULT_NUMBERPOSTS,
+						'numberposts'      => $per_page,
 					];
 					$title_query   = $request->get_param( 'post_title' );
 					$content_query = $request->get_param( 'post_content' );
@@ -333,8 +337,14 @@ function rest_routes() {
 			},
 			'callback' => function ( $request ) use ( $kinds ) {
 				$post_data = [];
-				$paged     = $request->get_param( 'page' );
-
+				$paged = $request->get_param( 'page' );
+				if ( empty( $paged ) ) {
+					$paged = 1;
+				}
+				$per_page = $request->get_param( 'per_page' );
+				if ( empty( $per_page ) ) {
+					$per_page = DEFAULT_NUMBERPOSTS;
+				}
 				$kind_type_list = array_map(
 					function ( $x ) {
 						return $x->type_name;
@@ -354,7 +364,7 @@ function rest_routes() {
 					'post_type'        => $kind_type_list,
 					'combined_query'   => $combined_query,
 					'suppress_filters' => false,
-					'numberposts'      => DEFAULT_NUMBERPOSTS,
+					'numberposts'      => $per_page,
 				];
 				$title_query   = $request->get_param( 'post_title' );
 				$content_query = $request->get_param( 'post_content' );
@@ -484,8 +494,12 @@ function rest_routes() {
 				}
 
 				$paged = $request->get_param( 'page' );
-				if ( ! isset( $paged ) || empty( $paged ) ) {
+				if ( empty( $paged ) ) {
 					$paged = 1;
+				}
+				$per_page = $request->get_param( 'per_page' );
+				if ( empty( $per_page ) ) {
+					$per_page = DEFAULT_NUMBERPOSTS;
 				}
 
 				$args  = [
@@ -493,7 +507,7 @@ function rest_routes() {
 					'paged'            => $paged,
 					'post_type'        => WPM_PREFIX . 'collection',
 					'suppress_filters' => false,
-					'numberposts'      => DEFAULT_NUMBERPOSTS,
+					'numberposts'      => $per_page,
 				];
 				$search_string = $request->get_param( 's' );
 				if ( ! empty( $search_string ) ) {
@@ -689,10 +703,15 @@ function combine_post_data( $post ) {
 /**
  * Combine post data for array of posts.
  *
- * @param [WP_Post] $posts Array of WP_Post objects.
+ * @param [WP_Post] $posts      Array of WP_Post objects.
+ * @param Array     $query_data Associative array of extra data to add to first post.
  */
-function combine_post_data_array( $posts ) {
-	return array_map( __NAMESPACE__ . '\combine_post_data', $posts );
+function combine_post_data_array( $posts, $query_data = null ) {
+	$post_data = array_map( __NAMESPACE__ . '\combine_post_data', $posts );
+	if ( ! empty( $query_data ) && count( $post_data ) > 0 ) {
+		$post_data[0]['query_data'] = $query_data;
+	}
+	return $post_data;
 }
 
 /**

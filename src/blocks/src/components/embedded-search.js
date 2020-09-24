@@ -8,23 +8,18 @@ import {
 } from '@wordpress/components';
 
 import {
-	useState
+	useState,
 } from '@wordpress/element';
-
-import apiFetch from '@wordpress/api-fetch';
-
-import {
-	baseRestPath
-} from '../util';
 
 const EmbeddedSearch = props => {
 	const {
 		searchDefaults,
-		resultsCallback,
+		runSearch,
 		searchButtonText = 'Search',
-		resultsPerPage   = 50,
-		page             = 1,
 		showTitleToggle  = false,
+		showReset        = true,
+		resetButtonText  = 'Reset',
+		placeholderText  = '',
 	} = props;
 
 	const [ searchText, setSearchText ] = useState( '' );
@@ -35,26 +30,36 @@ const EmbeddedSearch = props => {
 			...searchDefaults,
 			onlyTitle   : onlyTitle,
 			searchText  : searchText,
-			page        : page,
-			numberposts : resultsPerPage
 		}
+		runSearch( searchValues );
+	}
 
-		apiFetch( {
-			path   : `${baseRestPath}/search`,
-			method : 'POST',
-			data   : searchValues
-		} ).then( result => {
-			resultsCallback( result );
-		} );
+	const resetSearch = () => {
+		setSearchText( '' );
+		const searchValues = {
+			...searchDefaults,
+			onlyTitle  : onlyTitle,
+			searchText : ''
+		}
+		runSearch( searchValues );
+	}
+
+	const handleKeyPress = ( event ) => {
+		if ( event.key == 'Enter' ) {
+			event.stopPropagation();
+			doSearch();
+		}
 	}
 
 	return (
 		<div className = 'wpm-embedded-search'>
 			<div className = 'embedded-search-input'>
 				<input
-					type = 'text'
-					value = { searchText }
-					onChange = { event => setSearchText( event.target.value ) }
+					type        = 'text'
+					placeholder = { placeholderText }
+					onKeyPress  = { handleKeyPress }
+					value       = { searchText }
+					onChange    = { event => setSearchText( event.target.value ) }
 				/>
 				<Button
 					isPrimary
@@ -63,6 +68,15 @@ const EmbeddedSearch = props => {
 				>
 					{ searchButtonText }
 				</Button>
+				{ showReset &&
+					<Button
+						isSecondary
+						className = 'wpm-embedded-search-button'
+						onClick   = { resetSearch }
+					>
+						{ resetButtonText }
+					</Button>
+				}
 			</div>
 			<div className = 'wpm-embedded-search-title-toggle'>
 				{ showTitleToggle &&
