@@ -30,12 +30,12 @@ const ObjectRow = props => {
 
 const ObjectList = props => {
 	const {
-		objects,
+		mObjects,
 		displayImages
 	} = props;
 
-	const ObjectRows = !! objects &&
-		objects.map( result => 
+	const ObjectRows = !! mObjects &&
+		mObjects.map( result => 
 			<ObjectRow
 				objectData   = { result }
 				displayImage = { displayImages }

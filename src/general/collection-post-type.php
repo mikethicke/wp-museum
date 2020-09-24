@@ -28,6 +28,10 @@ $collection_options   = [
 			'edit_published_posts' => WPM_PREFIX . 'edit_published_collections',
 		],
 		'map_meta_cap' => true,
+		'template'     => [
+			[ 'core/paragraph', [ 'placeholder' => 'A general description of the collection...' ] ],
+			[ 'wp-museum/collection-objects'],
+		]
 	],
 ];
 $collection_post_type = new CustomPostType( $collection_options );

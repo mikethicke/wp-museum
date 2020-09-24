@@ -383,6 +383,8 @@ function do_advanced_search( $request ) {
 
 	if ( isset( $search_terms['numberposts'] ) ) {
 		$number_posts = $search_terms['numberposts'];
+	} elseif ( isset( $search_terms['posts_per_page'] ) ) {
+		$number_posts = $search_terms['posts_per_page'];
 	} else {
 		$number_posts = DEFAULT_NUMBERPOSTS;
 	}
@@ -401,7 +403,7 @@ function do_advanced_search( $request ) {
 		'post_status'      => $post_status,
 		'paged'            => $paged,
 		'post_type'        => $kind->type_name,
-		'numberposts'      => $number_posts,
+		'posts_per_page'   => $number_posts,
 		'suppress_filters' => false,
 	];
 
@@ -436,7 +438,11 @@ function do_advanced_search( $request ) {
 		}
 	}
 	if ( ! empty( $included_categories ) ) {
-		$query_args['category__in'] = $included_categories;
+		if ( isset( $post_custom['include_child_categories'] ) && '1' === $post_custom['include_child_categories'][0] ) {
+			$query_args['cat'] = implode( ',', $included_categories );
+		} else {
+			$query_args['category__in'] = $included_categories;
+		}
 	}
 
 	/**
@@ -562,8 +568,12 @@ function do_advanced_search( $request ) {
 			2
 		);
 	}
-
-	$found_posts = get_posts( $query_args );
-	return ( combine_post_data_array( $found_posts ) );
+	$search_query = new \WP_Query( $query_args );
+	$found_posts = $search_query->posts;
+	$query_data = [
+		'num_pages'    => $search_query->max_num_pages,
+		'current_page' => $search_query->get( 'paged', 1 ),
+	];
+	return ( combine_post_data_array( $found_posts, $query_data ) );
 }
 

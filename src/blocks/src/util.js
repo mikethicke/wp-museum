@@ -1,7 +1,6 @@
 import apiFetch from "@wordpress/api-fetch";
 
-
-export const baseRestPath = '/wp-museum/v1/';
+export const baseRestPath = '/wp-museum/v1';
 
 // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 export function hexToRgb(hex) {
@@ -193,7 +192,5 @@ export const MaybeLink = props => {
  * Returns a promise that returns image data for a museum object.
  */
 export const fetchObjectImages = objectID => {
-	const baseRestPath = '/wp-museum/v1/';
-
 	return apiFetch( { path: `${baseRestPath}/all/${objectID}/images` } );
 }
