@@ -18,6 +18,8 @@ const ImageScroll = props => {
 		images
 	} = props;
 
+	const imgArray = Object.values( images );
+	
 	const [ imgIndex, setImgIndex ] = useState( 0 );
 
 	const imgDimensions = {
@@ -27,18 +29,18 @@ const ImageScroll = props => {
 
 	const updateImgIndex = ( increment ) => {
 		let targetIndex = imgIndex + increment;
-		if ( images.length === 0 ) {
+		if ( imgArray.length === 0 ) {
 			return;
 		}
 		if ( targetIndex < 0 ) {
-			targetIndex = images.length - 1;
-		} else if ( targetIndex >= images.length ) {
+			targetIndex = imgArray.length - 1;
+		} else if ( targetIndex >= imgArray.length ) {
 			targetIndex = 0;
 		}
 		setImgIndex( targetIndex );
 	}
 
-	const bestImage = getBestImage( images[ imgIndex ], imgDimensions );
+	const bestImage = getBestImage( imgArray[ imgIndex ], imgDimensions );
 
 	return (
 		<div className = 'object-modal-image-scroll'>
@@ -55,8 +57,8 @@ const ImageScroll = props => {
 			<div className = 'img-wrapper'>
 				<img
 					src   = { bestImage.URL }
-					title = { images[imgIndex].title || '' }
-					alt   = { images[imgIndex].alt || '' }
+					title = { imgArray[imgIndex].title || '' }
+					alt   = { imgArray[imgIndex].alt || '' }
 				/>
 			</div>
 		</div>
@@ -90,7 +92,7 @@ const ObjectModal = props => {
 				</div>
 			</div>
 		</Modal>
-	)
+	);
 }
 
 export default ObjectModal;

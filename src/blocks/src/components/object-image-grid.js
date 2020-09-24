@@ -6,23 +6,8 @@ import {
 import {
 	getBestImage,
 	getFirstObjectImage,
-	isEmpty
+	MaybeLink
 } from '../util';
-
-const MaybeLink = props => {
-	const {
-		href,
-		children,
-		linkToObjects
-	} = props
-	
-	if ( linkToObjects ) {
-		return (
-			<a href = { href }>{ children }</a>
-		)
-	}
-	return ( <>{ children }</> );
-}
 
 const ObjectImageBox = props => {
 	const {
@@ -79,8 +64,8 @@ const ObjectImageBox = props => {
 			style     = { imgStyle }
 		>
 			<MaybeLink 
-				href = { object.URL }
-				linkToObjects = { linkToObjects }
+				href   = { object.URL }
+				doLink = { linkToObjects }
 			>
 				<img { ...imgAttrs }
 					onClick = { () => onClickCallback( object.ID ) || null }

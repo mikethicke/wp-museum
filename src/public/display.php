@@ -73,7 +73,7 @@ function object_content_filter( $content ) {
 			$meta_value = get_post_meta( $post->ID, $field->slug, true );
 			// Public can only view fields marked as "public".
 			if ( ! $field->public && ! current_user_can( 'read_private_posts' ) ) {
-				return;
+				continue;
 			}
 			if ( ! $field->public ) {
 				$priv = ' ' . WPM_PREFIX . 'obj-private-field';

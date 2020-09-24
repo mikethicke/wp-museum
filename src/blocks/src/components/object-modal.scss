@@ -3,6 +3,23 @@
 	a {
 		word-wrap: break-word;
 	}
+
+	&:focus {
+		outline-style: none;
+	}
+
+	div:focus {
+		outline-style: none;
+	}
+
+	overflow: hidden !important;
+
+	h1, h2, h3, h4 {
+		&:before, &:after {
+			all: initial !important;
+			content: none !important;
+		}
+	}
 	.object-modal-image-scroll {
 		position: relative;
 

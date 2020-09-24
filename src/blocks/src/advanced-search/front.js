@@ -7,6 +7,9 @@ import apiFetch from '@wordpress/api-fetch';
 
 import AdvancedSearchUI from '../components/advanced-search-ui';
 import ObjectList from '../components/object-list';
+import withPagination from '../components/with-pagination';
+
+const PaginatedObjectList = withPagination( ObjectList );
 
 const AdvancedSearchFront = props => {
 	const { attributes } = props;
@@ -26,6 +29,7 @@ const AdvancedSearchFront = props => {
 	const [ collectionData , setCollectionData ] = useState( {} );
 	const [ kindsData, setKindsData ] = useState( [] );
 	const [ searchResults, setSearchResults ] = useState( [] );
+	const [ currentSearchParams, setCurrentSearchParams ] = useState( [] );
 
 	const baseRestPath = '/wp-museum/v1';
 
@@ -51,13 +55,22 @@ const AdvancedSearchFront = props => {
 	}
 
 	const onSearch = searchParams => {
+		searchParams['numberposts'] = resultsPerPage;
+		setCurrentSearchParams( searchParams );
 		apiFetch( {
 			path:   `${baseRestPath}/search`,
 			method: 'POST',
-			data:   searchParams
+			data:   searchParams,
 		} ).then( result => {
 			setSearchResults( result );
 		} );
+	}
+
+	let currentPage = 1;
+	let totalPages = 0;
+	if ( searchResults.length > 0 && typeof searchResults[0].query_data != 'undefined' ) {
+		currentPage = searchResults[0].query_data.current_page;
+		totalPages = searchResults[0].query_data.num_pages;
 	}
 
 	return (
@@ -78,9 +91,13 @@ const AdvancedSearchFront = props => {
 				/>
 			}
 			{ searchResults &&
-				<ObjectList
-					objects = { searchResults }
-					displayImages = { true }
+				<PaginatedObjectList
+					currentPage    = { currentPage }
+					totalPages     = { totalPages }
+					searchCallback = { onSearch }
+					searchParams   = { currentSearchParams }
+					mObjects       = { searchResults }
+					displayImages  = { true }
 				/>
 			}
 		</>

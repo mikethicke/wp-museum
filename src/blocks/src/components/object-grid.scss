@@ -1,0 +1,46 @@
+.wpm-object-grid {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 100%;
+
+	.object-grid-box-wrapper {
+		flex-grow: 0;
+		overflow: hidden;
+		padding: 5px;
+
+		a {
+			cursor: pointer;
+		}
+
+		.object-grid-box {
+			.object-grid-thumbnail-div {
+				width: 100%;
+				position: relative;
+
+				img {
+					position: absolute;
+					height: 100%;
+					width: 100%;
+					object-fit: cover;
+					z-index: 0;
+				}
+
+				&:after {
+					content: '';
+					display: block;
+					padding-bottom: 100%;
+					background-color: #e8e8e8;
+				}
+			}
+			
+			.object-grid-caption-div {
+				h3 {
+					font-size: 1em;
+					margin-top: 0.5em;
+					margin-bottom: 0.5em;
+				}
+			}
+		}
+	}
+}
