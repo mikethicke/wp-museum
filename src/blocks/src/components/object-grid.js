@@ -58,7 +58,11 @@ const ObjectGridBox = props => {
 				>
 					<div className = 'object-grid-thumbnail-div'>
 						{ !! useImgURL &&
-							<img src = { useImgURL } />
+							<img 
+								src   = { useImgURL }
+								title = { postTitle }
+								alt   = { postTitle }
+							/>
 						}
 					</div>
 					<div className = 'object-grid-caption-div'>
@@ -132,12 +136,12 @@ const ObjectGridBoxDynamicImage = props => {
 			/>
 			{ doObjectModal && modalOpen && 
 				<ObjectModal
-					title    = { postTitle }
-					content  = { excerpt }
-					url      = { link }
-					linkText = 'View full entry'
-					images   = { imgData }
-					close    = { () => setModalOpen( false ) }
+					title     = { postTitle }
+					content   = { excerpt }
+					url       = { link }
+					linkText  = 'View full entry'
+					images    = { imgData }
+					close     = { () => setModalOpen( false ) }
 				/>
 			}
 		</>

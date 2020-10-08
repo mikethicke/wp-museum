@@ -27,12 +27,16 @@ const ObjectPostImageSideBox = props => {
 	} = props
 
 	const bestImage = !! imgData ? getBestImage( imgData, imgDimensions ) : null;
+	const altText = !! imgData ? imgData.alt : '';
+	const titleText = !! imgData ? imgData.title : '';
 
 	return (
 		<div className = 'wpm_obj-image'>
 			{ !! imgData &&
 				<img
-					src = { bestImage.URL }
+					src     = { bestImage.URL }
+					alt     = { altText }
+					title   = { titleText }
 					onClick = { () => openModal( imgIndex ) }
 				/>
 			}
