@@ -35,6 +35,11 @@ add_action(
 	}
 );
 
+/**
+ * Renders the collection on the frontend.
+ *
+ * @param Array $attributes The block attributes.
+ */
 function render_collection_objects_block( $attributes ) {
 	$post_id = get_the_ID();
 	$output = '';

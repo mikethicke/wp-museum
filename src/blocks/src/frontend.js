@@ -4,6 +4,7 @@ import {
 
 import AdvancedSearchFront from './advanced-search/front';
 import CollectionObjectsFront from './collection/front';
+import ObjectPostImageGallery from './components/object-post-image-gallery';
 import { cleanAttributes } from './util';
 
 import './style.scss';
@@ -34,6 +35,20 @@ if ( !! collectionObjectsBlockElements ) {
 				postID = { postID }
 			/>,
 			collectionObjectsBlockElement
+		);
+	}
+}
+
+const objectImageGalleryElements = document.getElementsByClassName('wpm-objectposttype-image-gallery');
+if ( !! objectImageGalleryElements ) {
+	for ( let i = 0; i < objectImageGalleryElements.length; i++ ) {
+		const objectImageGalleryElement = objectImageGalleryElements[i];
+		const postId = parseInt( objectImageGalleryElement.dataset.postId );
+		render (
+			<ObjectPostImageGallery
+				postId = { postId }
+			/>,
+			objectImageGalleryElement
 		);
 	}
 }

@@ -1,0 +1,85 @@
+.wpm-object-post-image-modal {
+	width: 50vw;
+	max-width: 60vh !important;
+	height: auto;
+
+	a {
+		word-wrap: break-word;
+	}
+
+	&:focus {
+		outline-style: none;
+	}
+
+	div:focus {
+		outline-style: none;
+	}
+
+	overflow-x: hidden !important;
+
+	h1, h2, h3, h4 {
+		&:before, &:after {
+			all: initial !important;
+			content: none !important;
+		}
+	}
+
+	.image-modal-content-wrapper {
+		height: calc( 100% - 84px );
+
+		.image-modal-content {
+			position: relative;
+
+			.image-modal-image {
+				position: relative;
+
+				img {
+					position: absolute;
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+					z-index: 0;
+				}
+		
+				&:after {
+					content: '';
+					display: block;
+					padding-bottom: 100%;
+					background-color: #f1f2f3;
+				}
+			}
+
+			.image-modal-button {
+				position: absolute;
+				top: 50%;
+				transform: translateY(-50%);
+				z-index: 1;
+				background-color: white;
+		
+				&.inc {
+					right: 15px;
+				}
+		
+				&.dec {
+					left: 15px;
+				}
+			}
+
+			.image-modal-image-link {
+				margin-top: 0.5em;
+				margin-bottom: 0.5em;
+			}
+
+			.image-modal-caption {
+				margin-top: 0.5em;
+				margin-bottom: 0.5em;
+				font-style: italic;
+			}
+
+			.image-modal-description {
+				margin-top: 0.5em;
+				margin-bottom: 0.5em;
+			}
+		}
+	}
+}

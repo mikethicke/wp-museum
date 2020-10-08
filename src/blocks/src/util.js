@@ -67,7 +67,9 @@ export function getFirstObjectImage( imgData ) {
 	if ( isEmpty( imgData ) ) {
 		return null;
 	}
-	return Object.values( imgData )[0];
+	const imgDataArray = Object.values( imgData );
+	imgDataArray.sort( (a, b ) => a['sort_order'] - b['sort_order'] );
+	return imgDataArray[0];
 }
 
 /**

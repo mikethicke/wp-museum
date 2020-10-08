@@ -736,6 +736,7 @@ function object_image_data( $post ) {
 		$image_data['caption']     = $image_post->post_excerpt;
 		$image_data['description'] = $image_post->post_content;
 		$image_data['alt']         = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+		$image_data['sort_order']  = $sort_order;
 
 		foreach ( $image_sizes as $size_slug ) {
 			$image_data[ $size_slug ] = wp_get_attachment_image_src( $image_id, $size_slug );

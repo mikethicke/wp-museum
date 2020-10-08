@@ -1,5 +1,8 @@
 .wpm-object-modal {
-	width: 50%;
+	width: 40vw;
+	max-width: 50vh !important;
+	height: auto;
+
 	a {
 		word-wrap: break-word;
 	}
@@ -12,7 +15,7 @@
 		outline-style: none;
 	}
 
-	overflow: hidden !important;
+	overflow-x: hidden !important;
 
 	h1, h2, h3, h4 {
 		&:before, &:after {
@@ -20,46 +23,65 @@
 			content: none !important;
 		}
 	}
-	.object-modal-image-scroll {
-		position: relative;
 
-		.img-wrapper {
-			position: relative;
-			width: 100%;
+	.object-modal-content-wrapper {
+		height: calc( 100% - 84px );
 
-			img {
-				object-fit: cover;
-				width: 100%;
-				height: 100%;
-				position: absolute;
+		.object-modal-content {
+			
+
+			.object-modal-image {		
+				
+
+				.object-modal-image-scroll {
+					position: relative;
+				
+					.img-wrapper {
+						position: relative;
+						
+				
+						img {
+							position: absolute;
+							width: 100%;
+							height: 100%;
+							object-fit: cover;
+							z-index: 0;
+						}
+				
+						&:after {
+							content: '';
+							display: block;
+							padding-bottom: 100%;
+							background-color: #f1f2f3;
+						}
+					}		
+				
+					.image-scroll-button {
+						position: absolute;
+						top: 50%;
+						transform: translateY(-50%);
+						z-index: 1;
+						background-color: white;
+				
+						&.inc {
+							right: 15px;
+						}
+				
+						&.dec {
+							left: 15px;
+						}
+					}
+				}
+
 			}
 
-			&:after {
-				content: '';
-				display: block;
-				padding-bottom: 100%;
-				background-color: #f1f2f3;
-			}
-		}		
-
-		.image-scroll-button {
-			position: absolute;
-			top: 50%;
-			transform: translateY(-50%);
-			z-index: 1;
-			background-color: white;
-
-			&.inc {
-				right: 15px;
-			}
-
-			&.dec {
-				left: 15px;
+			.object-modal-info {
+				margin-top: 1em;
+					.read-more-link {
+						margin-top: 0.5em;
+						margin-bottom: 0.5em;
+					}
 			}
 		}
-	}
-
-	.object-modal-info {
-		width: 100%;
 	}
 }
