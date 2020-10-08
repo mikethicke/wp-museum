@@ -19,6 +19,7 @@ const ImageScroll = props => {
 	} = props;
 
 	const imgArray = Object.values( images );
+	imgArray.sort( (a, b) => a['sort_order'] - b['sort_order'] );
 	
 	const [ imgIndex, setImgIndex ] = useState( 0 );
 
@@ -63,7 +64,6 @@ const ImageScroll = props => {
 			</div>
 		</div>
 	);
-	
 }
 
 const ObjectModal = props => {
@@ -82,13 +82,19 @@ const ObjectModal = props => {
 			title = { title }
 			onRequestClose = { close }
 		>
-			<ImageScroll
-				images = { images }
-			/>
-			<div className = 'object-modal-info'>
-				<div className = 'modal-content'>{ content }</div>
-				<div className = 'read-more-link'>
-					<a href = { url }>{ linkText }</a>
+			<div className = 'object-modal-content-wrapper'>
+				<div className = 'object-modal-content'>
+					<div className = 'object-modal-image'>
+						<ImageScroll
+							images = { images }
+						/>
+					</div>
+					<div className = 'object-modal-info'>
+						<div className = 'read-more-link'>
+								<a href = { url }>{ linkText }</a>
+						</div>
+						<div className = 'modal-content'>{ content }</div>	
+					</div>
 				</div>
 			</div>
 		</Modal>

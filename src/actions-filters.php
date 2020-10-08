@@ -333,20 +333,6 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_frontend_scrip
 add_filter( 'the_content', __NAMESPACE__ . '\link_objects_by_id' );
 
 /**
- * Filters content for museum objects to display custom fields, image gallery, etc.
- *
- * @see display.php::object_content_filter()
- */
-add_filter( 'the_content', __NAMESPACE__ . '\object_content_filter' );
-
-/**
- * Filters content for collections.
- *
- * @see display.php::collection_content_filter()
- */
-//add_filter( 'the_content', __NAMESPACE__ . '\collection_content_filter' );
-
-/**
  * Generates excerpts for museum objects.
  *
  * @see display.php::mobject_excerpt_filter()
