@@ -69,6 +69,7 @@ const BasicSearchFront = props => {
 			<EmbeddedSearch
 				searchDefaults  = { currentSearchParams }
 				runSearch       = { onSearch }
+				showReset       = { false }
 				showTitleToggle = { true }
 			/>
 			{ !! advancedSearchLink &&

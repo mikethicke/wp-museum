@@ -59,6 +59,7 @@ const EmbeddedSearchEdit = props => {
 			showTitleToggle = { false }
 			autoFocus       = { false }
 			searchPageURL   = { searchPageURL }
+			showReset       = { false }
 		/>
 		</>
 	);

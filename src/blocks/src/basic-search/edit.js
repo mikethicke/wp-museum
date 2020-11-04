@@ -96,6 +96,7 @@ const BasicSearchEdit = props => {
 		<EmbeddedSearch
 			searchDefaults  = { { searchText: searchText } }
 			runSearch       = { onSearch }
+			showReset       = { false }
 			showTitleToggle = { true }
 		/>
 		{ !! advancedSearchLink &&
