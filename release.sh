@@ -25,6 +25,7 @@ fi
 if [ -f "${BASE_RELEASE_DIR}/${RELEASE_FILE}" ]
 then
 	echo "File ${RELEASE_FILE} already exists. Exiting."
+	exit 2
 fi
 
 mkdir $RELEASE_DIR
