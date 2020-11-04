@@ -48,7 +48,7 @@ const EmbeddedSearch = props => {
 			runSearch( searchValues );
 		} else if ( searchPageURL ) {
 			const queryString = new URLSearchParams( searchValues ).toString();
-			window.open( `${searchPageURL}?${queryString}` );
+			window.open( `${searchPageURL}?${queryString}`, '_self' );
 		}
 	}
 
