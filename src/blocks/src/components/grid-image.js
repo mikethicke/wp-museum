@@ -16,7 +16,7 @@ import ImageSelector from './image-selector';
 
 import {
 	ObjectSearchBox,
-} from './search-box';
+} from './search-modal';
 
 /**
  * A single museum object image in an <ObjectGrid> component. This component only 

@@ -9,29 +9,47 @@ import {
 
 import {
 	useState,
+	useEffect,
 } from '@wordpress/element';
+import { isEmpty } from '../util';
 
 const EmbeddedSearch = props => {
 	const {
-		searchDefaults,
-		runSearch,
+		searchDefaults   = {},
+		runSearch        = null,
 		searchButtonText = 'Search',
 		showTitleToggle  = false,
+		onlyTitleDefault = true,
 		showReset        = true,
+		autoFocus        = true,
 		resetButtonText  = 'Reset',
 		placeholderText  = '',
+		searchPageURL    = '',
 	} = props;
 
 	const [ searchText, setSearchText ] = useState( '' );
-	const [ onlyTitle, setOnlyTitle ] = useState( true );
+	const [ onlyTitle, setOnlyTitle ] = useState( onlyTitleDefault );
 
-	const doSearch = () => {
-		const searchValues = {
-			...searchDefaults,
-			onlyTitle   : onlyTitle,
-			searchText  : searchText,
+	useEffect( () => {
+		if ( !! searchDefaults['searchText'] ) {
+			setSearchText( searchDefaults['searchText'] );
 		}
-		runSearch( searchValues );
+	}, [ searchDefaults ] );
+
+	const doSearch = ( newSearchValues = {} ) => {
+		const searchValues = 
+			! isEmpty( newSearchValues ) ? newSearchValues : 
+			{
+				...searchDefaults,
+				onlyTitle   : onlyTitle,
+				searchText  : searchText,
+			};
+		if ( runSearch ) {
+			runSearch( searchValues );
+		} else if ( searchPageURL ) {
+			const queryString = new URLSearchParams( searchValues ).toString();
+			window.open( `${searchPageURL}?${queryString}` );
+		}
 	}
 
 	const resetSearch = () => {
@@ -41,7 +59,7 @@ const EmbeddedSearch = props => {
 			onlyTitle  : onlyTitle,
 			searchText : ''
 		}
-		runSearch( searchValues );
+		doSearch( searchValues );
 	}
 
 	const handleKeyPress = ( event ) => {
@@ -60,11 +78,12 @@ const EmbeddedSearch = props => {
 					onKeyPress  = { handleKeyPress }
 					value       = { searchText }
 					onChange    = { event => setSearchText( event.target.value ) }
+					autoFocus   = { autoFocus }
 				/>
 				<Button
 					isPrimary
 					className = 'wpm-embedded-search-button'
-					onClick   = { doSearch }
+					onClick   = { () => doSearch() }
 				>
 					{ searchButtonText }
 				</Button>
@@ -83,7 +102,7 @@ const EmbeddedSearch = props => {
 					<CheckboxControl
 						label = 'Only search titles'
 						checked = { onlyTitle }
-						onChange = { val => setOnlyTitle( val ) }
+						onChange = { setOnlyTitle }
 					/>
 				}
 			</div>

@@ -6,10 +6,10 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 
 import AdvancedSearchUI from '../components/advanced-search-ui';
-import ObjectList from '../components/object-list';
-import withPagination from '../components/with-pagination';
 
-const PaginatedObjectList = withPagination( ObjectList );
+import {
+	PaginatedObjectList
+} from '../components/object-list';
 
 const AdvancedSearchFront = props => {
 	const { attributes } = props;

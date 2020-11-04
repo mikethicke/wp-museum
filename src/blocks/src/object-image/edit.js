@@ -28,7 +28,7 @@ import apiFetch from '@wordpress/api-fetch';
 import {
 	ObjectEmbedPanel,
 	ObjectSearchBox
-} from '../components/search-box';
+} from '../components/search-modal';
 import ImageSizePanel from '../components/image-size-panel';
 import ImageSelector from '../components/image-selector'
 import FontSizePanel from '../components/font-size-panel';

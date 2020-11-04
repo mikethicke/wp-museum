@@ -15,7 +15,6 @@ import {
 import { 
 	PanelBody,
 	CheckboxControl,
-	Button,
 	SelectControl
 } from '@wordpress/components';
 
@@ -26,7 +25,9 @@ import apiFetch from '@wordpress/api-fetch';
  */
 
 import AdvancedSearchUI from '../components/advanced-search-ui';
-import ObjectList from '../components/object-list';
+import {
+	PaginatedObjectList
+} from '../components/object-list';
 
 const AdvancedSearchEdit = props => {
 	const {
@@ -159,7 +160,7 @@ const AdvancedSearchEdit = props => {
 			onSearch        = { onSearch }
 		/>
 		{ searchResults &&
-			<ObjectList
+			<PaginatedObjectList
 				objects = { searchResults }
 				displayImages = { true }
 			/>

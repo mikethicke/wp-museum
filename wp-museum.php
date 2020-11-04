@@ -28,8 +28,9 @@ const REST_NAMESPACE = 'wp-museum/v1';         // Root for rest routes.
 /**
  * Is this a development build of the plugin?
  *
- * The development build and release build could have different directory structures,
- * primarily for transpiled code in blocks.
+ * The development build and release build could have different directory
+ * structures, primarily for transpiled code in blocks. Running release.sh
+ * automatically sets this to false.
  *
  * @see blocks/blocks.php
  */
@@ -121,5 +122,7 @@ require_once $require_prefix . 'blocks/objectposttype-block.php';
 require_once $require_prefix . 'blocks/object-image-attachments-block.php';
 require_once $require_prefix . 'blocks/child-objects-block.php';
 require_once $require_prefix . 'blocks/advanced-search-block.php';
+require_once $require_prefix . 'blocks/basic-search-block.php';
+require_once $require_prefix . 'blocks/embedded-search-block.php';
 require_once $require_prefix . 'blocks/collection-objects-block.php';
 

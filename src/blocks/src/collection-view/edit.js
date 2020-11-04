@@ -25,7 +25,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies.
  */
 
-import { CollectionEmbedPanel, CollectionSearchBox } from "../components/search-box";
+import { CollectionEmbedPanel, CollectionSearchBox } from "../components/search-modal";
 import FontSizePanel from "../components/font-size-panel";
 import ImageSizePanel from '../components/image-size-panel';
 import ObjectImageGrid from '../components/object-image-grid';

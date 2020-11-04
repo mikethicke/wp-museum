@@ -3,6 +3,8 @@ import {
 } from '@wordpress/element';
 
 import AdvancedSearchFront from './advanced-search/front';
+import BasicSearchFront from './basic-search/front';
+import EmbeddedSearchFront from './embedded-search/front';
 import CollectionObjectsFront from './collection/front';
 import ObjectPostImageGallery from './components/object-post-image-gallery';
 import { cleanAttributes } from './util';
@@ -21,6 +23,34 @@ if ( !! advancedSearchElements ) {
 				attributes = { attributes }
 			/>,
 			advancedSearchElement
+		);
+	}
+}
+
+const basicSearchElements = document.getElementsByClassName('wpm-basic-search-block-frontend');
+if ( !! basicSearchElements ) {
+	for ( let i = 0; i < basicSearchElements.length; i++ ) {
+		const basicSearchElement = basicSearchElements[i];
+		const attributes = JSON.parse( basicSearchElement.dataset.attributes );
+		render (
+			<BasicSearchFront
+				attributes = { attributes }
+			/>,
+			basicSearchElement
+		);
+	}
+}
+
+const embeddedSearchElements = document.getElementsByClassName('wpm-embedded-search-block-frontend');
+if ( !! embeddedSearchElements ) {
+	for ( let i = 0; i < embeddedSearchElements.length; i++ ) {
+		const embeddedElement = embeddedSearchElements[i];
+		const attributes = JSON.parse( embeddedElement.dataset.attributes );
+		render (
+			<EmbeddedSearchFront
+				attributes = { attributes }
+			/>,
+			embeddedElement
 		);
 	}
 }

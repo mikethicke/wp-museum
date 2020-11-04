@@ -64,6 +64,10 @@
 		.components-base-control {
 			display: block;
 			margin-right: 0.5em;
+
+			select {
+				height: 7em;
+			}
 		}
 	}
 
