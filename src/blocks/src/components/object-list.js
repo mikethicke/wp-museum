@@ -1,3 +1,5 @@
+import withPagination from './with-pagination';
+
 const ObjectRow = props => {
 	const {
 		objectData,
@@ -28,7 +30,7 @@ const ObjectRow = props => {
 	);
 }
 
-const ObjectList = props => {
+export const ObjectList = props => {
 	const {
 		mObjects,
 		displayImages
@@ -49,4 +51,4 @@ const ObjectList = props => {
 	);
 }
 
-export default ObjectList;
+export const PaginatedObjectList = withPagination( ObjectList );

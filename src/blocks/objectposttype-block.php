@@ -11,8 +11,16 @@ namespace MikeThicke\WPMuseum;
  * Registers Gutenberg block to edit museusm objects.
  */
 function register_object_meta_block() {
-	$kind   = get_kind_from_typename( $post_type );
-	$fields = get_mobject_fields( $kind->kind_id );
+	global $post;
+	$post_type = get_post_type( $post );
+	if ( ! $post_type ) {
+		$post_type = admin_post_type();
+	}
+	if ( ! $post_type || ! in_array( $post_type, get_object_type_names() ) ) {
+		return;
+	}
+	$kind      = get_kind_from_typename( $post_type );
+	$fields    = get_mobject_fields( $kind->kind_id );
 
 	$attributes = [];
 	foreach ( $fields as $field ) {
@@ -48,7 +56,12 @@ function register_object_meta_block() {
 		]
 	);
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\register_object_meta_block' );
+
+/**
+ * 'wp' seems to be the earliest hook where post type is available on both front
+ * and admin side.
+ */
+add_action( 'wp', __NAMESPACE__ . '\register_object_meta_block' );
 
 /**
  * Renders the object custom fields, image gallery, and collection breadcrumbs

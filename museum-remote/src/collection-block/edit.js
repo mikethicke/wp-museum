@@ -28,7 +28,7 @@ import {
  * WP Museum dependencies.
  */
 
-import { SearchBox } from '../components/search-box';
+import { SearchBox } from '../components/search-modal';
 import FontSizePanel from '../components/font-size-panel';
 import RemoteCollectionGrid from './remote-collection-grid';
 

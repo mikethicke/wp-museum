@@ -13,7 +13,7 @@ import {
  * Internal dependencies.
  */
 import { hexToRgb } from '../util';
-import { ObjectSearchBox } from '../components/search-box';
+import { ObjectSearchBox } from '../components/search-modal';
 import ImageSelector from '../components/image-selector';
 
 /**

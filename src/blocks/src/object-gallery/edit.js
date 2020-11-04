@@ -31,7 +31,7 @@ import FontSizePanel from '../components/font-size-panel';
 import {
 	ObjectEmbedPanel,
 	ObjectSearchBox
-} from '../components/search-box';
+} from '../components/search-modal';
 import { getBestImage } from '../util';
 
 /**

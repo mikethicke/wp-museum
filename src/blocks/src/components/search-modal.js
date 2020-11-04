@@ -50,8 +50,6 @@ const refreshInterval = 1000;
 class SearchBox extends Component {
 
     constructor ( props ) {
-        super ( props );
-
         this.onChangeSearchText = this.onChangeSearchText.bind( this );
         this.onTitleToggle      = this.onTitleToggle.bind( this );
         this.onKeyUp            = this.onKeyUp.bind( this );
