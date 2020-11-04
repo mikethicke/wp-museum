@@ -27,6 +27,7 @@ const EmbeddedSearchFront = props => {
 			<EmbeddedSearch
 				showTitleTogge = { false }
 				searchPageURL  = { searchPageURL }
+				showReset      = { false }
 			/>
 		</div>
 	)
