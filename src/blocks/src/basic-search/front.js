@@ -36,6 +36,12 @@ const BasicSearchFront = props => {
 	const [ currentSearchText, setCurrentSearchText ] = useState( searchText );
 
 	const onSearch = searchParams => {
+		for ( const [ key, value ] of Object.entries( searchParams ) ) {
+			if ( key != 'page' && value != currentSearchParams[key] ) {
+				searchParams['page'] = 1;
+				break;
+			}
+		}
 		searchParams['numberposts'] = resultsPerPage;
 		if ( searchParams['searchText'] ) {
 			apiFetch( {
