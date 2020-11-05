@@ -69,15 +69,19 @@ function render_advanced_search( $attributes ) {
 		return null;
 	}
 
-	$random_string = bin2hex( random_bytes( 10 ) );
-	$element_id    = 'advanced-search-' . $random_string;
-	$object_name   = 'advancedSearch' . $random_string;
+	if ( isset( $_GET['searchText'] ) ) {
+		$attributes['defaultSearch'] = [
+			'searchText' => sanitize_text_field( $_GET['searchText'] ),
+		];
+	}
 
-	wp_localize_script( WPM_PREFIX . 'blocks', $object_name, $attributes );
+	$encoded_attributes = json_encode( $attributes );
 
 	return (
-		"<div class='wpm-advanced-search-block-frontend' id='$element_id'>
-			
+		"<div 
+			class='wpm-advanced-search-block-frontend' 
+			data-attributes='$encoded_attributes'
+		>
 		</div>"
 	);
 }

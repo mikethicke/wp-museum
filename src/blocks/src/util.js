@@ -165,6 +165,30 @@ export function cleanAttributes( attributes ) {
 }
 
 /**
+ * Parses attributes passed as JSON (json encoded php associative array).
+ *
+ * @todo: Use a schema to check datatypes, so that we know whether to cast
+ * strings as booleans, etc. Currently an attribute with value 'true' is
+ * converted to boolean regardless of the attribute's type.
+ *
+ * @param {*} attributeJSON
+ * @return {Object} Attributes object in same format as WordPress attributes
+ * objects.
+ */
+export function attributesFromJSON( attributeJSON ) {
+	const attributes = JSON.parse( attributeJSON );
+	for ( const [ key, value ] of Object.entries( attributes ) ) {
+		if ( value === 'false' ) {
+			attributes[key] = false;
+		}
+		if ( value === 'true' ) {
+			attributes[key] = true;
+		}
+	}
+	return attributes;
+}
+
+/**
  * Optionally links to or calls onClick callback when clicked on.
  * 
  * @param {*} props The component's properties

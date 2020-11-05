@@ -6,6 +6,8 @@
  *
  * Attributes:
  *  - searchPageURL {string} URL of search page.
+ *  - headerText    {string} Header content for block, or '' for none
+ *  - align         {string} Alignment of the block ( left | center | right )
  */
 
 /**
@@ -24,6 +26,9 @@ registerBlockType( 'wp-museum/embedded-search', {
 	title    : __( 'Embedded Search' ),
 	icon     : museum,
 	category : 'wp-museum',
+	supports : {
+		align: [ 'left', 'right', 'center' ]
+	},
 	edit,
 	save     : () => null,
 } );

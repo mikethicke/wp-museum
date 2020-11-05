@@ -25,6 +25,7 @@ const BasicSearchFront = props => {
 
 	const {
 		searchText         = '',
+		onlyTitle          = true,
 		resultsPerPage     = 20,
 		advancedSearchLink = '',
 		acceptGETRequest   = true,
@@ -32,6 +33,7 @@ const BasicSearchFront = props => {
 
 	const [ currentSearchParams, setCurrentSearchParams ] = useState( [] );
 	const [ searchResults, setSearchResults ] = useState( [] );
+	const [ currentSearchText, setCurrentSearchText ] = useState( searchText );
 
 	const onSearch = searchParams => {
 		searchParams['numberposts'] = resultsPerPage;
@@ -49,11 +51,19 @@ const BasicSearchFront = props => {
 	}
 
 	useEffect( () => {
-		if ( acceptGETRequest && searchText ) {
-			setCurrentSearchParams( { searchText: searchText } );
-			onSearch( { searchText: searchText } );
+		if ( acceptGETRequest ) {
+			const newSearchParams = {
+				...currentSearchParams,
+				searchText : searchText,
+				onlyTitle  : onlyTitle, 
+			}
+			setCurrentSearchParams( newSearchParams );
+			onSearch( newSearchParams );
 		} else {
-			setCurrentSearchParams( { searchText: '' } );
+			setCurrentSearchParams( { 
+				searchText : '',
+				onlyTitle : onlyTitle  
+			} );
 		}
 	}, [] );
 
@@ -67,14 +77,16 @@ const BasicSearchFront = props => {
 	return (
 		<div className = 'wpm-basic-search-block'>
 			<EmbeddedSearch
-				searchDefaults  = { currentSearchParams }
-				runSearch       = { onSearch }
-				showReset       = { false }
-				showTitleToggle = { true }
+				searchDefaults   = { currentSearchParams }
+				runSearch        = { onSearch }
+				updateSearchText = { setCurrentSearchText }
+				showReset        = { false }
+				showTitleToggle  = { true }
+				onlyTitleDefault = { onlyTitle }
 			/>
 			{ !! advancedSearchLink &&
 				<a
-					href = { advancedSearchLink }
+					href = { `${advancedSearchLink}?searchText=${currentSearchText}` }
 				>
 					Advanced Search
 				</a>
