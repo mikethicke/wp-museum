@@ -14,11 +14,14 @@ const EmbeddedSearchFront = props => {
 
 	const {
 		searchPageURL,
-		headerText
+		headerText,
+		align
 	} = attributes;
 
 	return (
-		<div className = 'wpm-embedded-search-block'>
+		<div 
+			className = { `wpm-embedded-search-block align${align}`}
+		>
 			{ !! headerText &&
 				<h2>
 					{ headerText }
