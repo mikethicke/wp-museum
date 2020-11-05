@@ -54,6 +54,12 @@ const BasicSearchEdit = props => {
 	const [ searchResults, setSearchResults ] = useState( [] );
 
 	const onSearch = searchParams => {
+		for ( const [ key, value ] of Object.entries( searchParams ) ) {
+			if ( key != 'page' && value != currentSearchParams[key] ) {
+				searchParams['page'] = 1;
+				break;
+			}
+		}
 		apiFetch( {
 			path:   `${baseRestPath}/search`,
 			method: 'POST',
