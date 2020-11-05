@@ -8,11 +8,18 @@
 import {
 	InspectorControls,
 	RichText,
+
 } from '@wordpress/blockEditor';
 
 import {
-	PanelBody
+	PanelBody,
+	PanelRow,
+	RangeControl,
 } from '@wordpress/components';
+
+import {
+	__
+} from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -33,24 +40,43 @@ const EmbeddedSearchEdit = props => {
 	const {
 		searchPageURL = '',
 		headerText    = '',
+		maxWidth,
 	} = attributes;
 
 	return (
 		<>
 		<InspectorControls>
 			<PanelBody title = 'Search Options'>
-				<label>
-					Search Page URL:
-					<input
-						className = 'wpm-embedded-search-search-page-input'
-						type      = 'text'
-						value     = { searchPageURL }
-						onChange  = { event => setAttributes( { searchPageURL: event.target.value } ) }
+				<PanelRow>
+					<label>
+						Search Page URL:
+						<input
+							className = 'wpm-embedded-search-search-page-input'
+							type      = 'text'
+							value     = { searchPageURL }
+							onChange  = { event => setAttributes( { searchPageURL: event.target.value } ) }
+						/>
+					</label>
+				</PanelRow>
+				<PanelRow>
+					<RangeControl
+						label = { __( 'Max Width (%)' ) }
+						value = { maxWidth }
+						min   = '0'
+						max   = '100'
+						step  = '1'
+						initialPosition = '100'
+						onChange = { val => setAttributes( { maxWidth: val } ) }
+						withInputField
+						allowReset
 					/>
-				</label>
+				</PanelRow>
 			</PanelBody>
 		</InspectorControls>
-		<div className = 'wpm-embedded-search-block'>
+		<div 
+			className = 'wpm-embedded-search-block'
+			style = { { maxWidth: `${maxWidth}%` } }
+		>
 			<RichText
 				tagName  = 'h2'
 				value    = { headerText }

@@ -15,12 +15,14 @@ const EmbeddedSearchFront = props => {
 	const {
 		searchPageURL,
 		headerText,
-		align
+		align,
+		maxWidth,
 	} = attributes;
 
 	return (
 		<div 
 			className = { `wpm-embedded-search-block align${align}`}
+			style = { { maxWidth: `${maxWidth}%` } }
 		>
 			{ !! headerText &&
 				<h2>
