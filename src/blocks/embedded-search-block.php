@@ -28,6 +28,10 @@ function register_embedded_search_block() {
 					'type'    => 'string',
 					'default' => 'center',
 				],
+				'maxWidth'      => [
+					'type'    => 'number',
+					'default' => 100,
+				],
 			],
 		],
 	);
