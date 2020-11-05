@@ -24,6 +24,10 @@ function register_embedded_search_block() {
 					'type'    => 'string',
 					'default' => 'Search the Catalogue',
 				],
+				'align'         => [
+					'type'    => 'string',
+					'default' => 'center',
+				],
 			],
 		],
 	);

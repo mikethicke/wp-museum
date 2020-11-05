@@ -7,7 +7,7 @@ import BasicSearchFront from './basic-search/front';
 import EmbeddedSearchFront from './embedded-search/front';
 import CollectionObjectsFront from './collection/front';
 import ObjectPostImageGallery from './components/object-post-image-gallery';
-import { cleanAttributes } from './util';
+import { cleanAttributes, attributesFromJSON } from './util';
 
 import './style.scss';
 
@@ -15,9 +15,10 @@ const advancedSearchElements = document.getElementsByClassName('wpm-advanced-sea
 if ( !! advancedSearchElements ) {
 	for ( let i = 0; i < advancedSearchElements.length; i++ ) {
 		const advancedSearchElement = advancedSearchElements[i];
-		const idString = advancedSearchElement.id.substr( 'advanced-search-'.length );
-		const attributes = window[ `advancedSearch${idString}` ];
-		cleanAttributes( attributes );
+		const attributes = attributesFromJSON( advancedSearchElement.dataset.attributes );
+		if ( typeof attributes['defaultSearch'] != 'string' ) {
+			attributes['defaultSearch'] = JSON.stringify( attributes['defaultSearch'] );
+		}
 		render (
 			<AdvancedSearchFront
 				attributes = { attributes }
@@ -31,7 +32,7 @@ const basicSearchElements = document.getElementsByClassName('wpm-basic-search-bl
 if ( !! basicSearchElements ) {
 	for ( let i = 0; i < basicSearchElements.length; i++ ) {
 		const basicSearchElement = basicSearchElements[i];
-		const attributes = JSON.parse( basicSearchElement.dataset.attributes );
+		const attributes = attributesFromJSON( basicSearchElement.dataset.attributes );
 		render (
 			<BasicSearchFront
 				attributes = { attributes }
@@ -45,7 +46,7 @@ const embeddedSearchElements = document.getElementsByClassName('wpm-embedded-sea
 if ( !! embeddedSearchElements ) {
 	for ( let i = 0; i < embeddedSearchElements.length; i++ ) {
 		const embeddedElement = embeddedSearchElements[i];
-		const attributes = JSON.parse( embeddedElement.dataset.attributes );
+		const attributes = attributesFromJSON( embeddedElement.dataset.attributes );
 		render (
 			<EmbeddedSearchFront
 				attributes = { attributes }

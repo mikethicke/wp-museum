@@ -147,9 +147,7 @@ const AdvancedSearchUI = props => {
 	} = searchValues;
 
 	useEffect( () => {
-		if ( isEmpty( searchValues ) && !! defaultSearch && ! isEmpty( defaultSearch ) ) {
-			setSearchValues( JSON.parse( defaultSearch ) );
-		}
+		setSearchValues( JSON.parse( defaultSearch ) );
 	}, [] );
 
 	useEffect( () => {
@@ -162,6 +160,7 @@ const AdvancedSearchUI = props => {
 	useEffect( () => {
 		if ( ! selectedKind && !! kindsData && kindsData.length > 0 ) {
 			setSearchValues( {
+				...searchValues,
 				selectedKind: kindsData[0].kind_id
 			} );
 		}

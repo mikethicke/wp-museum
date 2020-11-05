@@ -50,17 +50,19 @@ const EmbeddedSearchEdit = props => {
 				</label>
 			</PanelBody>
 		</InspectorControls>
-		<RichText
-			tagName  = 'h2'
-			value    = { headerText }
-			onChange = { val => setAttributes( { headerText: val } ) }
-		/>
-		<EmbeddedSearch
-			showTitleToggle = { false }
-			autoFocus       = { false }
-			searchPageURL   = { searchPageURL }
-			showReset       = { false }
-		/>
+		<div className = 'wpm-embedded-search-block'>
+			<RichText
+				tagName  = 'h2'
+				value    = { headerText }
+				onChange = { val => setAttributes( { headerText: val } ) }
+			/>
+			<EmbeddedSearch
+				showTitleToggle = { false }
+				autoFocus       = { false }
+				searchPageURL   = { searchPageURL }
+				showReset       = { false }
+			/>
+		</div>
 		</>
 	);
 }

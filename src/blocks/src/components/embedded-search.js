@@ -17,6 +17,7 @@ const EmbeddedSearch = props => {
 	const {
 		searchDefaults   = {},
 		runSearch        = null,
+		updateSearchText = null,
 		searchButtonText = 'Search',
 		showTitleToggle  = false,
 		onlyTitleDefault = true,
@@ -27,7 +28,7 @@ const EmbeddedSearch = props => {
 		searchPageURL    = '',
 	} = props;
 
-	const [ searchText, setSearchText ] = useState( '' );
+	const [ searchText, _setSearchText ] = useState( '' );
 	const [ onlyTitle, setOnlyTitle ] = useState( onlyTitleDefault );
 
 	useEffect( () => {
@@ -35,6 +36,13 @@ const EmbeddedSearch = props => {
 			setSearchText( searchDefaults['searchText'] );
 		}
 	}, [ searchDefaults ] );
+
+	const setSearchText = newSearchText => {
+		_setSearchText( newSearchText );
+		if ( !!  updateSearchText ) {
+			updateSearchText( newSearchText );
+		}
+	}
 
 	const doSearch = ( newSearchValues = {} ) => {
 		const searchValues = 

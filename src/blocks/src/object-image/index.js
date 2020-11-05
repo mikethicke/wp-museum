@@ -41,7 +41,7 @@ registerBlockType( 'wp-museum/object-image', {
 	title      : __( 'Object Image'),
 	icon       : museum,
 	category   : 'wp-museum',
-	supports    : {
+	supports   : {
 		align: [ 'left', 'right', 'center' ]
 	},
 	attributes : {

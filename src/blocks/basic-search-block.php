@@ -45,9 +45,11 @@ function render_basic_search( $attributes ) {
 		return null;
 	}
 
-	$search_text = '';
 	if ( isset( $_GET['searchText'] ) ) {
 		$attributes['searchText'] = sanitize_text_field( $_GET['searchText'] );
+	}
+	if ( isset( $_GET['onlyTitle'] ) ) {
+		$attributes['onlyTitle'] = sanitize_text_field( $_GET['onlyTitle'] );
 	}
 
 	$encoded_attributes = json_encode( $attributes );
