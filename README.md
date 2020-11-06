@@ -22,7 +22,12 @@ site using the WordPress REST API.
 
 To install Museum for WordPress, unzip the [latest
 release](https://github.com/mikethicke/wp-museum/releases/latest) in your
-WordPress plugins directory.
+WordPress plugins directory or upload the release zip through the WordPress
+plugin installer.
+
+To install the Museum Remote plugin, download the [latest Museum Remote
+release](https://github.com/mikethicke/wp-museum/releases) and unzip in your
+WordPress plugins directory or through the WordPress plugin installer.
 
 ## Requirements
 
@@ -30,7 +35,8 @@ WordPress plugins directory.
 
 ## Roadmap
 
-Museum for WordPress is under active development. 
+Museum for WordPress is under active development. Below are the main target
+features up to the 1.0 release.
 
 ### 0.7
 
@@ -44,11 +50,15 @@ Museum for WordPress is under active development.
  * Allow administrators to write documentation for visitors.
  * Sidebar widgets for navigating collections.
 
-### 0.9 -> 1.0
+### 0.9
 
  * Support for localization on admin side.
  * [Dublin core / OMI-PMH](https://www.dublincore.org/) support.
  * Out-of-the-box compatibility with popular themes.
+
+### 1.0
+
+ * Optimization, coding standards, developer documentation.
 
 ### Beyond 1.0
 
@@ -63,8 +73,9 @@ Museum for WordPress is developed by [Mike Thicke](http://www.mikethicke.com/).
 
 ## Support
 
-Development is partially supported by the [University of Toronto Scientific Instrument Collection
-(UTSIC)](https://utsic.utoronto.ca/) and the [Dunlap Institute for Astronomy and Astrophysics](https://www.dunlap.utoronto.ca).
+Development is partially supported by the [University of Toronto Scientific
+Instrument Collection (UTSIC)](https://utsic.utoronto.ca/) and the [Dunlap
+Institute for Astronomy and Astrophysics](https://www.dunlap.utoronto.ca).
 
 ## License
 
