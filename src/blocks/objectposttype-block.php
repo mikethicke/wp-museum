@@ -43,10 +43,6 @@ function register_object_meta_block() {
 			$attributes[ $field_name ]['items'] = 'number';
 		}
 	}
-	$attributes['fieldErrors'] = [
-		'type'    => 'object',
-		'default' => null,
-	];
 
 	register_block_type(
 		'wp-museum/object-meta-block',
@@ -58,10 +54,11 @@ function register_object_meta_block() {
 }
 
 /**
- * 'wp' seems to be the earliest hook where post type is available on both front
- * and admin side.
+ * 'wp' seems to be the earliest hook where post type is available on front end.
  */
 add_action( 'wp', __NAMESPACE__ . '\register_object_meta_block' );
+
+add_action( 'plugins_loaded', __NAMESPACE__ . '\register_object_meta_block' );
 
 /**
  * Renders the object custom fields, image gallery, and collection breadcrumbs
