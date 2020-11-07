@@ -1,9 +1,12 @@
 
 import { 
 	useSelect,
-	useDispatch
+	useDispatch,
 } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { 
+	useState,
+	useEffect 
+} from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	InspectorControls,
@@ -15,7 +18,10 @@ import {
 	SelectControl,
 } from '@wordpress/components';
 
-import { stripslashes } from '../util';
+import { 
+	stripslashes,
+	isEmpty
+} from '../util';
 
 
 const ObjectMetaField = ( props ) => {
@@ -187,13 +193,13 @@ const ObjectMetaField = ( props ) => {
 
 const ObjectMetaEdit = ( props ) => {
 	const { attributes, setAttributes } = props;
-	const { fieldErrors } = attributes;
 
 	const [ fieldData, setFieldData ] = useState( null );
 	const [ postData, setPostData ] = useState( null );
 	const [ currentHelpText, setCurrentHelpText ] = useState( null );
 	const [ currentDetailedInstructions, setCurrentDetailedInstructions ] = useState( null );
 	const [ catFieldIsGood, setCatFieldIsGood ] = useState( false );
+	const [ fieldErrors, setFieldErrors ] = useState( {} );
 
 	const { createErrorNotice } = useDispatch( 'core/notices' );
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
@@ -253,7 +259,7 @@ const ObjectMetaEdit = ( props ) => {
 			const pattern = '^' + stripslashes( fieldSchema ) + '$';
 			const regex = new RegExp( pattern );	
 			if ( ! regex.test( fieldValue ) ) {
-				updatedFieldErrors[ fieldSlug ] = ( <span>Value does not conform to schema.</span> );
+				//updatedFieldErrors[ fieldSlug ] = ( <span>Value does not conform to schema.</span> );
 			}
 		}
 
@@ -277,7 +283,7 @@ const ObjectMetaEdit = ( props ) => {
 							}
 						} );
 						if ( foundError ) {
-							setAttributes( { fieldErrors: updatedFieldErrors } )
+							setFieldErrors( updatedFieldErrors );
 						} else {
 							if ( ! catFieldIsGood ) setCatFieldIsGood( true );
 						}
@@ -285,7 +291,7 @@ const ObjectMetaEdit = ( props ) => {
 				}
 			);
 		}
-		setAttributes( { fieldErrors: updatedFieldErrors } );
+		setFieldErrors( updatedFieldErrors );
 	}
 
 	const checkAllFields = () => {
@@ -293,6 +299,12 @@ const ObjectMetaEdit = ( props ) => {
 			checkField( field );
 		} );
 	}
+
+	useEffect( () => {
+		if ( !! fieldData && ! isEmpty( fieldData ) ) {
+			checkAllFields();
+		}
+	}, [ fieldData ] );
 
 	const onFieldFocus = ( helpText, detailedInstructions ) => {
 		setCurrentHelpText( stripslashes( helpText ) );

@@ -34,7 +34,6 @@ const ChildKind = props => {
 			<Button
 				className = 'new-child-object'
 				onClick   = { () => newChildObject( kind ) }
-				isLarge
 				isPrimary
 			>
 				New { label }
