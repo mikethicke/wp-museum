@@ -505,10 +505,10 @@ function do_advanced_search( $request ) {
 		}
 	}
 	if ( ! empty( $search_terms['searchFields'] ) ) {
-		foreach ( $search_terms['searchFields'] as $field => $search ) {
+		foreach ( $search_terms['searchFields'] as $search_field ) {
 			$meta_filter_args[] = [
-				'key'     => $field,
-				'value'   => $search,
+				'key'     => $search_field['field'],
+				'value'   => $search_field['search'],
 				'compare' => 'LIKE',
 			];
 		}
