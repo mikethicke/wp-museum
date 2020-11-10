@@ -147,7 +147,9 @@ const AdvancedSearchUI = props => {
 	} = searchValues;
 
 	useEffect( () => {
-		setSearchValues( JSON.parse( defaultSearch ) );
+		if ( defaultSearch ) {
+			setSearchValues( JSON.parse( defaultSearch ) );
+		}
 	}, [] );
 
 	useEffect( () => {
