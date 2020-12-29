@@ -91,7 +91,7 @@ class MObjectField {
 	public $detailed_instructions;
 
 	/**
-	 * Description of the site for visitors, to be displayed on the front end.
+	 * Description of the field for visitors, to be displayed on the front end.
 	 *
 	 * @var string $public_description
 	 */

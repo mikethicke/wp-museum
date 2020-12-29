@@ -92,7 +92,6 @@ require_once $require_prefix . 'general/object-functions.php';
 require_once $require_prefix . 'general/collection-functions.php';
 require_once $require_prefix . 'admin/object-admin-functions.php';
 require_once $require_prefix . 'general/custom-post-type-functions.php';
-require_once $require_prefix . 'general/rest.php';
 require_once $require_prefix . 'public/display.php';
 require_once $require_prefix . 'admin/customization.php';
 require_once $require_prefix . 'admin/admin-icon.php';
@@ -125,4 +124,10 @@ require_once $require_prefix . 'blocks/advanced-search-block.php';
 require_once $require_prefix . 'blocks/basic-search-block.php';
 require_once $require_prefix . 'blocks/embedded-search-block.php';
 require_once $require_prefix . 'blocks/collection-objects-block.php';
+
+/**
+ * Rest
+ */
+require_once $require_prefix . 'rest/rest.php';
+require_once $require_prefix . 'rest/class-objects-controller.php';
 

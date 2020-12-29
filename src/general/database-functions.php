@@ -236,10 +236,11 @@ function get_mobject_kinds() {
  * Get fields associated with a given object kind.
  *
  * @param   string/int $kind_id The ID of the object kind.
+ * @param   bool       $public  Whether to only retrieve public fields.
  *
  * @return  [MObjectField]    Array of objects corresponding to rows of object field table.
  */
-function get_mobject_fields( $kind_id ) {
+function get_mobject_fields( $kind_id, $public = false ) {
 	global $wpdb;
 	$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
 	$fields    = wp_cache_get( 'get_mobject_fields' . $kind_id, CACHE_GROUP );
@@ -253,7 +254,9 @@ function get_mobject_fields( $kind_id ) {
 		$fields = [];
 		foreach ( $results as $result ) {
 			$new_field = MObjectField::from_database( $result );
-			$fields[ $new_field->slug ] = $new_field;
+			if ( ! $public || $new_field->public ) {
+				$fields[ $new_field->slug ] = $new_field;
+			}
 		}
 		wp_cache_add( 'get_mobject_fields', $fields, CACHE_GROUP );
 	}
