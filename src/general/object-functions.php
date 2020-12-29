@@ -445,37 +445,75 @@ function do_advanced_search( $request ) {
 		}
 	}
 
-	/**
-	 * Handle meta queries
-	 *
-	 * Search has do deal with post meta in three ways:
-	 *     (1) If not searching just the title, does meta value match search text?
-	 *     (2) Filter against checked flags.
-	 *     (3) Filter against search fields.
-	 *
-	 * The standard meta_query parameter only filters results, so it cannot
-	 * handle (1). Therefore we use WP_Meta_Query to generate the WHERE and
-	 * JOIN clauses for the meta query and then add them to the final query
-	 * using filters.
-	 *
-	 * First, if ! only_title, we construct (1), OR it to the existing WHERE clause,
-	 * and put parentheses around it.
-	 *
-	 * Then, we construct (2) and (3) with a different WP_Meta_Query object, and
-	 * AND that to the WHERE clause.
-	 *
-	 * Finally, we add the postmeta table to the JOIN clause.
-	 *
-	 * TODO: use this method for all searches rather than the combined_query
-	 * method, which is buggy.
-	 */
+	add_object_meta_query_filter( $search_terms, $kind );
+	$search_query = new \WP_Query( $query_args );
+	$found_posts = $search_query->posts;
+	$query_data = [
+		'num_pages'    => $search_query->max_num_pages,
+		'current_page' => $search_query->get( 'paged', 1 ),
+	];
+	return ( combine_post_data_array( $found_posts, $query_data ) );
+}
+
+/**
+ * Adds filters that alter the WordPress query to search meta fields.
+ *
+ * Search has do deal with post meta in three ways:
+ *     (1) If not searching just the title, does meta value match search text?
+ *     (2) Filter against checked flags.
+ *     (3) Filter against search fields.
+ *
+ * The standard meta_query parameter only filters results, so it cannot
+ * handle (1). Therefore we use WP_Meta_Query to generate the WHERE and
+ * JOIN clauses for the meta query and then add them to the final query
+ * using filters.
+ *
+ * First, if ! only_title, we construct (1), OR it to the existing WHERE clause,
+ * and put parentheses around it.
+ *
+ * Then, we construct (2) and (3) with a different WP_Meta_Query object, and
+ * AND that to the WHERE clause.
+ *
+ * Finally, we add the postmeta table to the JOIN clause.
+ *
+ * @param Array       $search_terms     Associative array of search terms.
+ *        boolean     ['onlyTitle']     If true, don't search fields for main search text.
+ *                                      (But will search boolean search terms.)
+ *        string      ['searchText']    The main search text.
+ *        [string]    ['selectedFlags'] Array of keys of meta fields that must be true.
+ *        Array       ['searchFields']  Associative array of fields and values that filter search
+ *                                      results.
+ * @param Object_Kind $kind             Museum object kind to be searched, or array of kinds.
+ *        [Object_Kind]
+ *
+ * Note: this function adds filters that alter the WordPress query, so it
+ * shouldn't be called on any page that queries standard WordPress posts. It is
+ * intended to support REST requests and should only be used in that context.
+ */
+function add_object_meta_query_filter( $search_terms, $kind ) {
 	$search_all_fields_sql = [];
 	$meta_fields_sql       = [];
+	if ( current_user_can( 'edit_posts' ) ) {
+		$public_fields_only = false;
+	} else {
+		$public_fields_only = true;
+	}
 	if ( empty( $search_terms['onlyTitle'] ) && ! empty( $search_terms['searchText'] ) ) {
 		$search_all_fields_args = [
 			'relation' => 'OR',
 		];
-		$mobject_fields = get_mobject_fields( $kind->kind_id );
+
+		if ( is_array( $kind ) ) {
+			$mobject_fields = [];
+			foreach ( $kind as $single_kind ) {
+				$mobject_fields = array_merge(
+					$mobject_fields,
+					get_mobject_fields( $single_kind->kind_id, $public_fields_only )
+				);
+			}
+		} else {
+			$mobject_fields = get_mobject_fields( $kind->kind_id );
+		}
 		foreach ( $mobject_fields as $field ) {
 			$search_all_fields_args[] = [
 				'key'     => $field->slug,
@@ -568,12 +606,5 @@ function do_advanced_search( $request ) {
 			2
 		);
 	}
-	$search_query = new \WP_Query( $query_args );
-	$found_posts = $search_query->posts;
-	$query_data = [
-		'num_pages'    => $search_query->max_num_pages,
-		'current_page' => $search_query->get( 'paged', 1 ),
-	];
-	return ( combine_post_data_array( $found_posts, $query_data ) );
 }
 

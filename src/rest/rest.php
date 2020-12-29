@@ -45,6 +45,19 @@ const DEFAULT_NUMBERPOSTS = 50;
  */
 function rest_routes() {
 	/**
+	 * Registers the following routes:
+	 *
+	 * /<object type>/[?s=|<field>=]     Objects with post type <object type>.
+	 * /<object type>/<post id>          Specific object.
+	 * /<object type>/<post id>/children Child objects of object.
+	 * /all/[?s=|<field>=]               All museum objects, regardless of type.
+	 * /all/<post id>                    Specific object.
+	 * /all/<post id>/children           Child objects of object.
+	 */
+	$museum_objects_controller = new Objects_Controller();
+	$museum_objects_controller->register_routes();
+
+	/**
 	 * /site_data                        Overview data for the site.
 	 *
 	 * @return Array Array of site data.
@@ -186,47 +199,12 @@ function rest_routes() {
 		);
 
 		/**
-		 * /wp-json/wp-museum/v1/<object type>/<post id> - Data for specific object.
-		 */
-		register_rest_route(
-			REST_NAMESPACE,
-			'/' . $kind->type_name . '/(?P<id>[\d]+)',
-			[
-				'methods'  => 'GET',
-				'permission_callback' => function() {
-					return true;
-				},
-				'args'     =>
-					[
-						'id' =>
-							[
-								'validate_callback' => function( $param, $request, $key ) {
-									return is_numeric( $param );
-								},
-							],
-					],
-				'callback' => function ( $request ) {
-					return combine_post_data( $request['id'] );
-				},
-			]
-		);
-
-		/**
 		 * /wp-json/wp-museum/v1/<object type>/<post id>/images Images associated with object.
 		 */
 		register_rest_route(
 			REST_NAMESPACE,
 			'/' . $kind->type_name . '/(?P<id>[\d]+)/images',
 			images_routes_args()
-		);
-
-		/**
-		 * /wp-json/wp-museum/v1/<object type>/<post id>/children Child objects of object.
-		 */
-		register_rest_route(
-			REST_NAMESPACE,
-			'/' . $kind->type_name . '/(?P<id>[\d]+)/children',
-			child_objects_routes_args()
 		);
 
 		/**
@@ -325,106 +303,12 @@ function rest_routes() {
 	} // foreach( $kinds as $kind ).
 
 	/**
-	 * /wp-json/wp-museum/v1/all/ - Data for all museum objects, regardless of type.
-	 */
-	register_rest_route(
-		REST_NAMESPACE,
-		'/all',
-		[
-			'methods'  => 'GET',
-			'permission_callback' => function() {
-				return true;
-			},
-			'callback' => function ( $request ) use ( $kinds ) {
-				$post_data = [];
-				$paged = $request->get_param( 'page' );
-				if ( empty( $paged ) ) {
-					$paged = 1;
-				}
-				$per_page = $request->get_param( 'per_page' );
-				if ( empty( $per_page ) ) {
-					$per_page = DEFAULT_NUMBERPOSTS;
-				}
-				$kind_type_list = array_map(
-					function ( $x ) {
-						return $x->type_name;
-					},
-					$kinds
-				);
-
-				$combined_query = build_rest_combined_query( $kinds, $request );
-
-				if ( ! isset( $paged ) || empty( $paged ) ) {
-					$paged = 1;
-				}
-
-				$args          = [
-					'post_status'      => 'publish',
-					'paged'            => $paged,
-					'post_type'        => $kind_type_list,
-					'combined_query'   => $combined_query,
-					'suppress_filters' => false,
-					'numberposts'      => $per_page,
-				];
-				$title_query   = $request->get_param( 'post_title' );
-				$content_query = $request->get_param( 'post_content' );
-				if ( $title_query ) {
-					$args['post_title'] = $title_query;
-				}
-				if ( $content_query ) {
-					$args['post_content'] = $content_query;
-				}
-				$posts = get_posts( $args );
-				foreach ( $posts as $post ) {
-					$post_data[] = combine_post_data( $post );
-				}
-				return $post_data;
-			},
-		]
-	);
-
-	/**
-	 * /wp-json/wp-museum/v1/all/<post id> - Data for specific object.
-	 */
-	register_rest_route(
-		REST_NAMESPACE,
-		'/all/(?P<id>[\d]+)',
-		[
-			'methods'  => 'GET',
-			'permission_callback' => function() {
-				return true;
-			},
-			'args'     =>
-				[
-					'id' =>
-						[
-							'validate_callback' => function( $param, $request, $key ) {
-								return is_numeric( $param );
-							},
-						],
-				],
-			'callback' => function ( $request ) {
-				return combine_post_data( $request['id'] );
-			},
-		]
-	);
-
-	/**
 	 * /wp-json/wp-museum/v1/all/<post id>/images Images associated with object.
 	 */
 	register_rest_route(
 		REST_NAMESPACE,
 		'/all/(?P<id>[\d]+)/images/',
 		images_routes_args()
-	);
-
-	/**
-	 * /wp-json/wp-museum/v1/all/<post id>/children Child objects of object.
-	 */
-	register_rest_route(
-		REST_NAMESPACE,
-		'/all/(?P<id>[\d]+)/children/',
-		child_objects_routes_args()
 	);
 
 	/**
@@ -825,44 +709,6 @@ function images_routes_args() {
 					return set_object_image_box_attachments( $request['images'], $request['id'] );
 				},
 			],
-		]
-	);
-}
-
-/**
- * Args for object/child endpoints.
- */
-function child_objects_routes_args() {
-	return (
-		[
-			'methods' => 'GET',
-			'permission_callback' => function() {
-				return true;
-			},
-			'args'     =>
-				[
-					'id' =>
-						[
-							'validate_callback' => function( $param, $request, $key ) {
-								return is_numeric( $param );
-							},
-						],
-				],
-			'callback' => function( $request ) {
-				$meta = get_post_meta( $request['id'], WPM_PREFIX . 'child_objects', true );
-				$data_array = [];
-				if ( $meta ) {
-					foreach ( $meta as $kind_id => $object_ids ) {
-						$data_array[ $kind_id ] = [];
-						if ( $object_ids ) {
-							foreach ( $object_ids as $object_id ) {
-								$data_array[ $kind_id ][] = combine_post_data( $object_id );
-							}
-						}
-					}
-				}
-				return $data_array;
-			},
 		]
 	);
 }
