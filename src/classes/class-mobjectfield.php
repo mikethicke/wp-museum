@@ -114,7 +114,7 @@ class MObjectField {
 	/**
 	 * Labels for each dimension (eg. Length, Width, Height). Only applies to measure type.
 	 *
-	 * @var [string] $dimensions
+	 * @var Array $dimensions
 	 */
 	public $dimensions;
 

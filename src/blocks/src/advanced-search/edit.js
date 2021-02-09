@@ -67,7 +67,7 @@ const AdvancedSearchEdit = props => {
 	}
 
 	const getFieldData = postType => {
-		return apiFetch( { path: `${baseRestPath}/${postType}/fields_all` } );
+		return apiFetch( { path: `${baseRestPath}/${postType}/fields` } );
 	}
 
 	const onSearch = searchParams => {

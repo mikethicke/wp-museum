@@ -129,5 +129,16 @@ require_once $require_prefix . 'blocks/collection-objects-block.php';
  * Rest
  */
 require_once $require_prefix . 'rest/rest.php';
+require_once $require_prefix . 'rest/rest-helper-functions.php';
 require_once $require_prefix . 'rest/class-objects-controller.php';
+require_once $require_prefix . 'rest/class-kinds-controller.php';
+require_once $require_prefix . 'rest/class-admin-options-controller.php';
+require_once $require_prefix . 'rest/class-collections-controller.php';
+require_once $require_prefix . 'rest/class-object-fields-controller.php';
+require_once $require_prefix . 'rest/class-object-image-controller.php';
+require_once $require_prefix . 'rest/class-remote-client-controller.php';
+require_once $require_prefix . 'rest/class-site-data-controller.php';
+require_once $require_prefix . 'rest/trait-preparabble-from-schema.php';
+require_once $require_prefix . 'rest/trait-with-id-arg.php';
+
 
