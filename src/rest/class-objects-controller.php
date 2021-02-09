@@ -13,6 +13,8 @@
  *
  * /search                           For advanced search of objects.
  *
+ * /wp-json/wp-museum/v1/collections/<post id>/objects  Objects associated with a collection.
+ *
  * @package MikeThicke\WPMuseum
  */
 
@@ -22,6 +24,9 @@ namespace MikeThicke\WPMuseum;
  * A singleton class for registering museum object endpoints.
  */
 class Objects_Controller extends \WP_REST_Controller {
+	use Preparable_From_Schema;
+	use With_ID_Arg;
+
 	/**
 	 * The REST namespace (relavtive to /wp-json/)
 	 *
@@ -61,9 +66,9 @@ class Objects_Controller extends \WP_REST_Controller {
 				'/' . $kind->type_name,
 				[
 					[
-						'methods'              => \WP_REST_Server::READABLE,
-						'permission_callback'  => [ $this, 'get_items_permission_check' ],
-						'callback'             => function( $request ) use ( $kind ) {
+						'methods'             => \WP_REST_Server::READABLE,
+						'permission_callback' => [ $this, 'get_items_permission_check' ],
+						'callback'            => function( $request ) use ( $kind ) {
 							$this->get_items( $request, $kind );
 						},
 					],
@@ -81,12 +86,12 @@ class Objects_Controller extends \WP_REST_Controller {
 				'/' . $kind->type_name . '/(?P<id>[\d]+)',
 				[
 					[
-						'methods'              => \WP_REST_Server::READABLE,
-						'permission_callback'  => [ $this, 'get_items_permission_check' ],
-						'args'                 => [ 'id' => $this->get_id_arg() ],
-						'callback'             => [ $this, 'get_item' ],
+						'methods'             => \WP_REST_Server::READABLE,
+						'permission_callback' => [ $this, 'get_items_permission_check' ],
+						'args'                => [ 'id' => $this->get_id_arg() ],
+						'callback'            => [ $this, 'get_item' ],
 					],
-					'schema'               => [ $this, 'get_public_item_schema' ],
+					'schema' => [ $this, 'get_public_item_schema' ],
 				]
 			);
 
@@ -98,10 +103,10 @@ class Objects_Controller extends \WP_REST_Controller {
 				'/' . $kind->type_name . '/(?P<id>[\d]+)/children',
 				[
 					[
-						'methods'              => \WP_REST_Server::READABLE,
-						'permission_callback'  => [ $this, 'get_items_permission_check' ],
-						'args'                 => [ 'id' => $this->get_id_arg() ],
-						'callback'             => [ $this, 'get_object_children' ],
+						'methods'             => \WP_REST_Server::READABLE,
+						'permission_callback' => [ $this, 'get_items_permission_check' ],
+						'args'                => [ 'id' => $this->get_id_arg() ],
+						'callback'            => [ $this, 'get_object_children' ],
 					],
 					'schema' => [ $this, 'get_public_item_schema' ],
 				]
@@ -120,11 +125,11 @@ class Objects_Controller extends \WP_REST_Controller {
 			'/all',
 			[
 				[
-					'methods'              => \WP_REST_Server::READABLE,
-					'permission_callback'  => [ $this, 'get_items_permission_check' ],
-					'callback'             => [ $this, 'get_items' ],
+					'methods'             => \WP_REST_Server::READABLE,
+					'permission_callback' => [ $this, 'get_items_permission_check' ],
+					'callback'            => [ $this, 'get_items' ],
 				],
-				'schema'               => [ $this, 'get_public_item_schema' ],
+				'schema' => [ $this, 'get_public_item_schema' ],
 			],
 		);
 
@@ -136,10 +141,10 @@ class Objects_Controller extends \WP_REST_Controller {
 			'/all/(?P<id>[\d]+)',
 			[
 				[
-					'methods'              => \WP_REST_Server::READABLE,
-					'permission_callback'  => [ $this, 'get_items_permission_check' ],
-					'args'                 => [ 'id' => $this->get_id_arg() ],
-					'callback'             => [ $this, 'get_item' ],
+					'methods'             => \WP_REST_Server::READABLE,
+					'permission_callback' => [ $this, 'get_items_permission_check' ],
+					'args'                => [ 'id' => $this->get_id_arg() ],
+					'callback'            => [ $this, 'get_item' ],
 				],
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
@@ -153,12 +158,48 @@ class Objects_Controller extends \WP_REST_Controller {
 			'/all/(?P<id>[\d]+)/children',
 			[
 				[
-					'methods'              => \WP_REST_Server::READABLE,
-					'permission_callback'  => [ $this, 'get_items_permission_check' ],
-					'args'                 => [ 'id' => $this->get_id_arg() ],
-					'callback'             => [ $this, 'get_object_children' ],
+					'methods'             => \WP_REST_Server::READABLE,
+					'permission_callback' => [ $this, 'get_items_permission_check' ],
+					'args'                => [ 'id' => $this->get_id_arg() ],
+					'callback'            => [ $this, 'get_object_children' ],
 				],
-				'schema'               => [ $this, 'get_public_item_schema' ],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
+
+		/**
+		 * /search                           For advanced search of objects.
+		 *
+		 * Run an advanced search and return the result. Search parameters passed
+		 * through POST request.
+		 */
+		register_rest_route(
+			$this->namespace,
+			'/search',
+			[
+				[
+					'methods'             => [ \WP_REST_SERVER::READABLE, \WP_REST_Server::CREATABLE ],
+					'permission_callback' => [ $this, 'get_items_permission_check' ],
+					'callback'            => [ $this, 'get_items' ],
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
+
+		/**
+		 * /wp-json/wp-museum/v1/collections/<post id>/objects  Objects associated with a collection.
+		 */
+		register_rest_route(
+			$this->namespace,
+			'/collections/(?P<id>[\d]+)/objects',
+			[
+				[
+					'methods'             => \WP_REST_Server::READABLE,
+					'permission_callback' => [ $this, 'get_items_permission_check' ],
+					'args'                => [ 'id' => $this->get_collection_id_arg() ],
+					'callback'            => [ $this, 'get_collection_items' ],
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
 	}
@@ -176,17 +217,10 @@ class Objects_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Arguments for ID argument.
+	 * Arguments for Collection ID argument.
 	 */
-	private function get_id_arg() {
-		return [
-			'validate_callback' => function( $param, $request, $key ) {
-				return is_numeric( $param );
-			},
-			'sanitize_callback' => function( $param, $request, $key ) {
-				return intval( $param );
-			},
-		];
+	protected function get_collection_id_arg() {
+		return $this->get_id_arg();
 	}
 
 	/**
@@ -209,7 +243,7 @@ class Objects_Controller extends \WP_REST_Controller {
 		}
 
 		$post = get_post( (int) $id );
-		if ( empty( $post ) || empty( $post->ID ) || $this->post_type !== $post->post_type ) {
+		if ( empty( $post ) || empty( $post->ID ) ) {
 			return $error;
 		}
 
@@ -225,7 +259,7 @@ class Objects_Controller extends \WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) {
-		$post = $this->get_post( $request['id'] );
+		$post = get_post_for_rest( $request['id'] );
 
 		if ( is_wp_error( $post ) ) {
 			return $post;
@@ -316,6 +350,7 @@ class Objects_Controller extends \WP_REST_Controller {
 			}
 		}
 		if ( count( $meta_query ) < 2 ) {
+			//phpcs:ignore WordPress.DB.SlowDBQuery --Slow query is not avoidable.
 			$query_args['meta_query'] = $meta_query;
 		}
 
@@ -370,6 +405,32 @@ class Objects_Controller extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Retrieve museum objects associated with a collection.
+	 *
+	 * @param WP_REST_Request $request The REST Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_collection_items( $request ) {
+		if ( current_user_can( 'edit_posts' ) ) {
+			$associated_objects = get_associated_objects( 'any', $request['id'] );
+		} else {
+			$associated_objects = get_associated_objects( 'publish', $request['id'] );
+		}
+
+		$object_data = [];
+		foreach ( $associated_objects as $post ) {
+			$data          = combine_post_data( $post );
+			$post_kind     = get_kind_from_typename( $post->post_type );
+			$response_item = $this->prepare_item_for_response( $data, $request, $post_kind );
+			$object_data[] = $this->prepare_response_for_collection( $response_item );
+		}
+
+		$response = rest_ensure_response( $object_data );
+
+		return $response;
+	}
+
+	/**
 	 * Returns JSON schema for all museum objects.
 	 *
 	 * @return Array The schema.
@@ -385,8 +446,9 @@ class Objects_Controller extends \WP_REST_Controller {
 	 * @see https://developer.wordpress.org/rest-api/extending-the-rest-api/controller-classes/
 	 *
 	 * @param Object_Kind $kind    Kind for fields schema, or null for combined.
+	 * @return Array Array respresentation of JSON schema.
 	 */
-	private function get_item_schema_for_kind( $kind = null ) {
+	protected function get_item_schema_for_kind( $kind = null ) {
 		if ( $this->schema ) {
 			return $this->schema;
 		}
@@ -487,22 +549,26 @@ class Objects_Controller extends \WP_REST_Controller {
 				],
 				'thumbnail'         => [
 					'description' => __( 'Data for thumbnail image of object: [URL, W, H, Resized?]' ),
-					'type'        => [ 'array' ],
+					'type'        => 'array',
 					'context'     => [ 'view', 'edit', 'embed' ],
 					'readonly'    => true,
 					'items'       => [
 						[
-							'type'   => 'string',
-							'format' => 'uri',
+							'description' => __( 'Image URL.' ),
+							'type'        => 'string',
+							'format'      => 'uri',
 						],
 						[
-							'type' => 'number',
+							'description' => __( 'Image width.' ),
+							'type'        => 'number',
 						],
 						[
-							'type' => 'number',
+							'description' => __( 'Image height' ),
+							'type'        => 'number',
 						],
 						[
-							'type' => 'boolean',
+							'description' => __( 'Is this version resized from original?' ),
+							'type'        => 'boolean',
 						],
 					],
 				],
@@ -522,7 +588,7 @@ class Objects_Controller extends \WP_REST_Controller {
 			} else {
 				foreach ( $kind_properties as $slug => $property_array ) {
 					if ( array_key_exists( $slug, $merged_kind_properties ) ) {
-						if ( array_key_exists( $merged_kind_properties[ $slug ]['anyOf'] ) ) {
+						if ( array_key_exists( 'anyOf', $merged_kind_properties[ $slug ] ) ) {
 							$merged_kind_properties[ $slug ]['anyOf'][] = $property_array;
 						} else {
 							$merged_kind_properties[ $slug ]['anyOf'] = [
@@ -546,7 +612,7 @@ class Objects_Controller extends \WP_REST_Controller {
 	 *
 	 * @param Object_Kind $kind The kind.
 	 */
-	private function get_schema_properties_for_kind( $kind ) {
+	protected function get_schema_properties_for_kind( $kind ) {
 		$mobject_fields = $kind->get_fields();
 
 		$properties = [];
@@ -587,63 +653,6 @@ class Objects_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Sanitize data based on expected type, based on schema.
-	 *
-	 * @param string|array|null $data         The data to be sanitized.
-	 * @param array             $data_schema  The schema for that data.
-	 *   string|array   $data_schema['type']  The expected type or types of the data.
-	 *   array          $data_schema['items'] If type is array, then items should contain array of
-	 *                                        schema for each item.
-	 *
-	 * @return string|array|null The sanitized data.
-	 */
-	private static function sanitize_from_type( $data, $data_schema ) {
-		$new_data = [];
-
-		if ( is_array( $data_schema['type'] ) ) {
-			$type = $data_schema['type'];
-		} else {
-			$type = [ $data_schema['type'] ];
-		}
-
-		if ( in_array( 'null', $type, true ) && ! $data ) {
-			$new_data = null;
-		} elseif ( in_array( 'boolean', $type, true ) ) {
-			if ( is_numeric( $data ) ) {
-				$new_data = (bool) intval( $data );
-			} else {
-				$new_data = (bool) $data;
-			}
-		} elseif ( in_array( 'integer', $type, true ) && is_numeric( $data ) ) {
-			$new_data = intval( $data );
-		} elseif ( in_array( 'array', $type, true ) && is_array( $data ) ) {
-			if (
-				! is_array( $data_schema['items'] ) ||
-				0 === count( $data ) ||
-				0 === count( $data_schema['items'] )
-			) {
-				$new_data = [];
-			} else {
-				$data_count = count( $data );
-				for ( $data_index = 0; $data_index < $data_count; $data_index++ ) {
-					if ( count( $data_schema['items'] ) <= $data_index ) {
-						break;
-					}
-					$new_data[ $data_index ] = self::sanitize_from_type(
-						$data[ $data_index ],
-						$data_schema['items'][ $data_index ]
-					);
-				}
-			}
-		} elseif ( in_array( 'string', $type ) ) {
-			$new_data = sanitize_text_field( $data );
-		} else {
-			$new_data = null;
-		}
-
-		return $new_data;
-	}
-	/**
 	 * Prepares item for response, by checking against schema and sanitizing
 	 * appropriately.
 	 *
@@ -654,17 +663,11 @@ class Objects_Controller extends \WP_REST_Controller {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function prepare_item_for_response( $post, $request, $kind = null ) {
-		$data = [];
-
-		foreach (
-			$this->get_item_schema_for_kind( $kind )['properties'] as
-			$property => $prop_data
-		) {
-			if ( isset( $post[ $property ] ) ) {
-				$data[ $property ] = self::sanitize_from_type( $post[ $property ], $prop_data );
-			}
+		if ( ! $kind ) {
+			return Preparable_From_Schema::prepare_item_for_response( $post, $request );
+		} else {
+			$schema = $this->get_item_schema_for_kind( $kind );
+			return Preparable_From_Schema::prepare_item_for_response( $post, $request, $schema );
 		}
-
-		return( rest_ensure_response( $data ) );
 	}
 }

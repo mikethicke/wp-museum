@@ -238,7 +238,7 @@ function get_mobject_kinds() {
  * @param   string/int $kind_id The ID of the object kind.
  * @param   bool       $public  Whether to only retrieve public fields.
  *
- * @return  [MObjectField]    Array of objects corresponding to rows of object field table.
+ * @return  Array   Array of MObjectField objects corresponding to rows of object field table.
  */
 function get_mobject_fields( $kind_id, $public = false ) {
 	global $wpdb;
