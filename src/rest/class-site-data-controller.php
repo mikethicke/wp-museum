@@ -52,7 +52,7 @@ class Site_Data_Controller extends \WP_REST_Controller {
 			[
 				[
 					'methods'             => \WP_REST_Server::READABLE,
-					'permission_callback' => [ $this, 'get_items_permission_check' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 					'callback'            => [ $this, 'get_item' ],
 				],
 				'schema' => [ $this, 'get_item_schema' ],
