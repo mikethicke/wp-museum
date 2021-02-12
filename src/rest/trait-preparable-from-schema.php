@@ -41,6 +41,15 @@ trait Preparable_From_Schema {
 			}
 		} elseif ( in_array( 'integer', $type, true ) && is_numeric( $data ) ) {
 			$new_data = intval( $data );
+		} elseif ( in_array( 'number', $type, true ) && is_numeric( $data ) ) {
+			$int_version   = intval( $data );
+			$float_version = floatval( $data );
+			// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			if ( $int_version == $float_version ) {
+				$new_data = $int_version;
+			} else {
+				$new_data = $float_version;
+			}
 		} elseif ( in_array( 'array', $type, true ) && is_array( $data ) ) {
 			if (
 				! is_array( $data_schema['items'] ) ||
@@ -50,21 +59,50 @@ trait Preparable_From_Schema {
 				$new_data = [];
 			} else {
 				$data_count = count( $data );
+				$new_data   = [];
 				for ( $data_index = 0; $data_index < $data_count; $data_index++ ) {
 					if ( count( $data_schema['items'] ) <= $data_index ) {
 						break;
 					}
+					if ( isset( $data_schema['items'][ $data_index ] ) ) {
+						$items_data_schema = $data_schema['items'][ $data_index ];
+					} else {
+						$items_data_schema = $data_schema['items'];
+					}
 					$new_data[ $data_index ] = self::sanitize_from_type(
 						$data[ $data_index ],
-						$data_schema['items'][ $data_index ]
+						$items_data_schema
 					);
 				}
 			}
 		} elseif ( in_array( 'string', $type, true ) ) {
-			if ( 'url' === $data_schema['format'] ) {
-				$new_data = esc_url( $data );
+			if ( isset( $data_schema['format'] ) ) {
+				if ( 'url' === $data_schema['format'] ) {
+					$new_data = esc_url( $data );
+				} else {
+					$new_data = sanitize_text_field( $data );
+				}
 			} else {
 				$new_data = sanitize_text_field( $data );
+			}
+		} elseif ( in_array( 'object', $type, true ) ) {
+			if (
+				isset( $data_schema['properties'] ) &&
+				is_array( $data_schema['properties'] )
+			) {
+				foreach ( $data_schema['properties'] as $property => $property_schema ) {
+					if ( ! isset( $data[ $property ] ) ) {
+						$new_data[ $property ] = null;
+					}
+					$new_data[ $property ] = self::sanitize_from_type(
+						$data[ $property ],
+						$property_schema
+					);
+				}
+			} elseif ( is_array( $data ) ) {
+				$new_data = $data;
+			} else {
+				$new_data = null;
 			}
 		} else {
 			$new_data = null;
@@ -89,9 +127,24 @@ trait Preparable_From_Schema {
 			$schema = $this->get_item_schema();
 		}
 
+		$sanitized_properties = [];
+
 		foreach ( $schema['properties'] as $property => $prop_data ) {
 			if ( isset( $item[ $property ] ) ) {
-				$data[ $property ] = sanitize_from_type( $item[ $property ], $prop_data );
+				$data[ $property ]      = self::sanitize_from_type( $item[ $property ], $prop_data );
+				$sanitized_properties[] = $property;
+			}
+		}
+
+		if ( isset( $schema['additionalProperties'] ) ) {
+			foreach ( $item as $item_property => $item_data ) {
+				if ( in_array( $item_property, $sanitized_properties, true ) ) {
+					continue;
+				}
+				$data [ $item_property ] = self::sanitize_from_type(
+					$item_data,
+					$schema['additionalProperties']
+				);
 			}
 		}
 		return rest_ensure_response( $data );

@@ -78,6 +78,7 @@ class Remote_Client_Controller extends \WP_REST_Controller {
 					'permission_callback' => [ $this, 'update_remote_clients_permission_check' ],
 					'callback'            => [ $this, 'update_items' ],
 				],
+				'schema' => [ $this, 'get_item_schema' ],
 			]
 		);
 	}
@@ -208,4 +209,58 @@ class Remote_Client_Controller extends \WP_REST_Controller {
 		return rest_ensure_response( $success );
 	}
 
+	/**
+	 * JSON schema for remote client item.
+	 *
+	 * @return Array Array representation of JSON schema.
+	 */
+	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->schema;
+		}
+
+		$this->schema = [
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'museum-remote-clients',
+			'type'       => 'object',
+			'properties' => [
+				'client_id'         => [
+					'description' => __( 'Unique database identifier for client.' ),
+					'type'        => [ 'integer', 'null' ],
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+				],
+				'uuid'              => [
+					'description' => __( 'Unique external identifier for client.' ),
+					'type'        => [ 'string', 'null' ],
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'format'      => 'uuid',
+				],
+				'title'             => [
+					'description' => __( 'Title of the remote client WordPress site.' ),
+					'type'        => [ 'string', 'null' ],
+					'context'     => [ 'view', 'edit', 'embed' ],
+				],
+				'url'               => [
+					'description' => __( 'URL of the remote client WordPress site.' ),
+					'type'        => [ 'string', 'null' ],
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'format'      => 'uri',
+				],
+				'blocked'           => [
+					'description' => __( 'Whether requests from the remote client should be blocked.' ),
+					'type'        => [ 'boolean', 'null' ],
+					'context'     => [ 'view', 'edit', 'embed' ],
+				],
+				'registration_time' => [
+					'description' => __( 'When the remote client was first registered.' ),
+					'type'        => [ 'string', 'null' ],
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'format'      => 'date-time',
+				],
+			],
+		];
+
+		return $this->schema;
+	}
 }

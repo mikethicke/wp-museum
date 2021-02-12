@@ -16,7 +16,7 @@ namespace MikeThicke\WPMuseum;
  * A singleton class for registering museum collection endpoints.
  */
 class Collections_Controller extends \WP_REST_Controller {
-
+	use Preparable_From_Schema;
 	use With_ID_Arg;
 
 	/**
@@ -69,7 +69,7 @@ class Collections_Controller extends \WP_REST_Controller {
 			[
 				[
 					'methods'             => \WP_REST_Server::READABLE,
-					'permission_callback' => [ $this, 'get_items_permission_check' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 					'args'                => [ 'id' => $this->get_id_arg() ],
 					'callback'            => [ $this, 'get_item' ],
 				],
@@ -86,29 +86,8 @@ class Collections_Controller extends \WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request The REST Request object.
 	 */
-	public function get_items_permission_check( $request ) {
+	public function get_items_permissions_check( $request ) {
 		return true;
-	}
-
-	/**
-	 * Prepares item for response, by checking against schema and sanitizing
-	 * appropriately.
-	 *
-	 * @param  WP_Post         $post    Post object.
-	 * @param  WP_REST_Request $request Request object.
-	 *
-	 * @return WP_REST_Response Response object.
-	 */
-	public function prepare_item_for_response( $post, $request ) {
-		$data = [];
-
-		foreach ( $this->get_item_schema()['properties'] as $property => $prop_data ) {
-			if ( isset( $post[ $property ] ) ) {
-				$data[ $property ] = sanitize_from_type( $post[ $property ], $prop_data );
-			}
-		}
-
-		return rest_ensure_response( $data );
 	}
 
 	/**
@@ -120,7 +99,7 @@ class Collections_Controller extends \WP_REST_Controller {
 	 * @return WP_Post|WP_Error Post object if ID is valid, WP_Error otherwise.
 	 */
 	protected function get_post( $id ) {
-		$error = new WP_Error(
+		$error = new \WP_Error(
 			'rest_post_invalid_id',
 			__( 'Invalid post ID.' ),
 			array( 'status' => 404 )
@@ -139,11 +118,11 @@ class Collections_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Get data for a specific collection.
+	 * Get data for a specific collection given collection slug.
 	 *
 	 * @param WP_REST_Request $request REST request.
 	 */
-	protected function get_collection_data( $request ) {
+	protected function get_collection_posts_by_slug( $request ) {
 		if ( ! isset( $request['id'] ) ) {
 			$slug = $request->get_param( 'slug' );
 			if ( $slug ) {
@@ -167,8 +146,21 @@ class Collections_Controller extends \WP_REST_Controller {
 			$post_id = $request['id'];
 		}
 
-		$post_data                       = combine_post_data( $post_id );
-		$associated_objects              = get_associated_object_ids( $post_id );
+		return $this->get_post( $post_id );
+	}
+
+	/**
+	 * Get data for a specific collection.
+	 *
+	 * @param WP_Post $post A collection post.
+	 */
+	protected function get_collection_data( $post ) {
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$post_data                       = combine_post_data( $post->ID );
+		$associated_objects              = get_associated_object_ids( $post->ID );
 		$post_data['associated_objects'] = $associated_objects;
 		return $post_data;
 	}
@@ -201,7 +193,7 @@ class Collections_Controller extends \WP_REST_Controller {
 	 */
 	public function get_items( $request ) {
 		if ( ! empty( $request->get_param( 'slug' ) ) ) {
-			return $this->get_item_by_slug( $request );
+			$query_result = $this->get_collection_posts_by_slug( $request );
 		}
 
 		$paged = $request->get_param( 'page' );
@@ -404,5 +396,7 @@ class Collections_Controller extends \WP_REST_Controller {
 				],
 			],
 		];
+
+		return $this->schema;
 	}
 }

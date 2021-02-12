@@ -93,7 +93,7 @@ function rest_routes() {
 	$object_fields_controller->register_routes();
 
 	/**
-	 * Registers the following route:
+ * Registers the following route:
 	 *
 	 * /admin_options                    Site-wide options.
 	 */
