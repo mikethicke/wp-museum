@@ -110,6 +110,19 @@ class Object_Image_Controller extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Checks whether visitor has permission to edit image attachments.
+	 *
+	 * Users that have permission to edit the associated museum object post can
+	 * also edit the associated image attachments.
+	 *
+	 * @param WP_REST_Request $request The REST Request object.
+	 * @return boolean True if the user has permission to edit image attachments.
+	 */
+	public function edit_items_permission_check( $request ) {
+		return current_user_can( 'edit_post', $request['id'] );
+	}
+
+	/**
 	 * Retrieve images for museum object.
 	 *
 	 * @param WP_REST_Request $request The REST Request object.
@@ -160,65 +173,61 @@ class Object_Image_Controller extends \WP_REST_Controller {
 			'$schema'              => 'http://json-schema.org/draft-04/schema#',
 			'title'                => 'object-image-attachment',
 			'type'                 => 'object',
-			'properties'           => [],
+			'properties'           => [
+				'title'       => [
+					'description' => __( 'Title of the image.' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+				],
+				'caption'     => [
+					'description' => __( 'Caption for the image.' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+				],
+				'description' => [
+					'description' => __( 'Description of the image.' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+				],
+				'alt'         => [
+					'description' => __( 'Alternative text for the image.' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+				],
+				'sort_order'  => [
+					'description' => __( 'Order in which image will be dispayed or listed.' ),
+					'type'        => 'integer',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+				],
+			],
 			'additionalProperties' => [
-				'type'                 => 'object',
-				'properties'           => [
-					'title'       => [
-						'description' => __( 'Title of the image.' ),
+				'type'     => 'array',
+				'items'    => [
+					[
+						'description' => __( 'Image URL.' ),
 						'type'        => 'string',
-						'context'     => [ 'view', 'edit', 'embed' ],
-						'readonly'    => true,
+						'format'      => 'uri',
 					],
-					'caption'     => [
-						'description' => __( 'Caption for the image.' ),
-						'type'        => 'string',
-						'context'     => [ 'view', 'edit', 'embed' ],
-						'readonly'    => true,
+					[
+						'description' => __( 'Image width.' ),
+						'type'        => 'number',
 					],
-					'description' => [
-						'description' => __( 'Description of the image.' ),
-						'type'        => 'string',
-						'context'     => [ 'view', 'edit', 'embed' ],
-						'readonly'    => true,
+					[
+						'description' => __( 'Image height' ),
+						'type'        => 'number',
 					],
-					'alt'         => [
-						'description' => __( 'Alternative text for the image.' ),
-						'type'        => 'string',
-						'context'     => [ 'view', 'edit', 'embed' ],
-						'readonly'    => true,
-					],
-					'sort_order'  => [
-						'description' => __( 'Order in which image will be dispayed or listed.' ),
-						'type'        => 'integer',
-						'context'     => [ 'view', 'edit', 'embed' ],
-						'readonly'    => true,
+					[
+						'description' => __( 'Is this version resized from original?' ),
+						'type'        => 'boolean',
 					],
 				],
-				'additionalProperties' => [
-					'type'     => 'array',
-					'items'    => [
-						[
-							'description' => __( 'Image URL.' ),
-							'type'        => 'string',
-							'format'      => 'uri',
-						],
-						[
-							'description' => __( 'Image width.' ),
-							'type'        => 'number',
-						],
-						[
-							'description' => __( 'Image height' ),
-							'type'        => 'number',
-						],
-						[
-							'description' => __( 'Is this version resized from original?' ),
-							'type'        => 'boolean',
-						],
-					],
-					'context'  => [ 'view', 'edit', 'embed' ],
-					'readonly' => true,
-				],
+				'context'  => [ 'view', 'edit', 'embed' ],
+				'readonly' => true,
 			],
 		];
 

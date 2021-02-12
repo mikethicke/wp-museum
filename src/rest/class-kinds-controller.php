@@ -67,7 +67,7 @@ class Kinds_Controller extends \WP_REST_Controller {
 				],
 				[
 					'methods'             => \WP_REST_Server::EDITABLE,
-					'permission_callback' => [ $this, 'update_item_persmission_check' ],
+					'permission_callback' => [ $this, 'update_item_permission_check' ],
 					'callback'            => [ $this, 'update_items' ],
 				],
 				'schema' => [ $this, 'get_item_schema' ],
@@ -85,7 +85,7 @@ class Kinds_Controller extends \WP_REST_Controller {
 					[
 						'methods'             => \WP_REST_Server::READABLE,
 						'permission_callback' => [ $this, 'get_items_permission_check' ],
-						'callback'            => function() use ( $kind ) {
+						'callback'            => function( $request ) use ( $kind ) {
 							return $this->get_items( $request, $kind );
 						},
 					],
@@ -275,7 +275,9 @@ class Kinds_Controller extends \WP_REST_Controller {
 			],
 		];
 
-		if ( ! $public ) {
+		if ( $public ) {
+			return $this->public_schema;
+		} else {
 			$private_schema_properties = [
 				'must_featured_image' => [
 					'description' => __( 'Whether objects of this kind must have a featured image to be published.' ),
@@ -302,10 +304,10 @@ class Kinds_Controller extends \WP_REST_Controller {
 					'readonly'    => false,
 				],
 			];
-
-			$this->priavte_schema['properties'] = array_merge( $this->public_schema['properties'], $private_schema_properties );
+			$this->private_schema               = $this->public_schema;
+			$this->private_schema['properties'] = array_merge( $this->public_schema['properties'], $private_schema_properties );
 		}
 
-		return $this->schema;
+		return $this->private_schema;
 	}
 }

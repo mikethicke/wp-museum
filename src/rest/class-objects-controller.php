@@ -24,7 +24,7 @@ namespace MikeThicke\WPMuseum;
  * A singleton class for registering museum object endpoints.
  */
 class Objects_Controller extends \WP_REST_Controller {
-	use Preparable_From_Schema;
+	use Preparable_From_Schema { prepare_item_for_response as trait_prepare_item_for_response; }
 	use With_ID_Arg;
 
 	/**
@@ -69,11 +69,11 @@ class Objects_Controller extends \WP_REST_Controller {
 						'methods'             => \WP_REST_Server::READABLE,
 						'permission_callback' => [ $this, 'get_items_permission_check' ],
 						'callback'            => function( $request ) use ( $kind ) {
-							$this->get_items( $request, $kind );
+							return $this->get_items( $request, $kind );
 						},
 					],
-					'schema' => function ( $request ) use ( $kind ) {
-						return $this->get_item_schema_for_kind( $request, $kind );
+					'schema' => function () use ( $kind ) {
+						return $this->get_item_schema_for_kind( $kind );
 					},
 				]
 			);
@@ -664,10 +664,10 @@ class Objects_Controller extends \WP_REST_Controller {
 	 */
 	public function prepare_item_for_response( $post, $request, $kind = null ) {
 		if ( ! $kind ) {
-			return Preparable_From_Schema::prepare_item_for_response( $post, $request );
+			return $this->trait_prepare_item_for_response( $post, $request );
 		} else {
 			$schema = $this->get_item_schema_for_kind( $kind );
-			return Preparable_From_Schema::prepare_item_for_response( $post, $request, $schema );
+			return $this->trait_prepare_item_for_response( $post, $request, $schema );
 		}
 	}
 }

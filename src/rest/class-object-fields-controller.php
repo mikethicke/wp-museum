@@ -54,7 +54,7 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 						'methods'             => \WP_REST_Server::READABLE,
 						'permission_callback' => [ $this, 'get_items_permission_check' ],
 						'callback'            => function( $request ) use ( $kind ) {
-							$this->get_items( $request, $kind );
+							return $this->get_items( $request, $kind );
 						},
 					],
 					[
@@ -95,19 +95,25 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request The REST Request object.
 	 */
-	public function get_items( $request ) {
+	public function get_items( $request, $kind = null ) {
+		if ( ! $kind ) {
+			return new \WP_Error(
+				'rest-fields-no-kind',
+				'Attempted to retrieve fields for null kind.' 
+			);
+		}
 		$fields          = get_mobject_fields( $kind->kind_id );
 		$filtered_fields = [];
 		foreach ( $fields as $field ) {
 			if ( $field->public || current_user_can( 'edit_posts' ) ) {
 				$response_item =
-					$this->prepare_item_for_response( $field, $request );
+					$this->prepare_item_for_response( $field->to_array(), $request );
 
 				$filtered_fields[ $field->field_id ] =
 					$this->prepare_response_for_collection( $response_item );
 			}
 		}
-		return $filtered_fields;
+		return rest_ensure_response( $filtered_fields );
 	}
 
 	/**

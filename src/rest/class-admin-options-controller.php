@@ -102,15 +102,14 @@ class Admin_Options_Controller extends \WP_REST_Controller {
 		$admin_data        = [];
 		$schema_properties = $this->get_item_schema()['properties'];
 		foreach ( $schema_properties as $property => $property_schema ) {
-			$option_value = $this->prepare_item_for_response(
-				get_option( $property ),
-				$request
-			);
-
-			$admin_data[ $property ] =
-				$this->prepare_response_for_collection( $option_value, $response );
+			$admin_data[ $property ] = get_option( $property );
 		}
-		return rest_ensure_response( $admin_data );
+		return rest_ensure_response(
+			$this->prepare_item_for_response(
+				$admin_data,
+				$request
+			)
+		);
 	}
 
 	/**
