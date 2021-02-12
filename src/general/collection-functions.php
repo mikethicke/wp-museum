@@ -12,7 +12,7 @@ namespace MikeThicke\WPMuseum;
  *
  * @param string $post_status The post status of collections to retrieve.
  *
- * @return [Post] Array of collection posts.
+ * @return Array Array WP_Post.
  */
 function get_collections( $post_status = 'any' ) {
 	$collections = get_posts(

@@ -225,7 +225,7 @@ const ObjectMetaEdit = ( props ) => {
 	const baseRestPath = '/wp-museum/v1';
 
 	if ( ! fieldData ) {
-		apiFetch( { path: `${baseRestPath}/${postType}/fields_all` } ).then( result => setFieldData( result ) );
+		apiFetch( { path: `${baseRestPath}/${postType}/fields` } ).then( result => setFieldData( result ) );
 	}
 
 	if ( ! postData ) {

@@ -3,6 +3,11 @@
  * Class representing a remote museum client.
  *
  * @package MikeThicke\WPMuseum
+ *
+ * phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+ *      -- prepare not able to handle variable table names.
+ * phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+ *      -- querying custom museum clients table.
  */
 
 namespace MikeThicke\WPMuseum;
@@ -87,18 +92,16 @@ class RemoteClient {
 		$client_array = [];
 
 		$wpdb->show_errors = DB_SHOW_ERRORS;
-		$table_name = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+		$table_name        = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
 
-		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM $table_name WHERE 1"
-			)
-		);
+		$results = $wpdb->get_results( "SELECT * FROM $table_name WHERE 1" );
+
 		if ( ! is_null( $results ) && count( $results ) > 0 ) {
 			foreach ( $results as $result ) {
 				$client_array[] = self::from_database( $result );
 			}
 		}
+		wp_cache_add( 'all_museum_remote_clients', $client_array, CACHE_GROUP );
 		return $client_array;
 	}
 
@@ -109,7 +112,7 @@ class RemoteClient {
 	 */
 	public static function get_all_clients_assoc_array() {
 		$client_objects = self::get_all_clients();
-		$client_array = [];
+		$client_array   = [];
 		foreach ( $client_objects as $client_object ) {
 			$client_array[] = $client_object->to_array();
 		}
@@ -131,7 +134,7 @@ class RemoteClient {
 		}
 
 		$wpdb->show_errors = DB_SHOW_ERRORS;
-		$table_name = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+		$table_name        = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -163,7 +166,7 @@ class RemoteClient {
 		}
 
 		$wpdb->show_errors = DB_SHOW_ERRORS;
-		$table_name = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+		$table_name        = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -174,7 +177,7 @@ class RemoteClient {
 		if ( ! is_null( $results ) && count( $results ) === 1 ) {
 			$instance = self::from_database( $results[0] );
 		} else {
-			$instance = new self();
+			$instance       = new self();
 			$instance->uuid = $uuid;
 		}
 
@@ -262,12 +265,14 @@ class RemoteClient {
 	public function save_to_db() {
 		global $wpdb;
 		$wpdb->show_errors = DB_SHOW_ERRORS;
-		$table_name = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
-		$data_array = $this->to_array();
+		$table_name        = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+		$data_array        = $this->to_array();
+
 		unset( $data_array['client_id'] );
 		if ( is_null( $this->client_id ) ) {
 			return $wpdb->insert( $table_name, $data_array );
 		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching --should always run query when save function called.
 			return $wpdb->update( $table_name, $data_array, [ 'client_id' => $this->client_id ] );
 		}
 	}
@@ -283,7 +288,7 @@ class RemoteClient {
 	public function delete_from_db() {
 		global $wpdb;
 		$wpdb->show_errors = DB_SHOW_ERRORS;
-		$table_name = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+		$table_name        = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
 		if ( is_null( $this->client_id ) ) {
 			if ( is_null( $this->uuid ) ) {
 				return false;
@@ -296,6 +301,7 @@ class RemoteClient {
 		} else {
 			$delete_client_id = $this->client_id;
 		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching --should always run query when delete function called.
 		return $wpdb->delete( $table_name, [ 'client_id' => $delete_client_id ] );
 	}
 }
