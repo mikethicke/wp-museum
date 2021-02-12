@@ -46,7 +46,7 @@ const Edit = props => {
 	} );
 
 	const refreshFieldData = () => {
-		apiFetch( { path: `${baseRestPath}/${kindPostType}/fields_all`} ).then( setFieldData );
+		apiFetch( { path: `${baseRestPath}/${kindPostType}/fields`} ).then( setFieldData );
 	}
 
 	const updateKindData = ( field, event ) => {
@@ -62,7 +62,7 @@ const Edit = props => {
 		setIsSaving( true );
 		const saveData = updatedFieldData ? updatedFieldData : fieldData;
 		apiFetch( {
-			path   : `${baseRestPath}/${kindPostType}/fields_all`,
+			path   : `${baseRestPath}/${kindPostType}/fields`,
 			method : 'POST',
 			data   : saveData
 		} ).then( () => { 
