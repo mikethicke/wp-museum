@@ -10,7 +10,7 @@ namespace MikeThicke\WPMuseum;
 /**
  * Registers the block.
  */
-function register_child_objects_block () {
+function register_child_objects_block() {
 	/**
 	 * This block should only be registered for museum object post types.
 	 */
