@@ -11,9 +11,7 @@ namespace MikeThicke\WPMuseum;
  * Registers the block.
  */
 function register_child_objects_block() {
-	/**
-	 * This block should only be registered for museum object post types.
-	 */
+	// This block should only be registered for museum object post types.
 	$post_type     = admin_post_type();
 	$mobject_types = get_object_type_names();
 	if ( ! in_array( $post_type, $mobject_types, true ) ) {
