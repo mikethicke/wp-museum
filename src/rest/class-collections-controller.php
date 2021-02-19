@@ -210,7 +210,7 @@ class Collections_Controller extends \WP_REST_Controller {
 			'paged'            => $paged,
 			'post_type'        => WPM_PREFIX . 'collection',
 			'suppress_filters' => false,
-			'numberposts'      => $per_page,
+			'posts_per_page'   => $per_page,
 		];
 
 		$search_string = $request->get_param( 's' );
@@ -392,6 +392,18 @@ class Collections_Controller extends \WP_REST_Controller {
 					'readonly'    => true,
 					'items'       => [
 						'type' => 'number',
+					],
+				],
+				'taxonomies'        => [
+					'description'          => __( 'Taxonomy terms associated with the collection.' ),
+					'type'                 => 'object',
+					'context'              => [ 'view', 'edit', 'embed' ],
+					'readonly'             => true,
+					'additionalProperties' => [
+						'type'                 => 'object',
+						'additionalProperties' => [
+							'type' => 'string',
+						],
 					],
 				],
 			],
