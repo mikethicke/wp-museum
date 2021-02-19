@@ -2,7 +2,6 @@
 /**
  * WordPress dependencies
  */
-
 import {
 	useState,
 	useEffect
@@ -23,7 +22,6 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-
 import AdvancedSearchUI from '../components/advanced-search-ui';
 import {
 	PaginatedObjectList
