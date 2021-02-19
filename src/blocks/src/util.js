@@ -1,6 +1,7 @@
 import apiFetch from "@wordpress/api-fetch";
 
 export const baseRestPath = '/wp-museum/v1';
+export const wordPressRestBase = '/wp/v2'
 
 // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 export function hexToRgb(hex) {
