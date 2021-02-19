@@ -41,7 +41,7 @@ function register_collection_main_navigation_block() {
 					'items'   => [
 						'type' => 'string',
 					],
-					'default' => [],
+					'default' => [ '_all' ],
 				],
 			],
 		],

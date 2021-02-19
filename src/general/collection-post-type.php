@@ -37,7 +37,7 @@ $collection_options   = [
 $collection_post_type = new CustomPostType( $collection_options );
 $collection_post_type->add_support( [ 'thumbnail', 'custom-fields' ] );
 $collection_post_type->add_taxonomy( 'category' );
-$collection_post_type->add_taxonomy( 'collection-tag' );
+$collection_post_type->add_taxonomy( 'collection_tag' );
 
 /*
  * Custom Fields
@@ -64,7 +64,7 @@ add_action(
 	'init',
 	function() {
 		register_taxonomy(
-			'collection-tag',
+			'collection_tag',
 			WPM_PREFIX . 'collection',
 			[
 				'hierarchical' => false,
