@@ -158,9 +158,14 @@ function get_object_collections( $post_id ) {
 	);
 	foreach ( $collections as $collection ) {
 		$collection_custom = get_post_custom( $collection->ID );
-		$cat_intersect     = array_intersect( $object_categories, $collection_custom['associated_category'] );
-		if ( count( $cat_intersect ) > 0 ) {
-			$object_collections[] = $collection;
+		if (
+			isset( $collection_custom['associated_category'] ) &&
+			is_array( $collection_custom['associated_category'] )
+		) {
+			$cat_intersect = array_intersect( $object_categories, $collection_custom['associated_category'] );
+			if ( count( $cat_intersect ) > 0 ) {
+				$object_collections[] = $collection;
+			}
 		}
 	}
 	return $object_collections;

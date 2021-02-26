@@ -53,7 +53,7 @@ class Object_Image_Controller extends \WP_REST_Controller {
 			[
 				[
 					'methods'             => \WP_REST_Server::READABLE,
-					'permission_callback' => [ $this, 'get_items_permission_check ' ],
+					'permission_callback' => [ $this, 'get_items_permission_check' ],
 					'args'                => [ 'id' => $this->get_id_arg() ],
 					'callback'            => [ $this, 'get_items' ],
 				],

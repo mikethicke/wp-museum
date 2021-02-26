@@ -317,12 +317,20 @@ class Objects_Controller extends \WP_REST_Controller {
 			$post_status        = 'publish';
 			$public_fields_only = true;
 		}
+		$requested_status = sanitize_text_field( $request->get_param( 'status' ) );
+		if ( $requested_status ) {
+			if ( 'any' === $requested_status && current_user_can( 'edit_posts' ) ) {
+				$post_status = 'any';
+			} elseif ( 'publish' === $requested_status ) {
+				$post_status = 'publish';
+			}
+		}
 
 		$query_args = [
 			'post_type'        => $kind_type_list,
 			'post_status'      => $post_status,
 			'paged'            => $paged,
-			'numberposts'      => $per_page,
+			'posts_per_page'   => $per_page,
 			'suppress_filters' => false,
 		];
 
@@ -398,6 +406,7 @@ class Objects_Controller extends \WP_REST_Controller {
 
 		$response = rest_ensure_response( $post_data );
 
+		$response->header( 'X-WP-Page', (int) $page );
 		$response->header( 'X-WP-Total', (int) $total_posts );
 		$response->header( 'X-WP-TotalPages', (int) $max_pages );
 

@@ -1,0 +1,50 @@
+.wpm-collection-main-navigation-collection-box {
+	margin-top: 0.5em;
+	.wpm-collection-main-navigation-collection-box-title-wrapper {
+		padding: 0.5em;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 1.2em;
+		color: black;
+		background-color: #ededed;
+		border-width: 0px;
+
+		a {
+			text-decoration: none;
+			font-weight: normal;
+			color: inherit;
+
+			&:hover {
+				text-decoration: underline;
+			}
+
+			&:visited {
+				color: initial;
+			}
+		}
+	}
+	
+	.wpm-collection-main-navigation-collection-box-excerpt {
+		border-left: 2px solid grey;
+		padding-left: 0.5em;
+		margin-left: 2px;
+		margin-top: 0.5em;
+		transition-property: max-height;
+		transition-duration: 0.7s;
+		transition-timing-function: ease;
+		overflow: hidden;
+
+		&.closed {
+			max-height: 0;
+		}
+
+		&.open {
+			max-height: 20em;
+		}
+	}
+
+	.wpm-collection-main-navigation-collection-box-excerpt-more {
+		margin-top: 1em;
+	}
+}
