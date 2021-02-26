@@ -58,6 +58,17 @@ function combine_post_data( $post ) {
 
 	$img_data = get_object_thumbnail( $post->ID );
 
+	$object_taxonomies = get_object_taxonomies( $post, 'names' );
+	$taxonomy_data = [];
+	foreach ( $object_taxonomies as $tax ) {
+		$terms_data = get_the_terms( $post, $tax );
+		if ( $terms_data ) {
+			foreach ( $terms_data as $term ) {
+				$taxonomy_data[ $tax ][ $term->slug ] = $term->name;
+			}
+		}
+	}
+
 	add_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
 	$filtered_excerpt =
 		html_entity_decode(
@@ -68,11 +79,12 @@ function combine_post_data( $post ) {
 	remove_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
 
 	$additional_fields = [
-		'link'      => get_permalink( $post ),
-		'edit_link' => get_edit_post_link( $post ),
-		'excerpt'   => $filtered_excerpt,
-		'thumbnail' => $img_data,
-		'cat_field' => $cat_field_slug,
+		'link'       => get_permalink( $post ),
+		'edit_link'  => get_edit_post_link( $post ),
+		'excerpt'    => $filtered_excerpt,
+		'thumbnail'  => $img_data,
+		'cat_field'  => $cat_field_slug,
+		'taxonomies' => $taxonomy_data,
 	];
 
 	$default_post_data                      = $post->to_array();

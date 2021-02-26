@@ -1,8 +1,19 @@
 import apiFetch from "@wordpress/api-fetch";
 
+/**
+ * Base path for Museum REST API.
+ */
 export const baseRestPath = '/wp-museum/v1';
 
+/**
+ * Base path for WordPress REST API.
+ */
+export const wordPressRestBase = '/wp/v2'
+
 // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+/**
+ * 
+ */
 export function hexToRgb(hex) {
 	// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
 	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -219,4 +230,75 @@ export const MaybeLink = props => {
  */
 export const fetchObjectImages = objectID => {
 	return apiFetch( { path: `${baseRestPath}/all/${objectID}/images` } );
+}
+
+const sortCollectionsHelper = ( collectionData, sortBy, sortOrder) => {
+	const sortedCollections = [ ...collectionData ];
+	switch ( sortBy ) {
+		case 'Alphabetical' :
+			sortedCollections.sort( (a, b ) => a.post_title < b.post_title ? -1 : 1 );
+			break;
+		case 'Date Created' :
+			sortedCollections.sort( (a, b ) => {
+				aDate = new Date( a.post_date_gmt );
+				bDate = new Date( b.post_date_gmt );
+				return aDate < bDate ? -1 : 1;
+			} );
+			break;
+		case 'Date Updated' :
+			sortedCollections.sort( (a, b ) => {
+				aDate = new Date( a.post_modified_gmt );
+				bDate = new Date( b.post_modified_gmt );
+				return aDate < bDate ? -1 : 1;
+			} );
+			break;
+	}
+	if ( sortOrder == 'Descending' ) {
+		sortedCollections.reverse();
+	}
+	return sortedCollections;
+}
+
+export const sortCollections = ( collectionData, sortBy, sortOrder ) => {
+	const allCollections = sortCollectionsHelper( collectionData, sortBy, sortOrder );
+	const topCollections = allCollections.filter( a => a.post_parent == 0 );
+	let subCollections = allCollections.filter( a => a.post_parent != 0 );
+
+	// Deal with the case that a collection's parent was not retrieved, probably
+	// because it didn't match the tag criteria.
+	//
+	// TODO: There is probably a more efficient way to do this as it is redundant with
+	// the forEach loop below.
+	
+	subCollections.forEach( subCollection => {
+		const parentIndex = allCollections.findIndex( 
+			parentCollection => parentCollection.ID == subCollection.post_parent
+		);
+		if ( parentIndex == -1 ) {
+			subCollection.post_parent = 0;
+		}
+	});
+	
+
+	topCollections.forEach( a => a.indentLevel = 0 );
+
+	let foundParent = true;
+	while ( foundParent && subCollections.length > 0 ) {
+		foundParent = false;
+		subCollections.forEach( subCollection => {
+			subCollection.foundParent = false;
+			const parentIndex = topCollections.findIndex( 
+				parentCollection => parentCollection.ID == subCollection.post_parent
+			);
+			if ( parentIndex > -1 ) {
+				foundParent = true;
+				subCollection.foundParent = true;
+				subCollection.indentLevel = topCollections[parentIndex].indentLevel + 1;
+				topCollections.splice( parentIndex + 1, 0, subCollection );
+			}
+		} );
+		subCollections = subCollections.filter( subCollection => ! subCollection.foundParent );
+	}
+
+	return topCollections;
 }

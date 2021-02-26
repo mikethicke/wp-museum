@@ -195,7 +195,7 @@ function render_object_post_type_block( $attributes ) {
 		<?= $breadcrumb_html ?>
 		<div class = 'wpm-objectposttype-content'>
 			<div
-				class = 'wpm-objectposttype-image-gallery <?= $display_options['imgage_gallery_position'] ?>'
+				class = 'wpm-objectposttype-image-gallery <?= $display_options['image_gallery_position'] ?>'
 				data-post-ID = '<?= $post->ID ?>'
 			>
 			</div>

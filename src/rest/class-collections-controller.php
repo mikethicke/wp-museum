@@ -200,6 +200,7 @@ class Collections_Controller extends \WP_REST_Controller {
 		if ( empty( $paged ) ) {
 			$paged = 1;
 		}
+
 		$per_page = $request->get_param( 'per_page' );
 		if ( empty( $per_page ) ) {
 			$per_page = DEFAULT_NUMBERPOSTS;
@@ -210,7 +211,7 @@ class Collections_Controller extends \WP_REST_Controller {
 			'paged'            => $paged,
 			'post_type'        => WPM_PREFIX . 'collection',
 			'suppress_filters' => false,
-			'numberposts'      => $per_page,
+			'posts_per_page'   => $per_page,
 		];
 
 		$search_string = $request->get_param( 's' );
@@ -220,6 +221,70 @@ class Collections_Controller extends \WP_REST_Controller {
 		$title_search = $request->get_param( 'post_title' );
 		if ( ! empty( $title_search ) ) {
 			$args['post_title'] = $title_search;
+		}
+
+		// If tags param is set, do a taxonomy query that finds collections with
+		// the corresponding tags. There are two special tags: _all, which when
+		// set matches all tags (bypassing the tax query); and _untagged, which
+		// matches collections that have no tags set.
+		$tag_list = $request->get_param( 'tags' );
+		if ( ! empty( $tag_list ) ) {
+			$tag_array = explode( ',', $tag_list );
+			if ( ! in_array( '_all', $tag_array, true ) ) {
+				if ( in_array( '_untagged', $tag_array, true ) ) {
+					unset( $tag_array['_untagged'] );
+					$all_terms = get_terms(
+						[
+							'taxonomy'   => 'collection_tag',
+							'hide_empty' => false,
+						]
+					);
+
+					$all_tags = array_map(
+						function( $a ) {
+							return $a->slug;
+						},
+						$all_terms
+					);
+
+					if ( count( $tag_array ) > 1 ) {
+						//phpcs:ignore WordPress.DB.SlowDBQuery
+						$args['tax_query'] = [
+							'relation' => 'OR',
+							[
+								'taxonomy' => 'collection_tag',
+								'field'    => 'slug',
+								'terms'    => $tag_array,
+							],
+							[
+								'taxonomy' => 'collection_tag',
+								'field'    => 'slug',
+								'terms'    => $all_tags,
+								'operator' => 'NOT IN',
+							],
+						];
+					} else {
+						//phpcs:ignore WordPress.DB.SlowDBQuery
+						$args['tax_query'] = [
+							[
+								'taxonomy' => 'collection_tag',
+								'field'    => 'slug',
+								'terms'    => $all_tags,
+								'operator' => 'NOT IN',
+							],
+						];
+					}
+				} else {
+					//phpcs:ignore WordPress.DB.SlowDBQuery
+					$args['tax_query'] = [
+						[
+							'taxonomy' => 'collection_tag',
+							'field'    => 'slug',
+							'terms'    => $tag_array,
+						],
+					];
+				}
+			}
 		}
 
 		$posts_query  = new \WP_Query();
@@ -344,6 +409,12 @@ class Collections_Controller extends \WP_REST_Controller {
 					'context'     => [ 'view', 'edit' ],
 					'readonly'    => true,
 				],
+				'post_parent'       => [
+					'description' => __( 'Post ID of parent post, if one exists.' ),
+					'type'        => 'integer',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+				],
 				'post_type'         => [
 					'description' => __( 'Type of Post for the object.' ),
 					'type'        => 'string',
@@ -392,6 +463,18 @@ class Collections_Controller extends \WP_REST_Controller {
 					'readonly'    => true,
 					'items'       => [
 						'type' => 'number',
+					],
+				],
+				'taxonomies'        => [
+					'description'          => __( 'Taxonomy terms associated with the collection.' ),
+					'type'                 => 'object',
+					'context'              => [ 'view', 'edit', 'embed' ],
+					'readonly'             => true,
+					'additionalProperties' => [
+						'type'                 => 'object',
+						'additionalProperties' => [
+							'type' => 'string',
+						],
 					],
 				],
 			],

@@ -37,6 +37,7 @@ $collection_options   = [
 $collection_post_type = new CustomPostType( $collection_options );
 $collection_post_type->add_support( [ 'thumbnail', 'custom-fields' ] );
 $collection_post_type->add_taxonomy( 'category' );
+$collection_post_type->add_taxonomy( 'collection_tag' );
 
 /*
  * Custom Fields
@@ -56,6 +57,20 @@ $collection_post_type->register_post_meta( 'single_page', 'boolean', 'Single Pag
  */
 $collection_post_type->register();
 
-
-
-
+/*
+ * Collection Tag taxonomy ( separate from post tag taxonomy ).
+ */
+add_action(
+	'init',
+	function() {
+		register_taxonomy(
+			'collection_tag',
+			WPM_PREFIX . 'collection',
+			[
+				'hierarchical' => false,
+				'show_in_rest' => true,
+			]
+		);
+	},
+	0
+);

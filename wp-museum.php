@@ -124,6 +124,7 @@ require_once $require_prefix . 'blocks/advanced-search-block.php';
 require_once $require_prefix . 'blocks/basic-search-block.php';
 require_once $require_prefix . 'blocks/embedded-search-block.php';
 require_once $require_prefix . 'blocks/collection-objects-block.php';
+require_once $require_prefix . 'blocks/collection-main-navigation-block.php';
 
 /**
  * Rest

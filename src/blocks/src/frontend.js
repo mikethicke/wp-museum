@@ -7,7 +7,8 @@ import BasicSearchFront from './basic-search/front';
 import EmbeddedSearchFront from './embedded-search/front';
 import CollectionObjectsFront from './collection/front';
 import ObjectPostImageGallery from './components/object-post-image-gallery';
-import { cleanAttributes, attributesFromJSON } from './util';
+import CollectionMainNavigationFront from './collection-main-navigation/front';
+import { attributesFromJSON } from './util';
 
 import './style.scss';
 
@@ -84,3 +85,16 @@ if ( !! objectImageGalleryElements ) {
 	}
 }
 
+const collectionMainNavigationElements = document.getElementsByClassName('wpm-collection-main-navigation-front');
+if ( collectionMainNavigationElements ) {
+	for ( let i = 0; i < collectionMainNavigationElements.length; i++ ) {
+		const collectionMainNavigationElement = collectionMainNavigationElements[i];
+		const attributes = attributesFromJSON( collectionMainNavigationElement.dataset.attributes );
+		render (
+			<CollectionMainNavigationFront
+				attributes = { attributes }
+			/>,
+			collectionMainNavigationElement
+		);
+	}
+}

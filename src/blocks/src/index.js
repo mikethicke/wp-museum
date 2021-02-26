@@ -10,5 +10,6 @@ import './advanced-search';
 import './basic-search';
 import './embedded-search';
 import './collection';
+import './collection-main-navigation';
 
 import './editor.scss';
