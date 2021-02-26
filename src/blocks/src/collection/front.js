@@ -22,20 +22,19 @@ const CollectionObjectsFront = props => {
 	} = props;
 
 	const searchDefaults = {
-		selectedCollections: [ postID ],
-		numberposts: resultsPerPage,
+		selectedCollections : [ postID ],
+		per_page            : resultsPerPage,
+		status              : 'publish',
 	}
 	
 	const [ mObjects, setMObjects ] = useState( [] );
-
-	const updateMObjects = ( newMObjects ) => {
-		
-	}
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+	const [ totalPages, setTotalPages ] = useState( 0 );
 
 	useEffect( () => {
 		const initialSearchValues = {
 			...searchDefaults,
-			page : 1
+			page   : 1,
 		}
 		runSearch( initialSearchValues );
 	}, [] );
@@ -44,17 +43,17 @@ const CollectionObjectsFront = props => {
 		apiFetch( {
 			path   : `${baseRestPath}/search`,
 			method : 'POST',
-			data   : searchValues
-		} ).then( result => {
-			setMObjects( result );
-		} );
-	}
-
-	let currentPage = 1;
-	let totalPages = 0;
-	if ( mObjects.length > 0 && typeof mObjects[0].query_data != 'undefined' ) {
-		currentPage = mObjects[0].query_data.current_page;
-		totalPages = mObjects[0].query_data.num_pages;
+			data   : searchValues,
+			parse  : false,
+		} )
+			.then( response => {
+				setCurrentPage( response.headers.get( 'X-WP-Page' ) || 1 );
+				setTotalPages( response.headers.get( 'X-WP-TotalPages' || 0 ) );
+				return response.json();
+			} )
+			.then ( result => {
+				setMObjects( result );
+			});
 	}
 
 	return (

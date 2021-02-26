@@ -64,12 +64,17 @@ const AdvancedSearchFront = props => {
 		searchParams['numberposts'] = resultsPerPage;
 		setCurrentSearchParams( searchParams );
 		apiFetch( {
-			path:   `${baseRestPath}/search`,
-			method: 'POST',
-			data:   searchParams,
-		} ).then( result => {
-			setSearchResults( result );
-		} );
+			path   : `${baseRestPath}/search`,
+			method : 'POST',
+			data   :  searchParams,
+			parse  :  false,
+		} )
+			.then( response => {
+				return response.json();
+			} )
+			.then ( result => {
+				setSearchResults( result );
+			});
 	}
 
 	let currentPage = 1;
