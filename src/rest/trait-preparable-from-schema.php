@@ -86,10 +86,13 @@ trait Preparable_From_Schema {
 				$new_data = sanitize_text_field( $data );
 			}
 		} elseif ( in_array( 'object', $type, true ) ) {
+			$has_property_schema  = false;
+			$sanitized_properties = [];
 			if (
 				isset( $data_schema['properties'] ) &&
 				is_array( $data_schema['properties'] )
 			) {
+				$has_property_schema = true;
 				foreach ( $data_schema['properties'] as $property => $property_schema ) {
 					if ( ! isset( $data[ $property ] ) ) {
 						$new_data[ $property ] = null;
@@ -98,11 +101,30 @@ trait Preparable_From_Schema {
 						$data[ $property ],
 						$property_schema
 					);
+					$sanitized_properties[] = $property;
 				}
-			} elseif ( is_array( $data ) ) {
-				$new_data = $data;
-			} else {
-				$new_data = null;
+			}
+			if (
+				isset( $data_schema['additionalProperties'] ) &&
+				is_array( $data_schema['additionalProperties'] )
+			) {
+				$has_property_schema = true;
+				foreach ( $data as $data_propterty => $data_item ) {
+					if ( in_array( $data_propterty, $sanitized_properties ) ) {
+						continue;
+					}
+					$new_data[ $data_propterty ] = self::sanitize_from_type(
+						$data_item,
+						$data_schema['additionalProperties']
+					);
+				}
+			}
+			if ( ! $has_property_schema ) {
+				if ( is_array( $data ) ) {
+					$new_data = $data;
+				} else {
+					$new_data = null;
+				}
 			}
 		} else {
 			$new_data = null;
