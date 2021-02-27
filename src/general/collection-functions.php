@@ -216,3 +216,32 @@ function collection_redirect() {
 	}
 }
 
+/**
+ * Get url of featured image for a collection.
+ *
+ * If the collection post has a featured image, return that. Otherwise, get an
+ * image from one of the collection objects.
+ *
+ * @param int $post_id        The id of the post.
+ *
+ * @return Array Image data of featured image or image from collection object.
+ */
+function get_collection_featured_image( $post_id ) {
+	$image_id = get_post_thumbnail_id( $post_id );
+	if ( $image_id ) {
+		return wp_get_attachment_image_src( $image_id, 'medium' );
+	}
+
+	$associated_objects = get_associated_objects( 'publish', $post_id );
+	foreach ( $associated_objects as $object ) {
+		$image_attachments = get_object_image_attachments( $object->ID );
+		if ( count( $image_attachments ) > 0 ) {
+			foreach ( $image_attachments as $image_attach_id => $sort_order ) {
+				return wp_get_attachment_image_src( $image_attach_id, 'medium' );
+			}
+		}
+	}
+
+	return false;
+}
+

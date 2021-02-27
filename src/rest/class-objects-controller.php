@@ -483,6 +483,11 @@ class Objects_Controller extends \WP_REST_Controller {
 					'context'     => [ 'view', 'edit', 'embed' ],
 					'readonly'    => true,
 				],
+				'post_title'        => [
+					'description' => __( 'Title of the object.' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit', 'embed' ],
+				],
 				'post_author'       => [
 					'description' => __( 'The ID for the author of the object.' ),
 					'type'        => 'integer',

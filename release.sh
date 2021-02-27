@@ -109,6 +109,7 @@ cp -r $SRC_DIR/general $RELEASE_DIR
 cp -r $SRC_DIR/javascript $RELEASE_DIR
 cp -r $SRC_DIR/public $RELEASE_DIR
 cp -r $SRC_DIR/dependencies $RELEASE_DIR
+cp -r $SRC_DIR/rest $RELEASE_DIR
 
 echo "Setting DEV_BUILD to false..."
 sed -i '' -e 's/const DEV_BUILD = true/const DEV_BUILD = false/' $RELEASE_DIR/wp-museum.php
