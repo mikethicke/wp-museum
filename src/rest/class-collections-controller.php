@@ -162,6 +162,8 @@ class Collections_Controller extends \WP_REST_Controller {
 		$post_data                       = combine_post_data( $post->ID );
 		$associated_objects              = get_associated_object_ids( $post->ID );
 		$post_data['associated_objects'] = $associated_objects;
+		$post_data['featured_image']     = get_collection_featured_image( $post->ID );
+
 		return $post_data;
 	}
 
@@ -437,6 +439,27 @@ class Collections_Controller extends \WP_REST_Controller {
 				],
 				'thumbnail'         => [
 					'description' => __( 'Data for thumbnail image of object: [URL, W, H, Resized?]' ),
+					'type'        => 'array',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+					'items'       => [
+						[
+							'type'   => 'string',
+							'format' => 'uri',
+						],
+						[
+							'type' => 'number',
+						],
+						[
+							'type' => 'number',
+						],
+						[
+							'type' => 'boolean',
+						],
+					],
+				],
+				'featured_image'    => [
+					'description' => __( 'Data for featured image of collection, or of an object in the collection.' ),
 					'type'        => 'array',
 					'context'     => [ 'view', 'edit', 'embed' ],
 					'readonly'    => true,

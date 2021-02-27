@@ -33,12 +33,6 @@ trait Preparable_From_Schema {
 
 		if ( in_array( 'null', $type, true ) && ! $data ) {
 			$new_data = null;
-		} elseif ( in_array( 'boolean', $type, true ) ) {
-			if ( is_numeric( $data ) ) {
-				$new_data = (bool) intval( $data );
-			} else {
-				$new_data = (bool) $data;
-			}
 		} elseif ( in_array( 'integer', $type, true ) && is_numeric( $data ) ) {
 			$new_data = intval( $data );
 		} elseif ( in_array( 'number', $type, true ) && is_numeric( $data ) ) {
@@ -75,17 +69,7 @@ trait Preparable_From_Schema {
 					);
 				}
 			}
-		} elseif ( in_array( 'string', $type, true ) ) {
-			if ( isset( $data_schema['format'] ) ) {
-				if ( 'url' === $data_schema['format'] ) {
-					$new_data = esc_url( $data );
-				} else {
-					$new_data = sanitize_text_field( $data );
-				}
-			} else {
-				$new_data = sanitize_text_field( $data );
-			}
-		} elseif ( in_array( 'object', $type, true ) ) {
+		} elseif ( in_array( 'object', $type, true ) && is_array( $data ) ) {
 			$has_property_schema  = false;
 			$sanitized_properties = [];
 			if (
@@ -125,6 +109,22 @@ trait Preparable_From_Schema {
 				} else {
 					$new_data = null;
 				}
+			}
+		} elseif ( in_array( 'string', $type, true ) && is_string( $data ) ) {
+			if ( isset( $data_schema['format'] ) ) {
+				if ( 'url' === $data_schema['format'] ) {
+					$new_data = esc_url( $data );
+				} else {
+					$new_data = sanitize_text_field( $data );
+				}
+			} else {
+				$new_data = sanitize_text_field( $data );
+			}
+		} elseif ( in_array( 'boolean', $type, true ) ) {
+			if ( is_numeric( $data ) ) {
+				$new_data = (bool) intval( $data );
+			} else {
+				$new_data = (bool) $data;
 			}
 		} else {
 			$new_data = null;
