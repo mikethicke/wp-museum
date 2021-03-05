@@ -69,6 +69,14 @@ function combine_post_data( $post ) {
 		}
 	}
 
+	$object_collections    = get_object_collections( $post->ID );
+	$object_collection_ids = array_map(
+		function ( $collection_post ) {
+			return $collection_post->ID;
+		},
+		$object_collections
+	);
+
 	add_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
 	$filtered_excerpt =
 		html_entity_decode(
@@ -79,12 +87,13 @@ function combine_post_data( $post ) {
 	remove_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
 
 	$additional_fields = [
-		'link'       => get_permalink( $post ),
-		'edit_link'  => get_edit_post_link( $post ),
-		'excerpt'    => $filtered_excerpt,
-		'thumbnail'  => $img_data,
-		'cat_field'  => $cat_field_slug,
-		'taxonomies' => $taxonomy_data,
+		'link'        => get_permalink( $post ),
+		'edit_link'   => get_edit_post_link( $post ),
+		'excerpt'     => $filtered_excerpt,
+		'thumbnail'   => $img_data,
+		'cat_field'   => $cat_field_slug,
+		'taxonomies'  => $taxonomy_data,
+		'collections' => $object_collection_ids,
 	];
 
 	$default_post_data                      = $post->to_array();

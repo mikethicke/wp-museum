@@ -17,7 +17,7 @@ import {
 import ObjectEditorTable from '../components/object-editor-table';
 import CollectionSettingsPanel from './collection-options';
 
-const CollectionObjects = props => {
+const CollectionObjects = () => {
 	const postID = useSelect (
 		select => select( 'core/editor' ).getCurrentPostId(),
 		[]
