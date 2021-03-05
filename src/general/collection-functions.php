@@ -104,8 +104,8 @@ function query_associated_objects( $post_status = 'publish', $post_id = null, $s
 /**
  * Retrieves all posts associated with the current collection.
  *
- * @param string    $post_status The publication status of the posts to retrieve.
- * @param int|null	$post_id     Collection's post_id.
+ * @param string   $post_status The publication status of the posts to retrieve.
+ * @param int|null $post_id     Collection's post_id.
  *
  * @return [Post]   Array of posts associated with the current collection.
  */
@@ -127,7 +127,7 @@ function get_associated_objects( $post_status = 'publish', $post_id = null ) {
  */
 function get_associated_object_ids( $post_id, $post_status = 'publish' ) {
 	$query    = query_associated_objects( $post_status, $post_id, 1 );
-	if ( ! is_null( $query) ) {
+	if ( ! is_null( $query ) ) {
 		$post_ids = array_map(
 			function( $element ) {
 					return $element->ID;
@@ -144,7 +144,7 @@ function get_associated_object_ids( $post_id, $post_status = 'publish' ) {
  *
  * @param int $post_id    The id of the post.
  *
- * @return [Post]   Array of collection posts that the current post is associated with.
+ * @return Array  Array of collection posts that the current post is associated with.
  */
 function get_object_collections( $post_id ) {
 	$object             = get_post( $post_id );
@@ -175,8 +175,8 @@ function get_object_collections( $post_id ) {
  * Retrieves links to all collections that a post is associated with.
  *
  * @param string $separator      String separating each link.
+ * 
  * @param int    $post_id        The id of the post.
- *
  * @return string   Html string containing links to each collection.
  */
 function object_collections_string( $post_id, $separator = '' ) {

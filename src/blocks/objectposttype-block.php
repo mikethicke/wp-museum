@@ -58,7 +58,7 @@ function register_object_meta_block() {
  */
 add_action( 'wp', __NAMESPACE__ . '\register_object_meta_block' );
 
-add_action( 'plugins_loaded', __NAMESPACE__ . '\register_object_meta_block' );
+//add_action( 'plugins_loaded', __NAMESPACE__ . '\register_object_meta_block' );
 
 /**
  * Renders the object custom fields, image gallery, and collection breadcrumbs

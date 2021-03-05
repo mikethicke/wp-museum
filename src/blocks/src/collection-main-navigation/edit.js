@@ -15,7 +15,6 @@ import {
 	ColorPicker,
 	PanelBody,
 	TextControl,
-	Button,
 } from '@wordpress/components';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -43,8 +42,6 @@ const CollectionMainNavigationEdit = props => {
 	} = props;
 
 	const {
-		sortBy,
-		sortOrder,
 		fontSize,
 		fontColor,
 		backgroundColor,
@@ -87,7 +84,7 @@ const CollectionMainNavigationEdit = props => {
 				if ( Array.isArray( result ) ) {
 					const newTagList = {};
 					result.forEach( taxItem => {
-						newTagList[ taxItem['slug'] ] = taxItem['name'];
+						newTagList[ taxItem.slug ] = taxItem.name;
 					} );
 					setTagList( newTagList );
 				}
