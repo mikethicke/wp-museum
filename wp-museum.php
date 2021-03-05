@@ -125,6 +125,8 @@ require_once $require_prefix . 'blocks/basic-search-block.php';
 require_once $require_prefix . 'blocks/embedded-search-block.php';
 require_once $require_prefix . 'blocks/collection-objects-block.php';
 require_once $require_prefix . 'blocks/collection-main-navigation-block.php';
+// WordPress Gutenberg does not support block widgets as of 1/3/21.
+// require_once $require_prefix . 'blocks/feature-collection-widget-block.php';.
 
 /**
  * Rest

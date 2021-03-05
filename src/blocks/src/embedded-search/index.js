@@ -2,6 +2,7 @@
  * An embedded search block that redirects to a search page on submit.
  *
  * This block is dynamic, so attributes are defined server-side.
+ *
  * @see src/blocks/embedded-search-block.php
  *
  * Attributes:

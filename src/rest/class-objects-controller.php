@@ -591,6 +591,14 @@ class Objects_Controller extends \WP_REST_Controller {
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit', 'embed' ],
 				],
+				'collections'       => [
+					'description' => __( 'Array of post IDs of collections containing this object.' ),
+					'type'        => 'array',
+					'items'       => [
+						'type' => 'integer',
+					],
+					'context'     => [ 'view', 'edit', 'embed' ],
+				],
 			],
 		];
 

@@ -56,12 +56,12 @@ const AdvancedSearchFront = props => {
 
 	const onSearch = searchParams => {
 		for ( const [ key, value ] of Object.entries( searchParams ) ) {
-			if ( key != 'page' && value != currentSearchParams[key] ) {
-				searchParams['page'] = 1;
+			if ( key !== 'page' && value !== currentSearchParams[key] ) {
+				searchParams.page = 1;
 				break;
 			}
 		}
-		searchParams['numberposts'] = resultsPerPage;
+		searchParams.posts_per_page = resultsPerPage;
 		setCurrentSearchParams( searchParams );
 		apiFetch( {
 			path   : `${baseRestPath}/search`,
@@ -79,7 +79,7 @@ const AdvancedSearchFront = props => {
 
 	let currentPage = 1;
 	let totalPages = 0;
-	if ( searchResults.length > 0 && typeof searchResults[0].query_data != 'undefined' ) {
+	if ( searchResults.length > 0 && typeof searchResults[0].query_data !== 'undefined' ) {
 		currentPage = searchResults[0].query_data.current_page;
 		totalPages = searchResults[0].query_data.num_pages;
 	}

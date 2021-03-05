@@ -11,5 +11,9 @@ import './basic-search';
 import './embedded-search';
 import './collection';
 import './collection-main-navigation';
+// WordPress Gutenberg does not yet support non-core block widgets, as of
+// 1/3/21
+//
+// import './feature-collection-widget';
 
 import './editor.scss';
