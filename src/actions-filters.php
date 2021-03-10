@@ -87,6 +87,10 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\generate_image_sizes' );
  */
 add_action( 'rest_api_init', __NAMESPACE__ . '\rest_routes' );
 
+/**
+ * Register widgets
+ */
+add_action( 'widgets_init', __NAMESPACE__ . '\register_associated_collection_widget' );
 
 /*****************************************************************************
  *
@@ -316,6 +320,21 @@ add_action( 'wp_head', __NAMESPACE__ . '\collection_css' );
  * @see blocks.php::enqueue_block_scripts()
  */
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_frontend_scripts' );
+
+/**
+ * Load general css for frontend.
+ */
+add_action(
+	'wp_enqueue_scripts',
+	function() {
+		wp_enqueue_style(
+			WPM_PREFIX . 'frontend-styles',
+			plugin_dir_url( __FILE__ ) . 'style.css',
+			[],
+			CSS_VERSION
+		);
+	}
+);
 
 /*****************************************************************************
  *
