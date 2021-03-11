@@ -87,6 +87,31 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\generate_image_sizes' );
  */
 add_action( 'rest_api_init', __NAMESPACE__ . '\rest_routes' );
 
+/**
+ * Register widgets
+ */
+add_action( 'widgets_init', __NAMESPACE__ . '\register_associated_collection_widget' );
+
+/*****************************************************************************
+ *
+ * Global Filters
+ *
+ *****************************************************************************/
+
+/**
+ * Allows for targetted searches of post_title and post_content.
+ *
+ * @see custom-post-type-functions.php::post_search_filter()
+ */
+add_filter( 'posts_where', __NAMESPACE__ . '\post_search_filter', 10, 2 );
+
+/**
+ * Add post_title and post_content to WP_QUERY query vars.
+ *
+ * @see custom-post-type-functions.php::add_title_content_query_vars()
+ * @see custom-post-type-functions.php::post_search_filter()
+ */
+add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
 
 /*****************************************************************************
  *
@@ -317,6 +342,20 @@ add_action( 'wp_head', __NAMESPACE__ . '\collection_css' );
  */
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_frontend_scripts' );
 
+/**
+ * Load general css for frontend.
+ */
+add_action(
+	'wp_enqueue_scripts',
+	function() {
+		wp_enqueue_style(
+			WPM_PREFIX . 'frontend-styles',
+			plugin_dir_url( __FILE__ ) . 'style.css',
+			[],
+			CSS_VERSION
+		);
+	}
+);
 /*****************************************************************************
  *
  * Frontend Filters

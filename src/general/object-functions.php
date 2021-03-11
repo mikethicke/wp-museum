@@ -11,7 +11,7 @@ namespace MikeThicke\WPMuseum;
 /**
  * List of WordPress type names for all objects in database.
  *
- * @return [string] List of WordPress custom post type names.
+ * @return Array List of WordPress custom post type names.
  */
 function get_object_type_names() {
 	$mobject_kinds = get_mobject_kinds();

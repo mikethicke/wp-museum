@@ -17,7 +17,7 @@
 namespace MikeThicke\WPMuseum;
 
 const WPM_PREFIX     = 'wpm_';                 // Prefix for database tables.
-const CSS_VERSION    = '0.5.2';                // Change to force reload of CSS.
+const CSS_VERSION    = '0.5.3';                // Change to force reload of CSS.
 const SCRIPT_VERSION = '0.5.2';                // Change to force reload of JS.
 const CACHE_GROUP    = 'MikeThicke\WPMuseum';  // For caching db queries.
 const DB_VERSION     = '0.5.23';               // Change to update db structure.
@@ -143,3 +143,9 @@ require_once $require_prefix . 'rest/class-object-fields-controller.php';
 require_once $require_prefix . 'rest/class-object-image-controller.php';
 require_once $require_prefix . 'rest/class-remote-client-controller.php';
 require_once $require_prefix . 'rest/class-site-data-controller.php';
+
+/**
+ * Widgets
+ */
+require_once $require_prefix . 'widgets/class-associated-collection-widget.php';
+

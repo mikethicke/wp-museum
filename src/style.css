@@ -1,0 +1,21 @@
+.wpm-associated-collection {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.wpm-associated-collection h2 {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.widget-area .widget .wpm-associated-collection a {
+	color: inherit;
+}
+
+.widget-area .widget .wpm-associated-collection a:visited {
+	color: inherit;
+}
+
+.widget-area .widget .wpm-associated-collection-excerpt a {
+	text-decoration: none;
+}
