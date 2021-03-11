@@ -3,8 +3,6 @@
  * A widget that shows collections associated with the currently displayed
  * museum object.
  *
- * @link https://developer.wordpress.org/themes/functionality/widgets/
- *
  * @package MikeThicke\WPMuseum
  */
 
