@@ -115,6 +115,27 @@ add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
 
 /*****************************************************************************
  *
+ * Global Filters
+ *
+ *****************************************************************************/
+
+/**
+ * Allows for targetted searches of post_title and post_content.
+ *
+ * @see custom-post-type-functions.php::post_search_filter()
+ */
+add_filter( 'posts_where', __NAMESPACE__ . '\post_search_filter', 10, 2 );
+
+/**
+ * Add post_title and post_content to WP_QUERY query vars.
+ *
+ * @see custom-post-type-functions.php::add_title_content_query_vars()
+ * @see custom-post-type-functions.php::post_search_filter()
+ */
+add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
+
+/*****************************************************************************
+ *
  * Admin Actions
  *
  *****************************************************************************/
@@ -335,7 +356,6 @@ add_action(
 		);
 	}
 );
-
 /*****************************************************************************
  *
  * Frontend Filters
