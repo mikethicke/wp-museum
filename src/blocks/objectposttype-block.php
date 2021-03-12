@@ -88,6 +88,7 @@ function render_object_post_type_block( $attributes ) {
 
 	// Custom fields.
 	$custom_fields_html = '';
+	$bool_yes_fields = [];
 	foreach ( $fields as $field ) {
 		$meta_value = get_post_meta( $post->ID, $field->slug, true );
 		// Public can only view fields marked as "public".
