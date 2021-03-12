@@ -3,8 +3,6 @@
  * A widget that shows collections associated with the currently displayed
  * museum object.
  *
- * @link https://developer.wordpress.org/themes/functionality/widgets/
- *
  * @package MikeThicke\WPMuseum
  */
 
@@ -44,18 +42,19 @@ class Associated_Collection_Widget extends \WP_Widget {
 		$current_post = get_queried_object();
 
 		// Widget is only applicable to musuem objects, so just return if not.
-		if ( ! in_array( $current_post->post_type, get_object_type_names(), true ) ) {
+		if ( ! $current_post || ! in_array( $current_post->post_type, get_object_type_names(), true ) ) {
 			return;
+		}
+
+		$widget_title = false;
+		if ( isset( $instance['widget-title'] ) ) {
+			$widget_title = $instance['widget-title'];
 		}
 
 		$collections      = get_object_collections( $current_post->ID );
 		$collection_boxes = [];
 
 		foreach ( $collections as $collection ) {
-			$widget_title = false;
-			if ( isset( $instance['widget-title'] ) ) {
-				$widget_title = $instance['widget-title'];
-			}
 			$featured_image = false;
 			if ( $instance['show-feature-image'] ) {
 				$featured_image = get_collection_featured_image( $collection->ID );

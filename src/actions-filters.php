@@ -89,8 +89,12 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\rest_routes' );
 
 /**
  * Register widgets
+ *
+ * @see widgets/class-associated-collection-widget.php
+ * @see widget/class-collection-tree-widget.php
  */
 add_action( 'widgets_init', __NAMESPACE__ . '\register_associated_collection_widget' );
+add_action( 'widgets_init', __NAMESPACE__ . '\register_collection_tree_widget' );
 
 /*****************************************************************************
  *
