@@ -83,7 +83,7 @@ class Associated_Collection_Widget extends \WP_Widget {
 					}
 					?>
 					<a href='<?= $link ?>'>
-						<h2><?= $title ?></h2>
+						<h4><?= $title ?></h4>
 					</a>
 					<?php
 					if ( $description ) {
