@@ -191,17 +191,21 @@ class Kinds_Controller extends \WP_REST_Controller {
 	 * @param WP_REST_Request $request The REST Request object. The body of the
 	 * request should contain updated properties for the kind.
 	 *
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * TODO: Currently if there are multiple kinds to update and the first one
+	 * fails, the function bails and the others aren't updated. Not sure this
+	 * is the best result. 13/3/2021
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or
+	 * WP_Error object on failure.
 	 */
 	public function update_items( $request ) {
-		global $wpdb;
 		$updated_kinds = json_decode( $request->get_body(), false );
 		if ( $updated_kinds ) {
 			foreach ( $updated_kinds as $kind_data ) {
 				$kind = new ObjectKind( $kind_data );
 				if ( isset( $kind_data->delete ) && true === $kind_data->delete ) {
 					$kind->delete_from_db();
-				} elseif ( ! $kind->save_to_db() ) {
+				} elseif ( false === $kind->save_to_db() ) {
 					return new \WP_Error(
 						'rest_cannot_update',
 						__( 'There was an error updating the object kind.' )

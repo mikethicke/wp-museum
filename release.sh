@@ -97,6 +97,7 @@ fi
 echo "Copying files to release directory..."
 cp ./wp-museum.php $RELEASE_DIR
 cp $SRC_DIR/*.php $RELEASE_DIR
+cp $SRC_DIR/*.css $RELEASE_DIR
 mkdir ${RELEASE_DIR}/blocks
 mkdir ${RELEASE_DIR}/admin-react
 cp $SRC_DIR/blocks/*.php ${RELEASE_DIR}/blocks

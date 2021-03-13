@@ -178,7 +178,7 @@ class Collection_Tree_Widget extends \WP_Widget {
 		echo wp_kses_post( $args['before_widget'] );
 		if ( $widget_title ) {
 			?>
-			<h3 class='widget_title'><?php echo esc_attr( $widget_title ); ?></h3>
+			<h4 class='widget_title'><?php echo esc_attr( $widget_title ); ?></h4>
 			<?php
 		}
 		echo wp_kses_post( $collection_list_html );
