@@ -60,6 +60,5 @@ function rest_routes() {
 		]
 	);
 }
-add_action( 'rest_api_init', __NAMESPACE__ . '\rest_routes' );
 
 

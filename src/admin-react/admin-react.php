@@ -10,7 +10,12 @@ namespace MikeThicke\WPMuseum;
 /**
  * Enqueue script and style.
  */
-function enqueue_admin_react() {
+function enqueue_admin_react( $hook_suffix ) {
+
+	if ( ! strpos( $hook_suffix, 'wpm-react-admin' ) ) {
+		return;
+	}
+
 	if ( DEV_BUILD ) {
 		$index_path = '/build/';
 	} else {

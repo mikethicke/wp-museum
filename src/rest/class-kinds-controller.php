@@ -86,7 +86,7 @@ class Kinds_Controller extends \WP_REST_Controller {
 						'methods'             => \WP_REST_Server::READABLE,
 						'permission_callback' => [ $this, 'get_items_permission_check' ],
 						'callback'            => function( $request ) use ( $kind ) {
-							return $this->get_items( $request, $kind );
+							return $this->get_item( $request, $kind );
 						},
 					],
 					'schema' => [ $this, 'get_item_schema' ],
@@ -152,6 +152,37 @@ class Kinds_Controller extends \WP_REST_Controller {
 		}
 
 		return $kinds_array;
+	}
+
+	/**
+	 * Retrieve specific museum object kind.
+	 *
+	 * @param WP_REST_Request $request The REST Request object.
+	 * @param Object_Kind     $kind    The kind to retreive.
+	 *
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_item( $request, $kind = null ) {
+		if ( ! $kind ) {
+			return new \WP_Error(
+				'wpm-rest-bad-request',
+				'Requested kind item but no kind spefified'
+			);
+		}
+
+		if ( current_user_can( 'edit_posts' ) ) {
+			$response_item = $this->prepare_item_for_response(
+				$kind->to_rest_array(),
+				$request
+			);
+		} else {
+			$response_item = $this->prepare_item_for_response(
+				$kind->to_public_rest_array(),
+				$request
+			);
+		}
+
+		return $response_item;
 	}
 
 	/**

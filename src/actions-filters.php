@@ -145,69 +145,6 @@ add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
  *****************************************************************************/
 
 /**
- * Update CSS in Admin.
- */
-add_action(
-	'admin_enqueue_scripts',
-	function () {
-		wp_enqueue_style(
-			'admin-styles',
-			plugin_dir_url( __FILE__ ) . 'admin/admin-style.css',
-			[],
-			CSS_VERSION
-		);
-		wp_enqueue_style(
-			'admin-fancybox',
-			'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css',
-			[],
-			CSS_VERSION
-		);
-	}
-);
-
-/**
- * Enqueue javascript for admin pages.
- */
-$wpm_javascript_dir = plugin_dir_url( __FILE__ ) . 'javascript/';
-add_action(
-	'admin_enqueue_scripts',
-	function () use ( $wpm_javascript_dir ) {
-		wp_enqueue_script(
-			'jquery-wp-uploader',
-			$wpm_javascript_dir . 'jquery-wp-uploader.js',
-			[],
-			SCRIPT_VERSION,
-			true
-		);
-		wp_enqueue_script(
-			'wpm-admin-js',
-			$wpm_javascript_dir . 'admin.js',
-			[],
-			SCRIPT_VERSION,
-			true
-		);
-		// For nonce verification.
-		wp_localize_script(
-			'wpm-admin-js',
-			'admin_ajax_data',
-			[ 'nonce' => wp_create_nonce( 'kcDbrTMMfFqh6jy8&LrCGoH7p' ) ]
-		);
-		wp_localize_script(
-			'jquery-wp-uploader',
-			'wp_uploader_data',
-			[ 'nonce' => wp_create_nonce( 'kcDbrTMMfFqh6jy8&LrCGoH7p' ) ]
-		);
-	}
-);
-
-/**
- * Enqueue javascript for uploading images when editing musuem objects.
- *
- * @see object-ajax.php::wpm_media_box_enqueue
- */
-add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\wpm_media_box_enqueue' );
-
-/**
  * Add appropriate capabilities for museum object post types.
  *
  * @see capabilities.php::add_museum_capabilities()

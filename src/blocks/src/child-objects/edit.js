@@ -166,7 +166,7 @@ const ChildObjectsEdit = props => {
 		} );
 	}
 
-	const kindSections = kindData != null ? kindData.children.map( kind => (
+	const kindSections = kindData ? kindData.children.map( kind => (
 		<ChildKind
 			key               = { kind.kind_id }
 			kind              = { kind }

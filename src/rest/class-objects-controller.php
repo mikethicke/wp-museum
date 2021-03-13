@@ -273,6 +273,32 @@ class Objects_Controller extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Gets children of a child object.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_object_children( $request ) {
+		$meta = get_post_meta( $request['id'], WPM_PREFIX . 'child_objects', true );
+		$data_array = [];
+		if ( $meta ) {
+			foreach ( $meta as $kind_id => $object_ids ) {
+				$data_array[ $kind_id ] = [];
+				if ( $object_ids ) {
+					foreach ( $object_ids as $object_id ) {
+						$data          = combine_post_data( $object_id );
+						$post_kind     = get_kind_from_typename( $data['post_type'] );
+						$response_item = $this->prepare_item_for_response( $data, $request, $post_kind );
+
+						$data_array[ $kind_id ][] = $this->prepare_prepare_response_for_collection( $response_item );
+					}
+				}
+			}
+		}
+		return $data_array;
+	}
+
+	/**
 	 * Retrieve museum objects.
 	 *
 	 * @param WP_REST_Request $request The REST Request object.
