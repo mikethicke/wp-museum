@@ -77,15 +77,6 @@ function render_object_post_type_block( $attributes ) {
 	$object_kind     = kind_from_type( $post->post_type );
 	$fields          = get_mobject_fields( $object_kind->kind_id );
 
-	// Breadcrumb links to collections containing this object.
-	$breadcrumb_html = '';
-	if ( $display_options['collections_breadcrumbs'] ) {
-		$breadcrumb_html = 
-			"<div class='wpm-obj-categories'>" .
-			object_collections_string( $post->ID, $display_options['collections_separator'] ) .
-			'</div>';
-	}
-
 	// Custom fields.
 	$custom_fields_html = '';
 	$bool_yes_fields = [];
@@ -136,7 +127,7 @@ function render_object_post_type_block( $attributes ) {
 				$field_text .= $meta_value;
 			}
 			$field_text = \html_entity_decode( $field_text );
-			$custom_fields_html .= apply_filters( 'the_content', $field_text );
+			$custom_fields_html .= apply_filters( 'the_content', $field_text, true );
 		}
 		$custom_fields_html .= '</div>';
 	}
@@ -193,7 +184,6 @@ function render_object_post_type_block( $attributes ) {
 	ob_start();
 	?>
 	<div class = 'wpm-objectposttype-block'>
-		<?= $breadcrumb_html ?>
 		<div class = 'wpm-objectposttype-content'>
 			<div
 				class = 'wpm-objectposttype-image-gallery <?= $display_options['image_gallery_position'] ?>'

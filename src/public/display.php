@@ -38,6 +38,34 @@ function mobject_excerpt_length( $length ) {
 }
 
 /**
+ * Filter to add collection breadcrumbs to museum object posts.
+ *
+ * @param string $content The post content.
+ * @param string $fields  Whether we are filtering object fields.
+ *
+ * @return string Content with collection breadcrumbs added at beginning.
+ */
+function mobject_collection_breadcrumbs( $content, $fields = false ) {
+	$post = get_queried_object();
+
+	if ( $fields || ! in_array( $post->post_type, get_object_type_names(), true ) ) {
+		return $content;
+	}
+
+	$display_options = get_customizer_settings()[ WPM_PREFIX . 'mobject_style' ];
+	// Breadcrumb links to collections containing this object.
+	$breadcrumb_html = '';
+	if ( $display_options['collections_breadcrumbs'] ) {
+		$breadcrumb_html =
+			"<p class='wpm-obj-categories'>" .
+			object_collections_string( $post->ID, $display_options['collections_separator'] ) .
+			'</p>';
+	}
+
+	return $breadcrumb_html . $content;
+}
+
+/**
  * Generate image sizes for post row thumbnails.
  */
 function generate_image_sizes() {

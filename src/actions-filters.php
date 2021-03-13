@@ -319,6 +319,13 @@ add_filter( 'the_content', __NAMESPACE__ . '\link_objects_by_id' );
  */
 add_filter( 'get_the_excerpt', __NAMESPACE__ . '\mobject_excerpt_filter', 10, 2 );
 
+/**
+ * Adds collection breadcrumbs to museum object posts.
+ *
+ * @see display.php::mobject_collection_breadcrums()
+ */
+add_filter( 'the_content', __NAMESPACE__ . '\mobject_collection_breadcrumbs', 10, 2 );
+
  /*****************************************************************************
  *
  * AJAX
