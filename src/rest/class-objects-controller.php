@@ -402,6 +402,27 @@ class Objects_Controller extends \WP_REST_Controller {
 			$query_args['post_content'] = $content_query;
 		}
 
+		// Filter by collection.
+		$selected_collections = $request->get_param( 'selectedCollections' );
+		$cat_args = false;
+		if ( ! empty( $selected_collections ) && is_array( $selected_collections ) ) {
+			foreach ( $selected_collections as &$collection_id ) {
+				$collection_id = intval( $collection_id );
+				$new_args = generate_associated_objects_category_argument( $collection_id, $post_status );
+				if ( $new_args ) {
+					if ( ! $cat_args ) {
+						$cat_args = $new_args;
+					} else {
+						$cat_args['val'] = array_merge( $cat_args['val'], $new_args['val'] );
+					}
+				}
+			}
+		}
+
+		if ( $cat_args ) {
+			$query_args[ $cat_args['key'] ] = $cat_args['val'];
+		}
+
 		$posts_query  = new \WP_Query();
 		$query_result = $posts_query->query( $query_args );
 

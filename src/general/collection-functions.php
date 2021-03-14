@@ -26,28 +26,17 @@ function get_collections( $post_status = 'any' ) {
 }
 
 /**
- * Creates query containing all posts associated with the current collection.
+ * Generates a category argument for querying objects associated with a collection.
  *
- * @param string $post_status    The the publication status of posts to retrieve.
- * @param int    $post_id        If set, retrieve posts associated with $post_id rather than the current $post.
- * @param bool   $show_all       If true, retrieve all posts rather than paged results.
- * @param int    $page_num       If set, retrieve specific page of results. Can also be set with $_GET['page'].
- *                               If not set, defaults to global query value.
+ * @param int $post_id Post ID of the collection.
  *
- * @return WP_Query              A WordPress query object containing the retrieved posts.
- *
- * @link https://developer.wordpress.org/reference/classes/wp_query/
+ * @return Array [ key: cat | category__in, val: list of category IDs ]
  */
-function query_associated_objects( $post_status = 'publish', $post_id = null, $show_all = false, $page_num = null ) {
-	global $post;
-	if ( is_null( $post_id ) ) {
-		$post_id = $post->ID;
-	}
+function generate_associated_objects_category_argument( $post_id, $post_status = 'publish' ) {
 	$post_custom   = get_post_custom( $post_id );
-	$mobject_kinds = get_object_type_names();
-	$display_options = get_customizer_settings()[ WPM_PREFIX . 'collection_style' ];
+
 	if ( ! isset( $post_custom['associated_category'] ) ) {
-		return;
+		return false;
 	}
 
 	$included_categories = $post_custom['associated_category'];
@@ -67,10 +56,43 @@ function query_associated_objects( $post_status = 'publish', $post_id = null, $s
 		$cat_val  = $included_categories;
 	}
 
+	return [
+		'key' => $cat_call,
+		'val' => $cat_val,
+	];
+}
+
+/**
+ * Creates query containing all posts associated with the current collection.
+ *
+ * @param string $post_status    The the publication status of posts to retrieve.
+ * @param int    $post_id        If set, retrieve posts associated with $post_id rather than the current $post.
+ * @param bool   $show_all       If true, retrieve all posts rather than paged results.
+ * @param int    $page_num       If set, retrieve specific page of results. Can also be set with $_GET['page'].
+ *                               If not set, defaults to global query value.
+ *
+ * @return WP_Query              A WordPress query object containing the retrieved posts.
+ *
+ * @link https://developer.wordpress.org/reference/classes/wp_query/
+ */
+function query_associated_objects( $post_status = 'publish', $post_id = null, $show_all = false, $page_num = null ) {
+	global $post;
+	if ( is_null( $post_id ) ) {
+		$post_id = $post->ID;
+	}
+
+	$mobject_kinds   = get_object_type_names();
+	$display_options = get_customizer_settings()[ WPM_PREFIX . 'collection_style' ];
+
+	$cat_args = generate_associated_objects_category_argument( $post_id, $post_status );
+	if ( ! $cat_args ) {
+		return null;
+	}
+
 	if ( $show_all ) {
 		$collection_query = new \WP_Query(
 			[
-				$cat_call        => $cat_val,
+				$cat_args['key'] => $cat_args['val'],
 				'numberposts'    => -1,
 				'post_status'    => $post_status,
 				'posts_per_page' => -1,
@@ -90,7 +112,7 @@ function query_associated_objects( $post_status = 'publish', $post_id = null, $s
 		}
 		$collection_query = new \WP_Query(
 			[
-				$cat_call        => $cat_val,
+				$cat_args['key'] => $cat_args['val'],
 				'posts_per_page' => $posts_per_page,
 				'paged'          => $page_num,
 				'post_status'    => $post_status,
