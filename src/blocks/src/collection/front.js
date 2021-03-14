@@ -30,6 +30,7 @@ const CollectionObjectsFront = props => {
 	const [ mObjects, setMObjects ] = useState( [] );
 	const [ currentPage, setCurrentPage ] = useState( 1 );
 	const [ totalPages, setTotalPages ] = useState( 0 );
+	const [ currentSearchParams, setCurrentSearchParams ] = useState( searchDefaults );
 
 	useEffect( () => {
 		const initialSearchValues = {
@@ -40,6 +41,7 @@ const CollectionObjectsFront = props => {
 	}, [] );
 
 	const runSearch = ( searchValues ) => {
+		setCurrentSearchParams( searchValues );
 		apiFetch( {
 			path   : `${baseRestPath}/search`,
 			method : 'POST',
@@ -67,7 +69,7 @@ const CollectionObjectsFront = props => {
 					currentPage    = { currentPage }
 					totalPages     = { totalPages }
 					searchCallback = { runSearch }
-					searchParams   = { searchDefaults }
+					searchParams   = { currentSearchParams }
 					mObjects       = { mObjects }
 				/>
 			}

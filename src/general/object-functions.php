@@ -491,6 +491,8 @@ function do_advanced_search( $request ) {
  * intended to support REST requests and should only be used in that context.
  */
 function add_object_meta_query_filter( $search_terms, $kind ) {
+	global $wpdb;
+
 	$search_all_fields_sql = [];
 	$meta_fields_sql       = [];
 	if ( current_user_can( 'edit_posts' ) ) {

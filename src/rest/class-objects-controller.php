@@ -388,7 +388,10 @@ class Objects_Controller extends \WP_REST_Controller {
 			$query_args['meta_query'] = $meta_query;
 		}
 
-		$search_string = sanitize_text_field( $request->get_param( 's' ) );
+		$search_string = sanitize_text_field( $request->get_param( 'searchText' ) );
+		if ( ! $search_string ) {
+			$search_string = sanitize_text_field( $request->get_param( 's' ) );
+		}
 		if ( $search_string ) {
 			$query_args['s'] = $search_string;
 			add_object_meta_query_filter( [ 'searchText' => $search_string ], $kinds );
