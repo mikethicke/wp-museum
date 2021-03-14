@@ -48,6 +48,10 @@ function mobject_excerpt_length( $length ) {
 function mobject_collection_breadcrumbs( $content, $fields = false ) {
 	$post = get_queried_object();
 
+	if ( ! in_the_loop() || ! is_main_query() ) {
+		return $content;
+	}
+
 	if ( $fields || ! in_array( $post->post_type, get_object_type_names(), true ) ) {
 		return $content;
 	}
