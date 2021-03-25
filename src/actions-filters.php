@@ -152,13 +152,6 @@ add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
 add_action( 'admin_init', __NAMESPACE__ . '\add_museum_capabilities' );
 
 /**
- * Creates the admin page and adds it to the Settings menu.
- *
- * @see object-admin.php::add_object_admin_page()
- */
-add_action( 'admin_menu', __NAMESPACE__ . '\add_object_admin_page' );
-
-/**
  * Adds a link to the parent post for child posts.
  *
  * @see object-post-types.php::add_object_parent_link
