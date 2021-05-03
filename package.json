@@ -20,7 +20,7 @@
     "homepage": "https://github.com/mikethicke/wp-museum#readme",
     "devDependencies": {
         "@babel/plugin-proposal-class-properties": "^7.10.4",
-        "@wordpress/scripts": "^12.1.1",
+        "@wordpress/scripts": "^12.6.1",
         "autoprefixer": "^9.8.5",
         "classnames": "^2.2.6",
         "css-loader": "^3.6.0",
