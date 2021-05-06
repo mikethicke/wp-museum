@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Coding Standards for Gutenberg Plugin">
+	<description>Sniffs for WordPress plugins, with minor for WP-Museum</description>
+	<rule ref="WordPress">
+		<!-- Short array syntax is disallowed by WordPress-Extra coding
+		standard because it might be hard to distinguish from other uses of
+		brackets and because it might be confusing for beginners. These seem
+		like silly reasons. Short array syntax is much cleaner and easier to
+		read.
+		
+		@see https://make.wordpress.org/core/2019/07/12/php-coding-standards-changes/
+		-->
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
+	</rule>
+
+
+</ruleset>

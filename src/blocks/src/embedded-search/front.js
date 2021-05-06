@@ -17,6 +17,8 @@ const EmbeddedSearchFront = props => {
 		headerText,
 		align,
 		maxWidth,
+		showTitleToggle,
+		advancedSearchURL
 	} = attributes;
 
 	return (
@@ -30,9 +32,10 @@ const EmbeddedSearchFront = props => {
 				</h2>
 			}
 			<EmbeddedSearch
-				showTitleTogge = { false }
-				searchPageURL  = { searchPageURL }
-				showReset      = { false }
+				showTitleToggle   = { showTitleToggle }
+				searchPageURL     = { searchPageURL }
+				showReset         = { false }
+				advancedSearchURL = { advancedSearchURL }
 			/>
 		</div>
 	)

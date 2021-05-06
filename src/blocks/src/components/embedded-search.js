@@ -15,25 +15,26 @@ import { isEmpty } from '../util';
 
 const EmbeddedSearch = props => {
 	const {
-		searchDefaults   = {},
-		runSearch        = null,
-		updateSearchText = null,
-		searchButtonText = 'Search',
-		showTitleToggle  = false,
-		onlyTitleDefault = true,
-		showReset        = true,
-		autoFocus        = true,
-		resetButtonText  = 'Reset',
-		placeholderText  = '',
-		searchPageURL    = '',
+		searchDefaults    = {},
+		runSearch         = null,
+		updateSearchText  = null,
+		searchButtonText  = 'Search',
+		showTitleToggle   = false,
+		onlyTitleDefault  = true,
+		showReset         = true,
+		autoFocus         = false,
+		resetButtonText   = 'Reset',
+		placeholderText   = '',
+		searchPageURL     = '',
+		advancedSearchURL = '',
 	} = props;
 
 	const [ searchText, _setSearchText ] = useState( '' );
 	const [ onlyTitle, setOnlyTitle ] = useState( onlyTitleDefault );
 
 	useEffect( () => {
-		if ( !! searchDefaults['searchText'] ) {
-			setSearchText( searchDefaults['searchText'] );
+		if ( !! searchDefaults.searchText ) {
+			setSearchText( searchDefaults.searchText );
 		}
 	}, [ searchDefaults ] );
 
@@ -49,8 +50,8 @@ const EmbeddedSearch = props => {
 			! isEmpty( newSearchValues ) ? newSearchValues : 
 			{
 				...searchDefaults,
-				onlyTitle   : onlyTitle,
-				searchText  : searchText,
+				onlyTitle,
+				searchText,
 			};
 		if ( runSearch ) {
 			runSearch( searchValues );
@@ -64,14 +65,14 @@ const EmbeddedSearch = props => {
 		setSearchText( '' );
 		const searchValues = {
 			...searchDefaults,
-			onlyTitle  : onlyTitle,
+			onlyTitle,
 			searchText : ''
 		}
 		doSearch( searchValues );
 	}
 
 	const handleKeyPress = ( event ) => {
-		if ( event.key == 'Enter' ) {
+		if ( event.key === 'Enter' ) {
 			event.stopPropagation();
 			doSearch();
 		}
@@ -80,14 +81,37 @@ const EmbeddedSearch = props => {
 	return (
 		<div className = 'wpm-embedded-search'>
 			<div className = 'embedded-search-input'>
-				<input
-					type        = 'text'
-					placeholder = { placeholderText }
-					onKeyPress  = { handleKeyPress }
-					value       = { searchText }
-					onChange    = { event => setSearchText( event.target.value ) }
-					autoFocus   = { autoFocus }
-				/>
+				<div className = 'main-input-area'>
+					<input
+						type        = 'text'
+						placeholder = { placeholderText }
+						onKeyPress  = { handleKeyPress }
+						value       = { searchText }
+						onChange    = { event => setSearchText( event.target.value ) }
+						autoFocus   = { autoFocus } // eslint-disable-line jsx-a11y/no-autofocus
+						// Autofocus can be confusing for users with screen readers, and accessibility
+						// guidelines generally recommend against using it in most circumstances. However,
+						// there are cases where it is appropriate, such as when the main / sole purpose
+						// of the page is to search. Since it is conceivable that this component would
+						// be used in such cases, allow designer to choose whether to use it or not.
+					/>
+					<div className = 'wpm-embedded-search-controls'>
+						{ showTitleToggle &&
+							<div className = 'wpm-embedded-search-title-toggle'>
+									<CheckboxControl
+										label = 'Only search titles'
+										checked = { onlyTitle }
+										onChange = { setOnlyTitle }
+									/>
+							</div>
+						}
+						{ !! advancedSearchURL &&
+							<div className = 'wpm-embedded-search-advanced-search-link'>
+								<a href = { advancedSearchURL }>Advanced Search</a>
+							</div>
+						}
+					</div>
+				</div>
 				<Button
 					isPrimary
 					className = 'wpm-embedded-search-button'
@@ -103,15 +127,6 @@ const EmbeddedSearch = props => {
 					>
 						{ resetButtonText }
 					</Button>
-				}
-			</div>
-			<div className = 'wpm-embedded-search-title-toggle'>
-				{ showTitleToggle &&
-					<CheckboxControl
-						label = 'Only search titles'
-						checked = { onlyTitle }
-						onChange = { setOnlyTitle }
-					/>
 				}
 			</div>
 		</div>

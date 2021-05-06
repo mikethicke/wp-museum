@@ -12,6 +12,7 @@ import {
 } from '@wordpress/blockEditor';
 
 import {
+	CheckboxControl,
 	PanelBody,
 	PanelRow,
 	RangeControl,
@@ -38,8 +39,10 @@ const EmbeddedSearchEdit = props => {
 	} = props;
 
 	const {
-		searchPageURL = '',
-		headerText    = '',
+		searchPageURL     = '',
+		headerText        = '',
+		advancedSearchURL = '',
+		showTitleToggle   = true,
 		maxWidth,
 	} = attributes;
 
@@ -59,6 +62,17 @@ const EmbeddedSearchEdit = props => {
 					</label>
 				</PanelRow>
 				<PanelRow>
+					<label>
+						Advanced Search URL:
+						<input
+							className = 'wpm-embedded-search-advanced-search-page-input'
+							type      = 'text'
+							value     = { advancedSearchURL }
+							onChange  = { event => setAttributes( { advancedSearchURL: event.target.value } ) }
+						/>
+					</label>
+				</PanelRow>
+				<PanelRow>
 					<RangeControl
 						label = { __( 'Max Width (%)' ) }
 						value = { maxWidth }
@@ -69,6 +83,13 @@ const EmbeddedSearchEdit = props => {
 						onChange = { val => setAttributes( { maxWidth: val } ) }
 						withInputField
 						allowReset
+					/>
+				</PanelRow>
+				<PanelRow>
+					<CheckboxControl
+						label = { __( 'Show title toggle' ) }
+						checked = { showTitleToggle }
+						onChange = { val => setAttributes( { showTitleToggle: val } ) }
 					/>
 				</PanelRow>
 			</PanelBody>
@@ -83,10 +104,10 @@ const EmbeddedSearchEdit = props => {
 				onChange = { val => setAttributes( { headerText: val } ) }
 			/>
 			<EmbeddedSearch
-				showTitleToggle = { false }
-				autoFocus       = { false }
-				searchPageURL   = { searchPageURL }
-				showReset       = { false }
+				showTitleToggle   = { showTitleToggle }
+				searchPageURL     = { searchPageURL }
+				showReset         = { false }
+				advancedSearchURL = { advancedSearchURL }
 			/>
 		</div>
 		</>

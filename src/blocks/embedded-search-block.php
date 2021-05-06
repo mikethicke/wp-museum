@@ -16,19 +16,27 @@ function register_embedded_search_block() {
 		[
 			'render_callback' => __NAMESPACE__ . '\render_embedded_search',
 			'attributes'      => [
-				'searchPageURL' => [
+				'searchPageURL'     => [
 					'type'    => 'string',
 					'default' => '',
 				],
-				'headerText'    => [
+				'advancedSearchURL' => [
+					'type'    => 'string',
+					'default' => '',
+				],
+				'showTitleToggle'   => [
+					'type'    => 'boolean',
+					'default' => false,
+				],
+				'headerText'        => [
 					'type'    => 'string',
 					'default' => 'Search the Catalogue',
 				],
-				'align'         => [
+				'align'             => [
 					'type'    => 'string',
 					'default' => 'center',
 				],
-				'maxWidth'      => [
+				'maxWidth'          => [
 					'type'    => 'number',
 					'default' => 100,
 				],

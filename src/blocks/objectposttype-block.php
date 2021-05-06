@@ -12,9 +12,9 @@ namespace MikeThicke\WPMuseum;
  */
 function register_object_meta_block() {
 	global $post;
-	$post_type = get_post_type( $post );
-	if ( ! $post_type ) {
-		$post_type = admin_post_type();
+	$post_type = admin_post_type();
+	if ( ! $post_type) {
+		$post_type = get_post_type( $post );
 	}
 	if ( ! $post_type || ! in_array( $post_type, get_object_type_names() ) ) {
 		return;
@@ -61,7 +61,7 @@ add_action( 'wp', __NAMESPACE__ . '\register_object_meta_block' );
 /**
  * Register on admin side.
  */
-//add_action( 'plugins_loaded', __NAMESPACE__ . '\register_object_meta_block' );
+add_action( 'plugins_loaded', __NAMESPACE__ . '\register_object_meta_block' );
 
 /**
  * Renders the object custom fields, image gallery, and collection breadcrumbs
