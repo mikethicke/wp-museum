@@ -290,7 +290,7 @@ class Objects_Controller extends \WP_REST_Controller {
 						$post_kind     = get_kind_from_typename( $data['post_type'] );
 						$response_item = $this->prepare_item_for_response( $data, $request, $post_kind );
 
-						$data_array[ $kind_id ][] = $this->prepare_prepare_response_for_collection( $response_item );
+						$data_array[ $kind_id ][] = $this->prepare_response_for_collection( $response_item );
 					}
 				}
 			}

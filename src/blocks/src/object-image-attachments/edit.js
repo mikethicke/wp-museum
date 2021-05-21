@@ -69,7 +69,7 @@ const ObjectImageAttachmentEdit = ( props ) => {
 
 	useEffect( () => {
 		if ( isSavingPost && imgData ) {
-			Object.entries( imgData ).map( ( [ itemId, itemData ] ) => {
+			Object.entries( imgData ).forEach( ( [ itemId, itemData ] ) => {
 				apiFetch( {
 					path: `/wp/v2/media/${itemId}`,
 					method: 'POST',
@@ -85,10 +85,10 @@ const ObjectImageAttachmentEdit = ( props ) => {
 	} );
 	
 	const updateImgData = ( imgId, title, caption, description, alt ) => {
-		imgData[imgId]['title']       = title;
-		imgData[imgId]['caption']     = caption;
-		imgData[imgId]['description'] = description;
-		imgData[imgId]['alt']         = alt;
+		imgData[imgId].title       = title;
+		imgData[imgId].caption     = caption;
+		imgData[imgId].description = description;
+		imgData[imgId].alt         = alt;
 	}
 
 	const updateImgAttach = ( updatedImgAttach ) => {
@@ -114,7 +114,7 @@ const ObjectImageAttachmentEdit = ( props ) => {
 		if ( Array.isArray( media ) && media.length > 0 ) {
 			const updatedImgAttach = ( Array.isArray( imgAttach ) ? [ ...imgAttach ] : [] );
 			let changes = false;
-			media.map( mediaItem => {
+			media.forEach( mediaItem => {
 				if ( updatedImgAttach.findIndex( item => item === mediaItem.id ) === -1 ) {
 					updatedImgAttach.push( mediaItem.id );
 					changes = true;

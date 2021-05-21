@@ -123,6 +123,41 @@ class Object_Image_Controller extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Update image attachments for museum object.
+	 *
+	 * @param WP_REST_Request $request The REST Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or
+	 * WP_Error object on failure.
+	 */
+	public function update_item( $request ) {
+		$post                      = get_post_for_rest( $request['id'] );
+		$request_data              = json_decode( $request->get_body(), false );
+
+		if ( isset( $request_data->images ) ) {
+			$updated_image_attachments = $request_data->images;
+		} else {
+			return new \WP_Error(
+				'rest_cannot_update',
+				__( 'Updating image attachments, images not set.' )
+			);
+		}
+
+		$success = set_object_image_box_attachments(
+			$updated_image_attachments,
+			$post->ID
+		);
+
+		if ( $success ) {
+			return rest_ensure_response( true );
+		} else {
+			return new \WP_Error(
+				'rest_cannot_update',
+				__( 'There was an error updating the object image attachments.' )
+			);
+		}
+	}
+
+	/**
 	 * Retrieve images for museum object.
 	 *
 	 * @param WP_REST_Request $request The REST Request object.

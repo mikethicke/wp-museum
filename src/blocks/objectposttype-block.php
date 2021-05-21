@@ -12,8 +12,15 @@ namespace MikeThicke\WPMuseum;
  */
 function register_object_meta_block() {
 	global $post;
+
+	// This function can potentially get called twice on some WordPress screens,
+	// so need to make sure that the block hasn't already been registered.
+	if ( \WP_Block_Type_Registry::get_instance()->is_registered( 'wp-museum/object-meta-block' ) ) {
+		return;
+	}
+
 	$post_type = admin_post_type();
-	if ( ! $post_type) {
+	if ( ! $post_type ) {
 		$post_type = get_post_type( $post );
 	}
 	if ( ! $post_type || ! in_array( $post_type, get_object_type_names() ) ) {
