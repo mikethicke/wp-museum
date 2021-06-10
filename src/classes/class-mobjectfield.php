@@ -100,6 +100,9 @@ class MObjectField {
 	/**
 	 * Regular expression that this field must conform to. Also used for sorting.
 	 *
+	 * Capture groups can be named for sort order purposes.
+	 * Eg: (?<C>\d+)\.(?<A>\w+)\.(?<B>\d+)(?:\.([^.]*))*
+	 *
 	 * @var string $field_schema
 	 */
 	public $field_schema;
@@ -159,7 +162,7 @@ class MObjectField {
 		$instance->help_text             = trim( wp_unslash( $row->help_text ) );
 		$instance->detailed_instructions = trim( wp_unslash( $row->detailed_instructions ) );
 		$instance->public_description    = trim( wp_unslash( $row->public_description ) );
-		$instance->field_schema          = stripslashes( $row->field_schema );
+		$instance->field_schema          = $row->field_schema;
 		$instance->max_length            = intval( $row->max_length );
 		$instance->units                 = trim( wp_unslash( $row->units ) );
 		$instance->factors               = json_decode( $row->factors, false, 2 );
@@ -195,7 +198,7 @@ class MObjectField {
 		$instance->help_text             = trim( wp_unslash( $field_data['help_text'] ) );
 		$instance->detailed_instructions = trim( wp_unslash( $field_data['detailed_instructions'] ) );
 		$instance->public_description    = trim( wp_unslash( $field_data['public_description'] ) );
-		$instance->field_schema          = stripslashes( $field_data['field_schema'] );
+		$instance->field_schema          = $field_data['field_schema'];
 		$instance->max_length            = intval( $field_data['max_length'] );
 		$instance->units                 = trim( wp_unslash( $field_data['units'] ) );
 		$instance->factors               = $field_data['factors'];

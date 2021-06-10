@@ -98,6 +98,8 @@ class ObjectImageEdit extends Component {
 		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
 		this.setModalOpen        = this.setModalOpen.bind( this );
 		this.setImgData          = this.setImgData.bind( this );
+		this.onPlaceholderClick  = this.onPlaceholderClick.bind( this );
+		this.onPlaceholderKeyUp  = this.onPlaceholderKeyUp.bind( this );
 
 		this.state = {
 			modalOpen: false
@@ -138,7 +140,7 @@ class ObjectImageEdit extends Component {
 	/**
 	 * Update image data attributes from ImageSelector.
 	 * 
-	 * @param {object} newImageData Image data returned from ImageSelector component
+	 * @param {Object} newImageData Image data returned from ImageSelector component
 	 */
 	setImgData( newImageData ) {
 		const { attributes, setAttributes } = this.props;
@@ -157,6 +159,27 @@ class ObjectImageEdit extends Component {
 	 */
 	setModalOpen ( isOpen ) {
 		this.setState( { modalOpen: isOpen } );
+	}
+
+	/**
+	 * Handle click of image selector placeholder.
+	 *
+	 * @param {Object} event The click event.
+	 */
+	onPlaceholderClick( event ) {
+		event.stopPropagation();
+		this.setModalOpen( true );
+	}
+
+	/**
+	 * Handle pressing enter on selector placeholder.
+	 *
+	 * @param {Object} event The onKeyUp event.
+	 */
+	onPlaceholderKeyUp( event ) {
+		if ( event.key === 'Enter' ) {
+			this.onPlaceholderClick( event ); 
+		}
 	}
 
 	/**
@@ -242,10 +265,10 @@ class ObjectImageEdit extends Component {
 					<div
 						className = 'image-selector-placeholder'
 						style     = { { minHeight: imgDimensions.height, minWidth: imgDimensions.width } }
-						onClick   = { ( event ) => {
-							event.stopPropagation();
-							this.setModalOpen( true ) 
-						} } 
+						onClick   = { this.onPlaceholderClick }
+						onKeyUp   = { this.onPlaceholderKeyUp }
+						role      = "button"
+						tabIndex  = {0}
 					>
 						<div
 							className = 'image-selector-placeholder-plus'

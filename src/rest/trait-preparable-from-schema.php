@@ -114,6 +114,10 @@ trait Preparable_From_Schema {
 			if ( isset( $data_schema['format'] ) ) {
 				if ( 'url' === $data_schema['format'] ) {
 					$new_data = esc_url( $data );
+				} elseif ( 'regex' === $data_schema['format'] ) {
+					// Currently just accepting regexs as-is. Probably want to
+					// do some sanitization in the future.
+					$new_data = $data;
 				} else {
 					$new_data = sanitize_text_field( $data );
 				}
@@ -152,7 +156,7 @@ trait Preparable_From_Schema {
 		$sanitized_properties = [];
 
 		foreach ( $schema['properties'] as $property => $prop_data ) {
-			if ( isset( $item[ $property ] ) ) {
+			if ( array_key_exists( $property, $item ) ) {
 				$data[ $property ]      = self::sanitize_from_type( $item[ $property ], $prop_data );
 				$sanitized_properties[] = $property;
 			}
