@@ -162,7 +162,7 @@ function quick_browse() {
 /**
  * Callback function for sorting quick browse table by a column.
  *
- * @param [WP_Post] $target_array   The posts to be sorted.
+ * @param Array     $target_array   The posts to be sorted.
  * @param string    $sort_col       Slug of field to sort by.
  * @param string    $sort_dir       The direction to sort by (asc or desc).
  */

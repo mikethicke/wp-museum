@@ -221,6 +221,7 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 				'field_schema'          => [
 					'description' => __( 'Regular expression that this field must conform to. Also used for sorting.' ),
 					'type'        => 'string',
+					'format'      => 'regex',
 					'context '    => [ 'view', 'edit' ],
 				],
 				'max_length'            => [
