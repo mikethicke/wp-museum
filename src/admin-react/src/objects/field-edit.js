@@ -141,10 +141,7 @@ const FieldEdit = props => {
 	const newField = ! fieldData;
 
 	return (
-		<div 
-			className = 'field-form'
-			onBlur    = { saveFieldData }
-		>
+		<div className = 'field-form'>
 			<MoveToolbar
 				moveUp   = { moveUp }
 				moveDown = { moveDown }
@@ -173,13 +170,13 @@ const FieldEdit = props => {
 							Type
 							<select
 								value = { type }
-								onChange = { event => updateField( fieldId, 'type', event ) }
+								onBlur = { event => updateField( fieldId, 'type', event ) }
 							>
 								{ selectOptionsElements }
 							</select>
 						</label>
 					</div>
-					{ ! newField && ( type == 'plain' || type == 'rich' ) && 
+					{ ! newField && ( type === 'plain' || type === 'rich' ) && 
 						<div className = 'field-section'>
 							<label>
 								Max Length
@@ -191,7 +188,7 @@ const FieldEdit = props => {
 							</label>
 						</div>
 					}
-					{ ! newField && ( type == 'factor' || type == 'multiple' ) &&
+					{ ! newField && ( type === 'factor' || type === 'multiple' ) &&
 						<div className = 'field-section factor-button'>
 							<Button
 								className = 'field-edit-button button'
@@ -216,7 +213,7 @@ const FieldEdit = props => {
 								Dimensions
 								<select
 									value = { dimensionsData.n }
-									onChange = { event => updateField( fieldId, 'dimension.n', event ) }
+									onBlur = { event => updateField( fieldId, 'dimension.n', event ) }
 								>
 									<option value = '1'>1</option>
 									<option value = '2'>2</option>
@@ -237,7 +234,7 @@ const FieldEdit = props => {
 						</>
 					}
 				</div>
-				{ ! newField && type == 'measure' && dimensionsData.n > 1 &&
+				{ ! newField && type === 'measure' && dimensionsData.n > 1 &&
 					<div className = 'field-type-group' >
 						<div className = 'dimension-labels'>
 							{ dimensionElements }
