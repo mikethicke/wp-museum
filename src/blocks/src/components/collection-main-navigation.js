@@ -114,6 +114,17 @@ const CollectionMainNavigation = props => {
 				/>
 			);
 		} );
+	} else {
+		collectionBoxes = Array.from( { length: 3 }, () => {
+			return (
+				<div className = 'wpm-collection-box-placeholder' 
+				>
+					<div className = 'placeholder'>
+
+					</div>
+				</div>
+		 	);
+		} );
 	}
 
 	return collectionBoxes;

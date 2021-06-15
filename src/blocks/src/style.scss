@@ -15,8 +15,9 @@
 
 
 // @see https://dev.to/xinnks/make-animated-content-placeholders-with-html-and-css-3ekn
+// parent element must have relative positioning
 .placeholder {
-	position: relative;
+	position: absolute;
 	height: 100%;
 	width: 100%;
 	background-color: #e8e8e8;

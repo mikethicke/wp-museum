@@ -48,3 +48,16 @@
 		margin-top: 1em;
 	}
 }
+
+.wpm-collection-box-placeholder {
+	margin-top: 0.5em;
+	padding: 0.5em;
+	width: 100%;
+	font-size: 1.2em;
+	position: relative;
+
+	&::after {
+		content: 'AAA';
+		color: transparent;
+	}
+}
