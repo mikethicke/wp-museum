@@ -43,6 +43,8 @@ const ObjectGridBox = props => {
 		useImgURL = null;
 	}
 
+	useImgURL = null;
+
 	return (
 		<div
 			className = 'object-grid-box-wrapper'
@@ -63,6 +65,10 @@ const ObjectGridBox = props => {
 								title = { postTitle }
 								alt   = { postTitle }
 							/>
+						}
+						{ ! useImgURL &&
+							<div className = 'placeholder'>
+							</div>
 						}
 					</div>
 					<div className = 'object-grid-caption-div'>
