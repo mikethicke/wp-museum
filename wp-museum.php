@@ -8,7 +8,7 @@
  * @wordpress-plugin
  * Plugin Name: Museum for WordPress
  * Description: Manages a database of museum objects.
- * Version: 0.6.41
+ * Version: 0.6.43
  * Author: Mike Thicke
  * Author URI: http://www.mikethicke.com
  * Text Domain: wp-museum
@@ -62,17 +62,6 @@ if ( DEV_BUILD ) {
 if ( DEV_BUILD ) {
 	$wpdb->show_errors = true;
 }
-
-/**
- * Combine Query
- *
- * Plugin for combining WordPress queries. Used by museum objects to include
- * meta fields in the default WordPress search.
- *
- * @link https://github.com/birgire/wp-combine-queries
- * @version 1.0.5
- */
-require_once $require_prefix . 'dependencies/wp-combine-queries/combined-query.php';
 
 /*
  * Classes

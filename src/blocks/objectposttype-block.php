@@ -122,7 +122,11 @@ function render_object_post_type_block( $attributes ) {
 					$field_text .= 'No';
 				}
 			} elseif ( 'multiple' === $field->type ) {
-				$field_text .= implode( '; ', $meta_value );
+				if ( ! $meta_value ) {
+					$field_text .= '';
+				} else {
+					$field_text .= implode( '; ', $meta_value );
+				}
 			} elseif ( 'measure' === $field->type ) {
 				if ( count( $meta_value ) > 0 ) {
 					if ( 1 === $field->dimensions['n'] ) {
@@ -142,6 +146,7 @@ function render_object_post_type_block( $attributes ) {
 		$custom_fields_html .= '</div>';
 	}
 	if ( count( $bool_yes_fields ) > 0 ) {
+		$custom_fields_html .= '<div class="' . WPM_PREFIX . 'field-label-div">Flags:</div>';
 		$custom_fields_html .= '<ul>';
 		foreach ( $bool_yes_fields as $field ) {
 			$custom_fields_html .= "<li class='$priv'>$field</li>";

@@ -254,7 +254,7 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 				],
 				'factors'               => [
 					'description' => __( 'List of allowed factors for the field. Only applies to factor and multiple factor types.' ),
-					'type'        => [ 'array', 'null' ],
+					'type'        => [ 'array' ],
 					'items'       => [
 						'type' => 'string',
 					],

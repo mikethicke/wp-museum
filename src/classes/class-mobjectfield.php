@@ -167,6 +167,10 @@ class MObjectField {
 		$instance->units                 = trim( wp_unslash( $row->units ) );
 		$instance->factors               = json_decode( $row->factors, false, 2 );
 
+		if ( is_null( $instance->factors ) ) {
+			$instance->factors = [];
+		}
+
 		// Ensure that slug exists and is unique.
 		$instance->set_field_slug_from_name();
 
@@ -202,6 +206,10 @@ class MObjectField {
 		$instance->max_length            = intval( $field_data['max_length'] );
 		$instance->units                 = trim( wp_unslash( $field_data['units'] ) );
 		$instance->factors               = $field_data['factors'];
+
+		if ( is_null( $instance->factors ) ) {
+			$instance->factors = [];
+		}
 
 		// Ensure that slug exists and is unique.
 		$instance->set_field_slug_from_name();

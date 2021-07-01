@@ -66,6 +66,16 @@ const ObjectMetaField = ( props ) => {
 		onChange( newFieldValue );
 	}
 
+	let factorOptions;
+	if ( fieldType === 'factor' || fieldType === 'multiple') {
+		factorOptions = fieldData.factors.map( factor => (
+			{ 
+				label: factor, 
+				value: factor
+			}
+		) );
+	}
+
 	let inputElement;
 	if ( fieldType == 'flag' ) {
 		inputElement = (
@@ -105,12 +115,6 @@ const ObjectMetaField = ( props ) => {
 		);
 	}
 	else if ( fieldType == 'factor') {
-		const factorOptions = fieldData.factors.map( factor => (
-			{ 
-				label: factor, 
-				value: factor
-			}
-		) );
 		inputElement = (
 			<SelectControl
 				onChange = { onChange}
@@ -119,12 +123,6 @@ const ObjectMetaField = ( props ) => {
 			/>
 		);
 	} else if ( fieldType == 'multiple' ) {
-		const factorOptions = fieldData.factors.map( factor => (
-			{ 
-				label: factor, 
-				value: factor
-			}
-		) );
 		inputElement = (
 			<SelectControl
 				multiple

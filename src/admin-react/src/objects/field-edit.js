@@ -170,7 +170,7 @@ const FieldEdit = props => {
 							Type
 							<select
 								value = { type }
-								onBlur = { event => updateField( fieldId, 'type', event ) }
+								onChange = { event => updateField( fieldId, 'type', event ) }
 							>
 								{ selectOptionsElements }
 							</select>
