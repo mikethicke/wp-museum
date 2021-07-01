@@ -90,44 +90,6 @@ class ObjectPostType {
 	}
 
 	/**
-	 * Add fields to default WordPress search.
-	 *
-	 * Note: All custom post types get added to search already.
-	 *
-	 * @see CustomPostType::add_to_search().
-	 * @param WP_QUERY $query The query.
-	 */
-	public function add_fields_to_search( $query ) {
-		if ( $query->is_search() && $query->is_main_query() && ! empty( $query->get( 's' ) ) ) {
-			$meta_query = [ 'relation' => 'OR' ];
-			foreach ( $this->fields as $field ) {
-				if ( $field->public || current_user_can( 'read_private_posts' ) ) {
-					$meta_query[] = [
-						'key'     => $field->slug,
-						'value'   => $query->get( 's' ),
-						'compare' => 'LIKE',
-					];
-				}
-			}
-			if ( count( $meta_query ) > 1 ) {
-				$combined_query = $query->get( 'combined_query' );
-				if ( empty( $combined_query ) ) {
-					$combined_query = [
-						'args'  => [ $query->query ],
-						'union' => 'UNION',
-					];
-				}
-				$combined_query['args'][] = [
-					'post_type'   => $this->kind->type_name,
-					'post_status' => 'publish',
-					'meta_query'  => $meta_query,
-				];
-				$query->set( 'combined_query', $combined_query );
-			}
-		}
-	}
-
-	/**
 	 * Register fields as meta fields.
 	 */
 	public function register_fields_meta() {
@@ -277,7 +239,6 @@ class ObjectPostType {
 				},
 			]
 		);
-		add_action( 'pre_get_posts', array( $this, 'add_fields_to_search' ) );
 
 		$this->object_post_type->register();
 		$this->register_fields_meta();
