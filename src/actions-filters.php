@@ -57,7 +57,16 @@ register_activation_hook(
  *
  * @see capabilities.php::remove_museum_capabilities()
  */
-register_deactivation_hook( __FILE__, __NAMESPACE__ . '\remove_museum_capabilities' );
+register_deactivation_hook( PLUGIN_BASENAME, __NAMESPACE__ . '\remove_museum_capabilities' );
+
+/**
+ * Delete options and tables on plugin deletion.
+ * 
+ * (If clear_data_on_uninstall is false, will not delete any data on uninstall.)
+ *
+ * @see cleanup.php:do_cleanup()
+ */
+register_uninstall_hook( PLUGIN_BASENAME, __NAMESPACE__ . '\do_cleanup' );
 
 /**
  * Creates and registers museum object post types from database.

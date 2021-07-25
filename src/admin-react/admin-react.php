@@ -91,7 +91,7 @@ function create_admin_react_pages() {
 		'Museum Remote',
 		'Museum Remote',
 		'manage_options',
-		'wpm-react-admin-museum-romote',
+		'wpm-react-admin-museum-remote',
 		__NAMESPACE__ . '\react_admin_remote'
 	);
 

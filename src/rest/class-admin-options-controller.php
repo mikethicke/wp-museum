@@ -175,6 +175,11 @@ class Admin_Options_Controller extends \WP_REST_Controller {
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
 				],
+				'clear_data_on_uninstall'      => [
+					'description' => __( 'Whether to delete all museum data on plugin uninstall.' ),
+					'type'        => 'boolean',
+					'context'     => [ 'view', 'edit' ],
+				],
 			],
 		];
 

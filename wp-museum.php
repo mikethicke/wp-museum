@@ -44,6 +44,11 @@ const DEV_BUILD = true;
 const DEF_POSTS_PER_PAGE = 20;
 
 /**
+ * Plugin name, for action hooks.
+ */
+define( 'PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+/**
  * For dev builds, wp-musuem.php is one directory up, so that the build
  * will be detected by WordPress as a plugin.
  */
@@ -84,6 +89,7 @@ require_once $require_prefix . 'public/display.php';
 require_once $require_prefix . 'admin/customization.php';
 require_once $require_prefix . 'admin/admin-icon.php';
 require_once $require_prefix . 'general/remote.php';
+require_once $require_prefix . 'general/cleanup.php';
 
 /*
  * Scripts

@@ -50,6 +50,17 @@ function create_mobject_kinds_table() {
 }
 
 /**
+ * Delete table for museum object kinds.
+ */
+function delete_mobject_kinds_table() {
+	global $wpdb;
+	$table_name        = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+	$wpdb->show_errors = DB_SHOW_ERRORS;
+	$sql               = "DROP TABLE IF EXISTS $table_name;";
+	return $wpdb->query( $sql );
+}
+
+/**
  * Create / sync table for museum object fields.
  */
 function create_mobject_fields_table() {
@@ -82,6 +93,17 @@ function create_mobject_fields_table() {
 }
 
 /**
+ * Delete table for museum object fields table.
+ */
+function delete_mobject_fields_table() {
+	global $wpdb;
+	$table_name        = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
+	$wpdb->show_errors = DB_SHOW_ERRORS;
+	$sql               = "DROP TABLE IF EXISTS $table_name;";
+	return $wpdb->query( $sql );
+}
+
+/**
  * Create / sync table for remote museum clients.
  */
 function create_remote_clients_table() {
@@ -100,6 +122,17 @@ function create_remote_clients_table() {
 		);";
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	dbDelta( $sql );
+}
+
+/**
+ * Delete table for remote museum clients table.
+ */
+function delete_remote_clients_table() {
+	global $wpdb;
+	$table_name        = $wpdb->prefix . WPM_PREFIX . 'remote_clients';
+	$wpdb->show_errors = DB_SHOW_ERRORS;
+	$sql               = "DROP TABLE IF EXISTS $table_name;";
+	return $wpdb->query( $sql );
 }
 
 /**
