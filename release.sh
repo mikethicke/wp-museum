@@ -13,8 +13,12 @@ echo "Building version ${VERSION_NUMBER} for release..."
 
 if [ ! -d $BASE_RELEASE_DIR ]
 then
-	echo "Release directory (${BASE_RELEASE_DIR} does not exist. Exiting."
-	exit 2
+	mkdir $BASE_RELEASE_DIR
+	if [ ! -d $BASE_RELEASE_DIR ]
+	then
+		echo "Release directory (${BASE_RELEASE_DIR} does not exist. Exiting."
+		exit 2
+	fi
 fi
 
 if [ -d $RELEASE_DIR ]
