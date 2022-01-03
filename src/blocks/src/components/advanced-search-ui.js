@@ -191,6 +191,10 @@ const AdvancedSearchUI = props => {
 				searchValue = newSearchFields[index].search;
 			}
 		}
+		// For 'LIKE' search the searchValue should start with '~'. Otherwise will search for exact match.
+		if ( ! searchValue.startsWith('~') ) {
+			searchValue = '~' + searchValue;
+		}
 		newSearchFields[ index ] = { field: fieldValue, search: searchValue }
 		updateSearchValues( { searchFields: newSearchFields } );
 	}

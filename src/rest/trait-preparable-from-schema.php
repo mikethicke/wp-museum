@@ -112,8 +112,8 @@ trait Preparable_From_Schema {
 			}
 		} elseif ( in_array( 'string', $type, true ) && is_string( $data ) ) {
 			if ( isset( $data_schema['format'] ) ) {
-				if ( 'url' === $data_schema['format'] ) {
-					$new_data = esc_url( $data );
+				if ( 'url' === $data_schema['format'] || 'uri' === $data_schema['format'] ) {
+					$new_data = html_entity_decode( esc_url( $data ) );
 				} elseif ( 'regex' === $data_schema['format'] ) {
 					// Currently just accepting regexs as-is. Probably want to
 					// do some sanitization in the future.

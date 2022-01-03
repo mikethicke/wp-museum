@@ -375,15 +375,21 @@ class Objects_Controller extends \WP_REST_Controller {
 		$meta_query = [ 'relation' => 'AND' ];
 		foreach ( $kinds_field_slugs as $slug ) {
 			$field_query = sanitize_text_field( $request->get_param( $slug ) );
+			if ( substr( $field_query, 0, 1 ) === '~' ) {
+				$comparator = 'LIKE';
+				$field_query = substr( $field_query, 1 );
+			} else {
+				$comparator = '=';
+			}
 			if ( ! empty( $field_query ) ) {
 				$meta_query[] = [
 					'key'     => $slug,
 					'value'   => $field_query,
-					'compare' => 'LIKE',
+					'compare' => $comparator,
 				];
 			}
 		}
-		if ( count( $meta_query ) < 2 ) {
+		if ( count( $meta_query ) > 1 ) {
 			//phpcs:ignore WordPress.DB.SlowDBQuery --Slow query is not avoidable.
 			$query_args['meta_query'] = $meta_query;
 		}
