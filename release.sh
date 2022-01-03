@@ -1,7 +1,7 @@
 #!/bin/bash
 VERSION_NUMBER=$(sed -n "s/\* Version: \(.*\)$/\1/p" ./wp-museum.php | tr -d '[:space:]')
 BASE_RELEASE_DIR="./release"
-SUB_RELEASE_DIR="wp-museum-${VERSION_NUMBER}"
+SUB_RELEASE_DIR="wp-museum"
 RELEASE_DIR="${BASE_RELEASE_DIR}/${SUB_RELEASE_DIR}"
 RELEASE_FILE="${SUB_RELEASE_DIR}.zip"
 SRC_DIR="./src"
@@ -10,6 +10,8 @@ ADMIN_REACT_SRC_DIR="${SRC_DIR}/admin-react"
 ADMIN_REACT_BUILD_DIR="${SRC_DIR}/admin-react/build"
 
 echo "Building version ${VERSION_NUMBER} for release..."
+echo "Release directory: ${RELEASE_DIR}"
+echo "Release file: ${RELEASE_FILE}"
 
 if [ ! -d $BASE_RELEASE_DIR ]
 then
@@ -21,22 +23,14 @@ then
 	fi
 fi
 
-if [ -d $RELEASE_DIR ]
-then
-	echo "Directory ${RELEASE_DIR} already exists. Exiting."
-	exit 2
-fi
-if [ -f "${BASE_RELEASE_DIR}/${RELEASE_FILE}" ]
-then
-	echo "File ${RELEASE_FILE} already exists. Exiting."
-	exit 2
-fi
-
-mkdir $RELEASE_DIR
 if [ ! -d $RELEASE_DIR ]
 then
-	echo "Failed to create ${RELEASE_DIR}. Exiting"
-	exit 2
+	mkdir $RELEASE_DIR
+	if [ ! -d $RELEASE_DIR ]
+	then
+		echo "Failed to create ${RELEASE_DIR}. Exiting"
+		exit 2
+	fi
 fi
 
 if [ ! -d $BLOCKS_BUILD_DIR ]
@@ -113,12 +107,11 @@ cp -r $SRC_DIR/classes $RELEASE_DIR
 cp -r $SRC_DIR/general $RELEASE_DIR
 cp -r $SRC_DIR/javascript $RELEASE_DIR
 cp -r $SRC_DIR/public $RELEASE_DIR
-cp -r $SRC_DIR/dependencies $RELEASE_DIR
 cp -r $SRC_DIR/rest $RELEASE_DIR
 cp -r $SRC_DIR/widgets $RELEASE_DIR
 
 echo "Setting DEV_BUILD to false..."
-sed -i '' -e 's/const DEV_BUILD = true/const DEV_BUILD = false/' $RELEASE_DIR/wp-museum.php
+sed -i -e 's/const DEV_BUILD = true/const DEV_BUILD = false/' $RELEASE_DIR/wp-museum.php
 
 echo "Creating release .zip file."
 cd $BASE_RELEASE_DIR
