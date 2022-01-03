@@ -8,7 +8,7 @@
  * @wordpress-plugin
  * Plugin Name: Museum for WordPress
  * Description: Manages a database of museum objects.
- * Version: 0.6.43
+ * Version: 0.6.44
  * Author: Mike Thicke
  * Author URI: http://www.mikethicke.com
  * Text Domain: wp-museum
@@ -65,6 +65,7 @@ if ( DEV_BUILD ) {
 }
 
 if ( DEV_BUILD ) {
+	global $wpdb;
 	$wpdb->show_errors = true;
 }
 
