@@ -7,7 +7,7 @@
  * WordPress dependencies
  */
 import { hexToRgb } from '../util';
-import { RichText } from '@wordpress/blockEditor';
+import { RichText } from '@wordpress/block-editor';
 
 export default function save ( { attributes } ) {
 	const {

@@ -9,6 +9,8 @@ import {
 import CollectionBlockFront from './collection-block/front';
 import { cleanAttributes } from './util';
 
+import './style.scss';
+
 const collectionElements = document.getElementsByClassName( 'wpm-remote-collection-block-front');
 if ( !! collectionElements ) {
 	for ( let i = 0; i < collectionElements.length; i++ ) {

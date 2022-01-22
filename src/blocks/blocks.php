@@ -11,30 +11,25 @@ namespace MikeThicke\WPMuseum;
  * Callback to load block scripts.
  */
 function enqueue_block_scripts() {
-	if ( DEV_BUILD ) {
-		$block_path = '/build/';
-	} else {
-		$block_path = '';
-	}
-
+	$asset_file = include ( WPM_BUILD_DIR . 'blocks-edit.asset.php' );
 	wp_enqueue_script(
-		WPM_PREFIX . 'blocks',
-		plugins_url( $block_path . 'index.js', __FILE__ ),
-		[ 'wp-i18n', 'wp-element', 'wp-blocks', 'wp-components', 'wp-editor', 'wp-api-fetch', 'wp-api' ],
-		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'index.js' ),
-		true
+		WPM_PREFIX . 'blocks-edit',
+		WPM_BUILD_URL . 'blocks-edit.js',
+		$asset_file['dependencies'],
+		$asset_file['version'],
+		false
 	);
 	wp_enqueue_style(
-		WPM_PREFIX . 'block-style-front',
-		plugins_url( $block_path . 'style-frontend.css', __FILE__ ),
+		WPM_PREFIX . 'style-block-front',
+		WPM_BUILD_URL . 'style-block-front.css',
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'style-frontend.css' )
+		filemtime( WPM_BUILD_DIR . 'style-block-front.css' )
 	);
 	wp_enqueue_style(
-		WPM_PREFIX . 'block-style-editor',
-		plugins_url( $block_path . 'index.css', __FILE__ ),
+		WPM_PREFIX . 'blocks-edit',
+		WPM_BUILD_URL . 'blocks-edit.css',
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'index.css' )
+		filemtime( WPM_BUILD_DIR . 'blocks-edit.css' )
 	);
 }
 
@@ -42,30 +37,24 @@ function enqueue_block_scripts() {
  * Callback to load block scripts for frontend.
  */
 function enqueue_block_frontend_scripts() {
-	if ( DEV_BUILD ) {
-		$block_path = '/build/';
-	} else {
-		$block_path = '';
-	}
 
+	$asset_file = include ( WPM_BUILD_DIR . 'blocks-front.asset.php' );
 	wp_enqueue_script(
 		WPM_PREFIX . 'blocks',
-		plugins_url( $block_path . 'frontend.js', __FILE__ ),
-		[ 'wp-i18n', 'wp-element', 'wp-blocks', 'wp-components', 'wp-editor', 'wp-api-fetch', 'wp-api' ],
-		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'frontend.js' ),
+		WPM_BUILD_URL . 'blocks-frontend.js',
+		$asset_file['dependencies'],
+		$asset_file['version'],
 		true
 	);
 	wp_enqueue_style(
-		WPM_PREFIX . 'block-style-front',
-		plugins_url( $block_path . 'style-frontend.css', __FILE__ ),
+		WPM_PREFIX . 'style-block-front',
+		WPM_BUILD_DIR . 'style-block-front.css',
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'style-frontend.css' )
+		filemtime( WPM_BUILD_DIR . 'style-block-front.css' )
 	);
 	wp_enqueue_style(
 		'wordpress-components-styles',
-		includes_url( '/css/dist/components/style.min.css' ),
-		[],
-		filemtime( plugin_dir_path( __FILE__ ) . $block_path . 'frontend.js' )
+		includes_url( '/css/dist/components/style.min.css' )
 	);
 }
 

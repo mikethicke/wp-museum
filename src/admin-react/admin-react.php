@@ -16,17 +16,13 @@ function enqueue_admin_react( $hook_suffix ) {
 		return;
 	}
 
-	if ( DEV_BUILD ) {
-		$index_path = '/build/';
-	} else {
-		$index_path = '';
-	}
-
+	$asset_file = include ( WPM_BUILD_DIR . 'admin.asset.php' );
+	$pu = WPM_BUILD_URL . 'admin-react.js';
 	wp_enqueue_script(
 		WPM_PREFIX . 'admin-react',
-		plugins_url( $index_path . 'index.js', __FILE__ ),
-		[ 'wp-i18n', 'wp-element', 'wp-components', 'wp-api-fetch', 'wp-api' ],
-		filemtime( plugin_dir_path( __FILE__ ) . $index_path . 'index.js' ),
+		WPM_BUILD_URL . 'admin-react.js',
+		$asset_file['dependencies'],
+		$asset_file['version'],
 		true
 	);
 
@@ -34,14 +30,14 @@ function enqueue_admin_react( $hook_suffix ) {
 		'wordpress-components-styles',
 		includes_url( '/css/dist/components/style.min.css' ),
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . $index_path . 'index.css' )
+		filemtime( WPM_BUILD_DIR . 'index.css' )
 	);
 
 	wp_enqueue_style(
 		WPM_PREFIX . 'admin-react-style',
-		plugins_url( $index_path . 'index.css', __FILE__ ),
+		WPM_BUILD_URL. 'admin.css',
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . $index_path . 'index.css' )
+		filemtime( WPM_BUILD_DIR . 'admin.css' )
 	);
 }
 

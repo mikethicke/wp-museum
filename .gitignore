@@ -13,6 +13,7 @@ composer.lock
 vendor
 sql
 planning
+build/
 release/
 src/blocks/build
 src/admin-react/build

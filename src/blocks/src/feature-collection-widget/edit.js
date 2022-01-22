@@ -14,7 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
 
 import {
 	InspectorControls
-} from '@wordpress/blockEditor';
+} from '@wordpress/block-editor';
 
 import {
 	CheckboxControl

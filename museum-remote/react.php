@@ -11,30 +11,29 @@ namespace MikeThicke\MuseumRemote;
  * Enqueues scripts and styles for admin.
  */
 function enqueue_admin_scripts_and_styles() {
+	$asset_file = include ( MR_REACT_PATH . 'remote.asset.php' );
 	wp_enqueue_script(
-		'museum-remote-react',
-		plugins_url( MR_REACT_PATH . 'index.js', __FILE__ ),
-		[ 'wp-i18n', 'wp-element', 'wp-blocks', 'wp-components', 'wp-editor', 'wp-api-fetch', 'wp-api' ],
-		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.js' ),
+		'museum-remote-admin',
+		MR_REACT_URL . 'museum-remote-admin.js',
+		$asset_file['dependencies'],
+		$asset_file['version'],
 		true
 	);
 	wp_enqueue_style(
 		'wordpress-components-styles',
-		includes_url( '/css/dist/components/style.min.css' ),
-		[],
-		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.css' )
+		includes_url( '/css/dist/components/style.min.css' )
 	);
 	wp_enqueue_style(
 		'museum-remote-style-admin',
-		plugins_url( MR_REACT_PATH . 'index.css', __FILE__ ),
+		MR_REACT_URL . 'remote.css',
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.css' )
+		filemtime( MR_REACT_URL . 'remote.css' )
 	);
 	wp_enqueue_style(
 		'museum-remote-style-front',
-		plugins_url( MR_REACT_PATH . 'style-index.css', __FILE__ ),
+		MR_REACT_URL . 'style-remote.css',
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'style-index.css' )
+		filemtime( MR_REACT_PATH . 'style-remote.css' )
 	);
 }
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_scripts_and_styles' );
@@ -42,20 +41,26 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_scripts_and
 /**
  * Enqueues scripts and styles for frontend.
  */
-function enqueue_frontend_styles() {
+function enqueue_frontend_scripts_and_styles() {
+	$asset_file = include ( MR_REACT_PATH . 'remote.asset.php' );
+	wp_enqueue_script(
+		'museum-remote-front',
+		MR_REACT_PATH . 'museum-remote-front.js',
+		$asset_file['dependencies'],
+		$asset_file['version'],
+		true
+	);
 	wp_enqueue_style(
 		'museum-remote-style-front',
-		plugins_url( MR_REACT_PATH . 'style-index.css', __FILE__ ),
+		MR_REACT_PATH . 'style-index.css',
 		[],
-		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'style-index.css' )
+		filemtime( MR_REACT_PATH . 'style-remote.css' )
 	);
 	wp_enqueue_style(
 		'wordpress-components-styles',
-		includes_url( '/css/dist/components/style.min.css' ),
-		[],
-		filemtime( plugin_dir_path( __FILE__ ) . MR_REACT_PATH . 'index.css' )
+		includes_url( '/css/dist/components/style.min.css' )
 	);
 }
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_styles' );
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_scripts_and_styles' );
 
 

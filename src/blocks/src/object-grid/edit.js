@@ -12,7 +12,7 @@ import {
 import {
 	InspectorControls,
 	RichText
-} from '@wordpress/blockEditor'
+} from '@wordpress/block-editor'
 
 import { __ } from "@wordpress/i18n";
 
