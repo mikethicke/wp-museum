@@ -5,7 +5,8 @@ SUB_RELEASE_DIR="wp-museum"
 RELEASE_DIR="${BASE_RELEASE_DIR}/${SUB_RELEASE_DIR}"
 RELEASE_FILE="${SUB_RELEASE_DIR}.zip"
 SRC_DIR="./src"
-BLOCKS_BUILD_DIR="${SRC_DIR}/blocks/build"
+BLOCKS_BUILD_DIR="./build"
+REACT_DIR="${BASE_RELEASE_DIR}/${SUB_RELEASE_DIR}/react"
 ADMIN_REACT_SRC_DIR="${SRC_DIR}/admin-react"
 ADMIN_REACT_BUILD_DIR="${SRC_DIR}/admin-react/build"
 
@@ -33,16 +34,19 @@ then
 	fi
 fi
 
+if [ ! -d $REACT_DIR ]
+then
+	mkdir $REACT_DIR
+	if [ ! -d $REACT_DIR ]
+	then
+		echo "Failed to create ${REACT_DIR}. Exiting"
+		exit 2
+	fi
+fi
+
 if [ ! -d $BLOCKS_BUILD_DIR ]
 then
 	echo "Blocks build directory (${BLOCKS_BUILD_DIR}) does not exist. Exiting."
-	rmdir $RELEASE_DIR
-	exit 2
-fi
-
-if [ ! -d $ADMIN_REACT_BUILD_DIR ]
-then
-	echo "Admin React build directory (${ADMIN_REACT_BUILD_DIR}) does not exist. Exiting."
 	rmdir $RELEASE_DIR
 	exit 2
 fi
@@ -68,30 +72,6 @@ then
 	exit 2
 fi
 
-if [ "$(ls -A ${ADMIN_REACT_BUILD_DIR})" ]
-then
-	echo "Deleting build files from ${ADMIN_REACT_BUILD_DIR}..."
-	rm ${ADMIN_REACT_BUILD_DIR}/*
-fi
-if [ "$(ls -A ${ADMIN_REACT_BUILD_DIR})" ]
-then
-	echo "Failed to delete build files from ${ADMIN_REACT_BUILD_DIR}. Exiting."
-	rmdir $RELEASE_DIR
-	exit 2
-fi
-
-echo "Building blocks..."
-cd $ADMIN_REACT_SRC_DIR
-npm run build
-cd ..
-cd ..
-if [ ! "$(ls -A ${ADMIN_REACT_BUILD_DIR})" ]
-then
-	echo "Blocks failed to build. Exiting."
-	rmdir $RELEASE_DIR
-	exit 2
-fi
-
 echo "Copying files to release directory..."
 cp ./wp-museum.php $RELEASE_DIR
 cp $SRC_DIR/*.php $RELEASE_DIR
@@ -99,10 +79,18 @@ cp $SRC_DIR/*.css $RELEASE_DIR
 mkdir ${RELEASE_DIR}/blocks
 mkdir ${RELEASE_DIR}/admin-react
 cp $SRC_DIR/blocks/*.php ${RELEASE_DIR}/blocks
-cp $BLOCKS_BUILD_DIR/* ${RELEASE_DIR}/blocks
+cp $BLOCKS_BUILD_DIR/admin-rect.js ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/admin-asset.php ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/admin.css ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/blocks-edit.asset.php ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/blocks-edit.css ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/blocks-front.asset.php ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/blocks-frontend.js ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/blocks-index.js ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/style-blocks-front.css ${REACT_DIR}
 cp $SRC_DIR/admin-react/*.php ${RELEASE_DIR}/admin-react
-cp $ADMIN_REACT_BUILD_DIR/* ${RELEASE_DIR}/admin-react
 cp -r $SRC_DIR/admin $RELEASE_DIR
+cp -r $SRC_DIR/assets $RELEASE_DIR
 cp -r $SRC_DIR/classes $RELEASE_DIR
 cp -r $SRC_DIR/general $RELEASE_DIR
 cp -r $SRC_DIR/javascript $RELEASE_DIR

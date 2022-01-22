@@ -60,8 +60,12 @@ if ( DEV_BUILD ) {
 
 if ( DEV_BUILD ) {
 	define( 'WPM_BASE_URL', plugin_dir_url( __FILE__ ) . 'src/' );
+	define( 'WPM_BUILD_DIR', plugin_dir_path( __FILE__ ) . 'build/' );
+	define( 'WPM_BUILD_URL', plugin_dir_url( __FILE__ ) . 'build/' );
 } else {
 	define( 'WPM_BASE_URL', plugin_dir_url( __FILE__ ) );
+	define( 'WPM_BUILD_DIR', plugin_dir_path( __FILE__) . 'react/' );
+	define( 'WPM_BUILD_URL', plugin_dir_url( __FILE__ ) . 'react/' );
 }
 
 if ( DEV_BUILD ) {

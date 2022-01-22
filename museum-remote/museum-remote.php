@@ -26,12 +26,17 @@ const DEV_BUILD = true;
 
 define( 'REQUIRE_PREFIX', plugin_dir_path( __FILE__ ) );
 
+define( 'MR_BASE_PLUGIN_DIR', WP_PLUGIN_DIR . '/museum-remote/' );
+define( 'MR_BASE_PLUGIN_URL', WP_PLUGIN_URL . '/museum-remote/' );
+
 if ( DEV_BUILD ) {
-	define( 'MR_BASE_URL', plugin_dir_url( __FILE__ ) . 'src/' );
-	define( 'MR_REACT_PATH', '/build/' );
+	define( 'MR_BASE_URL', MR_BASE_PLUGIN_URL . 'src/' );
+	define( 'MR_REACT_PATH', MR_BASE_PLUGIN_DIR . 'build/' );
+	define( 'MR_REACT_URL', MR_BASE_PLUGIN_URL . 'build/' );
 } else {
-	define( 'MR_BASE_URL', plugin_dir_url( __FILE__ ) );
-	define( 'MR_REACT_PATH', '' );
+	define( 'MR_BASE_URL', MR_BASE_PLUGIN_URL );
+	define( 'MR_REACT_PATH', MR_BASE_PLUGIN_DIR . 'react/' );
+	define( 'MR_REACT_URL', MR_BASE_PLUGIN_URL . 'react/' );
 }
 
 require_once REQUIRE_PREFIX . 'admin.php';
