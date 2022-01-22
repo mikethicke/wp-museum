@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { RichText } from '@wordpress/blockEditor';
+import { RichText } from '@wordpress/block-editor';
 
 export default function save ( { attributes } ) {
 	const {
