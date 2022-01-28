@@ -20,10 +20,10 @@ function enqueue_block_scripts() {
 		false
 	);
 	wp_enqueue_style(
-		WPM_PREFIX . 'style-block-front',
-		WPM_BUILD_URL . 'style-block-front.css',
+		WPM_PREFIX . 'style-blocks-front',
+		WPM_BUILD_URL . 'style-blocks-front.css',
 		[],
-		filemtime( WPM_BUILD_DIR . 'style-block-front.css' )
+		filemtime( WPM_BUILD_DIR . 'style-blocks-front.css' )
 	);
 	wp_enqueue_style(
 		WPM_PREFIX . 'blocks-edit',
@@ -47,10 +47,10 @@ function enqueue_block_frontend_scripts() {
 		true
 	);
 	wp_enqueue_style(
-		WPM_PREFIX . 'style-block-front',
-		WPM_BUILD_DIR . 'style-block-front.css',
+		WPM_PREFIX . 'style-blocks-front',
+		WPM_BUILD_DIR . 'style-blocks-front.css',
 		[],
-		filemtime( WPM_BUILD_DIR . 'style-block-front.css' )
+		filemtime( WPM_BUILD_DIR . 'style-blocks-front.css' )
 	);
 	wp_enqueue_style(
 		'wordpress-components-styles',
