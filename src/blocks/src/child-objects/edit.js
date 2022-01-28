@@ -22,21 +22,19 @@ const ChildObjectsEdit = props => {
 	const baseRestPath = '/wp-museum/v1';
 	const wordpressRestPath = '/wp/v2';
 
-	const { postType, postId, isSavingPost, currentPostStatus, postTemplate } = useSelect( 
+	const { postType, postId, isSavingPost, currentPostStatus } = useSelect( 
 		( select ) => {
 			const {
 				getCurrentPostType,
 				getCurrentPostId,
 				isSavingPost,
 				getEditedPostAttribute,
-				getTemplate,
 			} = select( 'core/editor' );
 			return {
 				postType          : getCurrentPostType(),
 				postId            : getCurrentPostId(),
 				isSavingPost      : isSavingPost(),
-				currentPostStatus : getEditedPostAttribute( 'status' ),
-				postTemplate      : getTemplate(),
+				currentPostStatus : getEditedPostAttribute( 'status' )
 			}
 		},
 		[]
