@@ -244,3 +244,35 @@ function collection_css() {
 		echo '</style>';
 	}
 }
+
+/**
+ * Display an indication of post status to logged-in users in the admin bar.
+ *
+ * hook: admin_bar_menu
+ * @see actions-filters.php
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The admin bar.
+ */
+function post_status_indicator( $wp_admin_bar ) {
+	global $post;
+	if ( ! get_option( 'show_post_status' ) ) {
+		return;
+	}
+	if ( $post ) {
+		$status = $post->post_status;
+		if ( $status === 'publish' ) {
+			$status = 'public'; 
+		}
+
+		$content = "Status: $status";
+		
+		$wp_admin_bar->add_node(
+			[
+				'id'     => WPM_PREFIX . 'admin-bar-indicator',
+				'title'  => $content,
+				'href'   => '',
+				'parent' => 'top-secondary'
+			]
+		);
+	}
+}

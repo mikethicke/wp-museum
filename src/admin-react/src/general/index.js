@@ -18,7 +18,8 @@ const GeneralOptions = () => {
     const [ siteOptions, updateSiteOptions ] = useState( {} );
 
     const {
-        clear_data_on_uninstall
+        clear_data_on_uninstall,
+		show_post_status,
     } = siteOptions;
 
 	useEffect( () => {
@@ -51,11 +52,18 @@ const GeneralOptions = () => {
 		<div className = 'museum-admin-options'>
 			<h2>Options</h2>
 			{ siteOptions &&
+				<>
 				<CheckboxControl
                     label    = { __( 'Delete all museum data on uninstall.' ) }
                     checked  = { !! clear_data_on_uninstall }
                     onChange = { isChecked => updateOption( 'clear_data_on_uninstall', isChecked ) }
                 />
+				<CheckboxControl
+                    label    = { __( 'Show post status in admin bar.' ) }
+                    checked  = { !! show_post_status }
+                    onChange = { isChecked => updateOption( 'show_post_status', isChecked ) }
+                />
+				</>
 			}
 			<div className = 'save-button-bottom'>
 				<Button

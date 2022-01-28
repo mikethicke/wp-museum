@@ -221,6 +221,23 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_react' );
 
 add_action( 'admin_menu', __NAMESPACE__ . '\create_admin_react_pages' );
 
+/**
+ * Enqueues admin scripts
+ * 
+ * @see admin/admin-style.css
+ */
+add_action(
+	'admin_enqueue_scripts',
+	function() {
+		wp_enqueue_style(
+			WPM_PREFIX . 'admin-styles',
+			WPM_BASE_URL . 'admin/admin-style.css',
+			[],
+			CSS_VERSION
+		);
+	}
+);
+
 /*****************************************************************************
  *
  * Admin Filters
@@ -246,21 +263,6 @@ add_filter( 'block_categories', __NAMESPACE__ . '\add_museum_block_category' );
  * @see object-ajax::enqueue_javascript()
  */
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_javascript' );
-
-/**
- * Enqueue fancybox CSS for frontend.
- */
-add_action(
-	'wp_enqueue_scripts',
-	function() {
-		wp_enqueue_style(
-			'fancybox-css',
-			'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css',
-			[],
-			CSS_VERSION
-		);
-	}
-);
 
 /**
  * Generates CSS for museum objects, and inserts into page header
@@ -299,6 +301,14 @@ add_action(
 		);
 	}
 );
+
+/**
+ * Add post status and visibility indiccator to the WP admin bar.
+ *
+ * @see display.php::post_status_indicator()
+ */
+add_action( 'admin_bar_menu', __NAMESPACE__ . '\post_status_indicator', 50, 1 );
+
 /*****************************************************************************
  *
  * Frontend Filters

@@ -135,7 +135,7 @@ class Admin_Options_Controller extends \WP_REST_Controller {
 						$sanitized_option_value = sanitize_text_field( $option_values[ $property ] );
 						break;
 					default:
-						return new WP_Error(
+						return new \WP_Error(
 							'bad-schema',
 							'Unrecognized schema type.'
 						);
@@ -177,6 +177,11 @@ class Admin_Options_Controller extends \WP_REST_Controller {
 				],
 				'clear_data_on_uninstall'      => [
 					'description' => __( 'Whether to delete all museum data on plugin uninstall.' ),
+					'type'        => 'boolean',
+					'context'     => [ 'view', 'edit' ],
+				],
+				'show_post_status'             => [
+					'description' => __( 'Whether to show post status in admin bar.' ),
 					'type'        => 'boolean',
 					'context'     => [ 'view', 'edit' ],
 				],
