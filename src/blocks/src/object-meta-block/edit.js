@@ -96,13 +96,10 @@ const ObjectMetaField = ( props ) => {
 		);
 	} else if ( fieldType == 'plain' ) {
 		inputElement = (
-			<RichText
-				tagName             = 'p'
-				className           = 'object-meta-short-text'
-				value               = { fieldValue }
-				onChange            = { onChange }
-				allowedFormats      = { [] } 
-				preserveWhiteSpace
+			<input
+				type     = 'text'
+				value    = { fieldValue }
+				onChange = { onChange }
 			/>
 		);
 	} else if ( fieldType == 'date') {
