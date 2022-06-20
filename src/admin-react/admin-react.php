@@ -28,9 +28,7 @@ function enqueue_admin_react( $hook_suffix ) {
 
 	wp_enqueue_style(
 		'wordpress-components-styles',
-		includes_url( '/css/dist/components/style.min.css' ),
-		[],
-		filemtime( WPM_BUILD_DIR . 'index.css' )
+		includes_url( '/css/dist/components/style.min.css' )
 	);
 
 	wp_enqueue_style(

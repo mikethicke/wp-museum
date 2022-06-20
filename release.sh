@@ -79,14 +79,14 @@ cp $SRC_DIR/*.css $RELEASE_DIR
 mkdir ${RELEASE_DIR}/blocks
 mkdir ${RELEASE_DIR}/admin-react
 cp $SRC_DIR/blocks/*.php ${RELEASE_DIR}/blocks
-cp $BLOCKS_BUILD_DIR/admin-rect.js ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/admin-asset.php ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/admin-react.js ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/admin.asset.php ${REACT_DIR}
 cp $BLOCKS_BUILD_DIR/admin.css ${REACT_DIR}
 cp $BLOCKS_BUILD_DIR/blocks-edit.asset.php ${REACT_DIR}
 cp $BLOCKS_BUILD_DIR/blocks-edit.css ${REACT_DIR}
 cp $BLOCKS_BUILD_DIR/blocks-front.asset.php ${REACT_DIR}
 cp $BLOCKS_BUILD_DIR/blocks-frontend.js ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/blocks-index.js ${REACT_DIR}
+cp $BLOCKS_BUILD_DIR/blocks-edit.js ${REACT_DIR}
 cp $BLOCKS_BUILD_DIR/style-blocks-front.css ${REACT_DIR}
 cp $SRC_DIR/admin-react/*.php ${RELEASE_DIR}/admin-react
 cp -r $SRC_DIR/admin $RELEASE_DIR
