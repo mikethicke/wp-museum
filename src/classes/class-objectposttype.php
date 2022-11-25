@@ -39,7 +39,6 @@ class ObjectPostType {
 	 * @param ObjectKind $kind Database row from objects table.
 	 */
 	public function __construct( $kind ) {
-		global $wpdb;
 		$this->kind  = $kind;
 
 		if ( $this->kind->label_plural ) {

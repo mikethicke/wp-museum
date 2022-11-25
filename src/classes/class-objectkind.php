@@ -117,6 +117,54 @@ class ObjectKind {
 	public $parent_kind_id = null;
 
 	/**
+	 * Constructor.
+	 *
+	 * @param StdObj $kind_row A row of the mobject_kinds_table where keys are
+	 *                         column names and values are column values.
+	 */
+	public function __construct( $kind_row ) {
+		if ( isset( $kind_row->kind_id ) ) {
+			$this->kind_id = intval( $kind_row->kind_id );
+		}
+		if ( isset( $kind_row->cat_field_id ) ) {
+			$this->cat_field_id = intval( $kind_row->cat_field_id );
+		}
+		if ( isset( $kind_row->name ) ) {
+			$this->name = $kind_row->name;
+		}
+		if ( isset( $kind_row->type_name ) ) {
+			$this->type_name = $kind_row->type_name;
+		}
+		if ( isset( $kind_row->label ) ) {
+			$this->label = $kind_row->label;
+		}
+		if ( isset( $kind_row->label_plural ) ) {
+			$this->label_plural = $kind_row->label_plural;
+		}
+		if ( isset( $kind_row->description ) ) {
+			$this->description = $kind_row->description;
+		}
+		if ( isset( $kind_row->hierarchical ) ) {
+			$this->hierarchical = (bool) intval( $kind_row->hierarchical );
+		}
+		if ( isset( $kind_row->must_featured_image ) ) {
+			$this->must_featured_image = (bool) intval( $kind_row->must_featured_image );
+		}
+		if ( isset( $kind_row->must_gallery ) ) {
+			$this->must_gallery = (bool) intval( $kind_row->must_gallery );
+		}
+		if ( isset( $kind_row->strict_checking ) ) {
+			$this->strict_checking = (bool) intval( $kind_row->strict_checking );
+		}
+		if ( isset( $kind_row->exclude_from_search ) ) {
+			$this->exclude_from_search = (bool) intval( $kind_row->exclude_from_search );
+		}
+		if ( isset( $kind_row->parent_kind_id ) ) {
+			$this->parent_kind_id = intval( $kind_row->parent_kind_id );
+		}
+	}
+	
+	/**
 	 * Converts museum object kind's label to name: all lowercase, spaces replaced by dashes.
 	 *
 	 * @param   string $kind_label The object kind's label.
@@ -193,54 +241,6 @@ class ObjectKind {
 			}
 		}
 		$this->type_name = $new_type_name;
-	}
-
-	/**
-	 * Constructor.
-	 *
-	 * @param StdObj $kind_row A row of the mobject_kinds_table where keys are
-	 *                         column names and values are column values.
-	 */
-	public function __construct( $kind_row ) {
-		if ( isset( $kind_row->kind_id ) ) {
-			$this->kind_id = intval( $kind_row->kind_id );
-		}
-		if ( isset( $kind_row->cat_field_id ) ) {
-			$this->cat_field_id = intval( $kind_row->cat_field_id );
-		}
-		if ( isset( $kind_row->name ) ) {
-			$this->name = $kind_row->name;
-		}
-		if ( isset( $kind_row->type_name ) ) {
-			$this->type_name = $kind_row->type_name;
-		}
-		if ( isset( $kind_row->label ) ) {
-			$this->label = $kind_row->label;
-		}
-		if ( isset( $kind_row->label_plural ) ) {
-			$this->label_plural = $kind_row->label_plural;
-		}
-		if ( isset( $kind_row->description ) ) {
-			$this->description = $kind_row->description;
-		}
-		if ( isset( $kind_row->hierarchical ) ) {
-			$this->hierarchical = (bool) intval( $kind_row->hierarchical );
-		}
-		if ( isset( $kind_row->must_featured_image ) ) {
-			$this->must_featured_image = (bool) intval( $kind_row->must_featured_image );
-		}
-		if ( isset( $kind_row->must_gallery ) ) {
-			$this->must_gallery = (bool) intval( $kind_row->must_gallery );
-		}
-		if ( isset( $kind_row->strict_checking ) ) {
-			$this->strict_checking = (bool) intval( $kind_row->strict_checking );
-		}
-		if ( isset( $kind_row->exclude_from_search ) ) {
-			$this->exclude_from_search = (bool) intval( $kind_row->exclude_from_search );
-		}
-		if ( isset( $kind_row->parent_kind_id ) ) {
-			$this->parent_kind_id = intval( $kind_row->parent_kind_id );
-		}
 	}
 
 	/**
@@ -424,5 +424,14 @@ class ObjectKind {
 			$field->delete_from_db();
 		}
 		return $wpdb->delete( $table_name, [ 'kind_id' => $this->kind_id ] );
+	}
+	
+	/**
+	 * Generates a JSON representation of the kind for export.
+	 *
+	 * @return string JSON-formatted string representing the kind.
+	 */
+	public function to_json() {
+		
 	}
 }

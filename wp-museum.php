@@ -73,6 +73,13 @@ if ( DEV_BUILD ) {
 	$wpdb->show_errors = true;
 }
 
+/**
+ * Composer autoloader
+ */
+if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
+	require __DIR__ . '/vendor/autoload.php';
+}
+
 /*
  * Classes
  */

@@ -1,0 +1,18 @@
+{
+    "name": "mike-thicke/wp-museum",
+    "description": "Plugin for managing an online museum",
+    "type": "project",
+    "require": {
+        "justinrainbow/json-schema": "^5.2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mike Thicke",
+            "email": "mikethicke@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
+}

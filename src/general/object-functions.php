@@ -135,12 +135,38 @@ function object_image_box_contents( $post_id = null ) {
 		foreach ( $image_box_contents as $image_id => $sort_order ) {
 			$image_thumbnail = wp_get_attachment_image_src( $image_id, 'thumbnail' );
 			$image_full      = wp_get_attachment_image_src( $image_id, 'large' );
-			echo "<div id='image-div-" . esc_html( $image_id ) . "' class='inline-image-box'>";
-			echo "<a data-fancybox='fbgallery' href='" . esc_html( $image_full[0] ) . "'><img src='" . esc_html( $image_thumbnail[0] ) . "' width=' " . esc_html( $image_thumbnail[1] ) . "' height='" . esc_html( $image_thumbnail[2] ) . "'></a>";
-			echo "<a id='delete-" . esc_html( $image_id ) . "' class='wpm-image-delete' onclick='remove_image_attachment(" . esc_html( $image_id ) . ',' . esc_html( $post_id ) . ")'>[x]</a>";
-			echo "<a id='moveup-" . esc_html( $image_id ) . "' class='wpm-image-moveup' onclick='wpm_image_move(" . esc_html( $image_id ) . ", -1)'><span class='dashicons dashicons-arrow-left'></span></a>";
-			echo "<a id='movedown-" . esc_html( $image_id ) . "' class='wpm-image-movedown' onclick='wpm_image_move(" . esc_html( $image_id ) . ", +1)'><span class='dashicons dashicons-arrow-right'></span></a>";
-			echo '</div>';
+			?>
+			<div id='image-div-<?= esc_html( $image_id ) ?>' class='inline-image-box'>
+				<a data-fancybox='fbgallery' href='<?= esc_html( $image_full[0] ) ?>'>
+					<img 
+						src='<?= esc_html( $image_thumbnail[0] ) ?>' 
+						width='<?= esc_html( $image_thumbnail[1] ) ?>'
+						height='<?= esc_html( $image_thumbnail[2] ) ?>'
+					/>
+				</a>
+				<a
+					id='delete-<?= esc_html( $image_id ) ?>'
+					class='wpm-image-delete'
+					onclick='remove_image_attachment(<?= esc_html( $image_id ) ?>, <?= esc_html( $post_id ) ?>)'
+				>
+					[x]
+				</a>
+				<a
+					id='moveup-<?= esc_html( $image_id ) ?>'
+					class='wpm-image-moveup'
+					onclick='wpm_image_move(<?= esc_html( $image_id ) ?>, -1)'
+				>
+					<span class='dashicons dashicons-arrow-left'></span>
+				</a>
+				<a
+					id='movedown-<?= esc_html( $image_id ) ?>'
+					class='wpm-image-movedown'
+					onclick='wpm_image_move(<?= esc_html( $image_id ) ?>, +1)'
+				>
+					<span class='dashicons dashicons-arrow-right'></span>
+				</a>
+			</div>
+			<?php
 		}
 	}
 }
