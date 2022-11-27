@@ -88,7 +88,7 @@ function combine_post_data( $post ) {
 
 	$additional_fields = [
 		'link'        => get_permalink( $post ),
-		'edit_link'   => get_edit_post_link( $post ),
+		'edit_link'   => get_edit_post_link( $post, 'link' ),
 		'excerpt'     => $filtered_excerpt,
 		'thumbnail'   => $img_data,
 		'cat_field'   => $cat_field_slug,
