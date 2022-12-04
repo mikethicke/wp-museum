@@ -234,28 +234,29 @@ export const fetchObjectImages = objectID => {
 
 const sortCollectionsHelper = ( collectionData, sortBy, sortOrder) => {
 	const sortedCollections = [ ...collectionData ];
-	switch ( sortBy ) {
-		case 'Alphabetical' :
-			sortedCollections.sort( (a, b ) => a.post_title < b.post_title ? -1 : 1 );
-			break;
-		case 'Date Created' :
-			sortedCollections.sort( (a, b ) => {
+	
+	const sortMultiplier = sortOrder == 'Descending' ? -1 : 1;
+
+	sortedCollections.sort( ( a, b ) => {
+		if ( a.menu_order !== b.menu_order ) {
+			return sortMultiplier * ( a.menu_order < b.menu_order ? -1 : 1 );
+		}
+		switch( sortBy ) {
+			case 'Alphabetical' :
+				return sortMultiplier * ( a.post_title < b.post_title ? -1 : 1 );
+			case 'Date Created' :
 				aDate = new Date( a.post_date_gmt );
 				bDate = new Date( b.post_date_gmt );
-				return aDate < bDate ? -1 : 1;
-			} );
-			break;
-		case 'Date Updated' :
-			sortedCollections.sort( (a, b ) => {
+				return sortMultiplier * ( aDate < bDate ? -1 : 1 );
+			case 'Date Updated' :
 				aDate = new Date( a.post_modified_gmt );
 				bDate = new Date( b.post_modified_gmt );
-				return aDate < bDate ? -1 : 1;
-			} );
-			break;
-	}
-	if ( sortOrder == 'Descending' ) {
-		sortedCollections.reverse();
-	}
+				return sortMultiplier * ( aDate < bDate ? -1 : 1 );
+			default :
+				return 0;
+		}
+	} );
+	
 	return sortedCollections;
 }
 

@@ -353,6 +353,12 @@ class Collections_Controller extends \WP_REST_Controller {
 					'context'     => [ 'view', 'edit', 'embed' ],
 					'readonly'    => true,
 				],
+				'menu_order'        => [
+					'description' => __( 'Order to display in menus.' ),
+					'type'        => 'integer',
+					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => false,
+				],
 				'post_author'       => [
 					'description' => __( 'The ID for the author of the collection.' ),
 					'type'        => 'integer',
