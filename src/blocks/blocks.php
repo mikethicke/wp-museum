@@ -48,7 +48,7 @@ function enqueue_block_frontend_scripts() {
 	);
 	wp_enqueue_style(
 		WPM_PREFIX . 'style-blocks-front',
-		WPM_BUILD_DIR . 'style-blocks-front.css',
+		WPM_BUILD_URL . 'style-blocks-front.css',
 		[],
 		filemtime( WPM_BUILD_DIR . 'style-blocks-front.css' )
 	);
