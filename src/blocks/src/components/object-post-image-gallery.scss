@@ -2,10 +2,11 @@
 	cursor: pointer;
 }
 
-.wpm-object-post-image-modal {
+.components-modal__frame.wpm-object-post-image-modal.wpm-object-post-image-modal {
 	width: 70vw;
 	max-width: 80vh !important;
 	height: auto;
+	max-height: 100%;
 
 	a {
 		word-wrap: break-word;
@@ -19,12 +20,12 @@
 		outline-style: none;
 	}
 
-	overflow-x: hidden !important;
+	overflow-x: hidden;
 
 	h1, h2, h3, h4 {
 		&:before, &:after {
-			all: initial !important;
-			content: none !important;
+			all: initial;
+			content: none;
 		}
 	}
 
