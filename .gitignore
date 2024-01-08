@@ -22,3 +22,4 @@ museum-remote/release
 *.code-workspace
 .DS_Store
 node_modules
+wordpress/

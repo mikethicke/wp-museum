@@ -1,0 +1,35 @@
+name: wp-museum
+recipe: lemp
+config:
+  webroot: wordpress
+services:
+  appserver:
+    type: php:custom
+    overrides:
+      build: .
+      image: wp-museum/wordpress:8.2
+      environment: 
+        XDEBUG_MODE:
+        XDEBUG_CONFIG:
+    build_as_root:
+      - npm run build
+      - /app/scripts/build-wordpress.sh
+    config:
+      php: scripts/php.ini
+  database:
+    type: mariadb
+    portforward: 3306
+    creds:
+      user: wordpress
+      password: wordpress
+      database: wordpress
+tooling:
+  wp:
+      service: appserver
+      description: Runs WP-CLI commands
+      cmd: wp
+  wp-install:
+      service: appserver
+      description: Installs WordPress with user admin and password admin
+      cmd: wp core install --title="WordPress Museum" --admin_user=admin --admin_password=admin --
+  
