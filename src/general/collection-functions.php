@@ -33,7 +33,7 @@ function get_collections( $post_status = 'any' ) {
  * @return Array [ key: cat | category__in, val: list of category IDs ]
  */
 function generate_associated_objects_category_argument( $post_id, $post_status = 'publish' ) {
-	$post_custom   = get_post_custom( $post_id );
+	$post_custom = get_post_custom( $post_id );
 
 	if ( ! isset( $post_custom['associated_category'] ) ) {
 		return false;
@@ -148,10 +148,10 @@ function get_associated_objects( $post_status = 'publish', $post_id = null ) {
  * @return [int]    Array of post ids associated with the collection.
  */
 function get_associated_object_ids( $post_id, $post_status = 'publish' ) {
-	$query    = query_associated_objects( $post_status, $post_id, 1 );
+	$query = query_associated_objects( $post_status, $post_id, 1 );
 	if ( ! is_null( $query ) ) {
 		$post_ids = array_map(
-			function( $element ) {
+			function ( $element ) {
 					return $element->ID;
 			},
 			$query->posts
@@ -197,7 +197,7 @@ function get_object_collections( $post_id ) {
  * Retrieves links to all collections that a post is associated with.
  *
  * @param string $separator      String separating each link.
- * 
+ *
  * @param int    $post_id        The id of the post.
  * @return string   Html string containing links to each collection.
  */
@@ -266,4 +266,3 @@ function get_collection_featured_image( $post_id ) {
 
 	return false;
 }
-

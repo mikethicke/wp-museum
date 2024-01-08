@@ -118,19 +118,19 @@ class Collection_Tree_Widget extends \WP_Widget {
 		// are sub-arrays of parent collections.
 		uasort(
 			$collection_posts,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				return strcmp( $a->post_title, $b->post_title );
 			}
 		);
 		$top_collections = array_filter(
 			$collection_posts,
-			function( $a ) {
+			function ( $a ) {
 				return 0 === $a->post_parent;
 			}
 		);
 		$sub_collections = array_filter(
 			$collection_posts,
-			function( $a ) {
+			function ( $a ) {
 				return 0 !== $a->post_parent;
 			}
 		);

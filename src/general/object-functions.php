@@ -102,12 +102,12 @@ function set_object_image_box_attachments( $attached_image_array, $post_id ) {
  */
 function get_object_image_attachments( $post_id ) {
 	$attached_image_array = [];
-	$attach_ids = get_post_meta( $post_id, 'wpm_gallery_attach_ids', true );
+	$attach_ids           = get_post_meta( $post_id, 'wpm_gallery_attach_ids', true );
 	if ( ! is_array( $attach_ids ) ) {
 		return [];
 	}
 	$attach_ids = array_map(
-		function( $item ) {
+		function ( $item ) {
 			return intval( $item );
 		},
 		$attach_ids
@@ -148,8 +148,8 @@ function object_image_box_contents( $post_id = null ) {
 /**
  * Gets all descendent posts (recursive children) of a post.
  *
- * @param int     $post_id        A post.
- * @param string  $post_status    The publication status of descendent posts to retrieve.
+ * @param int    $post_id        A post.
+ * @param string $post_status    The publication status of descendent posts to retrieve.
  *
  * @return [WP_Post] Array of descendent posts.
  */
@@ -199,10 +199,10 @@ function object_thumbnail_id( $post_id ) {
 /**
  * Returns an object post from cat_id.
  *
- * @param ObjectKind / int  $kind    Kind or kind id corresponding to the object.
- * @param string            $cat_id  The post's catalog id field.
+ * @param ObjectKind / int $kind    Kind or kind id corresponding to the object.
+ * @param string           $cat_id  The post's catalog id field.
  *
- * @return WP_POST A Wordpress post matching that id, or null.
+ * @return WP_POST A WordPress post matching that id, or null.
  */
 function get_object_post_from_id( $kind, $cat_id ) {
 	if ( is_int( $kind ) ) {
@@ -363,8 +363,8 @@ function do_advanced_search( $request ) {
 
 	add_object_meta_query_filter( $search_terms, $kind );
 	$search_query = new \WP_Query( $query_args );
-	$found_posts = $search_query->posts;
-	$query_data = [
+	$found_posts  = $search_query->posts;
+	$query_data   = [
 		'num_pages'    => $search_query->max_num_pages,
 		'current_page' => $search_query->get( 'paged', 1 ),
 	];
@@ -440,13 +440,13 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 			];
 		}
 		$search_all_fields_query = new \WP_Meta_Query( $search_all_fields_args );
-		$search_all_fields_sql = $search_all_fields_query->get_sql(
+		$search_all_fields_sql   = $search_all_fields_query->get_sql(
 			'post',
 			$wpdb->posts,
 			'ID',
 			null
 		);
-		$join_clause = $search_all_fields_sql['join'];
+		$join_clause             = $search_all_fields_sql['join'];
 	}
 	$meta_filter_args = [
 		'relation' => 'AND',
@@ -471,18 +471,18 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 	}
 	if ( count( $meta_filter_args ) > 1 ) {
 		$meta_filter_query = new \WP_Meta_Query( $meta_filter_args );
-		$meta_fields_sql = $meta_filter_query->get_sql(
+		$meta_fields_sql   = $meta_filter_query->get_sql(
 			'post',
 			$wpdb->posts,
 			'ID',
 			null
 		);
-		$join_clause = $meta_fields_sql['join'];
+		$join_clause       = $meta_fields_sql['join'];
 	}
 	if ( isset( $join_clause ) ) {
 		add_filter(
 			'posts_where',
-			function( $where, $the_query ) use ( $search_all_fields_sql, $meta_fields_sql ) {
+			function ( $where, $the_query ) use ( $search_all_fields_sql, $meta_fields_sql ) {
 				global $wpdb;
 				$new_where = '';
 				if ( ! empty( $search_all_fields_sql ) ) {
@@ -509,7 +509,7 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 		);
 		add_filter(
 			'posts_join',
-			function( $join, $the_query ) use ( $join_clause ) {
+			function ( $join, $the_query ) use ( $join_clause ) {
 				return $join . $join_clause;
 			},
 			10,
@@ -517,7 +517,7 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 		);
 		add_filter(
 			'posts_distinct',
-			function( $distinct, $the_query ) {
+			function ( $distinct, $the_query ) {
 				return ' DISTINCT ';
 			},
 			10,
@@ -525,4 +525,3 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 		);
 	}
 }
-

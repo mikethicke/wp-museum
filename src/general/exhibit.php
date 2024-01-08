@@ -67,7 +67,7 @@ $exhibit_post_type->add_meta_field( 'layout', 'Exhibit Layout', 'radio', $option
 // Metabox showing exhibit children of current exhibit, with view and edit links.
 // Button "New Sub Exhibit" creates a new exhibit as a child, then redirects to edit page
 // for new exhibit.
-$display_sub_exhibits_cb = function() {
+$display_sub_exhibits_cb = function () {
 	global $post;
 	$sub_exhibits = get_children(
 		[
@@ -97,7 +97,7 @@ $exhibit_post_type->add_custom_meta( $children_box );
 
 // Metabox showing objects (everything except exhibits) in associated directory, with view
 // and edit links.
-$display_associated_objects = function() {
+$display_associated_objects = function () {
 	global $post;
 	$post_custom = get_post_custom( $post->ID );
 	if ( ! isset( $post_custom['associated_category'] ) ) {

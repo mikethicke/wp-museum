@@ -26,8 +26,8 @@ function register_object_meta_block() {
 	if ( ! $post_type || ! in_array( $post_type, get_object_type_names() ) ) {
 		return;
 	}
-	$kind      = get_kind_from_typename( $post_type );
-	$fields    = get_mobject_fields( $kind->kind_id );
+	$kind   = get_kind_from_typename( $post_type );
+	$fields = get_mobject_fields( $kind->kind_id );
 
 	$attributes = [];
 	foreach ( $fields as $field ) {
@@ -89,7 +89,7 @@ function render_object_post_type_block( $attributes ) {
 
 	// Custom fields.
 	$custom_fields_html = '';
-	$bool_yes_fields = [];
+	$bool_yes_fields    = [];
 	foreach ( $fields as $field ) {
 		$meta_value = get_post_meta( $post->ID, $field->slug, true );
 		// Public can only view fields marked as "public".
@@ -140,7 +140,7 @@ function render_object_post_type_block( $attributes ) {
 			} else {
 				$field_text .= $meta_value;
 			}
-			$field_text = \html_entity_decode( $field_text );
+			$field_text          = \html_entity_decode( $field_text );
 			$custom_fields_html .= apply_filters( 'the_content', $field_text, true );
 		}
 		$custom_fields_html .= '</div>';
@@ -156,8 +156,8 @@ function render_object_post_type_block( $attributes ) {
 
 	// Object children.
 	$object_children_html = '';
-	$child_kinds = $object_kind->get_children();
-	$child_ids = get_post_meta( $post->ID, WPM_PREFIX . 'child_objects', true );
+	$child_kinds          = $object_kind->get_children();
+	$child_ids            = get_post_meta( $post->ID, WPM_PREFIX . 'child_objects', true );
 	if ( $child_kinds && $child_ids ) {
 		foreach ( $child_kinds as $child_kind ) {
 			if (

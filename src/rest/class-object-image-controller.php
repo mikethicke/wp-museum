@@ -130,8 +130,8 @@ class Object_Image_Controller extends \WP_REST_Controller {
 	 * WP_Error object on failure.
 	 */
 	public function update_item( $request ) {
-		$post                      = get_post_for_rest( $request['id'] );
-		$request_data              = json_decode( $request->get_body(), false );
+		$post         = get_post_for_rest( $request['id'] );
+		$request_data = json_decode( $request->get_body(), false );
 
 		if ( isset( $request_data->images ) ) {
 			$updated_image_attachments = $request_data->images;

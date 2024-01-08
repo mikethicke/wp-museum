@@ -17,8 +17,7 @@ namespace MikeThicke\WPMuseum;
 /*****************************************************************************
  *
  * Global Actions
- *
- *****************************************************************************/
+ */
 
 // Stop auto refresh of pages when debugging.
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
@@ -31,7 +30,7 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
 	);
 	add_action(
 		'init',
-		function() {
+		function () {
 			flush_rewrite_rules();
 		}
 	);
@@ -45,7 +44,7 @@ register_activation_hook(
 	function () {
 		add_action(
 			'init',
-			function() {
+			function () {
 				flush_rewrite_rules();
 			}
 		);
@@ -61,7 +60,7 @@ register_deactivation_hook( PLUGIN_BASENAME, __NAMESPACE__ . '\remove_museum_cap
 
 /**
  * Delete options and tables on plugin deletion.
- * 
+ *
  * (If clear_data_on_uninstall is false, will not delete any data on uninstall.)
  *
  * @see cleanup.php:do_cleanup()
@@ -108,8 +107,7 @@ add_action( 'widgets_init', __NAMESPACE__ . '\register_collection_tree_widget' )
 /*****************************************************************************
  *
  * Global Filters
- *
- *****************************************************************************/
+ */
 
 /**
  * Allows for targetted searches of post_title and post_content.
@@ -129,8 +127,7 @@ add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
 /*****************************************************************************
  *
  * Global Filters
- *
- *****************************************************************************/
+ */
 
 /**
  * Allows for targetted searches of post_title and post_content.
@@ -150,8 +147,7 @@ add_filter( 'query_vars', __NAMESPACE__ . '\add_title_content_query_vars' );
 /*****************************************************************************
  *
  * Admin Actions
- *
- *****************************************************************************/
+ */
 
 /**
  * Add appropriate capabilities for museum object post types.
@@ -223,12 +219,12 @@ add_action( 'admin_menu', __NAMESPACE__ . '\create_admin_react_pages' );
 
 /**
  * Enqueues admin scripts
- * 
+ *
  * @see admin/admin-style.css
  */
 add_action(
 	'admin_enqueue_scripts',
-	function() {
+	function () {
 		wp_enqueue_style(
 			WPM_PREFIX . 'admin-styles',
 			WPM_BASE_URL . 'admin/admin-style.css',
@@ -241,8 +237,7 @@ add_action(
 /*****************************************************************************
  *
  * Admin Filters
- *
- *****************************************************************************/
+ */
 
 /**
  * Add 'Museum' category to Gutenberg block categories.
@@ -254,8 +249,7 @@ add_filter( 'block_categories', __NAMESPACE__ . '\add_museum_block_category' );
 /*****************************************************************************
  *
  * Frontend Actions
- *
- *****************************************************************************/
+ */
 
 /**
  * Enqueue fancybox javascript for frontend.
@@ -292,7 +286,7 @@ add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_frontend_scrip
  */
 add_action(
 	'wp_enqueue_scripts',
-	function() {
+	function () {
 		wp_enqueue_style(
 			WPM_PREFIX . 'frontend-styles',
 			plugin_dir_url( __FILE__ ) . 'style.css',
@@ -312,8 +306,7 @@ add_action( 'admin_bar_menu', __NAMESPACE__ . '\post_status_indicator', 50, 1 );
 /*****************************************************************************
  *
  * Frontend Filters
- *
- *****************************************************************************/
+ */
 
 /**
  * Filter to add link text to content containing text patterns matching
@@ -338,11 +331,10 @@ add_filter( 'get_the_excerpt', __NAMESPACE__ . '\mobject_excerpt_filter', 10, 2 
  */
 add_filter( 'the_content', __NAMESPACE__ . '\mobject_collection_breadcrumbs', 10, 2 );
 
- /*****************************************************************************
+/*****************************************************************************
  *
  * AJAX
- *
- *****************************************************************************/
+ */
 
 /**
  * Creates a new post with same type as current post and sets current post as its parent.
@@ -399,4 +391,3 @@ add_action( 'wp_ajax_delete_image_zip_aj', __NAMESPACE__ . '\delete_image_zip_aj
  * @see collection-functions.php::collection_redirect()
  */
 add_action( 'template_redirect', __NAMESPACE__ . '\collection_redirect' );
-

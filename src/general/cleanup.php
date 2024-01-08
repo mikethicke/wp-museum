@@ -13,27 +13,27 @@ namespace MikeThicke\WPMuseum;
  * @return true if data has been cleared.
  */
 function do_cleanup() {
-    if ( ! get_option( 'clear_data_on_uninstall', false ) ) {
-        return false;
-    }
-    
-    /**
-     * Options
-     */
-    delete_option( WPM_PREFIX . 'collection_override_category' );
-    delete_option( 'museum-remote-data' );
-    delete_option( 'wpm_db_version' );
-    delete_option( 'allow_remote_requests' );
-    delete_option( 'allow_unregistered_requests' );
-    delete_option( 'rest_authorized_domains' );
-    delete_option( 'clear_data_on_uninstall' );
+	if ( ! get_option( 'clear_data_on_uninstall', false ) ) {
+		return false;
+	}
 
-    /**
-     * Tables
-     */
-    delete_mobject_kinds_table();
-    delete_mobject_fields_table();
-    delete_remote_clients_table();
+	/**
+	 * Options
+	 */
+	delete_option( WPM_PREFIX . 'collection_override_category' );
+	delete_option( 'museum-remote-data' );
+	delete_option( 'wpm_db_version' );
+	delete_option( 'allow_remote_requests' );
+	delete_option( 'allow_unregistered_requests' );
+	delete_option( 'rest_authorized_domains' );
+	delete_option( 'clear_data_on_uninstall' );
 
-    return true;
+	/**
+	 * Tables
+	 */
+	delete_mobject_kinds_table();
+	delete_mobject_fields_table();
+	delete_remote_clients_table();
+
+	return true;
 }

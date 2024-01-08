@@ -81,7 +81,7 @@ trait Preparable_From_Schema {
 					if ( ! isset( $data[ $property ] ) ) {
 						$new_data[ $property ] = null;
 					}
-					$new_data[ $property ] = self::sanitize_from_type(
+					$new_data[ $property ]  = self::sanitize_from_type(
 						$data[ $property ],
 						$property_schema
 					);

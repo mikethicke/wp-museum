@@ -16,8 +16,8 @@ function enqueue_admin_react( $hook_suffix ) {
 		return;
 	}
 
-	$asset_file = include ( WPM_BUILD_DIR . 'admin.asset.php' );
-	$pu = WPM_BUILD_URL . 'admin-react.js';
+	$asset_file = include WPM_BUILD_DIR . 'admin.asset.php';
+	$pu         = WPM_BUILD_URL . 'admin-react.js';
 	wp_enqueue_script(
 		WPM_PREFIX . 'admin-react',
 		WPM_BUILD_URL . 'admin-react.js',
@@ -33,7 +33,7 @@ function enqueue_admin_react( $hook_suffix ) {
 
 	wp_enqueue_style(
 		WPM_PREFIX . 'admin-react-style',
-		WPM_BUILD_URL. 'admin.css',
+		WPM_BUILD_URL . 'admin.css',
 		[],
 		filemtime( WPM_BUILD_DIR . 'admin.css' )
 	);
@@ -128,4 +128,3 @@ function react_admin_omi_pmh() {
 		"<div id='wpm-react-admin-app-container-omi-pmh'></div>"
 	);
 }
-

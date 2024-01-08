@@ -59,7 +59,7 @@ function combine_post_data( $post ) {
 	$img_data = get_object_thumbnail( $post->ID );
 
 	$object_taxonomies = get_object_taxonomies( $post, 'names' );
-	$taxonomy_data = [];
+	$taxonomy_data     = [];
 	foreach ( $object_taxonomies as $tax ) {
 		$terms_data = get_the_terms( $post, $tax );
 		if ( $terms_data ) {

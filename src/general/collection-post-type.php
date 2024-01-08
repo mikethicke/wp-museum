@@ -30,7 +30,7 @@ $collection_options   = [
 		'map_meta_cap' => true,
 		'template'     => [
 			[ 'core/paragraph', [ 'placeholder' => 'A general description of the collection...' ] ],
-			[ 'wp-museum/collection-objects'],
+			[ 'wp-museum/collection-objects' ],
 		],
 	],
 ];
@@ -62,7 +62,7 @@ $collection_post_type->register();
  */
 add_action(
 	'init',
-	function() {
+	function () {
 		register_taxonomy(
 			'collection_tag',
 			WPM_PREFIX . 'collection',

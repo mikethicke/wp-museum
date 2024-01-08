@@ -53,7 +53,7 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 					[
 						'methods'             => \WP_REST_Server::READABLE,
 						'permission_callback' => [ $this, 'get_items_permission_check' ],
-						'callback'            => function( $request ) use ( $kind ) {
+						'callback'            => function ( $request ) use ( $kind ) {
 							return $this->get_items( $request, $kind );
 						},
 					],
@@ -99,7 +99,7 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 		if ( ! $kind ) {
 			return new \WP_Error(
 				'rest-fields-no-kind',
-				'Attempted to retrieve fields for null kind.' 
+				'Attempted to retrieve fields for null kind.'
 			);
 		}
 		$fields          = get_mobject_fields( $kind->kind_id );
@@ -138,7 +138,7 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 			} elseif ( false === $mobject_field->save_to_db() ) {
 				$success          = false;
 				$failed_queries[] = $wpdb->last_query;
-			};
+			}
 		}
 		return rest_ensure_response( $success );
 	}

@@ -137,15 +137,15 @@ class ObjectKind {
 			return;
 		}
 
-		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
-		$type_name = WPM_PREFIX . $this->name;
+		$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+		$type_name  = WPM_PREFIX . $this->name;
 		if ( strlen( $type_name ) > 20 ) {
 			$type_name = substr( $type_name, 0, 19 );
 		}
 
-		$duplicates = true;
+		$duplicates        = true;
 		$duplicate_counter = 0;
-		$unique_type_name = $type_name;
+		$unique_type_name  = $type_name;
 		while ( $duplicates ) {
 			if ( is_null( $this->kind_id ) || is_null( get_kind( $this->kind_id ) ) ) {
 				$results = $wpdb->get_results(
@@ -165,7 +165,7 @@ class ObjectKind {
 			}
 			if ( 0 < count( $results ) ) {
 				$unique_type_name = substr( $type_name, 0, 18 ) . '_' . $duplicate_counter;
-				$duplicate_counter++;
+				++$duplicate_counter;
 			} else {
 				$duplicates = false;
 			}
@@ -282,10 +282,10 @@ class ObjectKind {
 	 * Returns array of kind arrays of children of this kind.
 	 */
 	public function get_children_array() {
-		$children = $this->get_children();
+		$children       = $this->get_children();
 		$children_array = array_map(
-			function ( $child ) { 
-				return $child->to_array(); 
+			function ( $child ) {
+				return $child->to_array();
 			},
 			$children
 		);
@@ -296,9 +296,9 @@ class ObjectKind {
 	 * Returns array of kind types that are children of this kind.
 	 */
 	public function get_child_types() {
-		$children = $this->get_children();
+		$children    = $this->get_children();
 		$child_types = array_map(
-			function( $kind ) {
+			function ( $kind ) {
 				return $kind->type_name;
 			},
 			$children
@@ -364,18 +364,18 @@ class ObjectKind {
 	 * Return public properties as associative array.
 	 */
 	public function to_public_rest_array() {
-		$arr                        = [];
-		$arr['kind_id']             = $this->kind_id;
-		$arr['cat_field_id']        = $this->cat_field_id;
-		$arr['name']                = $this->name;
-		$arr['type_name']           = $this->type_name;
-		$arr['label']               = $this->label;
-		$arr['label_plural']        = $this->label_plural;
-		$arr['description']         = $this->description;
-		$arr['categorized']         = $this->categorized;
-		$arr['hierarchical']        = $this->hierarchical;
-		$arr['parent_kind_id']      = $this->parent_kind_id;
-		$arr['children']            = $this->get_children_array();
+		$arr                   = [];
+		$arr['kind_id']        = $this->kind_id;
+		$arr['cat_field_id']   = $this->cat_field_id;
+		$arr['name']           = $this->name;
+		$arr['type_name']      = $this->type_name;
+		$arr['label']          = $this->label;
+		$arr['label_plural']   = $this->label_plural;
+		$arr['description']    = $this->description;
+		$arr['categorized']    = $this->categorized;
+		$arr['hierarchical']   = $this->hierarchical;
+		$arr['parent_kind_id'] = $this->parent_kind_id;
+		$arr['children']       = $this->get_children_array();
 		return $arr;
 	}
 
@@ -384,7 +384,7 @@ class ObjectKind {
 	 */
 	public function save_to_db() {
 		global $wpdb;
-		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+		$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
 
 		if ( $this->label ) {
 			$this->name = self::name_from_label( $this->label );
@@ -413,7 +413,7 @@ class ObjectKind {
 	 */
 	public function delete_from_db() {
 		global $wpdb;
-		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+		$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
 
 		if ( is_null( $this->kind_id ) || 0 > $this->kind_id ) {
 			return false;

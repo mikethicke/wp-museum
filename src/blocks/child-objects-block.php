@@ -22,15 +22,15 @@ function register_child_objects_block() {
 		'wp-museum/child-objects-block',
 		[
 			'attributes' => [
-				'childObjects' => [
+				'childObjects'    => [
 					'type'   => 'object',
 					'source' => 'meta',
 					'meta'   => WPM_PREFIX . 'child_objects',
 				],
 				'childObjectsStr' => [
-					'type'    => 'string',
-					'source'  => 'meta',
-					'meta'    => WPM_PREFIX . 'child_objects_str',
+					'type'   => 'string',
+					'source' => 'meta',
+					'meta'   => WPM_PREFIX . 'child_objects_str',
 				],
 			],
 		]

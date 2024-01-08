@@ -82,7 +82,7 @@ class Site_Data_Controller extends \WP_REST_Controller {
 		$collections = get_collections();
 
 		$collection_names = array_map(
-			function( $collection ) {
+			function ( $collection ) {
 				return $collection->post_title;
 			},
 			$collections

@@ -119,7 +119,3 @@ function remove_museum_capabilities() {
 	$author_role->remove_cap( WPM_PREFIX . 'edit_others_exhibits' );
 	$author_role->remove_cap( WPM_PREFIX . 'edit_published_exhibits' );
 }
-
-
-
-

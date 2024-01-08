@@ -11,7 +11,7 @@ namespace MikeThicke\WPMuseum;
  * Callback to load block scripts.
  */
 function enqueue_block_scripts() {
-	$asset_file = include ( WPM_BUILD_DIR . 'blocks-edit.asset.php' );
+	$asset_file = include WPM_BUILD_DIR . 'blocks-edit.asset.php';
 	wp_enqueue_script(
 		WPM_PREFIX . 'blocks-edit',
 		WPM_BUILD_URL . 'blocks-edit.js',
@@ -38,7 +38,7 @@ function enqueue_block_scripts() {
  */
 function enqueue_block_frontend_scripts() {
 
-	$asset_file = include ( WPM_BUILD_DIR . 'blocks-front.asset.php' );
+	$asset_file = include WPM_BUILD_DIR . 'blocks-front.asset.php';
 	wp_enqueue_script(
 		WPM_PREFIX . 'blocks',
 		WPM_BUILD_URL . 'blocks-frontend.js',
@@ -101,6 +101,3 @@ function unregister_object_blocks_for_non_objects() {
 		);
 	}
 }
-
-
-

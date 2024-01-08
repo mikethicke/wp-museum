@@ -48,8 +48,7 @@ function add_object_admin_page() {
  * Top-level function for object admin page that displays appropriate editing page depending on get parameter.
  */
 function objects_admin_page() {
-	$status_report = process_actions();
-	echo $status_report;
+	process_actions();
 
 	if ( isset( $_GET['wpm-objects-page'] ) ) {
 		if ( ! check_admin_referer( 'd78HG@YsELh2KByUgCTuDCepW', 'wpm-objects-admin-nonce' ) ) {
@@ -96,6 +95,11 @@ function display_object_admin_main() {
 	echo '</div>';
 }
 
+/**
+ * Display admin form section for downloading and creating image backups.
+ *
+ * @param string $form_url The url of the current page.
+ */
 function display_images_admin_section( $form_url ) {
 	echo '<h2>Images</h2>';
 
@@ -117,6 +121,11 @@ function display_images_admin_section( $form_url ) {
 	echo '</div>';
 }
 
+/**
+ * Display admin form section for uploading CSV files.
+ *
+ * @param string $form_url The url of the current page.
+ */
 function display_kinds_admin_section( $form_url ) {
 	$csv_url = add_query_arg(
 		[
@@ -143,7 +152,7 @@ function display_kinds_admin_section( $form_url ) {
 	);
 	$kinds = get_mobject_kinds();
 	foreach ( $kinds as $kind ) {
-		$fields = get_mobject_fields( $kind->kind_id );
+		$fields                  = get_mobject_fields( $kind->kind_id );
 		$all_mobject_posts       = get_posts(
 			[
 				'numberposts' => -1,
@@ -167,6 +176,7 @@ function display_kinds_admin_section( $form_url ) {
 			],
 			$form_url
 		);
+		// phpcs:ignore
 		echo "<tr id='kind-row-{$kind->kind_id}'>";
 		echo '<td>' . esc_html( $kind->label ) . '</td>';
 		echo '<td>' . esc_html( count( $all_mobject_posts ) ) . '</td>';
@@ -174,8 +184,9 @@ function display_kinds_admin_section( $form_url ) {
 		echo '<td>';
 		echo "<a class='button' href='" . esc_url( $url ) . "'>Edit</a> ";
 		echo '<a class="button delete-kind-button" data-kind-id="' . esc_html( $kind->kind_id ) . '">Delete</a> ';
-		echo export_csv_button( $kind->kind_id ) . ' ';
-		echo import_csv_button( $kind->kind_id );
+		export_csv_button( $kind->kind_id );
+		echo ' ';
+		import_csv_button( $kind->kind_id );
 		echo '</td>';
 		echo '</tr>';
 	}
@@ -199,6 +210,9 @@ function display_kinds_admin_section( $form_url ) {
 
 $wpm_test = WPM_PREFIX;
 
+/**
+ * Displays options section for object admin page.
+ */
 function display_options_admin_section() {
 
 	/**
@@ -223,12 +237,16 @@ function display_options_admin_section() {
 		}
 	}
 
-	$form_action = $_SERVER['PHP_SELF'] . '?page=wpm-objects-admin';
+	if ( isset( $_SERVER['PHP_SELF'] ) ) {
+		$form_action = sanitize_url( wp_unslash( $_SERVER['PHP_SELF'] ) ) . '?page=wpm-objects-admin';
+	} else {
+		$form_action = '';
+	}
 
 	echo '<h2>Options</h2>';
-	echo "<form name='object_admin_options' method='post' action='$form_action'>";
+	echo "<form name='object_admin_options' method='post' action='" . esc_html( $form_action ) . "'>";
 	wp_nonce_field( 'd78HG@YsELh2KByUgCTuDCepW', 'wpm-objects-admin-nonce' );
-	echo "<input type='checkbox' name='" . WPM_PREFIX . "collection_override_category' id='wpm_collection_override_category' value='1'";
+	echo "<input type='checkbox' name='" . esc_html( WPM_PREFIX ) . "collection_override_category' id='wpm_collection_override_category' value='1'";
 	if ( intval( get_option( WPM_PREFIX . 'collection_override_category' ) ) === 1 ) {
 		echo ' checked';
 	}
@@ -259,8 +277,8 @@ function display_image_backups_table() {
 	foreach ( scandir( $zip_dir )  as $item ) {
 		$allowed_extensions = [ 'zip' ];
 		if ( in_array( pathinfo( $item, PATHINFO_EXTENSION ), $allowed_extensions, true ) ) {
-			$info = stat( $zip_dir . DIRECTORY_SEPARATOR . $item );
-			$date_modified = date( 'Y-m-d', $info['mtime'] );
+			$info          = stat( $zip_dir . DIRECTORY_SEPARATOR . $item );
+			$date_modified = gmdate( 'Y-m-d', $info['mtime'] );
 			if ( $info['size'] < 1000000 ) {
 				$size_text = round( $info['size'] / 1000 ) . ' kB';
 			} else {
@@ -268,17 +286,15 @@ function display_image_backups_table() {
 			}
 			$download_url = $zip_dir_url . '/' . $item;
 			$row_id       = 'backup-row-' . str_replace( '.', '_', $item );
-			echo(
-				"<tr id='$row_id'>
-					<td>$item</td>
-					<td>$date_modified</td>
-					<td>$size_text</td>
-					<td>
-						<a class='button' href='$download_url'>Download</a>
-						<a class='button delete-zip-button' data-zip-item='$item'>Delete</a>
-					</td>
-				</tr>"
-			);
+			echo "<tr id='" . esc_html( $row_id ) . "'>";
+			echo '<td>' . esc_html( $item ) . '</td>';
+			echo '<td>' . esc_html( $date_modified ) . '</td>';
+			echo '<td>' . esc_html( $size_text ) . '</td>';
+			echo '<td>';
+			echo "<a class='button' href='" . esc_url( $download_url ) . "'>Download</a> ";
+			echo "<a class='button delete-zip-button' data-zip-item='" . esc_html( $item ) . "'>Delete</a>";
+			echo '</td>';
+			echo '</tr>';
 		}
 	}
 	echo '</table>';
@@ -547,7 +563,7 @@ function edit_kind_form( $kind_id = -1 ) {
 	 */
 	?>
 	<div class="wrap">
-		<form name="object_fields_form" method="post" action="<?php echo wp_unslash( $form_action ); ?>">
+		<form name="object_fields_form" method="post" action="<?php echo esc_html( wp_unslash( $form_action ) ); ?>">
 		<?php wp_nonce_field( 'd78HG@YsELh2KByUgCTuDCepW', 'wpm-objects-admin-nonce' ); ?>
 		<div id='wpm-object-top-buttons'>
 			<input type="submit" class="button button-primary button-large" name="save-object" value="Save" />
@@ -638,7 +654,7 @@ function object_fields_table( $rows ) {
 
 			if ( is_null( $row->display_order ) ) {
 				$row->display_order = $order_counter;
-				$order_counter++;
+				++$order_counter;
 			}
 			$row_id = 'wpm-row-' . $row->display_order;
 			?>
@@ -718,7 +734,7 @@ function object_fields_table( $rows ) {
 				</td>
 			</tr>
 			<?php
-		} // Foreach ( $rows as $row ).
+		}
 		?>
 	</table>
 	<?php
@@ -735,9 +751,7 @@ function process_actions() {
 		if ( ! check_admin_referer( 'd78HG@YsELh2KByUgCTuDCepW', 'wpm-objects-admin-nonce' ) ) {
 			wp_die( esc_html__( 'Failed nonce check.', 'wp-museum' ) );
 		}
-		$status_report  = '';
-		$status_report .= process_uploaded_csv();
-		return $status_report;
+		process_uploaded_csv();
 	}
 }
 

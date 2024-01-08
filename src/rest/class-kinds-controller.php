@@ -85,7 +85,7 @@ class Kinds_Controller extends \WP_REST_Controller {
 					[
 						'methods'             => \WP_REST_Server::READABLE,
 						'permission_callback' => [ $this, 'get_items_permission_check' ],
-						'callback'            => function( $request ) use ( $kind ) {
+						'callback'            => function ( $request ) use ( $kind ) {
 							return $this->get_item( $request, $kind );
 						},
 					],
@@ -210,7 +210,7 @@ class Kinds_Controller extends \WP_REST_Controller {
 						'rest_cannot_update',
 						__( 'There was an error updating the object kind.' )
 					);
-				};
+				}
 			}
 		}
 		return rest_ensure_response( true );
@@ -313,7 +313,7 @@ class Kinds_Controller extends \WP_REST_Controller {
 		if ( $public ) {
 			return $this->public_schema;
 		} else {
-			$private_schema_properties = [
+			$private_schema_properties          = [
 				'must_featured_image' => [
 					'description' => __( 'Whether objects of this kind must have a featured image to be published.' ),
 					'type'        => 'boolean',

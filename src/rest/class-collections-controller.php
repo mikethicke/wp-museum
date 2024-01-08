@@ -243,7 +243,7 @@ class Collections_Controller extends \WP_REST_Controller {
 					);
 
 					$all_tags = array_map(
-						function( $a ) {
+						function ( $a ) {
 							return $a->slug;
 						},
 						$all_terms

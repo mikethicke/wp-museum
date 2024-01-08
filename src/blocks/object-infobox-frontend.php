@@ -39,52 +39,52 @@ add_action(
 			'wp-museum/object-infobox',
 			[
 				'render_callback' => __NAMESPACE__ . '\render_object_infobox_block',
-				'attributes' => [
-					'align' => [
+				'attributes'      => [
+					'align'          => [
 						'type'    => 'string',
 						'default' => 'center',
 					],
-					'objectID' => [
+					'objectID'       => [
 						'type'    => 'number',
 						'default' => null,
 					],
-					'catID' => [
+					'catID'          => [
 						'type'    => 'string',
 						'default' => null,
 					],
-					'title' => [
-						'type'    => 'string',
-						'default' => 'No Object Selected',
-					],
-					'excerpt' => [
+					'title'          => [
 						'type'    => 'string',
 						'default' => 'No Object Selected',
 					],
-					'imgURL' => [
+					'excerpt'        => [
+						'type'    => 'string',
+						'default' => 'No Object Selected',
+					],
+					'imgURL'         => [
 						'type'    => 'string',
 						'default' => null,
 					],
-					'imgIndex' => [
+					'imgIndex'       => [
 						'type'    => 'number',
 						'default' => 0,
 					],
-					'totalImages' => [
+					'totalImages'    => [
 						'type'    => 'number',
 						'default' => 0,
 					],
-					'imgHeight' => [
+					'imgHeight'      => [
 						'type'    => 'number',
 						'default' => null,
 					],
-					'imgWidth' => [
+					'imgWidth'       => [
 						'type'    => 'number',
 						'default' => null,
 					],
-					'objectURL' => [
-						'type'=> 'string',
-						'default'=> null,
+					'objectURL'      => [
+						'type'    => 'string',
+						'default' => null,
 					],
-					'displayTitle' => [
+					'displayTitle'   => [
 						'type'    => 'boolean',
 						'default' => true,
 					],
@@ -92,23 +92,23 @@ add_action(
 						'type'    => 'boolean',
 						'default' => true,
 					],
-					'displayImage' => [
+					'displayImage'   => [
 						'type'    => 'boolean',
 						'default' => true,
 					],
-					'linkToObject' => [
+					'linkToObject'   => [
 						'type'    => 'boolean',
 						'default' => true,
 					],
-					'fields' => [
+					'fields'         => [
 						'type'    => 'object',
 						'default' => [],
 					],
-					'fieldData' => [
+					'fieldData'      => [
 						'type'    => 'object',
 						'default' => [],
 					],
-					'imgDimensions' => [
+					'imgDimensions'  => [
 						'type'    => 'object',
 						'default' => [
 							'width'  => 150,
@@ -116,15 +116,15 @@ add_action(
 							'size'   => 'thumbnail', // options => thumbnail, medium, large, full.
 						],
 					],
-					'imgAlignment' => [
+					'imgAlignment'   => [
 						'type'    => 'string',
 						'default' => 'left', // options=> left, center, right.
 					],
-					'fontSize' => [
+					'fontSize'       => [
 						'type'    => 'float',
 						'default' => 0.7,
 					],
-					'titleTag' => [
+					'titleTag'       => [
 						'type'    => 'string',
 						'default' => 'h6', // options=> h2, h3, h, h5, h6, p.
 					],

@@ -16,10 +16,10 @@ trait With_ID_Arg {
 	 */
 	protected function get_id_arg() {
 		return [
-			'validate_callback' => function( $param, $request, $key ) {
+			'validate_callback' => function ( $param, $request, $key ) {
 				return is_numeric( $param );
 			},
-			'sanitize_callback' => function( $param, $request, $key ) {
+			'sanitize_callback' => function ( $param, $request, $key ) {
 				return intval( $param );
 			},
 		];

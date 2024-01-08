@@ -23,7 +23,7 @@ namespace MikeThicke\WPMuseum;
 function rest_request_authorized( $request ) {
 	if ( ! get_option( 'allow_remote_requests' ) ) {
 		return false;
-	};
+	}
 	if ( ! origin_authorized() ) {
 		return false;
 	}
@@ -49,7 +49,7 @@ function rest_request_authorized( $request ) {
 function origin_authorized( $origin = null ) {
 	if ( ! get_option( 'allow_remote_requests' ) ) {
 		return false;
-	};
+	}
 	$rest_authorized_domains = get_option( 'rest_authorized_domains' );
 	if ( is_null( $origin ) ) {
 		if ( empty( $_SERVER['HTTP_ORIGIN'] ) ) {
@@ -79,7 +79,7 @@ function origin_authorized( $origin = null ) {
 function handle_preflight() {
 	if ( ! get_option( 'allow_remote_requests' ) ) {
 		return;
-	};
+	}
 	if ( empty( $_SERVER['HTTP_ORIGIN'] ) ) {
 		return;
 	}

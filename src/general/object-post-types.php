@@ -105,9 +105,9 @@ function link_objects_by_id( $content ) {
 		// The pattern is based on user-inputtted regular expression with some
 		// special syntax for group ordering in sort. We convert that into an
 		// expression that will match correctly.
-		$pattern       = '/' . $id_field->field_schema . '/';
-		$pattern       = preg_replace( '/<.*?>/', ':', $pattern );
-		$matches       = array();
+		$pattern = '/' . $id_field->field_schema . '/';
+		$pattern = preg_replace( '/<.*?>/', ':', $pattern );
+		$matches = array();
 
 		// Make sure that we're not adding a link inside another link, which breaks the DOM.
 		$inside_link_element = false;
@@ -127,10 +127,10 @@ function link_objects_by_id( $content ) {
 					];
 					$posts = get_posts( $args );
 					if ( ! empty( $posts ) && $posts[0]->ID !== $post->ID ) {
-						$changed  = true;
-						$post_url = get_permalink( $posts[0] );
+						$changed    = true;
+						$post_url   = get_permalink( $posts[0] );
 						$post_title = $posts[0]->post_title;
-						$link     = "<a href='$post_url' title='$post_title'>{$match}</a>";
+						$link       = "<a href='$post_url' title='$post_title'>{$match}</a>";
 
 						$content_array[ $index ] = str_replace(
 							$match,
@@ -139,12 +139,10 @@ function link_objects_by_id( $content ) {
 						);
 					}
 				}
-			} else {
-				if ( '</a>' === substr( $content_array[ $index ], 0, 4 ) ) {
+			} elseif ( '</a>' === substr( $content_array[ $index ], 0, 4 ) ) {
 					$inside_link_element = false;
-				} elseif ( '<a ' === substr( $content_array[ $index ], 0, 3 ) ) {
-					$inside_link_element = true;
-				}
+			} elseif ( '<a ' === substr( $content_array[ $index ], 0, 3 ) ) {
+				$inside_link_element = true;
 			}
 		}
 	}

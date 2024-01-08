@@ -17,13 +17,13 @@ $style_defaults = [
 	WPM_PREFIX . 'mobject_style'         => [
 		'collections_breadcrumbs'      => true,
 		'collections_separator'        => ' &middot; ',
-		'field_label_font_weight'      => 'bold',           // bold|normal.
+		'field_label_font_weight'      => 'bold',           // Can be bold|normal.
 		'field_label_color'            => '',
 		'field_text_color'             => '',
 		'short_description_max_length' => 100,
-		'yes_no_display'               => 'list',           // list|normal.
+		'yes_no_display'               => 'list',           // Can be list|normal.
 		'display_image_gallery'        => true,
-		'image_gallery_position'       => 'right',          // top|bottom|left|right.
+		'image_gallery_position'       => 'right',          // Can be top|bottom|left|right.
 		'image_gallery_margin'         => 20,
 		'image_margin'                 => 10,
 		'image_border_width'           => 10,
@@ -32,7 +32,7 @@ $style_defaults = [
 		'image_max_height'             => 200,
 	],
 	WPM_PREFIX . 'collection_style'      => [
-		'collection_description'  => 'always',        // always|toggle.
+		'collection_description'  => 'always',        // Can be always|toggle.
 		'alternate_list_color'    => false,
 		'list_color_1'            => '',
 		'list_color_2'            => '',
@@ -60,11 +60,11 @@ function get_customizer_settings() {
 		WPM_PREFIX . 'customization_general',
 		$style_defaults[ WPM_PREFIX . 'customization_general' ]
 	);
-	$styles [ WPM_PREFIX . 'mobject_style' ] = get_option(
+	$styles [ WPM_PREFIX . 'mobject_style' ]        = get_option(
 		WPM_PREFIX . 'mobject_style',
 		$style_defaults[ WPM_PREFIX . 'mobject_style' ]
 	);
-	$styles [ WPM_PREFIX . 'collection_style'  ] = get_option(
+	$styles [ WPM_PREFIX . 'collection_style' ]     = get_option(
 		WPM_PREFIX . 'collection_style',
 		$style_defaults[ WPM_PREFIX . 'collection_style' ]
 	);
@@ -133,7 +133,7 @@ function add_sections( $wp_customize ) {
 	$wp_customize->add_panel(
 		WPM_PREFIX . 'customization_panel',
 		[
-			'title'    => 'WP Museum',
+			'title' => 'WP Museum',
 		]
 	);
 	$wp_customize->add_section(
@@ -354,8 +354,8 @@ function add_controls( $wp_customize ) {
 			'type'    => 'radio',
 			'choices' =>
 				[
-					'always'   => __( 'Always', 'wp-museum' ),
-					'toggle'   => __( 'Toggle', 'wp-museum' ),
+					'always' => __( 'Always', 'wp-museum' ),
+					'toggle' => __( 'Toggle', 'wp-museum' ),
 				],
 		]
 	);

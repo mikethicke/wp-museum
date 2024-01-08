@@ -1,6 +1,18 @@
 <?xml version="1.0"?>
 <ruleset name="WordPress Coding Standards for Gutenberg Plugin">
 	<description>Sniffs for WordPress plugins, with minor for WP-Museum</description>
+	<!-- Only check .php files -->
+    <arg name="extensions" value="php"/>
+
+	<!-- Check for PHP 8.x compatibility -->
+    <config name="testVersion" value="8.2-"/>
+    <rule ref="PHPCompatibility"/>
+
+	<exclude-pattern type="relative">vendor/*</exclude-pattern>
+	<exclude-pattern type="relative">node_modules/*</exclude-pattern>
+	<exclude-pattern type="relative">build/*</exclude-pattern>
+	<exclude-pattern type="relative">wordpress/*</exclude-pattern>
+	
 	<rule ref="WordPress">
 		<!-- Short array syntax is disallowed by WordPress-Extra coding
 		standard because it might be hard to distinguish from other uses of
@@ -12,6 +24,26 @@
 		-->
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
 	</rule>
-
-
+	<rule ref="Generic.Arrays.DisallowShortArraySyntax">
+    	<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax">
+    	<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+	<rule ref="WordPress.DB.DirectDatabaseQuery.DirectQuery">
+		<!-- This rule is overly aggressive -->
+		<exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery"/>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<!-- WP_Filesystem functions aren't suitable for this project-->
+		<exclude name="WordPress.WP.AlternativeFunctions.unlink_unlink"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_fopen"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_fclose"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_fread"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_fwrite"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_rmdir"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_unlink"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_mkdir"/>
+	</rule>
+	
 </ruleset>

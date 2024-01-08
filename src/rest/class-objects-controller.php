@@ -24,7 +24,9 @@ namespace MikeThicke\WPMuseum;
  * A singleton class for registering museum object endpoints.
  */
 class Objects_Controller extends \WP_REST_Controller {
-	use Preparable_From_Schema { prepare_item_for_response as trait_prepare_item_for_response; }
+	use Preparable_From_Schema {
+		prepare_item_for_response as trait_prepare_item_for_response;
+	}
 	use With_ID_Arg;
 
 	/**
@@ -68,7 +70,7 @@ class Objects_Controller extends \WP_REST_Controller {
 					[
 						'methods'             => \WP_REST_Server::READABLE,
 						'permission_callback' => [ $this, 'get_items_permission_check' ],
-						'callback'            => function( $request ) use ( $kind ) {
+						'callback'            => function ( $request ) use ( $kind ) {
 							return $this->get_items( $request, $kind );
 						},
 					],
@@ -279,7 +281,7 @@ class Objects_Controller extends \WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_object_children( $request ) {
-		$meta = get_post_meta( $request['id'], WPM_PREFIX . 'child_objects', true );
+		$meta       = get_post_meta( $request['id'], WPM_PREFIX . 'child_objects', true );
 		$data_array = [];
 		if ( $meta ) {
 			foreach ( $meta as $kind_id => $object_ids ) {
@@ -364,7 +366,7 @@ class Objects_Controller extends \WP_REST_Controller {
 		foreach ( $kinds as $kind ) {
 			$kind_fields = get_mobject_fields( $kind->kind_id, $public_fields_only );
 			$field_slugs = array_map(
-				function( $x ) {
+				function ( $x ) {
 					return $x->slug;
 				},
 				$kind_fields
@@ -376,7 +378,7 @@ class Objects_Controller extends \WP_REST_Controller {
 		foreach ( $kinds_field_slugs as $slug ) {
 			$field_query = sanitize_text_field( $request->get_param( $slug ) );
 			if ( substr( $field_query, 0, 1 ) === '~' ) {
-				$comparator = 'LIKE';
+				$comparator  = 'LIKE';
 				$field_query = substr( $field_query, 1 );
 			} else {
 				$comparator = '=';
@@ -413,11 +415,11 @@ class Objects_Controller extends \WP_REST_Controller {
 
 		// Filter by collection.
 		$selected_collections = $request->get_param( 'selectedCollections' );
-		$cat_args = false;
+		$cat_args             = false;
 		if ( ! empty( $selected_collections ) && is_array( $selected_collections ) ) {
 			foreach ( $selected_collections as &$collection_id ) {
 				$collection_id = intval( $collection_id );
-				$new_args = generate_associated_objects_category_argument( $collection_id, $post_status );
+				$new_args      = generate_associated_objects_category_argument( $collection_id, $post_status );
 				if ( $new_args ) {
 					if ( ! $cat_args ) {
 						$cat_args = $new_args;

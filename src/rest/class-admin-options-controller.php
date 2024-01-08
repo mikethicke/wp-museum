@@ -175,12 +175,12 @@ class Admin_Options_Controller extends \WP_REST_Controller {
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
 				],
-				'clear_data_on_uninstall'      => [
+				'clear_data_on_uninstall'     => [
 					'description' => __( 'Whether to delete all museum data on plugin uninstall.' ),
 					'type'        => 'boolean',
 					'context'     => [ 'view', 'edit' ],
 				],
-				'show_post_status'             => [
+				'show_post_status'            => [
 					'description' => __( 'Whether to show post status in admin bar.' ),
 					'type'        => 'boolean',
 					'context'     => [ 'view', 'edit' ],

@@ -165,7 +165,7 @@ class MObjectField {
 		$instance->field_schema          = $row->field_schema;
 		$instance->max_length            = intval( $row->max_length );
 		$instance->units                 = trim( wp_unslash( $row->units ) );
-		$instance->factors               = json_decode( $row->factors, false, 2 );
+		$instance->factors               = $row->factors ? json_decode( $row->factors, false, 2 ) : '';
 
 		if ( is_null( $instance->factors ) ) {
 			$instance->factors = [];
@@ -175,7 +175,9 @@ class MObjectField {
 		$instance->set_field_slug_from_name();
 
 		// Clean dimensions object.
-		$instance->set_dimensions( json_decode( $row->dimensions, true, 4 ) );
+		$instance->set_dimensions(
+			$row->dimensions ? json_decode( $row->dimensions, true, 4 ) : ''
+		);
 
 		return $instance;
 	}
@@ -220,6 +222,8 @@ class MObjectField {
 
 	/**
 	 * Sets the field slug based on the name.
+	 *
+	 * phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	 */
 	private function set_field_slug_from_name() {
 		global $wpdb;
@@ -232,9 +236,9 @@ class MObjectField {
 		$name = preg_replace( '/[^A-Za-z0-9 ]/', '', $this->name );
 		$name = substr( trim( strtolower( str_replace( ' ', '-', $name ) ) ), 0, 255 );
 
-		$duplicates = true;
+		$duplicates        = true;
 		$duplicate_counter = 0;
-		$slug = $name;
+		$slug              = $name;
 		while ( $duplicates ) {
 			if ( $this->field_id < 0 ) {
 				$results = $wpdb->get_results(
@@ -254,7 +258,7 @@ class MObjectField {
 			}
 			if ( 0 < count( $results ) ) {
 				$slug = $name . '_' . $duplicate_counter;
-				$duplicate_counter++;
+				++$duplicate_counter;
 			} else {
 				$duplicates = false;
 			}
@@ -265,9 +269,7 @@ class MObjectField {
 	/**
 	 * Verifies, cleans, and sets new $dimension value.
 	 *
-	 * @var Object $new_dimensions New Dimensions.
-	 * @var Int|String $new_dimensions.n
-	 * @var [String] $new_dimensions.labels
+	 * @param Array|Object $new_dimensions New dimensions value.
 	 */
 	public function set_dimensions( $new_dimensions ) {
 		$clean_dimensions = [
@@ -295,7 +297,7 @@ class MObjectField {
 	 * Return properties as associative array.
 	 */
 	public function to_array() {
-		$arr = [];
+		$arr                          = [];
 		$arr['field_id']              = $this->field_id;
 		$arr['slug']                  = $this->slug;
 		$arr['kind_id']               = $this->kind_id;
@@ -324,7 +326,7 @@ class MObjectField {
 		$arr = $this->to_array();
 		foreach ( $arr as &$item ) {
 			if ( is_array( $item ) ) {
-				$item = json_encode( $item );
+				$item = wp_json_encode( $item );
 			}
 		}
 		return $arr;

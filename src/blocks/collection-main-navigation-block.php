@@ -16,7 +16,7 @@ function register_collection_main_navigation_block() {
 		'wp-museum/collection-main-navigation-block',
 		[
 			'render_callback' => __NAMESPACE__ . '\render_collection_main_navigation',
-			'attributes' => [
+			'attributes'      => [
 				'fontSize'                  => [
 					'type'    => 'number',
 					'default' => 1,

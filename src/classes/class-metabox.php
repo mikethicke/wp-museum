@@ -26,7 +26,7 @@ class MetaBox {
 	 *
 	 * @var function $save_callback
 	 */
-	private $save_callback   = null;
+	private $save_callback = null;
 
 	/**
 	 * Name/slug for the metabox (lowercase, no spaces).
@@ -49,7 +49,7 @@ class MetaBox {
 	 *
 	 * @var string $screen
 	 */
-	public $screen   = null;
+	public $screen = null;
 
 	/**
 	 * "The context within the screen where the boxes should display. Available
@@ -61,7 +61,7 @@ class MetaBox {
 	 *
 	 * @var string $context
 	 */
-	public $context  = 'advanced';
+	public $context = 'advanced';
 
 	/**
 	 * "The priority within the context where the boxes should show ('high', 'low')."
@@ -79,7 +79,7 @@ class MetaBox {
 	 *
 	 * @var array $args
 	 */
-	public $args     = null;
+	public $args = null;
 
 	/**
 	 * New MetaBox.
@@ -97,7 +97,6 @@ class MetaBox {
 			$this->save_callback = $save_callback;
 			add_action( 'pre_post_update', $this->save_callback );
 		}
-
 	}
 
 	/**

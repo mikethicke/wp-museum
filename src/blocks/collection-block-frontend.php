@@ -19,7 +19,7 @@ add_action(
 						'type'    => 'number',
 						'default' => 4,
 					],
-					'columns'          => [
+					'columns'           => [
 						'type'    => 'number',
 						'default' => 4,
 					],

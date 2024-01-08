@@ -33,14 +33,15 @@ function add_quick_browse() {
  */
 function quick_browse() {
 	global $wpdb;
+	if ( ! isset( $_SERVER['PHP_SELF'] ) ) {
+		wp_die( esc_html__( 'quick_browse: PHP_SELF not set.', 'wp-museum' ) );
+	}
 	if ( ! isset( $_GET['post_type'] ) ) {
 		wp_die( esc_html__( 'quick_browse: post_type needs to be set to display Quick Browse table.', 'wp-museum' ) );
 	}
 	$type_name   = sanitize_key( $_GET['post_type'] );
 	$object_type = kind_from_type( $type_name );
-	$self_url    = esc_url(
-		wp_unslash( $_SERVER['PHP_SELF'] ) . "?post_type=$type_name&page={$object_type->name}-quick-browse"
-	);
+	$self_url    = sanitize_url( wp_unslash( $_SERVER['PHP_SELF'] ) ) . "?post_type=$type_name&page={$object_type->name}-quick-browse";
 	$csv_url     = add_query_arg(
 		[
 			'post_type' => $type_name,
@@ -48,7 +49,7 @@ function quick_browse() {
 			'action'    => 'csv_upload',
 			'qb-nonce'  => wp_create_nonce( 'VQsJrvZ6V2rPjLM^4m>m' ),
 		],
-		wp_unslash( $_SERVER['PHP_SELF'] )
+		sanitize_url( wp_unslash( $_SERVER['PHP_SELF'] ) )
 	);
 
 	display_csv_upload_form( $csv_url );
@@ -57,7 +58,7 @@ function quick_browse() {
 		if ( ! check_admin_referer( 'VQsJrvZ6V2rPjLM^4m>m', 'qb-nonce' ) ) {
 			wp_die( esc_html__( 'Failed nonce check.', 'wp-museum' ) );
 		}
-		echo process_uploaded_csv();
+		process_uploaded_csv();
 	}
 
 	$fields = get_mobject_fields( $object_type->kind_id );
@@ -110,13 +111,11 @@ function quick_browse() {
 		}
 	}
 	// export_csv_button() and import_csv_buton() escape output.
-	echo(
-		'<th>' .
-		export_csv_button( $object_type->kind_id ) .
-		' ' .
-		import_csv_button( $object_type->kind_id ) .
-		'</th><th></th><th></th>'
-	);
+	echo '<th>';
+	export_csv_button( $object_type->kind_id );
+	echo ' ';
+	import_csv_button( $object_type->kind_id );
+	echo '</th><th></th><th></th>';
 	echo '</tr></thead><tbody>';
 
 	$args    = [
@@ -162,9 +161,9 @@ function quick_browse() {
 /**
  * Callback function for sorting quick browse table by a column.
  *
- * @param Array     $target_array   The posts to be sorted.
- * @param string    $sort_col       Slug of field to sort by.
- * @param string    $sort_dir       The direction to sort by (asc or desc).
+ * @param Array  $target_array   The posts to be sorted.
+ * @param string $sort_col       Slug of field to sort by.
+ * @param string $sort_dir       The direction to sort by (asc or desc).
  */
 function wpm_sort_by_field( &$target_array, $sort_col, $sort_dir ) {
 	if ( 'post_title' === $sort_col ) {
@@ -185,7 +184,7 @@ function wpm_sort_by_field( &$target_array, $sort_col, $sort_dir ) {
 	}
 	usort(
 		$target_array,
-		function( $a, $b ) use ( $sort_field, $rv, $sort_col ) {
+		function ( $a, $b ) use ( $sort_field, $rv, $sort_col ) {
 			if ( 'post_title' === $sort_col ) {
 				$a_field_val = $a->post_title;
 				$b_field_val = $b->post_title;
@@ -265,16 +264,13 @@ function wpm_sort_by_field( &$target_array, $sort_col, $sort_dir ) {
 				} else {
 					return 0;
 				}
-			} else {
-				if ( strcasecmp( $a_field_val, $b_field_val ) > 0 ) {
+			} elseif ( strcasecmp( $a_field_val, $b_field_val ) > 0 ) {
 					return $rv;
-				} elseif ( strcasecmp( $a_field_val, $b_field_val ) < 0 ) {
-					return -1 * $rv;
-				} else {
-					return 0;
-				}
+			} elseif ( strcasecmp( $a_field_val, $b_field_val ) < 0 ) {
+				return -1 * $rv;
+			} else {
+				return 0;
 			}
-
 		}
 	);
 }

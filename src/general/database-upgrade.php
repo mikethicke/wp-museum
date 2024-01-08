@@ -23,7 +23,7 @@ function upgrade_0_13_to_0_15() {
 	$old_fields_table = $wpdb->prefix . WPM_PREFIX . 'object_fields';
 	$new_fields_table = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
 	$wpdb->query( "ALTER TABLE $old_fields_table RENAME TO $new_fields_table ;" );
-	$wpdb->query( "ALTER TABLE $new_fields_table CHANGE `object_id` `kind_id` MEDIUMINT(9);");
+	$wpdb->query( "ALTER TABLE $new_fields_table CHANGE `object_id` `kind_id` MEDIUMINT(9);" );
 }
 
 function description_to_content() {
@@ -36,11 +36,11 @@ function description_to_content() {
 		]
 	);
 	foreach ( $object_posts as $object_post ) {
-		$custom      = get_post_custom( $object_post->ID );
+		$custom = get_post_custom( $object_post->ID );
 		if ( ! empty( $custom['description'] ) ) {
 			$posts_table = $wpdb->prefix . 'posts';
 			$query       = "UPDATE $posts_table SET `post_content` = %s WHERE `ID` = %s;";
-			$result = $wpdb->query( $wpdb->prepare( $query, $custom['description'][0], $object_post->ID ) );
+			$result      = $wpdb->query( $wpdb->prepare( $query, $custom['description'][0], $object_post->ID ) );
 		}
 	}
 	$new_fields_table = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
@@ -122,8 +122,8 @@ function fix_wpm_gallery_attach_ids() {
 		) {
 				continue;
 		} else {
-			$image_pairs_array = explode( ',', $gallery_attach_meta );
-			$max_order         = 0;
+			$image_pairs_array    = explode( ',', $gallery_attach_meta );
+			$max_order            = 0;
 			$attached_image_array = [];
 			foreach ( $image_pairs_array as $image_pair_str ) {
 				$image_pair_arr = explode( ':', $image_pair_str );
@@ -133,7 +133,7 @@ function fix_wpm_gallery_attach_ids() {
 						$max_order = $image_pair_arr[1];
 					}
 				} elseif ( 1 === count( $image_pair_arr ) ) {
-					$max_order++;
+					++$max_order;
 					$attached_image_array[ $image_pair_arr[0] ] = $max_order;
 				}
 			}
@@ -249,9 +249,8 @@ function put_back_spurious_instruments() {
 	}
 }
 
-//add_action( 'plugins_loaded', __NAMESPACE__ . '\add_child_block' );
-//add_action( 'plugins_loaded', __NAMESPACE__ . '\translate_field_types' );
-//add_action( 'plugins_loaded', __NAMESPACE__ . '\add_block_template' );
+// add_action( 'plugins_loaded', __NAMESPACE__ . '\add_child_block' );
+// add_action( 'plugins_loaded', __NAMESPACE__ . '\translate_field_types' );
+// add_action( 'plugins_loaded', __NAMESPACE__ . '\add_block_template' );
 // add_action( 'plugins_loaded', __NAMESPACE__ . '\make_object_attach_ids_simple_array' );
 // add_action( 'plugins_loaded', __NAMESPACE__ . '\fix_wpm_gallery_attach_ids' );
-

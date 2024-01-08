@@ -20,7 +20,7 @@ function register_feature_collection_widget_block() {
 		'wp-museum/feature-collection-widget',
 		[
 			'render_callback' => __NAMESPACE__ . '\render_feature_collection_widget',
-			'attributes' => [
+			'attributes'      => [
 				'showFeatureImage' => [
 					'type'    => 'boolean',
 					'default' => true,
@@ -34,7 +34,7 @@ function register_feature_collection_widget_block() {
 	);
 }
 
-add_action( 'plugins_loaded',  __NAMESPACE__ . '\register_feature_collection_widget_block' );
+add_action( 'plugins_loaded', __NAMESPACE__ . '\register_feature_collection_widget_block' );
 
 /**
  * Render the block on the front end.
@@ -42,5 +42,5 @@ add_action( 'plugins_loaded',  __NAMESPACE__ . '\register_feature_collection_wid
  * @param Array $attributes The block's attributes.
  */
 function render_feature_collection_widget_block( $attributes ) {
-	return  'This is the feature collection widget block';
+	return 'This is the feature collection widget block';
 }

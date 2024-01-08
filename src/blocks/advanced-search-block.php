@@ -28,7 +28,7 @@ function register_advanced_search_block() {
 					'type'    => 'boolean',
 					'default' => false,
 				],
-				'showObjectType' => [
+				'showObjectType'  => [
 					'type'    => 'boolean',
 					'default' => true,
 				],

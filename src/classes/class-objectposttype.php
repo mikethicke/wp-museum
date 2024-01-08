@@ -40,7 +40,7 @@ class ObjectPostType {
 	 */
 	public function __construct( $kind ) {
 		global $wpdb;
-		$this->kind  = $kind;
+		$this->kind = $kind;
 
 		if ( $this->kind->label_plural ) {
 			$label_plural = $this->kind->label_plural;
@@ -56,7 +56,7 @@ class ObjectPostType {
 			'menu_icon'    => museum_icon(),
 			'hierarchical' => false,
 			'options'      => [
-				'capabilities' => [
+				'capabilities'  => [
 					'edit_posts'           => WPM_PREFIX . 'edit_objects',
 					'edit_others_posts'    => WPM_PREFIX . 'edit_others_objects',
 					'publish_posts'        => WPM_PREFIX . 'publish_objects',
@@ -64,8 +64,8 @@ class ObjectPostType {
 					'delete_posts'         => WPM_PREFIX . 'delete_objects',
 					'edit_published_posts' => WPM_PREFIX . 'edit_published_objects',
 				],
-				'map_meta_cap' => true,
-				'template'    => [
+				'map_meta_cap'  => true,
+				'template'      => [
 					[ 'core/paragraph', [ 'placeholder' => 'A general description of the object...' ] ],
 					[ 'wp-museum/object-meta-block' ],
 					[ 'wp-museum/object-image-attachments-block' ],
@@ -99,20 +99,20 @@ class ObjectPostType {
 				if ( 'flag' === $field->type ) {
 					$type = 'boolean';
 				} elseif ( 'multiple' === $field->type ) {
-					$type = 'array';
+					$type         = 'array';
 					$show_in_rest = [
 						'schema' => [
-							'type' => 'array',
+							'type'  => 'array',
 							'items' => [
 								'type' => 'string',
 							],
 						],
 					];
 				} elseif ( 'measure' === $field->type ) {
-					$type = 'array';
+					$type         = 'array';
 					$show_in_rest = [
 						'schema' => [
-							'type' => 'array',
+							'type'  => 'array',
 							'items' => [
 								'type' => 'number',
 							],
@@ -152,8 +152,8 @@ class ObjectPostType {
 				'single'        => true,
 				'show_in_rest'  => [
 					'schema' => [
-						'type'  => 'object',
-						'properties' => [],
+						'type'                 => 'object',
+						'properties'           => [],
 						'additionalProperties' => [
 							'type'  => 'array',
 							'items' => [
@@ -162,7 +162,7 @@ class ObjectPostType {
 						],
 					],
 				],
-				'auth_callback' => function() {
+				'auth_callback' => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			]
@@ -176,7 +176,7 @@ class ObjectPostType {
 				'description'   => 'Child objects',
 				'single'        => true,
 				'show_in_rest'  => true,
-				'auth_callback' => function() {
+				'auth_callback' => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			]
@@ -205,18 +205,18 @@ class ObjectPostType {
 			$this->object_post_type->options['type'],
 			'wpm_gallery_attach_ids',
 			[
-				'type' => 'array',
-				'description' => 'Associated Images',
-				'single' => true,
-				'show_in_rest' => [
+				'type'          => 'array',
+				'description'   => 'Associated Images',
+				'single'        => true,
+				'show_in_rest'  => [
 					'schema' => [
-						'type' => 'array',
+						'type'  => 'array',
 						'items' => [
 							'type' => 'number',
 						],
 					],
 				],
-				'auth_callback'    => function() {
+				'auth_callback' => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			]
@@ -230,11 +230,11 @@ class ObjectPostType {
 			$this->object_post_type->options['type'],
 			'wpm_gallery_attach_ids_string',
 			[
-				'type' => 'string',
-				'description' => 'Associated Images String',
-				'single' => true,
-				'show_in_rest' => true,
-				'auth_callback'    => function() {
+				'type'          => 'string',
+				'description'   => 'Associated Images String',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			]
@@ -245,5 +245,3 @@ class ObjectPostType {
 		$this->register_relationship_meta();
 	}
 }
-
-

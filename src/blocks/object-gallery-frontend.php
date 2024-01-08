@@ -36,27 +36,27 @@ add_action(
 			'wp-museum/object-gallery',
 			[
 				'render_callback' => __NAMESPACE__ . '\render_object_gallery_block',
-				'attributes' => [
-					'columns' => [
-						'type' => 'number',
+				'attributes'      => [
+					'columns'        => [
+						'type'    => 'number',
 						'default' => 3,
 					],
-					'objectID' => [
-						'type' => 'number',
+					'objectID'       => [
+						'type'    => 'number',
 						'default' => null,
 					],
-					'objectURL' => [
+					'objectURL'      => [
 						'type'    => 'string',
 						'default' => null,
 					],
-					'imgData' => [
-						'type' => 'array',
+					'imgData'        => [
+						'type'    => 'array',
 						'default' => [],
-						'items' => [
+						'items'   => [
 							'type' => 'object',
 						],
 					],
-					'imgDimensions' => [
+					'imgDimensions'  => [
 						'type'    => 'object',
 						'default' => [
 							'width'  => 300,
@@ -64,27 +64,27 @@ add_action(
 							'size'   => 'medium', // options: thumbnail, medium, large, full.
 						],
 					],
-					'captionText' => [
+					'captionText'    => [
 						'type'    => 'string',
 						'default' => null,
 					],
-					'title' => [
+					'title'          => [
 						'type'    => 'string',
 						'default' => 'No Object Selected',
 					],
-					'catID' => [
+					'catID'          => [
 						'type'    => 'string',
 						'default' => 'No Object Selected',
 					],
-					'fontSize' => [
+					'fontSize'       => [
 						'type'    => 'float',
 						'default' => 0.7,
 					],
-					'titleTag' => [
+					'titleTag'       => [
 						'type'    => 'string',
 						'default' => 'h4', // options: h2, h3, h, h5, h6, p.
 					],
-					'displayTitle' => [
+					'displayTitle'   => [
 						'type'    => 'boolean',
 						'default' => true,
 					],
@@ -92,11 +92,11 @@ add_action(
 						'type'    => 'boolean',
 						'default' => true,
 					],
-					'linkToObject' => [
+					'linkToObject'   => [
 						'type'    => 'boolean',
 						'default' => true,
 					],
-					'displayCatID' => [
+					'displayCatID'   => [
 						'type'    => 'boolean',
 						'default' => false,
 					],

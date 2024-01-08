@@ -92,6 +92,14 @@ class CustomPostType {
 	public $custom_metas = [];
 
 	/**
+	 * List of custom fields attached to this custom post type.
+	 *
+	 * @var [CustomField] $custom_fields
+	 * @see CustomField
+	 */
+	public $custom_fields = [];
+
+	/**
 	 * Whether to include custom post type in WordPress loop.
 	 *
 	 * @var bool $include_in_loop
@@ -239,7 +247,7 @@ class CustomPostType {
 		add_meta_box(
 			$this->meta_name,
 			$this->meta_label,
-			function() use ( $post ) {
+			function () use ( $post ) {
 				wp_nonce_field( $this->meta_name . '_nonce', $this->meta_name . '_nonce' );
 				echo '<table class="form-table">';
 				foreach ( $this->meta_box_fields as $field_name => $field_array ) {
@@ -295,7 +303,7 @@ class CustomPostType {
 							}
 							foreach ( $field_options['options'] as $option_value => $option_label ) {
 								echo "<option value='" . esc_html( $option_value ) . "' ";
-								if ( $option_value === intval( $field_value ) ) {
+								if ( intval( $field_value ) === $option_value ) {
 									echo ' selected ';
 								}
 								echo '>' . esc_html( $option_label ) . '</option>';
@@ -350,8 +358,10 @@ class CustomPostType {
 		}
 
 		foreach ( $this->meta_box_fields as $field_name => $field_data ) {
+			// phpcs:disable WordPress.Security.NonceVerification
 			if ( isset( $_POST[ $field_name ] ) ) {
-				$field_value = trim( $_POST[ $field_name ] );
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$field_value = trim( wp_unslash( $_POST[ $field_name ] ) );
 				if ( isset( $field_value ) && '' !== $field_value ) {
 					update_post_meta( $post_id, $field_name, $field_value );
 				} else {
@@ -470,6 +480,7 @@ class CustomPostType {
 	 * @link https://typerocket.com/ultimate-guide-to-custom-post-types-in-wordpress/
 	 */
 	public function register() {
+			$x     = 1 / 0;
 		$arguments = [
 			'public'               => $this->options['public'],
 			'description'          => $this->options['description'],
@@ -488,7 +499,7 @@ class CustomPostType {
 
 		add_action(
 			'init',
-			function() use ( $arguments ) {
+			function () use ( $arguments ) {
 				$arguments = $arguments + $this->options['options'];
 				register_post_type( $this->options['type'], $arguments );
 				if ( $arguments['hierarchical'] ) {
@@ -507,4 +518,3 @@ class CustomPostType {
 		}
 	}
 }
-

@@ -23,7 +23,7 @@ function register_object_image_attachments_block() {
 			'wp-museum/object-image-attachments-block',
 			[
 				'attributes' => [
-					'imgAttach' => [
+					'imgAttach'    => [
 						'type'   => 'array',
 						'source' => 'meta',
 						'meta'   => 'wpm_gallery_attach_ids',

@@ -24,7 +24,7 @@ function export_csv() {
 		$kind_id = intval( $_GET[ WPM_PREFIX . 'ot_csv' ] );
 		$kind    = get_kind( $kind_id );
 
-		$args = [
+		$args   = [
 			'post_type'   => $kind->type_name,
 			'post_status' => 'any',
 			'numberposts' => -1,
@@ -69,39 +69,46 @@ function export_csv() {
 }
 
 /**
- * Process uploaded CSV file for import.
+ * Process uploaded CSV file for import and output status report.
  *
- * @return string HTML reporting updated rows or error report.
+ * phpcs:disable WordPress.Security.NonceVerification
  */
 function process_uploaded_csv() {
-	if ( 'csv_upload' === sanitize_key( $_GET['action'] ) ) { // phpcs:ignore
+	if ( ! isset( $_GET['action'] ) ) {
+		return '';
+	}
+
+	if ( 'csv_upload' === sanitize_key( $_GET['action'] ) ) {
+		if ( ! isset( $_FILES['csv-upload-file']['name'] ) ) {
+			return;
+		}
+		$file_name = sanitize_file_name( $_FILES['csv-upload-file']['name'] );
 		if (
 				isset( $_FILES['csv-upload-file'] ) &&
 				isset( $_FILES['csv-upload-file']['error'] ) &&
 				isset( $_FILES['csv-upload-file']['tmp_name'] ) &&
 				UPLOAD_ERR_OK === $_FILES['csv-upload-file']['error'] &&
-				file_exists( $_FILES['csv-upload-file']['tmp_name']) &&
+				file_exists( sanitize_file_name( $file_name ) ) &&
 				isset( $_POST['import-kind-id'] )
 			) {
 			$kind_id = intval( $_POST['import-kind-id'] );
-			$results = import_csv( $kind_id, $_FILES['csv-upload-file']['tmp_name'] );
+			$results = import_csv( $kind_id, $file_name );
 			if ( $results[1] ) {
-				$status_report .= "<div class='updated error'>Error: {$results[1]}</div>";
+				echo '<div class="updated error">Error: ' . esc_html( $results[1] ) . '</div>';
 			}
-			$status_report .= "<div class='updated'>Updated Objects:<ul>";
+			echo "<div class='updated'>Updated Objects:<ul>";
 			if ( ! $results[0] ) {
-				$status_report .= '<li>No objects updated.</li>';
+				echo '<li>No objects updated.</li>';
 			} elseif ( count( $results[0] ) > 20 ) {
-				$status_report .= '<li>Updated ' . count( $results[0] ) . ' objects.</li>';
+				echo '<li>Updated ' . count( $results[0] ) . ' objects.</li>';
 			} else {
 				foreach ( $results[0] as $result ) {
-					$status_report .= '<li>' . $result . '</li>';
+					echo '<li>' . esc_html( $result ) . '</li>';
 				}
 			}
-			$status_report .= '</div>';
+			echo '</div>';
 		}
 	}
-	return $status_report;
 }
 
 /**
@@ -118,7 +125,7 @@ function process_uploaded_csv() {
  *                            contains error message or '' on success.
  */
 function import_csv( $kind_id, $csvfile ) {
-	$kind = get_kind( $kind_id );
+	$kind      = get_kind( $kind_id );
 	$cat_field = get_mobject_field( $kind->kind_id, $kind->cat_field_id );
 	if ( is_null( $kind ) ) {
 		return [ false, 'Error retrieving kind for import.' ];
@@ -151,11 +158,9 @@ function import_csv( $kind_id, $csvfile ) {
 		$column_names[ $slug_row[ $i ] ] = $header_row[ $i ];
 	}
 
-	/**
-	 * Read CSV file to $rows.
-	 */
+	//phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 	while ( $data = fgetcsv( $handle ) ) {
-		$row = [];
+		$row       = [];
 		$cat_value = '';
 		for ( $column = 0; $column < $col_count; $column++ ) {
 			if ( ! isset( $data[ $column ] ) ) {
@@ -192,17 +197,17 @@ function import_csv( $kind_id, $csvfile ) {
 			) ) {
 				$fields['post_status'] = $post->post_status;
 			}
-			if ( $fields['post_title'] !== html_entity_decode( $post->post_title ) ) {
+			if ( html_entity_decode( $post->post_title ) !== $fields['post_title'] ) {
 				$changed_post_vars = true;
-				$changed_cols[] = 'Post Title';
+				$changed_cols[]    = 'Post Title';
 			}
-			if ( $fields['post_content'] !== html_entity_decode( $post->post_content ) ) {
+			if ( html_entity_decode( $post->post_content ) !== $fields['post_content'] ) {
 				$changed_post_vars = true;
-				$changed_cols[] = 'Content';
+				$changed_cols[]    = 'Content';
 			}
-			if ( $fields['post_status']  !== $post->post_status ) {
+			if ( $fields['post_status'] !== $post->post_status ) {
 				$changed_post_vars = true;
-				$changed_cols[] = 'Publication Status';
+				$changed_cols[]    = 'Publication Status';
 			}
 			if ( $changed_post_vars ) {
 				$post_vars = [
@@ -259,10 +264,8 @@ function delete_directory( $dir ) {
 			if ( ! unlink( $dir . DIRECTORY_SEPARATOR . $item ) ) {
 				return false;
 			}
-		} else {
-			if ( ! delete_directory( $dir . DIRECTORY_SEPARATOR . $item ) ) {
+		} elseif ( ! delete_directory( $dir . DIRECTORY_SEPARATOR . $item ) ) {
 				return false;
-			}
 		}
 	}
 	return rmdir( $dir );
@@ -308,7 +311,7 @@ function export_images_aj() {
 		wp_die( esc_html__( 'Failed nonce check.', 'wp-museum' ) );
 	}
 
-	$zip_dir = wp_upload_dir()['basedir'] . DIRECTORY_SEPARATOR . IMAGE_DIR;
+	$zip_dir  = wp_upload_dir()['basedir'] . DIRECTORY_SEPARATOR . IMAGE_DIR;
 	$temp_dir = $zip_dir . DIRECTORY_SEPARATOR . 'tmp';
 
 	if ( ! file_exists( $zip_dir ) ) {
@@ -395,7 +398,7 @@ function export_images_aj() {
 				) ) {
 					wp_die( esc_html__( 'Error copying image files to temp directory.', 'wp-museum' ) );
 				}
-				$image_num++;
+				++$image_num;
 				$row = [
 					$kind->label,
 					$mobject_post->post_title,
@@ -411,7 +414,7 @@ function export_images_aj() {
 	}
 	fclose( $manifest );
 
-	$zipfile           = $zip_dir . DIRECTORY_SEPARATOR . date( 'Y-m-d' ) . '.zip';
+	$zipfile           = $zip_dir . DIRECTORY_SEPARATOR . gmdate( 'Y-m-d' ) . '.zip';
 	$duplicate_counter = 1;
 	$original_zipfile  = $zipfile;
 	while ( file_exists( $zipfile ) ) {
@@ -423,13 +426,13 @@ function export_images_aj() {
 			'_' . $duplicate_counter .
 			'.' .
 			$path_parts['extension'];
-		$duplicate_counter++;
+		++$duplicate_counter;
 	}
 	try {
 		$phar = new \PharData( $zipfile );
 		$phar->buildFromDirectory( $temp_dir );
-	} catch ( PharException $e ) {
-		echo ('0');
+	} catch ( \PharException $e ) {
+		echo ( '0' );
 		delete_directory( $temp_dir );
 		die();
 	}
@@ -442,11 +445,9 @@ function export_images_aj() {
 }
 
 /**
- * Generates a link for exporting a kind type to CSV.
+ * Outputs a link for exporting a kind type to CSV.
  *
  * @param   int/string $kind_id  The object's ID (a number).
- *
- * @return  string      Html containing link to export/download the CSV file.
  */
 function export_csv_button( $kind_id ) {
 	if ( isset( $_SERVER['PHP_SELF'] ) ) {
@@ -456,25 +457,22 @@ function export_csv_button( $kind_id ) {
 					WPM_PREFIX . 'ot_csv'     => $kind_id,
 					'wpm-objects-admin-nonce' => wp_create_nonce( 'd78HG@YsELh2KByUgCTuDCepW' ),
 				],
-				wp_unslash( $_SERVER['PHP_SELF'] )
+				sanitize_url( wp_unslash( $_SERVER['PHP_SELF'] ) )
 			)
 		);
 	} else {
 		$url = '';
 	}
-	return "<a class='button' href='" . esc_html( $url ) . "'>Export CSV</a>";
+	echo "<a class='button' href='" . esc_html( $url ) . "'>Export CSV</a>";
 }
 
 /**
  * Generates a link for importing from CSV to update museum objects.
  *
  * @param   int/string $kind_id  The object's ID (a number).
- *
- * @return  string      Html containing link to import the CSV file.
  */
 function import_csv_button( $kind_id ) {
-	$kind_id = intval( $kind_id );
-	return "<a class='button import-csv-button' data-kind-id='$kind_id'>Import CSV</a>";
+	echo "<a class='button import-csv-button' data-kind-id='" . intval( $kind_id ) . "'>Import CSV</a>";
 }
 
 /**
@@ -488,7 +486,11 @@ function display_csv_upload_form( $csv_url ) {
 		"<div class='upload-plugin-wrap'>
 			<div id='csv-upload-section' class='upload-plugin'>
 				<p id='csv-upload-help' class='install-help'>Select a CSV file to import.</p>
-				<form enctype='multipart/form-data' method='post' class='wp-upload-form' action='$csv_url'>
+				<form enctype='multipart/form-data' method='post' class='wp-upload-form' action='"
+	);
+	echo esc_html( $csv_url );
+	echo(
+		"'>
 					<label class='screen-reader-text' for='csv-upload-file'>CSV import file.</label>
 					<input type='file' accept='.csv' id='csv-upload-file' name='csv-upload-file' />
 					<input type='hidden' id='import-kind-id' name='import-kind-id' />

@@ -148,7 +148,7 @@ function get_kind( $id ) {
 	}
 	global $wpdb;
 	$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
-	$kind     = wp_cache_get( 'get_kind_' . $id, CACHE_GROUP );
+	$kind       = wp_cache_get( 'get_kind_' . $id, CACHE_GROUP );
 	if ( ! $kind ) {
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -159,7 +159,7 @@ function get_kind( $id ) {
 		if ( is_null( $results ) || 0 === count( $results ) ) {
 			return null;
 		}
-		$kind  = new ObjectKind( $results[0] );
+		$kind = new ObjectKind( $results[0] );
 		wp_cache_add( 'get_kind_' . $id, $kind, CACHE_GROUP );
 	}
 	return $kind;
@@ -175,7 +175,7 @@ function get_kind( $id ) {
 function get_kind_from_typename( $type_name ) {
 	global $wpdb;
 	$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
-	$kind     = wp_cache_get( 'get_kind_' . $type_name, CACHE_GROUP );
+	$kind       = wp_cache_get( 'get_kind_' . $type_name, CACHE_GROUP );
 	if ( ! $kind ) {
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -184,7 +184,7 @@ function get_kind_from_typename( $type_name ) {
 			)
 		);
 		if ( count( $results ) === 1 ) {
-			$kind  = new ObjectKind( $results[0] );
+			$kind = new ObjectKind( $results[0] );
 		} else {
 			return null;
 		}
@@ -211,7 +211,7 @@ function get_kind_id( $kind_name ) {
 				$object_name
 			)
 		);
-		$kind_id  = $results[0]->kind_id;
+		$kind_id = $results[0]->kind_id;
 		wp_cache_add( 'get_kind_id_' . $kind_name, $kind_id, CACHE_GROUP );
 	}
 	return $kind_id;
@@ -253,10 +253,10 @@ function kind_name_from_id( $kind_id ) {
 function get_mobject_kinds() {
 	global $wpdb;
 	$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
-	$kinds    = wp_cache_get( 'get_mobject_kinds', CACHE_GROUP );
+	$kinds      = wp_cache_get( 'get_mobject_kinds', CACHE_GROUP );
 	if ( ! $kinds ) {
 		$results = $wpdb->get_results( "SELECT * FROM $table_name" );
-		$kinds = [];
+		$kinds   = [];
 		foreach ( $results as $result ) {
 			$kinds[] = new ObjectKind( $result );
 		}
@@ -276,7 +276,7 @@ function get_mobject_kinds() {
 function get_mobject_fields( $kind_id, $public = false ) {
 	global $wpdb;
 	$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
-	$fields    = wp_cache_get( 'get_mobject_fields' . $kind_id, CACHE_GROUP );
+	$fields     = wp_cache_get( 'get_mobject_fields' . $kind_id, CACHE_GROUP );
 	if ( ! $fields ) {
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -284,7 +284,7 @@ function get_mobject_fields( $kind_id, $public = false ) {
 				$kind_id
 			)
 		);
-		$fields = [];
+		$fields  = [];
 		foreach ( $results as $result ) {
 			$new_field = MObjectField::from_database( $result );
 			if ( ! $public || $new_field->public ) {
@@ -318,7 +318,7 @@ function get_mobject_field( $kind_id, $field_id ) {
 		);
 		if ( count( $results ) > 0 ) {
 			$result = $results[0];
-			$field = MObjectField::from_database( $result );
+			$field  = MObjectField::from_database( $result );
 		} else {
 			$field = null;
 		}
@@ -355,11 +355,11 @@ function update_kind( $kind_id, $data ) {
  */
 function delete_kind( $kind_id ) {
 	global $wpdb;
-	$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
-	$result = $wpdb->delete( $table_name, [ 'kind_id' => $kind_id ] );
+	$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
+	$result     = $wpdb->delete( $table_name, [ 'kind_id' => $kind_id ] );
 	if ( $result > 0 ) {
-		$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
-		$result = $wpdb->delete( $table_name, [ 'kind_id' => $kind_id ] );
+		$table_name = $wpdb->prefix . WPM_PREFIX . 'mobject_fields';
+		$result     = $wpdb->delete( $table_name, [ 'kind_id' => $kind_id ] );
 		return true;
 	}
 	return false;
@@ -379,7 +379,7 @@ function new_kind( $data ) {
 	global $wpdb;
 	$table_name   = $wpdb->prefix . WPM_PREFIX . 'mobject_kinds';
 	$data['name'] = ObjectKind::name_from_label( $data['label'] );
-	$type_name = WPM_PREFIX . $data['name'];
+	$type_name    = WPM_PREFIX . $data['name'];
 	if ( strlen( $type_name ) > 20 ) {
 		$type_name = substr( $type_name, 0, 19 );
 	}
