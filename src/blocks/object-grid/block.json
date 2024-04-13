@@ -1,0 +1,67 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+    "name": "wp-museum/object-grid",
+    "title": "Object Grid",
+    "description": "A grid of square images with a variable number of rows and columns.",
+    "category": "wp-museum",
+    "icon": "museum",
+    "supports": {
+        "align": true,
+        "html": false
+    },
+    "textdomain": "wp-museum",
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./index.css",
+    "style": "file:./style-index.css",
+    "attributes": {
+        "columns": {
+			"type"    : "number",
+			"default" : 3
+		},
+		"rows": {
+			"type"    : "number",
+			"default" : 2
+		},
+		"objectData": {
+			"type"    : "array",
+			"default" : []
+		},
+		"title": {
+			"type"    : "string",
+			"default" : null
+		},
+		"displayTitle": {
+			"type"    : "boolean",
+			"default" : false
+		},
+		"captionText": {
+			"type"    : "string",
+			"default" : null
+		},
+		"displayCaption": {
+			"type"    : "boolean",
+			"default" : false
+		},
+		"linkToObject": {
+			"type"    : "boolean",
+			"default" : true
+		},
+		"imgDimensions": {
+			"type"    : "object",
+			"default" : {
+				"width"  : 300,
+				"height" : 300,
+				"size"   : "medium" 
+			}
+		},
+		"fontSize": {
+			"type"    : "number",
+			"default" : 0.7
+		},
+		"titleTag": {
+			"type"    : "string",
+			"default" : "h4" 
+		}
+    }
+}

@@ -1,0 +1,108 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+    "name": "wp-museum/object-infobox",
+    "title": "Object Infobox",
+    "category": "wp-museum",
+    "icon": "museum",
+    "description": "A block to display an infobox for a museum object.",
+    "supports": {
+        "align": true,
+        "html": false
+    },
+    "textdomain": "wp-museum",
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./index.css",
+    "style": "file:./style-index.css",
+    "render": "file:./render.php",
+    "attributes": {
+        "align": {
+            "type": "string",
+            "default": "center"
+        },
+        "objectID": {
+            "type": "number",
+            "default": 0
+        },
+        "catID": {
+            "type": "string",
+            "default": ""
+        },
+        "title": {
+            "type": "string",
+            "default": "No Object Selected"
+        },
+        "excerpt": {
+            "type": "string",
+            "default": "No Object Selected"
+        },
+        "imgURL": {
+            "type": "string",
+            "default": ""
+        },
+        "imgIndex": {
+            "type": "number",
+            "default": 0
+        },
+        "totalImages": {
+            "type": "number",
+            "default": 0
+        },
+        "imgHeight": {
+            "type": "number",
+            "default": 0
+        },
+        "imgWidth": {
+            "type": "number",
+            "default": 0
+        },
+        "objectURL": {
+            "type": "string",
+            "default": ""
+        },
+        "displayTitle": {
+            "type": "boolean",
+            "default": true
+        },
+        "displayExcerpt": {
+            "type": "boolean",
+            "default": true
+        },
+        "displayImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "linkToObject": {
+            "type": "boolean",
+            "default": true
+        },
+        "fields": {
+            "type": "object",
+            "default": {}
+        },
+        "fieldData": {
+            "type": "object",
+            "default": {}
+        },
+        "imgDimensions": {
+            "type": "object",
+            "default": {
+                "width": 150,
+                "height": 150,
+                "size": "thumbnail"
+            }
+        },
+        "imgAlignment": {
+            "type": "string",
+            "default": "left"
+        },
+        "fontSize": {
+            "type": "number",
+            "default": 0.7
+        },
+        "titleTag": {
+            "type": "string",
+            "default": "h6"
+        }
+    }
+}

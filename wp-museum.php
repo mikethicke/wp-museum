@@ -9,6 +9,7 @@
  * Plugin Name: Museum for WordPress
  * Description: Manages a database of museum objects.
  * Version: 0.6.44
+ * Requires at least: 6.2
  * Author: Mike Thicke
  * Author URI: http://www.mikethicke.com
  * Text Domain: wp-museum
@@ -64,7 +65,7 @@ if ( DEV_BUILD ) {
 	define( 'WPM_BUILD_URL', plugin_dir_url( __FILE__ ) . 'build/' );
 } else {
 	define( 'WPM_BASE_URL', plugin_dir_url( __FILE__ ) );
-	define( 'WPM_BUILD_DIR', plugin_dir_path( __FILE__) . 'react/' );
+	define( 'WPM_BUILD_DIR', plugin_dir_path( __FILE__ ) . 'react/' );
 	define( 'WPM_BUILD_URL', plugin_dir_url( __FILE__ ) . 'react/' );
 }
 
@@ -86,46 +87,33 @@ require_once $require_prefix . 'classes/class-remoteclient.php';
 /*
  * Functions
  */
-require_once $require_prefix . 'general/database-functions.php';
-require_once $require_prefix . 'general/object-functions.php';
-require_once $require_prefix . 'general/collection-functions.php';
-require_once $require_prefix . 'general/custom-post-type-functions.php';
-require_once $require_prefix . 'public/display.php';
+require_once $require_prefix . 'includes/database-functions.php';
+require_once $require_prefix . 'includes/object-functions.php';
+require_once $require_prefix . 'includes/collection-functions.php';
+require_once $require_prefix . 'includes/custom-post-type-functions.php';
+require_once $require_prefix . 'includes/display-functions.php';
 require_once $require_prefix . 'admin/customization.php';
 require_once $require_prefix . 'admin/admin-icon.php';
-require_once $require_prefix . 'general/remote.php';
-require_once $require_prefix . 'general/cleanup.php';
+require_once $require_prefix . 'includes/remote.php';
+require_once $require_prefix . 'includes/cleanup.php';
 
 /*
  * Scripts
  */
 require_once $require_prefix . 'actions-filters.php';
-require_once $require_prefix . 'general/capabilities.php';
-require_once $require_prefix . 'general/object-post-types.php';
-require_once $require_prefix . 'general/object-ajax.php';
-require_once $require_prefix . 'general/collection-post-type.php';
+require_once $require_prefix . 'includes/capabilities.php';
+require_once $require_prefix . 'includes/object-post-types.php';
+require_once $require_prefix . 'includes/object-ajax.php';
+require_once $require_prefix . 'includes/collection-post-type.php';
 require_once $require_prefix . 'admin/quick-browse.php';
 require_once $require_prefix . 'admin/import-export.php';
-require_once $require_prefix . 'general/database-upgrade.php';
+require_once $require_prefix . 'includes/database-upgrade.php';
 require_once $require_prefix . 'admin-react/admin-react.php';
 
 /*
  * Blocks
  */
 require_once $require_prefix . 'blocks/blocks.php';
-require_once $require_prefix . 'blocks/collection-block-frontend.php';
-require_once $require_prefix . 'blocks/object-infobox-frontend.php';
-require_once $require_prefix . 'blocks/object-gallery-frontend.php';
-require_once $require_prefix . 'blocks/objectposttype-block.php';
-require_once $require_prefix . 'blocks/object-image-attachments-block.php';
-require_once $require_prefix . 'blocks/child-objects-block.php';
-require_once $require_prefix . 'blocks/advanced-search-block.php';
-require_once $require_prefix . 'blocks/basic-search-block.php';
-require_once $require_prefix . 'blocks/embedded-search-block.php';
-require_once $require_prefix . 'blocks/collection-objects-block.php';
-require_once $require_prefix . 'blocks/collection-main-navigation-block.php';
-// WordPress Gutenberg does not support block widgets as of 1/3/21.
-// require_once $require_prefix . 'blocks/feature-collection-widget-block.php';.
 
 /**
  * Rest
@@ -148,4 +136,3 @@ require_once $require_prefix . 'rest/class-site-data-controller.php';
  */
 require_once $require_prefix . 'widgets/class-associated-collection-widget.php';
 require_once $require_prefix . 'widgets/class-collection-tree-widget.php';
-

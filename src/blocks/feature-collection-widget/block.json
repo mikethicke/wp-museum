@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wp-museum/feature-collection-widget",
+    "title": "Featured Collection",
+    "category": "widgets",
+    "icon": "wp-museum",
+    "description": "Display a featured collection.",
+    "textdomain": "wp-museum",
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php",
+    "attributes": {
+        "showFeatureImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDescription": {
+            "type": "boolean",
+            "default": true
+        }
+    }
+}

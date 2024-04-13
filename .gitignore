@@ -23,3 +23,5 @@ museum-remote/release
 .DS_Store
 node_modules
 wordpress/
+bin/install-wp-tests.sh
+test-sample.php

@@ -1,0 +1,19 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+    "name": "wp-museum/object-meta-block",
+    "title": "Object Fields",
+    "description": "A block for Museum Object fields.",
+    "category": "wp-museum",
+    "icon": "museum",
+    "supports": {
+        "html": false,
+        "align": true
+    },
+    "textdomain": "wp-museum",
+    "editorScript": "file:./index.js",
+    "viewScript": "file:./front.js",
+    "editorStyle": "file:./index.css",
+    "style": "file:./style-index.css",
+    "render": "file:./render.php"
+}

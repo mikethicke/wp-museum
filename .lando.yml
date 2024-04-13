@@ -1,21 +1,24 @@
 name: wp-museum
 recipe: lemp
 config:
-  webroot: wordpress
+  webroot: wordpressexit
+  config:  
+    vhosts: .lando/nginx.conf
 services:
   appserver:
     type: php:custom
     overrides:
-      build: .
+      build: .lando
       image: wp-museum/wordpress:8.2
       environment: 
         XDEBUG_MODE:
         XDEBUG_CONFIG:
+        WP_TESTS_PHPUNIT_POLYFILLS_PATH: /app/vendor/yoast/phpunit-polyfills
     build_as_root:
       - npm run build
-      - /app/scripts/build-wordpress.sh
+      - /app/.lando/build-wordpress.sh
     config:
-      php: scripts/php.ini
+      php: .lando/php.ini
   database:
     type: mariadb
     portforward: 3306
@@ -32,4 +35,16 @@ tooling:
       service: appserver
       description: Installs WordPress with user admin and password admin
       cmd: wp core install --title="WordPress Museum" --admin_user=admin --admin_password=admin --
+  phpunit:
+      service: appserver
+      description: Runs PHPUnit tests
+      cmd: phpunit
+  install-wp-tests:
+      service: appserver
+      description: Installs the WordPress test suite
+      cmd: /app/.lando/install-wp-tests.sh
+  npm:
+    service: appserver
+    description: Runs npm commands
+    cmd: npm
   

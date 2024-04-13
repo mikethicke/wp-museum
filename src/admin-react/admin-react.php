@@ -9,6 +9,8 @@ namespace MikeThicke\WPMuseum;
 
 /**
  * Enqueue script and style.
+ *
+ * @param string $hook_suffix The current admin page.
  */
 function enqueue_admin_react( $hook_suffix ) {
 
@@ -16,7 +18,7 @@ function enqueue_admin_react( $hook_suffix ) {
 		return;
 	}
 
-	$asset_file = include WPM_BUILD_DIR . 'admin.asset.php';
+	$asset_file = include WPM_BUILD_DIR . 'admin-react.asset.php';
 	$pu         = WPM_BUILD_URL . 'admin-react.js';
 	wp_enqueue_script(
 		WPM_PREFIX . 'admin-react',
@@ -24,11 +26,6 @@ function enqueue_admin_react( $hook_suffix ) {
 		$asset_file['dependencies'],
 		$asset_file['version'],
 		true
-	);
-
-	wp_enqueue_style(
-		'wordpress-components-styles',
-		includes_url( '/css/dist/components/style.min.css' )
 	);
 
 	wp_enqueue_style(
@@ -99,30 +96,45 @@ function create_admin_react_pages() {
 	);
 }
 
+/**
+ * Render the component for the admin dashboard.
+ */
 function react_admin_dashboard() {
 	echo (
 		"<div id='wpm-react-admin-app-container-dashboard'></div>"
 	);
 }
 
+/**
+ * Render the component for the general admin page.
+ */
 function react_admin_general() {
 	echo (
 		"<div id='wpm-react-admin-app-container-general'></div>"
 	);
 }
 
+/**
+ * Render the component for the objects admin page.
+ */
 function react_admin_objects() {
 	echo (
 		"<div id='wpm-react-admin-app-container-objects'></div>"
 	);
 }
 
+/**
+ * Render the component for the museum remote admin page.
+ */
 function react_admin_remote() {
 	echo (
 		"<div id='wpm-react-admin-app-container-remote'></div>"
 	);
 }
 
+/**
+ * Render the component for the OMI-PMH admin page.
+ */
 function react_admin_omi_pmh() {
 	echo (
 		"<div id='wpm-react-admin-app-container-omi-pmh'></div>"

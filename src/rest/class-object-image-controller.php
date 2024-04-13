@@ -58,7 +58,7 @@ class Object_Image_Controller extends \WP_REST_Controller {
 					'callback'            => [ $this, 'get_items' ],
 				],
 				[
-					'methods'             => \WP_REST_SERVER::EDITABLE,
+					'methods'             => \WP_REST_Server::EDITABLE,
 					'permission_callback' => [ $this, 'edit_items_permission_check' ],
 					'args'                => [ 'id' => $this->get_id_arg() ],
 					'callback'            => [ $this, 'update_item' ],
@@ -86,7 +86,7 @@ class Object_Image_Controller extends \WP_REST_Controller {
 						'callback'            => [ $this, 'get_items' ],
 					],
 					[
-						'methods'             => \WP_REST_SERVER::EDITABLE,
+						'methods'             => \WP_REST_Server::EDITABLE,
 						'permission_callback' => [ $this, 'edit_items_permission_check' ],
 						'args'                => [ 'id' => $this->get_id_arg() ],
 						'callback'            => [ $this, 'update_item' ],

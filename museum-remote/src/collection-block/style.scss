@@ -1,7 +1,4 @@
-@import '../components/object-modal.scss';
-@import '../components/search-modal.scss';
-@import '../components/object-image-grid.scss';
-@import '../components/thumbnail-image.scss';
+@import '../components/style.scss';
 
 .museum-collection-block {
 	.collection-block-upper-content {
@@ -28,10 +25,6 @@
 			min-width: 25%;
 			flex-grow: 1;
 			flex-basis: 25%;
-
-			.collection-excerpt {
-
-			}
 		}
 
 		&.img-left {

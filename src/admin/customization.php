@@ -10,6 +10,8 @@
 
 namespace MikeThicke\WPMuseum;
 
+global $style_defaults;
+
 $style_defaults = [
 	WPM_PREFIX . 'customization_general' => [
 		'using_template' => false,

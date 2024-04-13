@@ -22,14 +22,13 @@ import apiFetch from '@wordpress/api-fetch';
 
 import {
 	isEmpty
-} from '../util';
+} from '../javascript/util';
 
 /**
  * WP Museum dependencies.
  */
 
-import { SearchBox } from '../components/search-modal';
-import FontSizePanel from '../components/font-size-panel';
+import { SearchBox, FontSizePanel } from '../components';
 import RemoteCollectionGrid from './remote-collection-grid';
 
 const RemoteCollectionSearchBox = props => {

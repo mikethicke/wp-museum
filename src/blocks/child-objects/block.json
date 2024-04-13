@@ -1,0 +1,29 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+    "name": "wp-museum/child-objects-block",
+    "title": "Child Objects",
+    "description": "For displaying child objects of Museum Objects. Only works with Museum object post types",
+    "category": "wp-museum",
+    "icon": "museum",
+    "supports": {
+        "align": true,
+        "html": false
+    },
+    "textdomain": "wp-museum",
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./index.css",
+    "render": "file:./render.php",
+    "attributes": {
+        "childObjects": {
+            "type": "object",
+            "source": "meta",
+            "meta": "wp-museum-child_objects"
+        },
+        "childObjectsStr": {
+            "type": "string",
+            "source": "meta",
+            "meta": "wp-museum-child_objects_str"
+        }
+    }
+}

@@ -52,7 +52,7 @@ class Collections_Controller extends \WP_REST_Controller {
 			'/collections/',
 			[
 				[
-					'methods'             => \WP_REST_SERVER::READABLE,
+					'methods'             => \WP_REST_Server::READABLE,
 					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 					'callback'            => [ $this, 'get_items' ],
 				],

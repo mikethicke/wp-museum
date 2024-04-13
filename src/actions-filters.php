@@ -72,14 +72,14 @@ register_uninstall_hook( PLUGIN_BASENAME, __NAMESPACE__ . '\do_cleanup' );
  *
  * @see object-post-types.php::create_mobject_post_types()
  */
-add_action( 'plugins_loaded', __NAMESPACE__ . '\create_mobject_post_types' );
+add_action( 'init', __NAMESPACE__ . '\create_mobject_post_types', 1 );
 
 /**
  * Check database version and update table schemas if necessary
  *
  * @see database-functions.php::db_version_check()
  */
-add_action( 'plugins_loaded', __NAMESPACE__ . '\db_version_check' );
+add_action( 'plugins_loaded', __NAMESPACE__ . '\db_version_check', 10 );
 
 /**
  * Generate image sizes for post row thumbnails.
@@ -197,22 +197,6 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\wpm_media_box_enqueue' );
  */
 add_action( 'customize_register', __NAMESPACE__ . '\register_customization' );
 
-/**
- * Load block scripts for editor.
- *
- * @see blocks.php::enqueue_block_scripts()
- */
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_scripts' );
-
-/**
- * Enqueues javascript to de-register Object Meta Fields and Object Image
- * Gallery blocks for non Museum Objects, becaue they don't make sense for
- * other post types.
- *
- * @see blocks.php
- */
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\unregister_object_blocks_for_non_objects' );
-
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_react' );
 
 add_action( 'admin_menu', __NAMESPACE__ . '\create_admin_react_pages' );
@@ -244,7 +228,7 @@ add_action(
  *
  * @see blocks.php::add_museum_block_category()
  */
-add_filter( 'block_categories', __NAMESPACE__ . '\add_museum_block_category' );
+add_filter( 'block_categories_all', __NAMESPACE__ . '\add_museum_block_category' );
 
 /*****************************************************************************
  *
@@ -273,13 +257,6 @@ add_action( 'wp_head', __NAMESPACE__ . '\object_css' );
  * @see display.php::object_css()
  */
 add_action( 'wp_head', __NAMESPACE__ . '\collection_css' );
-
-/**
- * Load block scripts for frontend.
- *
- * @see blocks.php::enqueue_block_scripts()
- */
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_block_frontend_scripts' );
 
 /**
  * Load general css for frontend.

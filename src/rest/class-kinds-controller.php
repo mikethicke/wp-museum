@@ -188,12 +188,12 @@ class Kinds_Controller extends \WP_REST_Controller {
 	/**
 	 * Update museum object kinds.
 	 *
-	 * @param WP_REST_Request $request The REST Request object. The body of the
-	 * request should contain updated properties for the kind.
-	 *
 	 * TODO: Currently if there are multiple kinds to update and the first one
 	 * fails, the function bails and the others aren't updated. Not sure this
 	 * is the best result. 13/3/2021
+	 *
+	 * @param WP_REST_Request $request The REST Request object.
+	 * The body of the request should contain updated properties for the kind.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or
 	 * WP_Error object on failure.

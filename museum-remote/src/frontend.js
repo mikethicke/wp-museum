@@ -7,7 +7,7 @@ import {
 } from '@wordpress/element';
 
 import CollectionBlockFront from './collection-block/front';
-import { cleanAttributes } from './util';
+import { cleanAttributes } from './javascript/util';
 
 import './style.scss';
 

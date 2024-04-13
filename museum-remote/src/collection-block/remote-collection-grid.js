@@ -3,13 +3,12 @@ import {
 } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
-import ObjectImageGrid from '../components/object-image-grid';
-import ThumbnailImage from '../components/thumbnail-image';
+import { ObjectImageGrid, ThumbnailImage } from '../components';
 import RemoteObjectModal from './remote-object-modal';
 
 import {
 	isEmpty
-} from '../util';
+} from '../javascript/util';
 
 const RemoteCollectionGrid = props => {
 

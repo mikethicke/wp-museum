@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+    "name": "wp-museum/basic-search",
+    "title": "Basic Search",
+    "description": "A block that allows users to search for objects in the collection.",
+    "category": "wp-museum",
+    "icon": "museum",
+    "supports": {
+        "align": true,
+        "html": false
+    },
+    "textdomain": "wp-museum",
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./index.css",
+    "viewScript": "file:./front.js",
+    "render": "file:./render.php",
+    "attributes": {
+        "searchText": {
+            "type": "string",
+            "default": ""
+        },
+        "resultsPerPage": {
+            "type": "number",
+            "default": 20
+        },
+        "advancedSearchLink": {
+            "type": "string",
+            "default": ""
+        }
+    }
+}

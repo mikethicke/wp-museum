@@ -94,6 +94,7 @@ class Object_Fields_Controller extends \WP_REST_Controller {
 	 * Retrieves field data for an object type.
 	 *
 	 * @param WP_REST_Request $request The REST Request object.
+	 * @param MObjectKind     $kind    The kind of object to retrieve fields for.
 	 */
 	public function get_items( $request, $kind = null ) {
 		if ( ! $kind ) {

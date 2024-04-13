@@ -15,8 +15,8 @@ function register_collecton_block() {
 		'museum-remote/collection-block',
 		[
 			'render_callback' => __NAMESPACE__ . '\render_collection_block',
-			'attributes' => [
-				'columns'         => [
+			'attributes'      => [
+				'columns'          => [
 					'type'    => 'number',
 					'default' => 4,
 				],

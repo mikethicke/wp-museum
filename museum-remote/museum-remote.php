@@ -1,6 +1,6 @@
 <?php
 /**
- * Remote plugin for Museum for Wordpress.
+ * Remote plugin for Museum for WordPress.
  *
  * @package MikeThicke\MuseumRemote
  * @author Mike Thicke

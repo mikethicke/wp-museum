@@ -202,6 +202,8 @@ class Associated_Collection_Widget extends \WP_Widget {
 
 /**
  * Registers the widget.
+ *
+ * phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
  */
 function register_associated_collection_widget() {
 	register_widget( __NAMESPACE__ . '\Associated_Collection_Widget' );

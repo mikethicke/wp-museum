@@ -1,17 +1,11 @@
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
-const path = require( 'path' );
+const { getWebpackEntryPoints } = require( '@wordpress/scripts/utils/config' );
+const RemoveEmptyScriptsPlugin = require( 'webpack-remove-empty-scripts' );
 
 module.exports = {
 	...defaultConfig,
 	entry : {
-		'blocks-edit' : {
-			import : './src/blocks/src/index.js',
-			filename : 'blocks-edit.js'
-		},
-		'blocks-front' : {
-			import : './src/blocks/src/frontend.js',
-			filename : 'blocks-frontend.js'
-		},
+		...getWebpackEntryPoints('script')(),
 		'admin' : {
 			import : './src/admin-react/src/index.js',
 			filename : 'admin-react.js',
@@ -23,7 +17,20 @@ module.exports = {
 		'remote-front' : {
 			import : './museum-remote/src/frontend.js',
 			filename : 'museum-remote-front.js'
+		},
+		'components' : {
+			import : ['./src/components/index.js', './src/components/style.scss' ],
+			filename : 'components.js'
+		},
+		'museum-block-front' : {
+			import: './src/blocks/front.scss'
+		},
+		'museum-block-editor' : {
+			import: './src/blocks/editor.scss'
 		}
-	}
+	},
+	plugins : [
+		...defaultConfig.plugins,
+		new RemoveEmptyScriptsPlugin(),
+	],
 };
-

@@ -11,17 +11,13 @@ namespace MikeThicke\MuseumRemote;
  * Enqueues scripts and styles for admin.
  */
 function enqueue_admin_scripts_and_styles() {
-	$asset_file = include ( MR_REACT_PATH . 'remote.asset.php' );
+	$asset_file = include MR_REACT_PATH . 'remote.asset.php';
 	wp_enqueue_script(
 		'museum-remote-admin',
 		MR_REACT_URL . 'museum-remote-admin.js',
 		$asset_file['dependencies'],
 		$asset_file['version'],
 		true
-	);
-	wp_enqueue_style(
-		'wordpress-components-styles',
-		includes_url( '/css/dist/components/style.min.css' )
 	);
 	wp_enqueue_style(
 		'museum-remote-style-admin',
@@ -42,7 +38,7 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_scripts_and
  * Enqueues scripts and styles for frontend.
  */
 function enqueue_frontend_scripts_and_styles() {
-	$asset_file = include ( MR_REACT_PATH . 'remote.asset.php' );
+	$asset_file = include MR_REACT_PATH . 'remote.asset.php';
 	wp_enqueue_script(
 		'museum-remote-front',
 		MR_REACT_PATH . 'museum-remote-front.js',
@@ -56,11 +52,5 @@ function enqueue_frontend_scripts_and_styles() {
 		[],
 		filemtime( MR_REACT_PATH . 'style-remote.css' )
 	);
-	wp_enqueue_style(
-		'wordpress-components-styles',
-		includes_url( '/css/dist/components/style.min.css' )
-	);
 }
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_frontend_scripts_and_styles' );
-
-

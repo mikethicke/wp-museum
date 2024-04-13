@@ -180,7 +180,7 @@ class Objects_Controller extends \WP_REST_Controller {
 			'/search',
 			[
 				[
-					'methods'             => [ \WP_REST_SERVER::READABLE, \WP_REST_Server::CREATABLE ],
+					'methods'             => [ \WP_REST_Server::READABLE, \WP_REST_Server::CREATABLE ],
 					'permission_callback' => [ $this, 'get_items_permission_check' ],
 					'callback'            => [ $this, 'get_items' ],
 				],
@@ -234,7 +234,7 @@ class Objects_Controller extends \WP_REST_Controller {
 	 * @return WP_Post|WP_Error Post object if ID is valid, WP_Error otherwise.
 	 */
 	protected function get_post( $id ) {
-		$error = new WP_Error(
+		$error = new \WP_Error(
 			'rest_post_invalid_id',
 			__( 'Invalid post ID.' ),
 			array( 'status' => 404 )
@@ -455,7 +455,7 @@ class Objects_Controller extends \WP_REST_Controller {
 		$max_pages = ceil( $total_posts / (int) $posts_query->query_vars['posts_per_page'] );
 
 		if ( $page > $max_pages && $total_posts > 0 ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'rest_post_invalid_page_number',
 				__( 'The page number requested is larger than the number of pages available.' ),
 				array( 'status' => 400 )

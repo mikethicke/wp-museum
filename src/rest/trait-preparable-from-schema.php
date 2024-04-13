@@ -38,8 +38,7 @@ trait Preparable_From_Schema {
 		} elseif ( in_array( 'number', $type, true ) && is_numeric( $data ) ) {
 			$int_version   = intval( $data );
 			$float_version = floatval( $data );
-			// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-			if ( $int_version == $float_version ) {
+			if ( floatval( $int_version ) === $float_version ) {
 				$new_data = $int_version;
 			} else {
 				$new_data = $float_version;
@@ -94,7 +93,7 @@ trait Preparable_From_Schema {
 			) {
 				$has_property_schema = true;
 				foreach ( $data as $data_propterty => $data_item ) {
-					if ( in_array( $data_propterty, $sanitized_properties ) ) {
+					if ( in_array( $data_propterty, $sanitized_properties, true ) ) {
 						continue;
 					}
 					$new_data[ $data_propterty ] = self::sanitize_from_type(

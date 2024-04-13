@@ -3,8 +3,8 @@ import {
 	useEffect,
 } from '@wordpress/element';
 
-import ObjectModal from '../components/object-modal';
-import { isEmpty } from '../util';
+import { ObjectModal } from '../components';
+import { isEmpty } from '../javascript/util';
 
 const RemoteObjectModal = props => {
 	const {

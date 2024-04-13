@@ -1,0 +1,88 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "wp-museum/collection-main-navigation-block",
+    "title": "Collection Main Navigation",
+    "description": "A block showing a list of collections in the main post area.",
+    "category": "wp-museum",
+    "icon": "wp-museum",
+    "supports": {
+        "align": true,
+        "html": false
+    },
+    "textdomain": "wp-museum",
+    "editorScript": "file:./index.js",
+    "viewScript": "file:./front.js",
+    "render": "file:./render.php",
+    "attributes": {
+        "fontSize": {
+            "type": "number",
+            "default": 1
+        },
+        "fontColor": {
+            "type": "string",
+            "default": "initial"
+        },
+        "backgroundColor": {
+            "type": "string",
+            "default": "initial"
+        },
+        "borderColor": {
+            "type": "string",
+            "default": "inherit"
+        },
+        "borderWidth": {
+            "type": "number",
+            "default": 0
+        },
+        "verticalSpacing": {
+            "type": "number",
+            "default": 0
+        },
+        "useDefaultFontSize": {
+            "type": "boolean",
+            "default": true
+        },
+        "useDefaultFontColor": {
+            "type": "boolean",
+            "default": true
+        },
+        "useDefaultBackgroundColor": {
+            "type": "boolean",
+            "default": true
+        },
+        "useDefaultBorderColor": {
+            "type": "boolean",
+            "default": true
+        },
+        "useDefaultBorderWidth": {
+            "type": "boolean",
+            "default": true
+        },
+        "useDefaultVerticalSpacing": {
+            "type": "boolean",
+            "default": true
+        },
+        "subCollectionIndent": {
+            "type": "number",
+            "default": 3
+        },
+        "sortBy": {
+            "type": "string",
+            "enum": ["Alphabetical", "Date Created", "Date Uploaded"],
+            "default": "Alphabetical"
+        },
+        "sortOrder": {
+            "type": "string",
+            "enum": ["Ascending", "Descending"],
+            "default": "Descending"
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "default": [ "_all" ]
+        }
+    }
+}

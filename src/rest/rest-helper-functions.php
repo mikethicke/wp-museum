@@ -9,10 +9,8 @@ namespace MikeThicke\WPMuseum;
 
 /**
  * Filter to change the "Read More..." text into "..." for REST requests.
- *
- * @param string $more The original Read More text.
  */
-function rest_excerpt_filter( $more ) {
+function rest_excerpt_filter() {
 	return '...';
 }
 
@@ -77,14 +75,14 @@ function combine_post_data( $post ) {
 		$object_collections
 	);
 
-	add_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
+	add_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 0 );
 	$filtered_excerpt =
 		html_entity_decode(
 			wp_strip_all_tags(
 				get_the_excerpt( $post )
 			)
 		);
-	remove_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 2 );
+	remove_filter( 'excerpt_more', __NAMESPACE__ . '\rest_excerpt_filter', 10, 0 );
 
 	$additional_fields = [
 		'link'        => get_permalink( $post ),

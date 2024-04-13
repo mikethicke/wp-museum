@@ -480,7 +480,6 @@ class CustomPostType {
 	 * @link https://typerocket.com/ultimate-guide-to-custom-post-types-in-wordpress/
 	 */
 	public function register() {
-			$x     = 1 / 0;
 		$arguments = [
 			'public'               => $this->options['public'],
 			'description'          => $this->options['description'],

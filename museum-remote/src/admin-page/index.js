@@ -10,7 +10,7 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
-import { generateUUID, isEmpty } from '../util'; 
+import { generateUUID, isEmpty } from '../javascript/util'; 
 
 const SiteInfo = props => {
 	const {
@@ -125,7 +125,7 @@ const RemoteAdminPage = () => {
 		cleanedUrl = cleanedUrl
 			.startsWith('http://') || cleanedUrl.startsWith('https://' ) ?
 			cleanedUrl :
-			'http://' + cleanedUrl;
+			'https://' + cleanedUrl;
 		setRemoteData( { ...remoteData, url: cleanedUrl } );
 		return cleanedUrl;
 	}
@@ -209,7 +209,7 @@ const RemoteAdminPage = () => {
 				<input
 					type = 'url'
 					ref = { textInput }
-					placeholder = 'http://example.com'
+					placeholder = 'https://example.com'
 					pattern = "https?:\/\/.*"
 					onChange = { onUrlChange }
 					onBlur   = { onUrlBlur }

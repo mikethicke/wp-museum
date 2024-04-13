@@ -24,5 +24,6 @@ function museum_icon() {
 		<polygon fill="black"  points="24.5,110 10,120 0,120 0,130 150,130 150,120 140,120 125.5,110"></polygon>
 		<polygon fill="black"  points="21,46 21,40 75,26 129,40 129,46"></polygon>
 	</svg>';
+	// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	return 'data:image/svg+xml;base64,' . base64_encode( $icon_svg );
 }

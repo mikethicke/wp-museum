@@ -150,14 +150,16 @@ class ObjectKind {
 			if ( is_null( $this->kind_id ) || is_null( get_kind( $this->kind_id ) ) ) {
 				$results = $wpdb->get_results(
 					$wpdb->prepare(
-						"SELECT type_name FROM $table_name WHERE type_name = %s",
+						'SELECT type_name FROM %i WHERE type_name = %s',
+						$table_name,
 						$unique_type_name
 					)
 				);
 			} else {
 				$results = $wpdb->get_results(
 					$wpdb->prepare(
-						"SELECT type_name FROM $table_name WHERE type_name = %s AND kind_id != %s",
+						'SELECT type_name FROM %i WHERE type_name = %s AND kind_id != %s',
+						$table_name,
 						$unique_type_name,
 						$this->kind_id
 					)
