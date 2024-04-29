@@ -3,7 +3,7 @@
  */
 
 import {
-	render
+	createRoot
 } from '@wordpress/element';
 
 import CollectionBlockFront from './collection-block/front';
@@ -18,11 +18,11 @@ if ( !! collectionElements ) {
 		const collectionId = collectionElement.id.substr( 'collection'.length );
 		const attributes = window[`attributesCollection${collectionId}`];
 		cleanAttributes( attributes );
-		render(
+		const root = createRoot( collectionElement );
+		root.render(
 			<CollectionBlockFront
 				attributes = { attributes }
-			/>,
-			collectionElement
+			/>
 		);
 	}
 }

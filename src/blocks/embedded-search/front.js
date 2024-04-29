@@ -46,11 +46,11 @@ if ( !! embeddedSearchElements ) {
 	for ( let i = 0; i < embeddedSearchElements.length; i++ ) {
 		const embeddedElement = embeddedSearchElements[i];
 		const attributes = attributesFromJSON( embeddedElement.dataset.attributes );
-		render (
+		const root = createRoot( embeddedElement );
+		root.render (
 			<EmbeddedSearchFront
 				attributes = { attributes }
-			/>,
-			embeddedElement
+			/>
 		);
 	}
 }

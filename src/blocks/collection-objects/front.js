@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import {
 	useState,
 	useEffect,
+	createRoot
 } from '@wordpress/element';
 
 import { 
@@ -72,6 +73,7 @@ const CollectionObjectsFront = props => {
 					searchCallback = { runSearch }
 					searchParams   = { currentSearchParams }
 					mObjects       = { mObjects }
+					doObjectModal  = { false }
 				/>
 			}
 		</div>
@@ -83,11 +85,11 @@ if ( !! collectionObjectsBlockElements ) {
 	for ( let i = 0; i < collectionObjectsBlockElements.length; i++ ) {
 		const collectionObjectsBlockElement = collectionObjectsBlockElements[i];
 		const postID = parseInt( collectionObjectsBlockElement.dataset.postId );
-		render (
+		const root = createRoot( collectionObjectsBlockElement );
+		root.render (
 			<CollectionObjectsFront
 				postID = { postID }
-			/>,
-			collectionObjectsBlockElement
+			/>
 		);
 	}
 }

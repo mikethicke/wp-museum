@@ -4,6 +4,7 @@
 import {
 	useState,
 	useEffect,
+	createRoot
 } from '@wordpress/element';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -115,11 +116,11 @@ if ( !! basicSearchElements ) {
 	for ( let i = 0; i < basicSearchElements.length; i++ ) {
 		const basicSearchElement = basicSearchElements[i];
 		const attributes = attributesFromJSON( basicSearchElement.dataset.attributes );
-		render (
+		const root = createRoot( basicSearchElement );
+		root.render (
 			<BasicSearchFront
 				attributes = { attributes }
-			/>,
-			basicSearchElement
+			/>
 		);
 	}
 }

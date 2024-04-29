@@ -4,7 +4,7 @@
 import {
 	useState,
 	useEffect,
-	render
+	createRoot
 } from '@wordpress/element';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -59,11 +59,11 @@ if ( collectionMainNavigationElements ) {
 	for ( let i = 0; i < collectionMainNavigationElements.length; i++ ) {
 		const collectionMainNavigationElement = collectionMainNavigationElements[i];
 		const attributes = attributesFromJSON( collectionMainNavigationElement.dataset.attributes );
-		render (
+		const root = createRoot( collectionMainNavigationElement );
+		root.render (
 			<CollectionMainNavigationFront
 				attributes = { attributes }
-			/>,
-			collectionMainNavigationElement
+			/>
 		);
 	}
 }

@@ -1,6 +1,7 @@
 import {
 	useState,
-	useEffect
+	useEffect,
+	createRoot
 } from '@wordpress/element';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -21,11 +22,11 @@ window.addEventListener( 'DOMContentLoaded', () => {
 			if ( typeof attributes['defaultSearch'] != 'string' ) {
 				attributes['defaultSearch'] = JSON.stringify( attributes['defaultSearch'] );
 			}
-			render (
+			const root = createRoot( advancedSearchElement );
+			root.render (
 				<AdvancedSearchFront
 					attributes = { attributes }
-				/>,
-				advancedSearchElement
+				/>
 			);
 		}
 	}

@@ -1,8 +1,8 @@
 import {
-	render,
 	useState,
 	useEffect,
-	useRef
+	useRef,
+	createRoot
 } from '@wordpress/element';
 import {
 	Button,
@@ -236,8 +236,8 @@ const RemoteAdminPage = () => {
 }
 
 if ( !! document.getElementById( 'museum-remote-admin-container' ) ) {
-	render(
-		<RemoteAdminPage />,
-		document.getElementById( 'museum-remote-admin-container' )
+	const root = createRoot( document.getElementById( 'museum-remote-admin-container' ) );
+	root.render(
+		<RemoteAdminPage />
 	);
 }
