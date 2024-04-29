@@ -14,58 +14,64 @@ namespace MikeThicke\WPMuseum;
  * @link https://www.virendrachandak.com/techtalk/creating-csv-file-using-php-and-mysql/
  */
 function export_csv() {
-	if ( isset( $_GET[ WPM_PREFIX . 'ot_csv' ] ) ) {
-		if ( ! check_admin_referer( 'd78HG@YsELh2KByUgCTuDCepW', 'wpm-objects-admin-nonce' ) ) {
-			wp_die( esc_html_e( 'Failed nonce check', 'wp-museum' ) );
-		}
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_die( esc_html_e( 'You do not have sufficient permissions to access this page.', 'wp-museum' ) );
-		}
-		$kind_id = intval( $_GET[ WPM_PREFIX . 'ot_csv' ] );
-		$kind    = get_kind( $kind_id );
-
-		$args   = [
-			'post_type'   => $kind->type_name,
-			'post_status' => 'any',
-			'numberposts' => -1,
-		];
-		$posts  = get_posts( $args );
-		$fields = get_mobject_fields( $kind_id );
-		$rows   = [];
-		foreach ( $posts as $the_post ) {
-			$row          = get_post_custom( $the_post->ID );
-			$sorted_row   = sort_row_by_fields( $row, $fields );
-			$sorted_row[] = get_permalink( $the_post );
-			$sorted_row[] = $the_post->post_status;
-			array_unshift( $sorted_row, html_entity_decode( $the_post->post_content ) );
-			array_unshift( $sorted_row, html_entity_decode( $the_post->post_title ) );
-			$rows[] = $sorted_row;
-		}
-
-		$header_row = [ 'Title', 'Content' ];
-		$slug_row   = [ 'post_title', 'post_content' ];
-		foreach ( $fields as $field ) {
-			$header_row[] = $field->name;
-			$slug_row[]   = $field->slug;
-		}
-		array_push( $header_row, 'Permalink', 'Publication Status' );
-		array_push( $slug_row, 'permalink', 'post_status' );
-
-		header( 'Content-type: text/csv' );
-		$filename = $kind->name . '_export.csv';
-		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
-		header( 'Pragma: no-cache' );
-		header( 'Expires: 0' );
-
-		$file = fopen( 'php://output', 'w' );
-		fputcsv( $file, $header_row );
-		fputcsv( $file, $slug_row );
-		foreach ( $rows as $row ) {
-			fputcsv( $file, $row );
-		}
-
+	if ( ! isset( $_GET[ WPM_PREFIX . 'ot_csv' ] ) ) {
 		exit();
 	}
+
+	if ( ! check_admin_referer( 'd78HG@YsELh2KByUgCTuDCepW', 'wpm-objects-admin-nonce' ) ) {
+		wp_die( esc_html_e( 'Failed nonce check', 'wp-museum' ) );
+	}
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_die( esc_html_e( 'You do not have sufficient permissions to access this page.', 'wp-museum' ) );
+	}
+	$kind_id = intval( $_GET[ WPM_PREFIX . 'ot_csv' ] );
+	$sort_col = isset( $_GET['sort_col'] ) ? sanitize_text_field( wp_unslash( $_GET['sort_col'] ) ) : 'post_title';
+	$sort_dir = isset( $_GET['sort_dir'] ) ? sanitize_text_field( wp_unslash( $_GET['sort_dir'] ) ) : 'asc';
+	$kind    = get_kind( $kind_id );
+
+	$args   = [
+		'post_type'   => $kind->type_name,
+		'post_status' => 'any',
+		'numberposts' => -1,
+	];
+	$posts  = get_posts( $args );
+	$fields = get_mobject_fields( $kind_id );
+	$rows   = [];
+	foreach ( $posts as $the_post ) {
+		$row          = get_post_custom( $the_post->ID );
+		$sorted_row   = sort_row_by_fields( $row, $fields );
+		$sorted_row[] = get_permalink( $the_post );
+		$sorted_row[] = $the_post->post_status;
+		array_unshift( $sorted_row, html_entity_decode( $the_post->post_content ) );
+		array_unshift( $sorted_row, html_entity_decode( $the_post->post_title ) );
+		$rows[] = $sorted_row;
+	}
+
+	wpm_sort_by_field( $rows, $sort_col, $sort_dir );
+
+	$header_row = [ 'Title', 'Content' ];
+	$slug_row   = [ 'post_title', 'post_content' ];
+	foreach ( $fields as $field ) {
+		$header_row[] = $field->name;
+		$slug_row[]   = $field->slug;
+	}
+	array_push( $header_row, 'Permalink', 'Publication Status' );
+	array_push( $slug_row, 'permalink', 'post_status' );
+
+	header( 'Content-type: text/csv' );
+	$filename = $kind->name . '_export.csv';
+	header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+	header( 'Pragma: no-cache' );
+	header( 'Expires: 0' );
+
+	$file = fopen( 'php://output', 'w' );
+	fputcsv( $file, $header_row );
+	fputcsv( $file, $slug_row );
+	foreach ( $rows as $row ) {
+		fputcsv( $file, $row );
+	}
+
+	exit();
 }
 
 /**
@@ -449,12 +455,14 @@ function export_images_aj() {
  *
  * @param   int/string $kind_id  The object's ID (a number).
  */
-function export_csv_button( $kind_id ) {
+function export_csv_button( int $kind_id, string $sort_col = 'post_title', string $sort_dir = 'asc') {
 	if ( isset( $_SERVER['PHP_SELF'] ) ) {
 		$url = esc_url(
 			add_query_arg(
 				[
 					WPM_PREFIX . 'ot_csv'     => $kind_id,
+					'sort_col'                => $sort_col,
+					'sort_dir'                => $sort_dir,
 					'wpm-objects-admin-nonce' => wp_create_nonce( 'd78HG@YsELh2KByUgCTuDCepW' ),
 				],
 				sanitize_url( wp_unslash( $_SERVER['PHP_SELF'] ) )
