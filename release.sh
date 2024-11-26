@@ -7,8 +7,6 @@ RELEASE_FILE="${SUB_RELEASE_DIR}.zip"
 SRC_DIR="./src"
 BLOCKS_BUILD_DIR="./build"
 REACT_DIR="${BASE_RELEASE_DIR}/${SUB_RELEASE_DIR}/react"
-ADMIN_REACT_SRC_DIR="${SRC_DIR}/admin-react"
-ADMIN_REACT_BUILD_DIR="${SRC_DIR}/admin-react/build"
 
 echo "Building version ${VERSION_NUMBER} for release..."
 echo "Release directory: ${RELEASE_DIR}"
@@ -51,18 +49,7 @@ then
 	exit 2
 fi
 
-if [ "$(ls -A ${BLOCKS_BUILD_DIR})" ]
-then
-	echo "Deleting build files from ${BLOCKS_BUILD_DIR}..."
-	rm ${BLOCKS_BUILD_DIR}/*
-fi
-if [ "$(ls -A ${BLOCKS_BUILD_DIR})" ]
-then
-	echo "Failed to delete build files from ${BLOCKS_BUILD_DIR}. Exiting."
-	rmdir $RELEASE_DIR
-	exit 2
-fi
-
+rm -rf $BLOCKS_BUILD_DIR
 echo "Building blocks..."
 npm run build
 if [ ! "$(ls -A ${BLOCKS_BUILD_DIR})" ]
@@ -74,32 +61,11 @@ fi
 
 echo "Copying files to release directory..."
 cp ./wp-museum.php $RELEASE_DIR
-cp $SRC_DIR/*.php $RELEASE_DIR
-cp $SRC_DIR/*.css $RELEASE_DIR
-mkdir ${RELEASE_DIR}/blocks
-mkdir ${RELEASE_DIR}/admin-react
-cp $SRC_DIR/blocks/*.php ${RELEASE_DIR}/blocks
-cp $BLOCKS_BUILD_DIR/admin-react.js ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/admin.asset.php ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/admin.css ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/blocks-edit.asset.php ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/blocks-edit.css ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/blocks-front.asset.php ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/blocks-frontend.js ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/blocks-edit.js ${REACT_DIR}
-cp $BLOCKS_BUILD_DIR/style-blocks-front.css ${REACT_DIR}
-cp $SRC_DIR/admin-react/*.php ${RELEASE_DIR}/admin-react
-cp -r $SRC_DIR/admin $RELEASE_DIR
-cp -r $SRC_DIR/assets $RELEASE_DIR
-cp -r $SRC_DIR/classes $RELEASE_DIR
-cp -r $SRC_DIR/general $RELEASE_DIR
-cp -r $SRC_DIR/javascript $RELEASE_DIR
-cp -r $SRC_DIR/public $RELEASE_DIR
-cp -r $SRC_DIR/rest $RELEASE_DIR
-cp -r $SRC_DIR/widgets $RELEASE_DIR
+cp -r ./build/* $REACT_DIR
+cp -r ./src/* $RELEASE_DIR
 
 echo "Setting DEV_BUILD to false..."
-sed -i -e 's/const DEV_BUILD = true/const DEV_BUILD = false/' $RELEASE_DIR/wp-museum.php
+sed -i '' 's/const DEV_BUILD = true/const DEV_BUILD = false/' $RELEASE_DIR/wp-museum.php
 
 echo "Creating release .zip file."
 cd $BASE_RELEASE_DIR
@@ -114,4 +80,3 @@ then
 fi
 
 echo "Done."
-

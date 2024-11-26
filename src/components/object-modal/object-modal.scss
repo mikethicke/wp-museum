@@ -1,7 +1,8 @@
 .wpm-object-modal {
-	width: 40vw;
-	max-width: 50vh !important;
-	height: auto;
+	height: 90vh;
+	width: 70vh;
+	max-width: 90vw;
+	max-height: calc(100% - 100px);
 
 	a {
 		word-wrap: break-word;

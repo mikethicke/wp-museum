@@ -15,7 +15,7 @@ namespace MikeThicke\WPMuseum;
  */
 function export_csv() {
 	if ( ! isset( $_GET[ WPM_PREFIX . 'ot_csv' ] ) ) {
-		exit();
+		return;
 	}
 
 	if ( ! check_admin_referer( 'd78HG@YsELh2KByUgCTuDCepW', 'wpm-objects-admin-nonce' ) ) {

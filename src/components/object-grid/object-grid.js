@@ -128,6 +128,14 @@ const ObjectGridBoxDynamicImage = props => {
 		);
 	}
 
+	const handleClick = () => {
+		if (doObjectModal) {
+			setModalOpen(true);
+		} else {
+			window.open(link, '_self');
+		}
+	}
+
 	return (
 		<>
 			<ObjectGridBox
@@ -137,7 +145,7 @@ const ObjectGridBoxDynamicImage = props => {
 				displayDate     = { displayDate }
 				displayExcerpt  = { displayExcerpt }
 				linkToObject    = { linkToObject }
-				onClickCallback = { () => setModalOpen( true ) }
+				onClickCallback = { handleClick }
 				imgURL          = { !! bestImage ? bestImage.URL : null }
 			/>
 			{ doObjectModal && modalOpen && 
@@ -183,6 +191,7 @@ const ObjectGrid = props => {
 			displayExcerpt = { displayExcerpt }
 			linkToObject   = { linkToObjects }
 			doObjectModal  = { doObjectModal }
+			key 		   = { mObject.ID }
 		/>
 	) );
 

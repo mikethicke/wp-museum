@@ -4,5 +4,5 @@
 
 wp.domReady( function() {
 	wp.blocks.unregisterBlockType( 'wp-museum/object-image-attachments-block' );
-	wp.blocks.unregisterBlockType( 'wp-museum/object-meta-block' );
+	//wp.blocks.unregisterBlockType( 'wp-museum/object-meta-block' );
 } );

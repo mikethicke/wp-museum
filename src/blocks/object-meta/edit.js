@@ -99,7 +99,7 @@ const ObjectMetaField = ( props ) => {
 			<input
 				type     = 'text'
 				value    = { fieldValue }
-				onChange = { onChange }
+				onChange = { event => onChange(event.target.value) }
 			/>
 		);
 	} else if ( fieldType == 'date') {

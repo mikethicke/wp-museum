@@ -33,13 +33,7 @@ add_action( 'init', __NAMESPACE__ . '\register_blocks' );
  * they are not set in block.json.
  */
 function register_object_meta_block() {
-	
-	// See: https://wordpress.stackexchange.com/a/307601
-	$post_id = url_to_postid((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
-	if ( ! $post_id ) {
-		return;
-	}
-	$post_type = get_post_type( $post_id );
+	$post_type = calculate_post_type_in_editor();
 	if ( ! $post_type || ! in_array( $post_type, get_object_type_names(), true ) ) {
 		return;
 	}
@@ -67,7 +61,6 @@ function register_object_meta_block() {
 			$attributes[ $field_name ]['items'] = 'number';
 		}
 	}
-
 	register_block_type(
 		WPM_BUILD_DIR . '/blocks/object-meta',
 		[
@@ -80,6 +73,32 @@ function register_object_meta_block() {
  * 'wp' seems to be the earliest hook where post type is available on front end.
  */
 add_action( 'init', __NAMESPACE__ . '\register_object_meta_block', 50 );
+
+/**
+ * Helper function to calculate the post type in the editor.
+ * 
+ * We do this because we have to selectively register blocks based on the post type,
+ * and this occurs in the init hook where the post object is not yet available.
+ */
+function calculate_post_type_in_editor() : string|false {
+	if ( isset( $_GET['post_type']) ) {
+		return sanitize_text_field( $_GET['post_type'] );
+	}
+	
+	if ( isset( $_GET['post'] ) ) {
+		$post_id = intval( $_GET['post'] );
+	} else {
+		// See: https://wordpress.stackexchange.com/a/307601
+		$post_id = url_to_postid((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+	}
+	
+	if ( ! $post_id ) {
+		return false;
+	}
+
+	return get_post_type( $post_id );
+}
+
 
 /**
  * Register on admin side.
@@ -99,8 +118,16 @@ function enqueue_components() {
 		$asset_file['version'],
 		true
 	);
+
+	wp_enqueue_style(
+		WPM_PREFIX . 'component-styles',
+		WPM_BUILD_URL . 'style-components.css',
+		[ 'wp-components' ],
+		filemtime( WPM_BUILD_DIR . 'style-components.css' )
+	);
+
 }
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_components' );
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\enqueue_components' );
 
 /**
  * Enqueue block frontend scripts
@@ -132,7 +159,7 @@ function enqueue_block_frontend_scripts() {
 		$asset_file['version'],
 		true
 	);
-
+/*
 	$asset_file = include WPM_BUILD_DIR . '/blocks/collection-objects/front.asset.php';
 	wp_enqueue_script(
 		WPM_PREFIX . 'collection-objects-frontend',
@@ -141,7 +168,7 @@ function enqueue_block_frontend_scripts() {
 		$asset_file['version'],
 		true
 	);
-
+*/
 	$asset_file = include WPM_BUILD_DIR . '/blocks/embedded-search/front.asset.php';
 	wp_enqueue_script(
 		WPM_PREFIX . 'embedded-search-frontend',
@@ -264,4 +291,4 @@ function unregister_object_blocks_for_non_objects() {
 		);
 	}
 }
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\unregister_object_blocks_for_non_objects', 50 );
+//add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\unregister_object_blocks_for_non_objects', 50 );

@@ -31,10 +31,14 @@ tooling:
       service: appserver
       description: Runs WP-CLI commands
       cmd: wp
+  wpd:
+    service: appserver
+    description: Runs WP-CLI commands with debug on
+    cmd: php -d xdebug.start_with_request=yes /usr/local/bin/wp
   wp-install:
       service: appserver
       description: Installs WordPress with user admin and password admin
-      cmd: wp core install --title="WordPress Museum" --admin_user=admin --admin_password=admin --
+      cmd: wp core install --title="WordPress Museum" --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --url=wp-museum.lndo.site
   phpunit:
       service: appserver
       description: Runs PHPUnit tests
