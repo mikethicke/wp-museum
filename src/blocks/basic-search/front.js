@@ -13,7 +13,8 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import {
-	baseRestPath
+	baseRestPath,
+	attributesFromJSON
 } from '../../javascript/util';
 
 import { EmbeddedSearch, PaginatedObjectList } from '../../components';

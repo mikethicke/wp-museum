@@ -6,6 +6,7 @@
  * Internal dependencies
  */
 import { EmbeddedSearch } from '../../components';
+import { attributesFromJSON } from '../../javascript/util';
 
 const EmbeddedSearchFront = props => {
 	const {
