@@ -2,6 +2,8 @@
  * Frontend display of embedded search block.
  */
 
+import { createRoot } from '@wordpress/element';
+
 /**
  * Internal dependencies
  */
