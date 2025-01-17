@@ -21,7 +21,7 @@ services:
       php: .lando/php.ini
   database:
     type: mariadb
-    portforward: 3306
+    portforward: true
     creds:
       user: wordpress
       password: wordpress
@@ -51,4 +51,8 @@ tooling:
     service: appserver
     description: Runs npm commands
     cmd: npm
+  mysql:
+    service: database
+    description: Runs MySQL commands
+    cmd: mysql -u wordpress -pwordpress wordpress
   
