@@ -10,7 +10,8 @@ import {
 } from '@wordpress/element';
 
 import {
-	InspectorControls
+	InspectorControls,
+	useBlockProps
 } from '@wordpress/block-editor';
 
 import { 
@@ -69,55 +70,55 @@ const BasicSearchEdit = props => {
 	}
 
 	return (
-		<>
-		<InspectorControls>
-			<PanelBody
-				title = 'Search Options'
-			>
-				<SelectControl
-					label = 'Results per Page'
-					value = { resultsPerPage }
-					onChange = { val => setAttributes( { resultsPerPage: parseInt( val ) } ) }
-					options = { [
-						{ value: 20,  label: '20' },
-						{ value: 40,  label: '40' },
-						{ value: 60,  label: '60' },
-						{ value: 80,  label: '80' },
-						{ value: 100, label: '100' },
-						{ value: -1,  label: 'Unlimited' }
-					] }
-				/>
-				<label>
-					Advanced Search Page URL:
-					<input
-						className = 'wpm-basic-search-advanced-search-url-input'
-						type      = 'text'
-						value     = { advancedSearchLink }
-						onChange  = { event => setAttributes( { advancedSearchLink: event.target.value } ) }
+		<div {...useBlockProps()}>
+			<InspectorControls>
+				<PanelBody
+					title = 'Search Options'
+				>
+					<SelectControl
+						label = 'Results per Page'
+						value = { resultsPerPage }
+						onChange = { val => setAttributes( { resultsPerPage: parseInt( val ) } ) }
+						options = { [
+							{ value: 20,  label: '20' },
+							{ value: 40,  label: '40' },
+							{ value: 60,  label: '60' },
+							{ value: 80,  label: '80' },
+							{ value: 100, label: '100' },
+							{ value: -1,  label: 'Unlimited' }
+						] }
 					/>
-				</label>
-			</PanelBody>
-		</InspectorControls>
-		<EmbeddedSearch
-			searchDefaults  = { { searchText: searchText } }
-			runSearch       = { onSearch }
-			showReset       = { false }
-			showTitleToggle = { true }
-		/>
-		{ !! advancedSearchLink &&
-			<a
-				href = { advancedSearchLink }
-			>
-				Advanced Search
-			</a>
-		}
-		{ searchResults &&
-			<PaginatedObjectList
-				objects       = { searchResults }
-				displayImages = { true }
+					<label>
+						Advanced Search Page URL:
+						<input
+							className = 'wpm-basic-search-advanced-search-url-input'
+							type      = 'text'
+							value     = { advancedSearchLink }
+							onChange  = { event => setAttributes( { advancedSearchLink: event.target.value } ) }
+						/>
+					</label>
+				</PanelBody>
+			</InspectorControls>
+			<EmbeddedSearch
+				searchDefaults  = { { searchText: searchText } }
+				runSearch       = { onSearch }
+				showReset       = { false }
+				showTitleToggle = { true }
 			/>
-		}
-		</>
+			{ !! advancedSearchLink &&
+				<a
+					href = { advancedSearchLink }
+				>
+					Advanced Search
+				</a>
+			}
+			{ searchResults &&
+				<PaginatedObjectList
+					objects       = { searchResults }
+					displayImages = { true }
+				/>
+			}
+		</div>
 	);
 }
 

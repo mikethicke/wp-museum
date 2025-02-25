@@ -8,7 +8,7 @@
 import {
 	InspectorControls,
 	RichText,
-
+	useBlockProps,
 } from '@wordpress/block-editor';
 
 import {
@@ -45,6 +45,11 @@ const EmbeddedSearchEdit = props => {
 		showTitleToggle   = true,
 		maxWidth,
 	} = attributes;
+
+	const blockProps = useBlockProps({
+		className: 'wpm-embedded-search-block',
+		style: { maxWidth: `${maxWidth}%` }
+	});
 
 	return (
 		<>
@@ -94,10 +99,7 @@ const EmbeddedSearchEdit = props => {
 				</PanelRow>
 			</PanelBody>
 		</InspectorControls>
-		<div 
-			className = 'wpm-embedded-search-block'
-			style = { { maxWidth: `${maxWidth}%` } }
-		>
+		<div { ...blockProps }>
 			<RichText
 				tagName  = 'h2'
 				value    = { headerText }

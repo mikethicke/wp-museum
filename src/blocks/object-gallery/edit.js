@@ -8,7 +8,8 @@
  */
 import {
 	InspectorControls,
-	RichText
+	RichText,
+	useBlockProps
 } from '@wordpress/block-editor'
 
 import { 
@@ -188,9 +189,11 @@ const ObjectGallery = ( props ) => {
 			} );
 		}
 	}
+
+	const blockProps = useBlockProps();
 	
 	return (
-		<>
+		<div { ...blockProps }>
 			<InspectorControls>
 				<ObjectEmbedPanel
 					onSearchModalReturn = { onSearchModalReturn }
@@ -256,7 +259,7 @@ const ObjectGallery = ( props ) => {
 					}
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }
 

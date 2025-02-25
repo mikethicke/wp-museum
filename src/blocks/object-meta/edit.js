@@ -1,4 +1,3 @@
-
 import { 
 	useSelect,
 	useDispatch,
@@ -10,7 +9,8 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import {
 	InspectorControls,
-	RichText
+	RichText,
+	useBlockProps
 } from '@wordpress/block-editor';
 import { 
 	PanelBody,
@@ -188,6 +188,7 @@ const ObjectMetaField = ( props ) => {
 
 const ObjectMetaEdit = ( props ) => {
 	const { attributes, setAttributes } = props;
+	const blockProps = useBlockProps({ className: 'object-meta-block' });
 
 	const [ fieldData, setFieldData ] = useState( null );
 	const [ postData, setPostData ] = useState( null );
@@ -361,7 +362,7 @@ const ObjectMetaEdit = ( props ) => {
 	
 
 	return (
-		<div className = 'object-meta-block'>
+		<div { ...blockProps }>
 			<h3>Fields</h3>
 			<FieldInstructions
 				helpText = { currentHelpText }

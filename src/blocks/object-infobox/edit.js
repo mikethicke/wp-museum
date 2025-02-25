@@ -6,7 +6,8 @@
  * WordPress dependencies
  */
 import {
-	InspectorControls
+	InspectorControls,
+	useBlockProps
 } from '@wordpress/block-editor'
 
 import { 
@@ -15,7 +16,9 @@ import {
 } from '@wordpress/components';
 
 import {
-	Component
+	useCallback,
+	useEffect,
+	useState
 } from '@wordpress/element';
 
 import { __ } from "@wordpress/i18n";
@@ -141,18 +144,10 @@ const OptionsPanel = ( props ) => {
  * All of the content of this block is fetched from the REST api. The user
  * controls which information is displayed through the InspectorControl.
  */
-class ObjectInfoEdit extends Component {
-	constructor ( props ) {
-		super ( props );
+const ObjectInfoEdit = ( props ) => {
+	const [ objectData, setObjectData ] = useState( {} );
+	const { setAttributes, attributes } = props;
 
-		this.fetchFieldData      = this.fetchFieldData.bind ( this );
-		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
-
-		this.state = {
-			object_data    : {},
-		}
-	}
-	
 	/**
 	 * Fetches object data from WordPress REST api.
 	 *
@@ -164,16 +159,14 @@ class ObjectInfoEdit extends Component {
 	 *
 	 * @param {number} objectFetchID WordPress post_id of object.
 	 */
-	fetchFieldData ( objectFetchID = null ) {
-		const { setAttributes } = this.props;
-		const base_rest_path    = '/wp-museum/v1/';
-		const objectID          = objectFetchID ? objectFetchID : this.props.attributes.objectID;
+	const fetchFieldData = useCallback(( objectFetchID = null ) => {
+		const base_rest_path = '/wp-museum/v1/';
+		const objectID = objectFetchID ? objectFetchID : attributes.objectID;
 		
 		if ( objectID != null ) {
 			const object_path = base_rest_path + 'all/' + objectID;
-			const that = this; //There's probably a more elegant way to do this.
 			apiFetch( { path: object_path } ).then( result => {
-				that.setState( { object_data: result } );
+				setObjectData( result );
 				setAttributes( {
 					title     : result['post_title'],
 					excerpt   : result['excerpt'],
@@ -185,10 +178,9 @@ class ObjectInfoEdit extends Component {
 							'/fields'
 					}
 				).then( result => {
-					const { fields }      = that.props.attributes;
-					const { object_data } = that.state;
-					let newFields         = {};
-					let fieldData         = {};
+					const { fields } = attributes;
+					let newFields = {};
+					let fieldData = {};
 					for ( let key in result ) {
 						if ( typeof ( fields[key] ) === 'undefined') {
 							newFields[key] = false;
@@ -197,13 +189,13 @@ class ObjectInfoEdit extends Component {
 						}
 						let content = '';
 						if ( result[key]['type'] === 'tinyint' ) {
-							if ( object_data[ result[key]['slug'] ] === 1 ) {
+							if ( objectData[ result[key]['slug'] ] === 1 ) {
 								content = 'Yes';
 							} else {
 								content = 'No';
 							}
 						} else {
-							content = object_data[ result[key]['slug'] ];
+							content = objectData[ result[key]['slug'] ];
 						}
 						fieldData[key] = {
 							name    : result[key]['name'],
@@ -211,21 +203,21 @@ class ObjectInfoEdit extends Component {
 						}
 					}
 					setAttributes( {
-						catID     : object_data[ object_data[ 'cat_field' ] ],
+						catID     : objectData[ objectData[ 'cat_field' ] ],
 						fields    : newFields,
 						fieldData : fieldData
 					} );
 				} );
 			} );
 		}
-	}
+	}, [attributes.objectID, setAttributes]);
 
 	/**
 	 * When component mounts, fetch object data from the REST API.
 	 */
-	componentDidMount() {
-		this.fetchFieldData();
-	}
+	useEffect(() => {
+		fetchFieldData();
+	}, [fetchFieldData]);
 
 	/**
 	 * Callback function for search modal. When an object is found, set the
@@ -233,95 +225,89 @@ class ObjectInfoEdit extends Component {
 	 *
 	 * @param {number} returnValue WordPress post_of found object.
 	 */
-	onSearchModalReturn( returnValue ) {
-		const { setAttributes } = this.props;
-
+	const onSearchModalReturn = useCallback(( returnValue ) => {
 		if ( returnValue != null ) {
 			setAttributes( { objectID: returnValue } );
-			this.fetchFieldData( returnValue );
+			fetchFieldData( returnValue );
 		}
-	}
+	}, [setAttributes, fetchFieldData]);
+
+	const { 
+		fontSize,
+		titleTag,
+		title,
+		catID,
+		objectID,
+		fields,
+		fieldData,
+		objectURL,
+		imgDimensions,
+		imgAlignment,
+		displayTitle,
+		displayExcerpt,
+		excerpt,
+		imgURL,
+		displayImage,
+		linkToObject,
+		totalImages,
+		imgHeight,
+		imgWidth,
+		imgIndex,
+	} = attributes;
 	
-	/**
-	 * Render the component.
-	 */
-	render () {
-		const { setAttributes, attributes } = this.props;
-		const { 
-			fontSize,
-			titleTag,
-			title,
-			catID,
-			objectID,
-			fields,
-			fieldData,
-			objectURL,
-			imgDimensions,
-			imgAlignment,
-			displayTitle,
-			displayExcerpt,
-			excerpt,
-			imgURL,
-			displayImage,
-			linkToObject,
-			totalImages,
-			imgHeight,
-			imgWidth,
-			imgIndex,
-		} = attributes;
-		
-		return (
-			<>
-				<InspectorControls>
-					<ObjectEmbedPanel 
-						onSearchModalReturn = { this.onSearchModalReturn }
-						title               = { title }
-						catID               = { catID }
-						objectID            = { objectID }
-						objectURL           = { objectURL }
-					/>
-					<OptionsPanel { ...this.props } />
-					<ImageSizePanel
-						setAttributes = { setAttributes }
-						imgDimensions = { imgDimensions }
-						imgAlignment  = { imgAlignment }
-						initialOpen   = { true }
-					/>
-					<FontSizePanel
-						setAttributes = { setAttributes }
-						titleTag      = { titleTag }
-						fontSize      = { fontSize }
-						initialOpen   = { false }
-					/>
-					<FieldsPanel
-						setAttributes = { setAttributes }
-						fields        = { fields }
-						fieldData     = { fieldData }
-					/>
-				</InspectorControls>
-				<InfoContent 
+	const blockProps = useBlockProps();
+
+	return (
+		<div { ...blockProps }>
+			<InspectorControls>
+				<ObjectEmbedPanel 
+					onSearchModalReturn = { onSearchModalReturn }
+					title               = { title }
+					catID               = { catID }
 					objectID            = { objectID }
-					title               = { displayTitle ? title : null }
-					excerpt             = { displayExcerpt ? excerpt : null }
-					imgIndex            = { imgIndex }
-					imgURL              = { imgURL }
-					imgHeight           = { imgHeight }
-					imgWidth            = { imgWidth }
-					displayImage        = { displayImage }
-					objectURL           = { linkToObject ? objectURL : null }
-					fields              = { fields }
-					fieldData           = { fieldData }
-					imgDimensions       = { imgDimensions }
-					imgAlignment        = { imgAlignment }
-					fontSize            = { fontSize }
-					titleTag            = { titleTag }
-					onSearchModalReturn = { this.onSearchModalReturn }
-					setAttributes       = { setAttributes }
-					totalImages         = { totalImages }
+					objectURL           = { objectURL }
 				/>
-			</>	
-		);
-	}
+				<OptionsPanel { ...props } />
+				<ImageSizePanel
+					setAttributes = { setAttributes }
+					imgDimensions = { imgDimensions }
+					imgAlignment  = { imgAlignment }
+					initialOpen   = { true }
+				/>
+				<FontSizePanel
+					setAttributes = { setAttributes }
+					titleTag      = { titleTag }
+					fontSize      = { fontSize }
+					initialOpen   = { false }
+				/>
+				<FieldsPanel
+					setAttributes = { setAttributes }
+					fields        = { fields }
+					fieldData     = { fieldData }
+				/>
+			</InspectorControls>
+			<InfoContent 
+				objectID            = { objectID }
+				title               = { displayTitle ? title : null }
+				excerpt             = { displayExcerpt ? excerpt : null }
+				imgIndex            = { imgIndex }
+				imgURL              = { imgURL }
+				imgHeight           = { imgHeight }
+				imgWidth            = { imgWidth }
+				displayImage        = { displayImage }
+				objectURL           = { linkToObject ? objectURL : null }
+				fields              = { fields }
+				fieldData           = { fieldData }
+				imgDimensions       = { imgDimensions }
+				imgAlignment        = { imgAlignment }
+				fontSize            = { fontSize }
+				titleTag            = { titleTag }
+				onSearchModalReturn = { onSearchModalReturn }
+				setAttributes       = { setAttributes }
+				totalImages         = { totalImages }
+			/>
+		</div>
+	);
 }
 
 export default ObjectInfoEdit;

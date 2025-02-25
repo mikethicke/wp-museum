@@ -8,7 +8,8 @@ import {
 } from '@wordpress/element';
 
 import {
-	InspectorControls
+	InspectorControls,
+	useBlockProps
 } from '@wordpress/block-editor';
 
 import { 
@@ -86,8 +87,10 @@ const AdvancedSearchEdit = props => {
 		} );
 	}
 
+	const blockProps = useBlockProps();
+
 	return (
-		<>
+		<div { ...blockProps }>
 		<InspectorControls>
 			<PanelBody
 				title = 'Search Options'
@@ -171,7 +174,7 @@ const AdvancedSearchEdit = props => {
 				displayImages = { true }
 			/>
 		}
-		</>
+		</div>
 	);
 }
 

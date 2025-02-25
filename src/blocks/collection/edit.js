@@ -10,7 +10,8 @@ import {
 } from '@wordpress/element';
 
 import {
-	InspectorControls
+	InspectorControls,
+	useBlockProps
 } from '@wordpress/block-editor'
 
 import { 
@@ -178,7 +179,7 @@ const Collection = ( props ) => {
 				initialOpen   = { false }
 			/>
 		</InspectorControls>
-		<div className = 'museum-collection-block' >
+		<div { ...useBlockProps({ className: 'museum-collection-block' }) } >
 			<div className = { `collection-block-upper-content img-${imgAlignment}` } >
 				{ displayThumbnail &&
 					<div className = 'thumbnail-wrapper'>

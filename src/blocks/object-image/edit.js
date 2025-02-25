@@ -8,13 +8,12 @@
 import {
 	InspectorControls,
 	RichText,
+	useBlockProps,
 } from '@wordpress/block-editor'
 
-import {
-	Component
-} from '@wordpress/element';
+import { useState } from '@wordpress/element';
 
-import { 
+import {
 	PanelBody,
 	CheckboxControl,
 } from '@wordpress/components';
@@ -91,227 +90,194 @@ const OptionsPanel = ( props ) => {
  * post. They can select an image from the object's image gallery, show its
  * title and catalogue ID, and add a caption.
  */
-class ObjectImageEdit extends Component {
-	constructor ( props ) {
-		super( props );
+const ObjectImageEdit = (props) => {
+	const { attributes, setAttributes } = props;
+	const [modalOpen, setModalOpen] = useState(false);
+	const blockProps = useBlockProps( { className: 'image-selector' } );
 
-		this.onSearchModalReturn = this.onSearchModalReturn.bind( this );
-		this.setModalOpen        = this.setModalOpen.bind( this );
-		this.setImgData          = this.setImgData.bind( this );
-		this.onPlaceholderClick  = this.onPlaceholderClick.bind( this );
-		this.onPlaceholderKeyUp  = this.onPlaceholderKeyUp.bind( this );
+	const {
+		title,
+		catID,
+		objectID,
+		objectURL,
+		imgHeight,
+		imgWidth,
+		imgDimensions,
+		imgIndex,
+		totalImages,
+		imgURL,
+		displayTitle,
+		displayCatID,
+		displayCaption,
+		linkToObject,
+		captionText,
+		titleTag,
+		fontSize,
+	} = attributes;
 
-		this.state = {
-			modalOpen: false
-		}
-	}
+	const TitleTag = titleTag;
 
 	/**
 	 * Callback function from object search box. Sets the post_id for the object.
 	 *
 	 * @param {number} returnValue WordPress post_id returned from search modal.
 	 */
-	onSearchModalReturn( returnValue ) {
-		const { setAttributes } = this.props;
-
+	const onSearchModalReturn = (returnValue) => {
 		const base_rest_path = '/wp-museum/v1/';
 
-		if ( returnValue != null ) {
-			setAttributes( { 
-				objectID    : returnValue,
-				imgURL      : null,
-				imgHeight   : null,
-				imgWidth    : null,
-				imgIndex    : 0,
-				totalImages : 0,
-			} );
+		if (returnValue != null) {
+			setAttributes({ 
+				objectID: returnValue,
+				imgURL: null,
+				imgHeight: null,
+				imgWidth: null,
+				imgIndex: 0,
+				totalImages: 0,
+			});
 
 			const object_path = base_rest_path + 'all/' + returnValue;
-			apiFetch( { path: object_path } ).then( result => {
-				setAttributes( {
-					title     : result[ 'post_title' ],
-					objectURL : result[ 'link' ],
-					catID     : result[ result[ 'cat_field' ] ],
-				} );
-			} );
+			apiFetch({ path: object_path }).then(result => {
+				setAttributes({
+					title: result['post_title'],
+					objectURL: result['link'],
+					catID: result[result['cat_field']],
+				});
+			});
 		}
-	}
+	};
 
 	/**
 	 * Update image data attributes from ImageSelector.
 	 * 
 	 * @param {Object} newImageData Image data returned from ImageSelector component
 	 */
-	setImgData( newImageData ) {
-		const { attributes, setAttributes } = this.props;
+	const setImgData = (newImageData) => {
+		setAttributes(newImageData);
 
-		setAttributes( newImageData );
-
-		if ( ! newImageData.imgURL && newImageData.imgIndex != attributes.imgIndex ) {
-			setAttributes( { imgURL: null } );
+		if (!newImageData.imgURL && newImageData.imgIndex != attributes.imgIndex) {
+			setAttributes({ imgURL: null });
 		}
-	}
-
-	/**
-	 * Opens or closes the search modal.
-	 *
-	 * @param {boolean} isOpen New state for the search modal.
-	 */
-	setModalOpen ( isOpen ) {
-		this.setState( { modalOpen: isOpen } );
-	}
+	};
 
 	/**
 	 * Handle click of image selector placeholder.
 	 *
 	 * @param {Object} event The click event.
 	 */
-	onPlaceholderClick( event ) {
+	const onPlaceholderClick = (event) => {
 		event.stopPropagation();
-		this.setModalOpen( true );
-	}
+		setModalOpen(true);
+	};
 
 	/**
 	 * Handle pressing enter on selector placeholder.
 	 *
 	 * @param {Object} event The onKeyUp event.
 	 */
-	onPlaceholderKeyUp( event ) {
-		if ( event.key === 'Enter' ) {
-			this.onPlaceholderClick( event ); 
+	const onPlaceholderKeyUp = (event) => {
+		if (event.key === 'Enter') {
+			onPlaceholderClick(event);
 		}
-	}
+	};
 
-	/**
-	 * Renders the component.
-	 */
-	render() {
-		const {
-			attributes,
-			setAttributes,
-		} = this.props;
-
-		const {
-			title,
-			catID,
-			objectID,
-			objectURL,
-			imgHeight,
-			imgWidth,
-			imgDimensions,
-			imgIndex,
-			totalImages,
-			imgURL,
-			displayTitle,
-			displayCatID,
-			displayCaption,
-			linkToObject,
-			captionText,
-			titleTag,
-			fontSize,
-		} = attributes;
-
-		const TitleTag = titleTag;
-
-		return (
-			<>
+	return (
+			<div
+				{...blockProps}
+			>
 			<InspectorControls>
 				<ObjectEmbedPanel
-					onSearchModalReturn = { this.onSearchModalReturn }
-					title               = { title }
-					catID               = { catID }
-					objectID            = { objectID }
-					objectURL           = { objectURL }
-					initialOpen         = { true }
+					onSearchModalReturn={onSearchModalReturn}
+					title={title}
+					catID={catID}
+					objectID={objectID}
+					objectURL={objectURL}
+					initialOpen={true}
 				/>
 				<OptionsPanel
-					setAttributes  = { setAttributes }
-					displayTitle   = { displayTitle }
-					displayCatID   = { displayCatID }
-					displayCaption = { displayCaption }
-					linkToObject   = { linkToObject }
+					setAttributes={setAttributes}
+					displayTitle={displayTitle}
+					displayCatID={displayCatID}
+					displayCaption={displayCaption}
+					linkToObject={linkToObject}
 				/>
 				<ImageSizePanel
-					setAttributes = { setAttributes }
-					imgHeight     = { null }
-					imgWidth      = { null }
-					imgDimensions = { imgDimensions }
-					imgAlignment  = { null }
-					initialOpen   = { true }
+					setAttributes={setAttributes}
+					imgHeight={null}
+					imgWidth={null}
+					imgDimensions={imgDimensions}
+					imgAlignment={null}
+					initialOpen={true}
 				/>
 				<FontSizePanel
-					setAttributes = { setAttributes }
-					titleTag      = { titleTag }
-					fontSize      = { fontSize }
-					initialOpen   = { false }
+					setAttributes={setAttributes}
+					titleTag={titleTag}
+					fontSize={fontSize}
+					initialOpen={false}
 				/>
 			</InspectorControls>
-			<div
-				className = 'image-selector'
-			>
-				{ objectID ?
+			<>	
+				{objectID ?
 					<ImageSelector 
-						imgHeight     = { imgHeight }
-						imgWidth      = { imgWidth }
-						objectID      = { objectID }
-						imgIndex      = { imgIndex }
-						imgURL        = { imgURL }
-						imgDimensions = { imgDimensions }
-						setImgData    = { this.setImgData }
-						totalImages   = { totalImages }
+						imgHeight={imgHeight}
+						imgWidth={imgWidth}
+						objectID={objectID}
+						imgIndex={imgIndex}
+						imgURL={imgURL}
+						imgDimensions={imgDimensions}
+						setImgData={setImgData}
+						totalImages={totalImages}
 					/>
 					:
 					<>
-					<div
-						className = 'image-selector-placeholder'
-						style     = { { minHeight: imgDimensions.height, minWidth: imgDimensions.width } }
-						onClick   = { this.onPlaceholderClick }
-						onKeyUp   = { this.onPlaceholderKeyUp }
-						role      = "button"
-						tabIndex  = {0}
-					>
 						<div
-							className = 'image-selector-placeholder-plus'
+							className='image-selector-placeholder'
+							style={{ minHeight: imgDimensions.height, minWidth: imgDimensions.width }}
+							onClick={onPlaceholderClick}
+							onKeyUp={onPlaceholderKeyUp}
+							role="button"
+							tabIndex={0}
 						>
-							+
+							<div
+								className='image-selector-placeholder-plus'
+							>
+								+
+							</div>
 						</div>
-					</div>
-					{ this.state.modalOpen &&
-						<ObjectSearchBox
-							close          = { () => this.setModalOpen( false ) }
-							returnCallback = { newObjectID => this.onSearchModalReturn( newObjectID ) }
-						/>
-					}
+						{modalOpen &&
+							<ObjectSearchBox
+								close={() => setModalOpen(false)}
+								returnCallback={newObjectID => onSearchModalReturn(newObjectID)}
+							/>
+						}
 					</>
 				}
-				{ displayTitle && 
+				{displayTitle && 
 					<TitleTag
-						className = 'image-selector-title'
+						className='image-selector-title'
 					>
-							{ title }
+						{title}
 					</TitleTag>
 				}
 				<div
-					style = { { fontSize: fontSize + 'em'  } }
+					style={{ fontSize: fontSize + 'em' }}
 				>
-					{ displayCatID && 
-						<div>{ catID }</div>
+					{displayCatID && 
+						<div>{catID}</div>
 					}
-					{ displayCaption &&
+					{displayCaption &&
 						<RichText
-							tagName            = 'p'
-							className          = 'caption-text-field'
-							value              = { captionText } 
-							allowedFormats     = { [ 'core/bold', 'core/italic', 'core/link' ] } 
-							onChange           = { ( content ) => setAttributes( { captionText : content } ) } 
-							placeholder        = { __( 'Enter caption...' ) } 
+							tagName="p"
+							className="caption-text-field"
+							value={captionText} 
+							allowedFormats={['core/bold', 'core/italic', 'core/link']} 
+							onChange={(content) => setAttributes({ captionText: content })} 
+							placeholder={__('Enter caption...')} 
 						/>
 					}
 				</div>
-			</div>
 			</>
-		);
-	}
-}
+		</div>
+	);
+};
 
 export default ObjectImageEdit;

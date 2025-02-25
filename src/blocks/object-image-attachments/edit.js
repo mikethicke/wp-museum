@@ -14,6 +14,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	InspectorControls,
+	useBlockProps,
 } from '@wordpress/block-editor';
 
 import ImgItem from './img-item';
@@ -40,6 +41,7 @@ const MediaUploadLauncher = ( props ) => {
 const ObjectImageAttachmentEdit = ( props ) => {
 	const { attributes, setAttributes, clientId } = props;
 	const { imgAttach, imgAttachStr } = attributes;
+	const blockProps = useBlockProps();
 
 	const [ imgData, setImgData ] = useState( null );
 
@@ -202,13 +204,15 @@ const ObjectImageAttachmentEdit = ( props ) => {
 				/>
 			</PanelBody>
 		</InspectorControls>
-		<h3>Images</h3>
-		<div className = 'img-attach-img-wrapper'>
-			{ imgItems }
-			<MediaUploadLauncher
-				renderCallback = { addImageDiv }
-				addNewMedia = { addNewImages }
-			/>
+		<div {...blockProps}>
+			<h3>Images</h3>
+			<div className = 'img-attach-img-wrapper'>
+				{ imgItems }
+				<MediaUploadLauncher
+					renderCallback = { addImageDiv }
+					addNewMedia = { addNewImages }
+				/>
+			</div>
 		</div>
 		</>
 	);

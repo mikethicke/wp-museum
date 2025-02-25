@@ -7,7 +7,8 @@ import {
 } from '@wordpress/element';
 
 import {
-	InspectorControls
+	InspectorControls,
+	useBlockProps
 } from '@wordpress/block-editor';
 
 import { 
@@ -224,7 +225,7 @@ const CollectionMainNavigationEdit = props => {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div>
+			<div { ...useBlockProps() }>
 				<CollectionMainNavigation
 					attributes     = { attributes }
 					collectionData = { collectionData }

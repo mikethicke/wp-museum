@@ -12,10 +12,13 @@ import {
 	useDispatch
 } from '@wordpress/data';
 
+import { useState } from '@wordpress/element';
+
 import {
 	CheckboxControl,
 	SelectControl,
-	RadioControl
+	RadioControl,
+	FormTokenField
 } from '@wordpress/components';
 
 import {
@@ -31,6 +34,7 @@ const CollectionSettingsPanel = props => {
 	const {
 		postType,
 		associatedCategory,
+		autoCollection,
 		includeChildCategories,
 		includeSubCollections,
 		singlePage
@@ -44,6 +48,7 @@ const CollectionSettingsPanel = props => {
 			return {
 				postType               : getCurrentPostType(),
 				associatedCategory     : postMeta['associated_category'],
+				autoCollection         : !! postMeta['auto_collection'],
 				includeChildCategories : !! postMeta['include_child_categories'],
 				includeSubCollections  : !! postMeta['include_sub_collections'],
 				singlePage             : !! postMeta['single_page'],
@@ -71,6 +76,8 @@ const CollectionSettingsPanel = props => {
 		} );
 	}
 	
+	const [ tokens, setTokens ] = useState( [] );
+
 	return (
 		<PluginDocumentSettingPanel
 			name   = 'wpm-collection-settings-panel'
@@ -78,22 +85,43 @@ const CollectionSettingsPanel = props => {
 			opened = { true }
 			icon   = { museum }
 		>
-			<SelectControl
-				label    = 'Associated Category'
-				value    = { associatedCategory }
-				options  = { categoryOptions }
-				onChange = { val => updateMeta( 'associated_category', val ) }
-			/>
 			<CheckboxControl
-				label = 'Include Child Categories'
-				checked = { includeChildCategories }
-				onChange = { val => updateMeta( 'include_child_categories', val ) }
+				label = 'Automatically Add Objects to Collection'
+				checked = { autoCollection }
+				onChange = { val => updateMeta( 'auto_collection', val ) }
 			/>
-			<CheckboxControl
-				label = 'Include Sub Collections'
-				checked = { includeSubCollections }
-				onChange = { val => updateMeta( 'include_sub_collections', val ) }
-			/>
+			{ autoCollection && (
+				<>
+				<SelectControl
+					label = 'Object Type'
+				/>
+				<FormTokenField
+					label = 'Object tags to include'
+					value = { tokens }
+					onChange = { val => setTokens( val ) }
+				/>
+				</>
+			)}
+			{ ! autoCollection && (
+				<>
+				<SelectControl
+					label    = 'Associated Category'
+					value    = { associatedCategory }
+					options  = { categoryOptions }
+					onChange = { val => updateMeta( 'associated_category', val ) }
+				/>
+				<CheckboxControl
+					label = 'Include Child Categories'
+					checked = { includeChildCategories }
+					onChange = { val => updateMeta( 'include_child_categories', val ) }
+				/>
+				<CheckboxControl
+					label = 'Include Sub Collections'
+					checked = { includeSubCollections }
+					onChange = { val => updateMeta( 'include_sub_collections', val ) }
+				/>
+				</>
+			)}
 			<RadioControl
 				label = 'Collection Display'
 				help = { 'Should the collection objects and description be ' +
