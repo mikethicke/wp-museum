@@ -161,6 +161,18 @@ trait Preparable_From_Schema {
 			}
 		}
 
+		// Handle special case for collections property
+		if ( isset( $schema['properties']['collections'] ) && isset( $item['ID'] ) ) {
+			$collection_terms = get_object_collection_terms( $item['ID'] );
+			$data['collections'] = array();
+			if ( ! empty( $collection_terms ) ) {
+				foreach ( $collection_terms as $term ) {
+					$data['collections'][ $term->term_id ] = $term->name;
+				}
+			}
+			$sanitized_properties[] = 'collections';
+		}
+
 		if ( isset( $schema['additionalProperties'] ) ) {
 			foreach ( $item as $item_property => $item_data ) {
 				if ( in_array( $item_property, $sanitized_properties, true ) ) {

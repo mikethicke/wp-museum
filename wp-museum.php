@@ -90,12 +90,14 @@ require_once $require_prefix . 'classes/class-remoteclient.php';
 require_once $require_prefix . 'includes/database-functions.php';
 require_once $require_prefix . 'includes/object-functions.php';
 require_once $require_prefix . 'includes/collection-functions.php';
+require_once $require_prefix . 'includes/collection-taxonomy.php';
 require_once $require_prefix . 'includes/custom-post-type-functions.php';
 require_once $require_prefix . 'includes/display-functions.php';
 require_once $require_prefix . 'admin/customization.php';
 require_once $require_prefix . 'admin/admin-icon.php';
 require_once $require_prefix . 'includes/remote.php';
 require_once $require_prefix . 'includes/cleanup.php';
+require_once $require_prefix . 'includes/migration.php';
 
 /*
  * Scripts

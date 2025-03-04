@@ -415,27 +415,38 @@ class Objects_Controller extends \WP_REST_Controller {
 
 		// Filter by collection.
 		$selected_collections = $request->get_param( 'selectedCollections' );
-		$cat_args             = false;
+		$tax_query = false;
 		if ( ! empty( $selected_collections ) && is_array( $selected_collections ) ) {
-			foreach ( $selected_collections as &$collection_id ) {
-				$collection_id = intval( $collection_id );
-				$new_args      = generate_associated_objects_category_argument( $collection_id, $post_status );
-				if ( $new_args ) {
-					if ( ! $cat_args ) {
-						$cat_args = $new_args;
-					} else {
-						$cat_args['val'] = array_merge( $cat_args['val'], $new_args['val'] );
-					}
+			// Convert collection post IDs to collection term IDs
+			$collection_term_ids = array();
+			foreach ( $selected_collections as $collection_id ) {
+				$term_id = get_collection_term_id( intval( $collection_id ) );
+				if ( $term_id ) {
+					$collection_term_ids[] = intval( $term_id );
 				}
+			}
+			
+			if ( ! empty( $collection_term_ids ) ) {
+				$tax_query = array(
+					'taxonomy'         => WPM_PREFIX . 'collection_tax',
+					'field'            => 'term_id',
+					'terms'            => $collection_term_ids,
+					'include_children' => false,
+				);
 			}
 		}
 
-		if ( $cat_args ) {
-			$query_args[ $cat_args['key'] ] = $cat_args['val'];
+		if ( $tax_query ) {
+			if ( isset( $query_args['tax_query'] ) ) {
+				$query_args['tax_query'][] = $tax_query;
+			} else {
+				$query_args['tax_query'] = array( $tax_query );
+			}
 		}
 
 		$posts_query  = new \WP_Query();
 		$query_result = $posts_query->query( $query_args );
+		$post_data = [];
 
 		foreach ( $query_result as $post ) {
 			$data          = combine_post_data( $post );
@@ -650,12 +661,13 @@ class Objects_Controller extends \WP_REST_Controller {
 					'context'     => [ 'view', 'edit', 'embed' ],
 				],
 				'collections'       => [
-					'description' => __( 'Array of post IDs of collections containing this object.' ),
-					'type'        => 'array',
-					'items'       => [
-						'type' => 'integer',
-					],
+					'description' => __( 'Collection terms associated with this object.' ),
+					'type'        => 'object',
 					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+					'additionalProperties' => [
+						'type' => 'string',
+					],
 				],
 			],
 		];
@@ -733,13 +745,11 @@ class Objects_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Prepares item for response, by checking against schema and sanitizing
-	 * appropriately.
+	 * Prepares a museum object for response.
 	 *
-	 * @param  WP_Post         $post    Post object.
-	 * @param  WP_REST_Request $request Request object.
-	 * @param  ObjectKind      $kind    Museum object kind.
-	 *
+	 * @param WP_Post         $post    Post object.
+	 * @param WP_REST_Request $request Request object.
+	 * @param Object_Kind     $kind    Kind for fields schema, or null for combined.
 	 * @return WP_REST_Response Response object.
 	 */
 	public function prepare_item_for_response( $post, $request, $kind = null ) {

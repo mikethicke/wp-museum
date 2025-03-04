@@ -76,6 +76,31 @@ class Collections_Controller extends \WP_REST_Controller {
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
+
+		/**
+		 * /wp-json/wp-museum/v1/collections/<term id>/objects - Retrieve museum objects associated with a collection term.
+		 */
+		register_rest_route(
+			$this->namespace,
+			'/collections/(?P<id>[\d]+)/objects',
+			[
+				[
+					'methods'             => \WP_REST_Server::READABLE,
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'args'                => [
+						'id'            => $this->get_id_arg(),
+						'include_children' => [
+							'default' => 'false',
+							'validate_callback' => function( $value ) {
+								return is_bool( $value );
+							},
+						],
+					],
+					'callback'            => [ $this, 'get_collection_term_items' ],
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
 	}
 
 	/**
@@ -310,7 +335,7 @@ class Collections_Controller extends \WP_REST_Controller {
 		$max_pages = ceil( $total_posts / (int) $posts_query->query_vars['posts_per_page'] );
 
 		if ( $page > $max_pages && $total_posts > 0 ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'rest_post_invalid_page_number',
 				__( 'The page number requested is larger than the number of pages available.' ),
 				array( 'status' => 400 )
@@ -326,16 +351,18 @@ class Collections_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Return JSON schema for public collections.
+	 * Returns the public schema for collections.
 	 *
-	 * Currently there is no distinction between the schema for public and private collections.
+	 * @return array The schema.
 	 */
 	public function get_public_item_schema() {
-		return get_item_schema();
+		return $this->get_item_schema();
 	}
 
 	/**
-	 * Return JSON schema for museum collections.
+	 * Returns JSON schema for all museum collections.
+	 *
+	 * @return Array The schema.
 	 */
 	public function get_item_schema() {
 		if ( $this->schema ) {
@@ -510,5 +537,35 @@ class Collections_Controller extends \WP_REST_Controller {
 		];
 
 		return $this->schema;
+	}
+
+	/**
+	 * Retrieve museum objects associated with a collection term.
+	 *
+	 * @param WP_REST_Request $request The REST Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_collection_term_items( $request ) {
+		$term_id = $request['id'];
+		
+		if ( current_user_can( 'edit_posts' ) ) {
+			$associated_objects = get_collection_term_objects( $term_id, 'any', $request['include_children'] );
+		} else {
+			$associated_objects = get_collection_term_objects( $term_id, 'publish', $request['include_children'] );
+		}
+
+		$object_data = [];
+		$objects_controller = new Objects_Controller();
+		
+		foreach ( $associated_objects as $post ) {
+			$data          = combine_post_data( $post );
+			$post_kind     = get_kind_from_typename( $post->post_type );
+			$response_item = $objects_controller->prepare_item_for_response( $data, $request, $post_kind );
+			$object_data[] = $objects_controller->prepare_response_for_collection( $response_item );
+		}
+
+		$response = rest_ensure_response( $object_data );
+
+		return $response;
 	}
 }
