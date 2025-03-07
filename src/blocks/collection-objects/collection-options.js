@@ -104,17 +104,6 @@ const CollectionSettingsPanel = props => {
 			)}
 			{ ! autoCollection && (
 				<>
-				<SelectControl
-					label    = 'Associated Category'
-					value    = { associatedCategory }
-					options  = { categoryOptions }
-					onChange = { val => updateMeta( 'associated_category', val ) }
-				/>
-				<CheckboxControl
-					label = 'Include Child Categories'
-					checked = { includeChildCategories }
-					onChange = { val => updateMeta( 'include_child_categories', val ) }
-				/>
 				<CheckboxControl
 					label = 'Include Sub Collections'
 					checked = { includeSubCollections }

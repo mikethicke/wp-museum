@@ -36,7 +36,6 @@ $collection_options   = [
 ];
 $collection_post_type = new CustomPostType( $collection_options );
 $collection_post_type->add_support( [ 'thumbnail', 'custom-fields' ] );
-$collection_post_type->add_taxonomy( 'category' );
 $collection_post_type->add_taxonomy( 'collection_tag' );
 
 /*
@@ -78,6 +77,7 @@ add_action(
 
 /**
  * Handle automatic creation and association of taxonomy terms when a collection is saved.
+ * This ensures that the collection taxonomy hierarchy mirrors the collection post type hierarchy.
  *
  * @param int     $post_id The post ID.
  * @param WP_Post $post    The post object.
@@ -97,65 +97,149 @@ function handle_collection_term_association( $post_id, $post, $update ) {
 	// Check if this collection already has an associated term
 	$existing_term_id = get_post_meta( $post_id, WPM_PREFIX . 'collection_term_id', true );
 	
+	// Get the parent term ID if the collection has a parent
+	$parent_term_id = 0;
+	if ( $post->post_parent ) {
+		$parent_term_id = get_post_meta( $post->post_parent, WPM_PREFIX . 'collection_term_id', true );
+	}
+	
 	if ( $existing_term_id ) {
 		// Update the existing term to match the collection
 		$term = get_term( $existing_term_id, WPM_PREFIX . 'collection_tax' );
 		
 		if ( $term && !is_wp_error( $term ) ) {
+			$term_args = [];
+			
 			// Update the term name and slug if needed
 			if ( $term->name !== $post->post_title || $term->slug !== $post->post_name ) {
+				$term_args['name'] = $post->post_title;
+				$term_args['slug'] = $post->post_name;
+			}
+			
+			// Update parent if different from current parent
+			if ( $term->parent != $parent_term_id ) {
+				$term_args['parent'] = $parent_term_id;
+			}
+			
+			// Only update if there are changes
+			if ( !empty( $term_args ) ) {
 				wp_update_term(
 					$existing_term_id,
 					WPM_PREFIX . 'collection_tax',
-					[
-						'name' => $post->post_title,
-						'slug' => $post->post_name,
-					]
+					$term_args
 				);
 			}
+		} else {
+			// Term doesn't exist anymore, create a new one
+			$result = wp_insert_term(
+				$post->post_title,
+				WPM_PREFIX . 'collection_tax',
+				[
+					'slug' => $post->post_name,
+					'parent' => $parent_term_id,
+				]
+			);
 			
-			// Update parent if the post has a parent
-			if ( $post->post_parent ) {
-				// Get the parent collection's term ID
-				$parent_term_id = get_post_meta( $post->post_parent, WPM_PREFIX . 'collection_term_id', true );
-				
-				if ( $parent_term_id && $term->parent != $parent_term_id ) {
-					wp_update_term(
-						$existing_term_id,
-						WPM_PREFIX . 'collection_tax',
-						[
-							'parent' => $parent_term_id,
-						]
-					);
-				}
+			if ( !is_wp_error( $result ) ) {
+				update_post_meta( $post_id, WPM_PREFIX . 'collection_term_id', $result['term_id'] );
 			}
-			
-			return;
 		}
-	}
-	
-	// Create a new term for this collection
-	$parent_term_id = 0;
-	
-	// If the collection has a parent, get the parent's term ID
-	if ( $post->post_parent ) {
-		$parent_term_id = get_post_meta( $post->post_parent, WPM_PREFIX . 'collection_term_id', true );
-	}
-	
-	$result = wp_insert_term(
-		$post->post_title,
-		WPM_PREFIX . 'collection_tax',
-		[
-			'slug' => $post->post_name,
-			'parent' => $parent_term_id ? $parent_term_id : 0,
-		]
-	);
-	
-	if ( !is_wp_error( $result ) ) {
-		$term_id = $result['term_id'];
+	} else {
+		// Create a new term for this collection
+		$result = wp_insert_term(
+			$post->post_title,
+			WPM_PREFIX . 'collection_tax',
+			[
+				'slug' => $post->post_name,
+				'parent' => $parent_term_id,
+			]
+		);
 		
-		// Store the term ID in the collection post meta
-		update_post_meta( $post_id, WPM_PREFIX . 'collection_term_id', $term_id );
+		if ( !is_wp_error( $result ) ) {
+			$term_id = $result['term_id'];
+			// Store the term ID in the collection post meta
+			update_post_meta( $post_id, WPM_PREFIX . 'collection_term_id', $term_id );
+		}
 	}
 }
 add_action( 'save_post', __NAMESPACE__ . '\handle_collection_term_association', 10, 3 );
+
+/**
+ * When a collection post is deleted, also delete its associated taxonomy term.
+ *
+ * @param int $post_id The ID of the post being deleted.
+ */
+function handle_collection_deletion( $post_id ) {
+	// Only process our collection post type
+	if ( WPM_PREFIX . 'collection' !== get_post_type( $post_id ) ) {
+		return;
+	}
+	
+	// Get the associated term ID
+	$term_id = get_post_meta( $post_id, WPM_PREFIX . 'collection_term_id', true );
+	
+	if ( $term_id ) {
+		// Delete the term
+		wp_delete_term( $term_id, WPM_PREFIX . 'collection_tax' );
+	}
+}
+add_action( 'before_delete_post', __NAMESPACE__ . '\handle_collection_deletion' );
+
+/**
+ * When a collection post's parent changes, update the hierarchy of its associated term
+ * and all child terms to match the post hierarchy.
+ *
+ * @param int $post_id The ID of the post being updated.
+ * @param int $parent_id The new parent ID.
+ */
+function handle_collection_hierarchy_change( $post_id, $parent_id ) {
+	// Only process our collection post type
+	if ( WPM_PREFIX . 'collection' !== get_post_type( $post_id ) ) {
+		return;
+	}
+	
+	// Get the associated term ID
+	$term_id = get_post_meta( $post_id, WPM_PREFIX . 'collection_term_id', true );
+	
+	if ( !$term_id ) {
+		return;
+	}
+	
+	// Get the parent term ID
+	$parent_term_id = 0;
+	if ( $parent_id ) {
+		$parent_term_id = get_post_meta( $parent_id, WPM_PREFIX . 'collection_term_id', true );
+	}
+	
+	// Update the term's parent
+	wp_update_term(
+		$term_id,
+		WPM_PREFIX . 'collection_tax',
+		[
+			'parent' => $parent_term_id,
+		]
+	);
+	
+	// Now recursively update all child collections
+	$child_posts = get_posts([
+		'post_type' => WPM_PREFIX . 'collection',
+		'post_parent' => $post_id,
+		'posts_per_page' => -1,
+		'post_status' => 'any',
+	]);
+	
+	foreach ( $child_posts as $child_post ) {
+		handle_collection_hierarchy_change( $child_post->ID, $post_id );
+	}
+}
+add_action( 'wp_insert_post', function( $post_id, $post, $update ) {
+	if ( $update && WPM_PREFIX . 'collection' === $post->post_type ) {
+		// Get the previous parent
+		$previous_parent = wp_get_post_parent_id( $post_id );
+		
+		// If parent has changed, update the hierarchy
+		if ( $previous_parent !== $post->post_parent ) {
+			handle_collection_hierarchy_change( $post_id, $post->post_parent );
+		}
+	}
+}, 20, 3 );

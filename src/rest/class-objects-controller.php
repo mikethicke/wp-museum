@@ -417,22 +417,62 @@ class Objects_Controller extends \WP_REST_Controller {
 		$selected_collections = $request->get_param( 'selectedCollections' );
 		$tax_query = false;
 		if ( ! empty( $selected_collections ) && is_array( $selected_collections ) ) {
-			// Convert collection post IDs to collection term IDs
-			$collection_term_ids = array();
+			// For collections that include sub-collections, we'll track them separately
+			$include_children_terms = array();
+			$regular_terms = array();
+			
 			foreach ( $selected_collections as $collection_id ) {
-				$term_id = get_collection_term_id( intval( $collection_id ) );
+				$collection_id = intval( $collection_id );
+				$term_id = get_collection_term_id( $collection_id );
+				
 				if ( $term_id ) {
-					$collection_term_ids[] = intval( $term_id );
+					// Check if this collection includes sub-collections
+					$include_sub_collections = get_post_meta( $collection_id, 'include_sub_collections', true );
+					
+					if ( $include_sub_collections ) {
+						$include_children_terms[] = intval( $term_id );
+					} else {
+						$regular_terms[] = intval( $term_id );
+					}
 				}
 			}
 			
-			if ( ! empty( $collection_term_ids ) ) {
-				$tax_query = array(
-					'taxonomy'         => WPM_PREFIX . 'collection_tax',
-					'field'            => 'term_id',
-					'terms'            => $collection_term_ids,
-					'include_children' => false,
-				);
+			// Build the tax query based on the two types of collections
+			if ( ! empty( $include_children_terms ) || ! empty( $regular_terms ) ) {
+				if ( ! empty( $include_children_terms ) && ! empty( $regular_terms ) ) {
+					// If we have both types, create a tax_query with two conditions
+					$tax_query = array(
+						'relation' => 'OR',
+						array(
+							'taxonomy'         => WPM_PREFIX . 'collection_tax',
+							'field'            => 'term_id',
+							'terms'            => $include_children_terms,
+							'include_children' => true,
+						),
+						array(
+							'taxonomy'         => WPM_PREFIX . 'collection_tax',
+							'field'            => 'term_id',
+							'terms'            => $regular_terms,
+							'include_children' => false,
+						)
+					);
+				} elseif ( ! empty( $include_children_terms ) ) {
+					// Only collections that include children
+					$tax_query = array(
+						'taxonomy'         => WPM_PREFIX . 'collection_tax',
+						'field'            => 'term_id',
+						'terms'            => $include_children_terms,
+						'include_children' => true,
+					);
+				} else {
+					// Only regular collections
+					$tax_query = array(
+						'taxonomy'         => WPM_PREFIX . 'collection_tax',
+						'field'            => 'term_id',
+						'terms'            => $regular_terms,
+						'include_children' => false,
+					);
+				}
 			}
 		}
 

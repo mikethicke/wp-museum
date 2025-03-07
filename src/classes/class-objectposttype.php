@@ -82,7 +82,6 @@ class ObjectPostType {
 		$this->object_post_type = new CustomPostType( $options );
 
 		$this->object_post_type->supports = [ 'title', 'thumbnail', 'author', 'editor', 'custom-fields' ];
-		$this->object_post_type->add_taxonomy( 'category' );
 		$this->object_post_type->add_taxonomy( WPM_PREFIX . 'collection_tax' );
 
 		$this->fields = get_mobject_fields( $this->kind->kind_id );
