@@ -415,27 +415,78 @@ class Objects_Controller extends \WP_REST_Controller {
 
 		// Filter by collection.
 		$selected_collections = $request->get_param( 'selectedCollections' );
-		$cat_args             = false;
+		$tax_query = false;
 		if ( ! empty( $selected_collections ) && is_array( $selected_collections ) ) {
-			foreach ( $selected_collections as &$collection_id ) {
+			// For collections that include sub-collections, we'll track them separately
+			$include_children_terms = array();
+			$regular_terms = array();
+			
+			foreach ( $selected_collections as $collection_id ) {
 				$collection_id = intval( $collection_id );
-				$new_args      = generate_associated_objects_category_argument( $collection_id, $post_status );
-				if ( $new_args ) {
-					if ( ! $cat_args ) {
-						$cat_args = $new_args;
+				$term_id = get_collection_term_id( $collection_id );
+				
+				if ( $term_id ) {
+					// Check if this collection includes sub-collections
+					$include_sub_collections = get_post_meta( $collection_id, 'include_sub_collections', true );
+					
+					if ( $include_sub_collections ) {
+						$include_children_terms[] = intval( $term_id );
 					} else {
-						$cat_args['val'] = array_merge( $cat_args['val'], $new_args['val'] );
+						$regular_terms[] = intval( $term_id );
 					}
+				}
+			}
+			
+			// Build the tax query based on the two types of collections
+			if ( ! empty( $include_children_terms ) || ! empty( $regular_terms ) ) {
+				if ( ! empty( $include_children_terms ) && ! empty( $regular_terms ) ) {
+					// If we have both types, create a tax_query with two conditions
+					$tax_query = array(
+						'relation' => 'OR',
+						array(
+							'taxonomy'         => WPM_PREFIX . 'collection_tax',
+							'field'            => 'term_id',
+							'terms'            => $include_children_terms,
+							'include_children' => true,
+						),
+						array(
+							'taxonomy'         => WPM_PREFIX . 'collection_tax',
+							'field'            => 'term_id',
+							'terms'            => $regular_terms,
+							'include_children' => false,
+						)
+					);
+				} elseif ( ! empty( $include_children_terms ) ) {
+					// Only collections that include children
+					$tax_query = array(
+						'taxonomy'         => WPM_PREFIX . 'collection_tax',
+						'field'            => 'term_id',
+						'terms'            => $include_children_terms,
+						'include_children' => true,
+					);
+				} else {
+					// Only regular collections
+					$tax_query = array(
+						'taxonomy'         => WPM_PREFIX . 'collection_tax',
+						'field'            => 'term_id',
+						'terms'            => $regular_terms,
+						'include_children' => false,
+					);
 				}
 			}
 		}
 
-		if ( $cat_args ) {
-			$query_args[ $cat_args['key'] ] = $cat_args['val'];
+		if ( $tax_query ) {
+			if ( isset( $query_args['tax_query'] ) ) {
+				$query_args['tax_query'][] = $tax_query;
+			} else {
+				$query_args['tax_query'] = array( $tax_query );
+			}
 		}
 
 		$posts_query  = new \WP_Query();
 		$query_result = $posts_query->query( $query_args );
+		$post_data = [];
 
 		foreach ( $query_result as $post ) {
 			$data          = combine_post_data( $post );
@@ -650,12 +701,13 @@ class Objects_Controller extends \WP_REST_Controller {
 					'context'     => [ 'view', 'edit', 'embed' ],
 				],
 				'collections'       => [
-					'description' => __( 'Array of post IDs of collections containing this object.' ),
-					'type'        => 'array',
-					'items'       => [
-						'type' => 'integer',
-					],
+					'description' => __( 'Collection terms associated with this object.' ),
+					'type'        => 'object',
 					'context'     => [ 'view', 'edit', 'embed' ],
+					'readonly'    => true,
+					'additionalProperties' => [
+						'type' => 'string',
+					],
 				],
 			],
 		];
@@ -733,13 +785,11 @@ class Objects_Controller extends \WP_REST_Controller {
 	}
 
 	/**
-	 * Prepares item for response, by checking against schema and sanitizing
-	 * appropriately.
+	 * Prepares a museum object for response.
 	 *
-	 * @param  WP_Post         $post    Post object.
-	 * @param  WP_REST_Request $request Request object.
-	 * @param  ObjectKind      $kind    Museum object kind.
-	 *
+	 * @param WP_Post         $post    Post object.
+	 * @param WP_REST_Request $request Request object.
+	 * @param Object_Kind     $kind    Kind for fields schema, or null for combined.
 	 * @return WP_REST_Response Response object.
 	 */
 	public function prepare_item_for_response( $post, $request, $kind = null ) {
