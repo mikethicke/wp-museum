@@ -80,6 +80,7 @@ const ObjectImageAttachmentEdit = ( props ) => {
 						'caption'     : itemData.caption,
 						'alt_text'    : itemData.alt,
 						'description' : itemData.description,
+						'sort_order'  : itemData.sort_order,
 					}
 				} );
 			} );
@@ -139,13 +140,16 @@ const ObjectImageAttachmentEdit = ( props ) => {
 
 	const moveItem = ( imgId, move ) => {
 		const imgIndex = imgAttach.findIndex( id => id === imgId );
+		const otherId = imgAttach[ imgIndex + move ];
 		const newIndex = imgIndex + move;
 		if ( newIndex < 0 || newIndex >= imgAttach.length ) {
 			return;
 		}
 		imgAttach[ imgIndex ] = imgAttach[ newIndex ];
 		imgAttach[ newIndex ] = imgId;
-		
+		imgData[ imgId ].sort_order = newIndex;
+		imgData[ otherId ].sort_order = imgIndex;
+
 		const updatedImgAttach = ( Array.isArray(imgAttach) ? [ ...imgAttach ] : [] );
 		setAttributes( { 
 			imgAttach: updatedImgAttach,
@@ -160,14 +164,14 @@ const ObjectImageAttachmentEdit = ( props ) => {
 			if ( ! ( ( typeof imgData[ imgId ] ) === 'undefined' ) ) {
 				return (
 					<ImgItem
-						key      = { index }
+						key      = { imgId }
 						itemData = { imgData[ imgId ] }
 						imgId    = { imgId }
 						onUpdate = { updateImgData }
 						clientId = { clientId }
 						moveItem = { moveItem }
 						removeItem = { removeItem }
-						imgIndex = { index }
+						imgIndex = { imgData[ imgId ].sort_order }
 					/>
 				);
 			} else {
