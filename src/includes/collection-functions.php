@@ -54,9 +54,21 @@ function query_associated_objects( $post_status = 'publish', $post_id = null, $s
 
 	// Get the collection term ID associated with this collection post
 	$collection_term_id = get_post_meta( $post_id, WPM_PREFIX . 'collection_term_id', true );
-	
-	// If no term ID is found, try to use the old category-based approach as fallback
-	if ( !$collection_term_id ) {
+
+	$auto_collection = get_post_meta( $post_id, 'auto_collection', true );
+	if ( $auto_collection ) {
+		$object_tags = get_post_meta( $post_id, 'object_tags', true );
+		if ( empty( $object_tags ) ) {
+			return null;
+		}
+		$tax_query = [
+			[
+				'taxonomy' => 'post_tag',
+				'field'    => 'slug',
+				'terms'    => $object_tags,
+			]
+		];
+	} else if ( !$collection_term_id ) {
 		$associated_category = get_post_meta( $post_id, WPM_PREFIX . 'associated_category', true );
 		if ( ! $associated_category || -1 === $associated_category ) {
 			return null;
@@ -74,14 +86,14 @@ function query_associated_objects( $post_status = 'publish', $post_id = null, $s
 		];
 	} else {
 		// Use the collection taxonomy
-		$include_children = get_post_meta( $post_id, WPM_PREFIX . 'include_child_categories', true );
+		$include_child_categories = get_post_meta( $post_id, WPM_PREFIX . 'include_child_categories', true );
 		
 		$tax_query = [
 			[
 				'taxonomy'         => WPM_PREFIX . 'collection_tax',
 				'field'            => 'term_id',
 				'terms'            => $collection_term_id,
-				'include_children' => $include_children,
+				'include_children' => $include_child_categories,
 			],
 		];
 	}

@@ -51,7 +51,23 @@ $collection_post_type->register_post_meta( 'include_sub_collections', 'boolean',
 $collection_post_type->register_post_meta( 'include_child_categories', 'boolean', 'Include Child Categories' );
 $collection_post_type->register_post_meta( 'single_page', 'boolean', 'Single Page View', [ 'default' => true ] );
 $collection_post_type->register_post_meta( 'collection_term_id', 'number', 'Associated Collection Term ID' );
-
+$collection_post_type->register_post_meta( 'auto_collection', 'boolean', 'Automatically Add Objects to Collection', [ 'default' => false ] );
+$collection_post_type->register_post_meta( 
+	'object_tags', 
+	'array', 
+	'Object Tags', 
+	[ 
+		'default' => [], 
+		'show_in_rest' => [
+			'schema' => [
+				'type' => 'array',
+				'items' => [
+					'type' => 'string'
+				]
+			]
+		]
+	] 
+);
 /*
  * Register the post type (CustomPostType)
  */

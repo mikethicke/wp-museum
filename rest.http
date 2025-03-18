@@ -1,0 +1,20 @@
+## REST API queries using the REST Client extension for VS Code
+
+@host = https://wp-museum.lndo.site
+
+## Collections
+
+### Get all collections
+@page = 1
+@perPage = 50
+GET {{host}}/wp-json/wp-museum/v1/collections?page={{page}}&per_page={{perPage}}
+
+### Get collection by ID
+@collectionId = 14203 
+@page = 1
+@perPage = 10
+GET {{host}}/wp-json/wp-museum/v1/collections/{{collectionId}}?page={{page}}&per_page={{perPage}}
+
+### Get objects by collection ID
+@collectionId = 14203
+GET {{host}}/wp-json/wp-museum/v1/collections/{{collectionId}}/objects
