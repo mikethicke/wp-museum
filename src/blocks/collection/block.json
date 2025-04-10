@@ -1,90 +1,90 @@
 {
-    "$schema": "https://schemas.wp.org/trunk/block.json",
-    "apiVersion": 2,
-    "name": "wp-museum/collection",
-    "title": "Collection",
-    "category": "wp-musuem",
-    "icon": "wp-museum",
-    "supports": {
-        "align": false,
-        "html": false
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "wp-museum/collection",
+  "title": "Collection",
+  "category": "wp-musuem",
+  "icon": "museum",
+  "supports": {
+    "align": false,
+    "html": false
+  },
+  "textdomain": "wp-museum",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "attributes": {
+    "numObjects": {
+      "type": "number",
+      "default": 4
     },
-    "textdomain": "wp-museum",
-    "editorScript": "file:./index.js",
-    "editorStyle": "file:./index.css",
-    "style": "file:./style-index.css",
-    "render": "file:./render.php",
-    "attributes": {
-        "numObjects": {
-            "type": "number",
-            "default": 4
-        },
-        "columns": {
-            "type": "number",
-            "default": 2
-        },
-        "collectionId": {
-            "type": "number",
-            "default": 0
-        },
-        "collectionURL": {
-            "type": "string",
-            "default": ""
-        },
-        "collectionObjects" : {
-            "type": "array",
-            "default": [],
-            "items:": {
-                "type": "array"
-            }
-        },
-        "thumbnnailURL": {
-            "type": "string",
-            "default": ""
-        },
-        "imgDimensions": {
-            "type": "object",
-            "default": {
-                "width": 150,
-                "height": 150,
-                "size": "thumbnail"
-            }
-        },
-        "title": {
-            "type": "string",
-            "default": "Collection Title"
-        },
-        "excerpt": {
-            "type": "string",
-            "default": "Click 'search' on right to select a collection."
-        },
-        "fontSize": {
-            "type": "number",
-            "default": 1.0
-        },
-        "titleTag": {
-            "type": "string",
-            "default": "left"
-        },
-        "displayTitle": {
-            "type": "boolean",
-            "default": true
-        },
-        "linkToObjects": {
-            "type": "boolean",
-            "default": true
-        },
-        "displayExcerpt": {
-            "type": "boolean",
-            "default": true
-        },
-        "displayObjects": {
-            "type": "boolean",
-            "default": true
-        },
-        "displayThumbnail": {
-            "type": "boolean",
-            "default": true
-        }
+    "columns": {
+      "type": "number",
+      "default": 2
+    },
+    "collectionID": {
+      "type": "number",
+      "default": 0
+    },
+    "collectionURL": {
+      "type": "string",
+      "default": ""
+    },
+    "collectionObjects": {
+      "type": "array",
+      "default": [],
+      "items:": {
+        "type": "object"
+      }
+    },
+    "thumbnnailURL": {
+      "type": "string",
+      "default": ""
+    },
+    "imgDimensions": {
+      "type": "object",
+      "default": {
+        "width": 150,
+        "height": 150,
+        "size": "thumbnail"
+      }
+    },
+    "title": {
+      "type": "string",
+      "default": "Collection Title"
+    },
+    "excerpt": {
+      "type": "string",
+      "default": "Click 'search' on right to select a collection."
+    },
+    "fontSize": {
+      "type": "number",
+      "default": 1.0
+    },
+    "titleTag": {
+      "type": "string",
+      "default": "left"
+    },
+    "displayTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "linkToObjects": {
+      "type": "boolean",
+      "default": true
+    },
+    "displayExcerpt": {
+      "type": "boolean",
+      "default": true
+    },
+    "displayObjects": {
+      "type": "boolean",
+      "default": true
+    },
+    "displayThumbnail": {
+      "type": "boolean",
+      "default": true
     }
+  }
 }

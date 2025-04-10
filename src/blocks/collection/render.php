@@ -2,18 +2,18 @@
 
 namespace MikeThicke\WPMuseum;
 	
-$numObjects       = $attributes['numObjects'];
-$columns          = $attributes['columns'];
+$numObjects       = $attributes['numObjects'] ?? 4;
+$columns          = $attributes['columns'] ?? 2;
 $collectionID     = $attributes['collectionID'] ?? null;
-$displayTitle     = $attributes['displayTitle'];
-$titleTag         = $attributes['titleTag'];
-$imgAlignment     = $attributes['imgAlignment'];
-$displayThumbnail = $attributes['displayThumbnail'];
+$displayTitle     = $attributes['displayTitle'] ?? true;
+$titleTag         = $attributes['titleTag'] ?? 'h2';
+$imgAlignment     = $attributes['imgAlignment'] ?? 'left';
+$displayThumbnail = $attributes['displayThumbnail'] ?? true;
 $thumbnailURL     = $attributes['thumbnailURL'] ?? null;
-$displayExcerpt   = $attributes['displayExcerpt'];
-$fontSize         = $attributes['fontSize'];
-$displayObjects   = $attributes['displayObjects'];
-$linkToObjects    = $attributes['linkToObjects'];
+$displayExcerpt   = $attributes['displayExcerpt'] ?? true;
+$fontSize         = $attributes['fontSize'] ?? 1;
+$displayObjects   = $attributes['displayObjects'] ?? true;
+$linkToObjects    = $attributes['linkToObjects'] ?? true;
 
 $collection_post = get_post( $collectionID );
 $title           = $collection_post->post_title;
@@ -77,13 +77,13 @@ $percent_width = round( 1 / $columns * 100 );
 			<?php endif; ?>
 		</div>
 	</div>
-	<div class = 'collection-block-lower-content'>
+	<div 
+		class = 'collection-block-lower-content'
+		style = 'display: grid; grid-template-columns: repeat(<?= $columns ?>, 1fr); gap: 1rem;'
+	>
 		<?php if ( $displayObjects && count( $collection_object_data ) > 0 ): ?>
 			<?php foreach( $collection_object_data as $object_data ): ?>
-				<div
-					class = 'collection-object-image-wrapper'
-					style = 'flex-basis: <?= $percent_width ?>%'
-				>
+				<div class = 'collection-object-image-wrapper'>
 					<?php if ( $linkToObjects ): ?>
 						<a href = '<?= $object_data['URL'] ?>'>
 					<?php endif; ?>

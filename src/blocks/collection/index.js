@@ -1,6 +1,6 @@
 /**
  * A block showing a collection along with some of its members.
- * 
+ *
  * This block is dynamic, so attributes are defined server-side.
  * @see src/blocks/collection-block-frontend.php
  *
@@ -27,20 +27,20 @@
 /**
  * WordPress dependencies
  */
-import { registerBlockType } from '@wordpress/blocks';
-import { __ } from '@wordpress/i18n';
+import { registerBlockType } from "@wordpress/blocks";
+import { __ } from "@wordpress/i18n";
 
 /**
  * Internal dependencies
  */
-import edit from './edit';
+import edit from "./edit";
 
+import { museum } from "../../icons";
 
-
-registerBlockType( 'wp-museum/collection', {
-	title: __( 'Collection' ),
-	icon: 'archive',
-	category: 'wp-museum',
-	edit,
-	save: () => null
-} );
+registerBlockType("wp-museum/collection", {
+  title: __("Collection"),
+  category: "wp-museum",
+  icon: museum,
+  edit,
+  save: () => null,
+});
