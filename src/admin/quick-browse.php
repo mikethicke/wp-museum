@@ -11,8 +11,10 @@ namespace MikeThicke\WPMuseum;
 
 /**
  * Adds quick browse page to all object types.
+ *
+ * @return void
  */
-function add_quick_browse() {
+function add_quick_browse(): void {
 	$mobject_kinds = get_mobject_kinds();
 
 	foreach ( $mobject_kinds as $object_type ) {
@@ -30,8 +32,10 @@ function add_quick_browse() {
 
 /**
  * Display the quick browse table.
+ *
+ * @return void
  */
-function quick_browse() {
+function quick_browse(): void {
 	global $wpdb;
 	if ( ! isset( $_SERVER['PHP_SELF'] ) ) {
 		wp_die( esc_html__( 'quick_browse: PHP_SELF not set.', 'wp-museum' ) );
@@ -161,15 +165,21 @@ function quick_browse() {
 /**
  * Callback function for sorting quick browse table by a column.
  *
- * @param Array  $target_array   The posts to be sorted.
+ * @param array  $target_array   The posts to be sorted.
  * @param string $sort_col       Slug of field to sort by.
  * @param string $sort_dir       The direction to sort by (asc or desc).
+ * @return void
  */
-function wpm_sort_by_field( &$target_array, $sort_col, $sort_dir ) {
+function wpm_sort_by_field( array &$target_array, string $sort_col, string $sort_dir ): void {
+	if ( empty( $target_array ) ) {
+		return;
+	}
+
 	if ( 'post_title' === $sort_col ) {
 		$sort_field = null;
 	} else {
 		$fields = get_mobject_fields( kind_from_post( $target_array[0] )->kind_id );
+		$sort_field = null;
 		foreach ( $fields as $field ) {
 			if ( $field->slug === $sort_col ) {
 				$sort_field = $field;
@@ -204,7 +214,7 @@ function wpm_sort_by_field( &$target_array, $sort_col, $sort_dir ) {
 					return $rv;
 				}
 
-				if ( isset( $sort_field->field_schema ) && ! empty( $sort_field->field_schema ) ) {
+				if ( $sort_field && isset( $sort_field->field_schema ) && ! empty( $sort_field->field_schema ) ) {
 					$a_matches = [];
 					$b_matches = [];
 					$pattern   = '/' . $sort_field->field_schema . '/';
