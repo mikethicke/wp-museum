@@ -263,7 +263,7 @@ function filter_exclusive_blocks( $allowed_blocks, $editor_context ) {
 		$allowed_blocks = array_filter(
 			$allowed_blocks,
 			function ( $block ) use ( $object_exclusive_blocks ) {
-				return in_array( $block, $object_exclusive_blocks, true );
+				return ! in_array( $block, $object_exclusive_blocks, true );
 			}
 		);
 	}
@@ -284,11 +284,11 @@ function unregister_object_blocks_for_non_objects() {
 	if ( ! in_array( $post->post_type, get_object_type_names(), true ) ) {
 		wp_enqueue_script(
 			WPM_PREFIX . 'unregister-object-blocks',
-			WPM_BUILD_URL . 'javascript/unregister-object-blocks.js',
+			WPM_BASE_URL . 'javascript/unregister-object-blocks.js',
 			array( 'wp-blocks', 'wp-dom-ready', 'wp-edit-post' ),
 			filemtime( plugin_dir_path( __FILE__ ) . '../javascript/unregister-object-blocks.js' ),
 			true
 		);
 	}
 }
-//add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\unregister_object_blocks_for_non_objects', 50 );
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\unregister_object_blocks_for_non_objects', 50 );
