@@ -114,6 +114,7 @@ function quick_browse(): void {
 			echo '</a></th>';
 		}
 	}
+
 	// export_csv_button() and import_csv_buton() escape output.
 	echo '<th>';
 	export_csv_button( $object_type->kind_id );
@@ -158,7 +159,6 @@ function quick_browse(): void {
 		echo '</td>';
 		echo '</tr>';
 	}
-
 	echo '</tbody></table></div>';
 }
 

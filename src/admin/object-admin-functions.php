@@ -30,8 +30,10 @@ const WPM_FIELD = 'wpm-new-field#';
 
 /**
  * Creates the admin page and adds it to the Settings menu. Only accessible to administrators.
+ *
+ * @return void
  */
-function add_object_admin_page() {
+function add_object_admin_page(): void {
 	add_submenu_page(
 		'options-general.php',
 		'WP Museum',
@@ -46,8 +48,10 @@ function add_object_admin_page() {
  * Displays appropriate object administration page.
  *
  * Top-level function for object admin page that displays appropriate editing page depending on get parameter.
+ *
+ * @return void
  */
-function objects_admin_page() {
+function objects_admin_page(): void {
 	process_actions();
 
 	if ( isset( $_GET['wpm-objects-page'] ) ) {
@@ -76,9 +80,11 @@ function objects_admin_page() {
 }
 
 /**
- * Main page for WP Museum administration.
+ * Displays the main object administration page.
+ *
+ * @return void
  */
-function display_object_admin_main() {
+function display_object_admin_main(): void {
 	if ( isset( $_SERVER['PHP_SELF'] ) ) {
 		$form_url = wp_unslash( $_SERVER['PHP_SELF'] ); // phpcs:ignore
 	} else {
@@ -96,11 +102,12 @@ function display_object_admin_main() {
 }
 
 /**
- * Display admin form section for downloading and creating image backups.
+ * Displays the images administration section.
  *
- * @param string $form_url The url of the current page.
+ * @param string $form_url The URL for the form action.
+ * @return void
  */
-function display_images_admin_section( $form_url ) {
+function display_images_admin_section(string $form_url): void {
 	echo '<h2>Images</h2>';
 
 	echo '<div id="image-backups-table">';
@@ -122,11 +129,12 @@ function display_images_admin_section( $form_url ) {
 }
 
 /**
- * Display admin form section for uploading CSV files.
+ * Displays the kinds administration section.
  *
- * @param string $form_url The url of the current page.
+ * @param string $form_url The URL for the form action.
+ * @return void
  */
-function display_kinds_admin_section( $form_url ) {
+function display_kinds_admin_section(string $form_url): void {
 	$csv_url = add_query_arg(
 		[
 			'page'                    => 'wpm-objects-admin',
@@ -211,9 +219,11 @@ function display_kinds_admin_section( $form_url ) {
 $wpm_test = WPM_PREFIX;
 
 /**
- * Displays options section for object admin page.
+ * Displays the options administration section.
+ *
+ * @return void
  */
-function display_options_admin_section() {
+function display_options_admin_section(): void {
 
 	/**
 	 * Set up data.
@@ -256,9 +266,11 @@ function display_options_admin_section() {
 }
 
 /**
- * Displays table for object image backup and restore.
+ * Displays the image backups table.
+ *
+ * @return void
  */
-function display_image_backups_table() {
+function display_image_backups_table(): void {
 	$dir_info = wp_upload_dir();
 	if ( ! $dir_info ) {
 		return false;
@@ -301,9 +313,11 @@ function display_image_backups_table() {
 }
 
 /**
- * Callback to delete kind.
+ * AJAX handler for deleting a kind.
+ *
+ * @return void
  */
-function delete_kind_aj() {
+function delete_kind_aj(): void {
 	if ( ! check_ajax_referer( 'kcDbrTMMfFqh6jy8&LrCGoH7p', 'nonce' ) ) {
 		wp_die( esc_html__( 'Failed nonce check.', 'wp-museum' ) );
 	}
@@ -324,9 +338,11 @@ function delete_kind_aj() {
 }
 
 /**
- * Callback to delete image backip zip.
+ * AJAX handler for deleting an image zip file.
+ *
+ * @return void
  */
-function delete_image_zip_aj() {
+function delete_image_zip_aj(): void {
 	if ( ! check_ajax_referer( 'kcDbrTMMfFqh6jy8&LrCGoH7p', 'nonce' ) ) {
 		wp_die( esc_html__( 'Failed nonce check.', 'wp-museum' ) );
 	}
@@ -342,14 +358,12 @@ function delete_image_zip_aj() {
 }
 
 /**
- * Page for editing museum objects.
+ * Displays the form for editing a kind.
  *
- * First processes submitted form, then displays page for editing a single object
- * type.
- *
- * @param int $kind_id  The id of the object to edit. If -1, a new object.
+ * @param int $kind_id The ID of the kind to edit.
+ * @return void
  */
-function edit_kind_form( $kind_id = -1 ) {
+function edit_kind_form(int $kind_id = -1): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'wp-museum' ) );
 	}
