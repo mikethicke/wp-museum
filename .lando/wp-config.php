@@ -24,7 +24,8 @@ define('NONCE_SALT',       '6=zv6&R#7}c_zt`7tdv^KmMN4}-D7DCmFvX+48`2,O|k2]#Wo2@x
 $table_prefix = 'wp_';
 
 define( 'WP_DEBUG', true );
-define( 'WP_DEBUG_LOG', false );
+define( 'WP_DEBUG_LOG', true );
+define( 'WP_DEBUG_DISPLAY', false );
 define( 'SCRIPT_DEBUG', true );
 define( 'SAVEQUERIES', true );
 define( 'WP_CACHE', false );
