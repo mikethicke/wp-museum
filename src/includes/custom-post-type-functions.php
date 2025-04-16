@@ -14,8 +14,9 @@ namespace MikeThicke\WPMuseum;
  *
  * @param string   $where    The existing WHERE clause.
  * @param WP_QUERY $wp_query The query object.
+ * @return string The modified WHERE clause.
  */
-function post_search_filter( $where, $wp_query ) {
+function post_search_filter( string $where, \WP_Query $wp_query ): string {
 	global $wpdb;
 
 	// Run only once.
@@ -37,10 +38,10 @@ function post_search_filter( $where, $wp_query ) {
  *
  * @link https://www.smashingmagazine.com/2016/03/advanced-wordpress-search-with-wp_query/
  *
- * @param [string] $vars Array of accepted query vars.
- * @return [string] Updated array of query vars.
+ * @param array $vars Array of accepted query vars.
+ * @return array Updated array of query vars.
  */
-function add_title_content_query_vars( $vars ) {
+function add_title_content_query_vars( array $vars ): array {
 	$vars[] = 'post_title';
 	$vars[] = 'post_content';
 	return $vars;
@@ -50,8 +51,9 @@ function add_title_content_query_vars( $vars ) {
  * Get custom post type on admin pages.
  *
  * @see https://stackoverflow.com/a/59147234
+ * @return string|null The post type or null if not found.
  */
-function admin_post_type() {
+function admin_post_type(): ?string {
 	global $post, $parent_file, $typenow, $current_screen, $pagenow;
 
 	$post_type = null;
@@ -69,12 +71,18 @@ function admin_post_type() {
 	}
 
 	if ( empty( $post_type ) && function_exists( 'get_current_screen' ) ) {
-		$post_type = get_current_screen();
+		$screen = get_current_screen();
+		if ( $screen && property_exists( $screen, 'post_type' ) ) {
+			$post_type = $screen->post_type;
+		}
 	}
 
 	//phpcs:ignore
-	if ( empty( $post_type ) && isset( $_REQUEST['post'] ) && ! empty( $_REQUEST['post'] ) && function_exists( 'get_post_type' ) && $get_post_type = get_post_type( (int) $_REQUEST['post'] ) ) {
-		$post_type = $get_post_type;
+	if ( empty( $post_type ) && isset( $_REQUEST['post'] ) && ! empty( $_REQUEST['post'] ) && function_exists( 'get_post_type' ) ) {
+		$get_post_type = get_post_type( (int) $_REQUEST['post'] );
+		if ( $get_post_type ) {
+			$post_type = $get_post_type;
+		}
 	}
 
 	if ( empty( $post_type ) && isset( $_REQUEST['post_type'] ) && ! empty( $_REQUEST['post_type'] ) ) {

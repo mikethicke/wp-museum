@@ -482,13 +482,17 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 	if ( isset( $join_clause ) ) {
 		add_filter(
 			'posts_where',
-			function ( $where ) use ( $search_all_fields_sql, $meta_fields_sql ) {
+			function ( $where, $query ) use ( $search_all_fields_sql, $meta_fields_sql ) {
+				$type = $query->query_vars['post_type'];
+				if ( ! in_array( $type, get_object_type_names(), true ) ) {
+					return $where;
+				}
 				global $wpdb;
 				$new_where = '';
 				if ( ! empty( $search_all_fields_sql ) ) {
 					$start_index = strpos( $where, $wpdb->posts . '.post_title' );
 					if ( false === $start_index ) {
-						return ( [] );
+						return ($where);
 					}
 					$where_first_part  = substr( $where, 0, $start_index );
 					$where_last_part   = substr( $where, $start_index );
@@ -509,7 +513,11 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 		);
 		add_filter(
 			'posts_join',
-			function ( $join ) use ( $join_clause ) {
+			function ( $join, $query ) use ( $join_clause ) {
+				$type = $query->query_vars['post_type'];
+				if ( ! in_array( $type, get_object_type_names(), true ) ) {
+					return $join;
+				}
 				return $join . $join_clause;
 			},
 			10,
@@ -517,7 +525,11 @@ function add_object_meta_query_filter( $search_terms, $kind ) {
 		);
 		add_filter(
 			'posts_distinct',
-			function () {
+			function ( $distinct, $query ) {
+				$type = $query->query_vars['post_type'];
+				if ( ! in_array( $type, get_object_type_names(), true ) ) {
+					return $distinct;
+				}
 				return ' DISTINCT ';
 			},
 			10,
