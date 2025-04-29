@@ -9,11 +9,12 @@ services:
     type: php:custom
     overrides:
       build: .lando
-      image: wp-museum/wordpress:8.2
+      image: wp-museum/wordpress:8.4
       environment:
         XDEBUG_MODE:
         XDEBUG_CONFIG:
         WP_TESTS_PHPUNIT_POLYFILLS_PATH: /app/vendor/yoast/phpunit-polyfills
+        WP_TESTS_DIR: /app/tests/
     build_as_root:
       - npm run build
       - /app/.lando/build-wordpress.sh

@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap file.
  *
- * @package App
+ * @package Wp_Museum
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
@@ -32,7 +32,6 @@ function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/wp-museum.php';
 }
 
-/** @disregard P1010 because tests_add_filter is required using a dynamic path. */
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
