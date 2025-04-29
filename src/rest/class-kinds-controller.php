@@ -198,8 +198,13 @@ class Kinds_Controller extends \WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or
 	 * WP_Error object on failure.
 	 */
-	public function update_items( $request ) {
-		$updated_kinds = json_decode( $request->get_body(), false );
+	public function update_items( $request ): \WP_REST_Response|\WP_Error {
+	    $request_body = $request->get_body();
+		if ( $request_body ) {
+            $updated_kinds = json_decode( $request_body, false );
+		} else {
+		    $updated_kinds = [];
+		}
 		if ( $updated_kinds ) {
 			foreach ( $updated_kinds as $kind_data ) {
 				$kind = new ObjectKind( $kind_data );

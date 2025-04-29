@@ -131,7 +131,7 @@ class Remote_Client_Controller extends \WP_REST_Controller {
 	 */
 	public function register_remote_client( $request ) {
 		if ( ! origin_authorized() ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'origin-blocked',
 				'Remote site has been blocked from connecting.',
 				[ 'status' => 403 ]
@@ -179,6 +179,10 @@ class Remote_Client_Controller extends \WP_REST_Controller {
 	 */
 	public function get_items( $request ) {
 		$client_array = RemoteClient::get_all_clients_assoc_array();
+
+		$client_data = [];
+		$response_collection = [];
+
 		foreach ( $client_array as $client_data ) {
 			$response_item         = $this->prepare_item_for_response( $client_data, $request );
 			$response_collection[] = $this->prepare_response_for_collection( $response_item );

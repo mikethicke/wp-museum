@@ -316,6 +316,7 @@ class Collections_Controller extends \WP_REST_Controller {
 
 		$posts_query  = new \WP_Query();
 		$query_result = $posts_query->query( $args );
+		$post_data    = [];
 
 		foreach ( $query_result as $post ) {
 			$data          = $this->get_collection_data( $post );
@@ -547,7 +548,7 @@ class Collections_Controller extends \WP_REST_Controller {
 	 */
 	public function get_collection_term_items( $request ) {
 		$term_id = $request['id'];
-		
+
 		if ( current_user_can( 'edit_posts' ) ) {
 			$associated_objects = get_collection_term_objects( $term_id, 'any', $request['include_children'] );
 		} else {
@@ -556,7 +557,7 @@ class Collections_Controller extends \WP_REST_Controller {
 
 		$object_data = [];
 		$objects_controller = new Objects_Controller();
-		
+
 		foreach ( $associated_objects as $post ) {
 			$data          = combine_post_data( $post );
 			$post_kind     = get_kind_from_typename( $post->post_type );
