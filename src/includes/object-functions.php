@@ -407,6 +407,7 @@ function do_advanced_search( $request ) {
  * intended to support REST requests and should only be used in that context.
  */
 function add_object_meta_query_filter( $search_terms, $kind ) {
+	return;
 	global $wpdb;
 
 	$search_all_fields_sql = [];
