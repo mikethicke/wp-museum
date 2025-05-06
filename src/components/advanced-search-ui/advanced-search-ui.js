@@ -45,10 +45,7 @@ const FieldSearchElement = (props) => {
     const { fromDate, toDate } = searchVals;
 
     const updateDateSearch = (updateObj) => {
-      const newDateSearch = {
-        ...searchVals,
-        ...updateObj,
-      };
+      const newDateSearch = { ...searchVals, ...updateObj };
 
       updateSearch(field, JSON.stringify(newDateSearch));
     };
@@ -197,28 +194,22 @@ const AdvancedSearchUI = (props) => {
       kindsData.length > 0
     ) {
       const selectedKindData = kindsData.find(
-        (kindItem) => kindItem.kind_id === selectedKind
+        (kindItem) => kindItem.kind_id === selectedKind,
       );
       getFieldData(selectedKindData.type_name).then((result) =>
-        setFieldData(result)
+        setFieldData(result),
       );
     }
   }, [selectedKind, kindsData]);
 
   useEffect(() => {
     if (!selectedKind && !!kindsData && kindsData.length > 0) {
-      setSearchValues({
-        ...searchValues,
-        selectedKind: kindsData[0].kind_id,
-      });
+      setSearchValues({ ...searchValues, selectedKind: kindsData[0].kind_id });
     }
   }, [kindsData]);
 
   const updateSearchValues = (updatedValues) => {
-    setSearchValues({
-      ...searchValues,
-      ...updatedValues,
-    });
+    setSearchValues({ ...searchValues, ...updatedValues });
   };
 
   const updateFieldSearch = (index, field = null, search = null) => {
@@ -236,10 +227,6 @@ const AdvancedSearchUI = (props) => {
       if (search === null) {
         searchValue = newSearchFields[index].search;
       }
-    }
-    // For 'LIKE' search the searchValue should start with '~'. Otherwise will search for exact match.
-    if (!searchValue.startsWith("~")) {
-      searchValue = "~" + searchValue;
     }
     newSearchFields[index] = { field: fieldValue, search: searchValue };
     updateSearchValues({ searchFields: newSearchFields });
@@ -386,7 +373,7 @@ const AdvancedSearchUI = (props) => {
               }
               multiple
               label="Flags"
-              value={selectedFlags}
+              value={selectedFlags ? selectedFlags : []}
               onChange={(val) => updateSearchValues({ selectedFlags: val })}
               options={flagOptions()}
             />
@@ -399,7 +386,7 @@ const AdvancedSearchUI = (props) => {
               }
               multiple
               label="Within Collections"
-              value={selectedCollections}
+              value={selectedCollections ? selectedCollections : []}
               onChange={(val) =>
                 updateSearchValues({ selectedCollections: val })
               }
@@ -423,6 +410,16 @@ const AdvancedSearchUI = (props) => {
           </div>
         )}
       </div>
+      <Button
+        isPrimary
+        className="advanced-search-button"
+        onClick={() => {
+          setSearchValues({});
+          serializeSearchToUrl({});
+        }}
+      >
+        Reset Search
+      </Button>
     </>
   );
 };

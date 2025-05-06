@@ -423,7 +423,7 @@ class CustomPostType {
 		if ( $query->is_main_query() ) {
 			$this->add_to_query( $query );
 		}
-	}
+}
 
 	/**
 	 * Callback to add $this->template_path to template search.

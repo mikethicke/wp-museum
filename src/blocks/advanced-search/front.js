@@ -8,7 +8,7 @@ import { PaginatedObjectList } from "../../components/object-list/object-list";
 
 window.addEventListener("DOMContentLoaded", () => {
   const advancedSearchElements = document.getElementsByClassName(
-    "wpm-advanced-search-block-frontend"
+    "wpm-advanced-search-block-frontend",
   );
   if (!!advancedSearchElements) {
     for (let i = 0; i < advancedSearchElements.length; i++) {
@@ -17,7 +17,7 @@ window.addEventListener("DOMContentLoaded", () => {
       const attributes = JSON.parse(attribuesJSON ? attribuesJSON : "{}");
       if (typeof attributes["defaultSearch"] != "string") {
         attributes["defaultSearch"] = JSON.stringify(
-          attributes["defaultSearch"]
+          attributes["defaultSearch"],
         );
       }
       const root = createRoot(advancedSearchElement);
@@ -59,13 +59,13 @@ const AdvancedSearchFront = (props) => {
 
   const updateCollectionData = () => {
     apiFetch({ path: `${baseRestPath}/collections` }).then((result) =>
-      setCollectionData(result)
+      setCollectionData(result),
     );
   };
 
   const updateKindsData = () => {
     apiFetch({ path: `${baseRestPath}/mobject_kinds` }).then((result) =>
-      setKindsData(result)
+      setKindsData(result),
     );
   };
 
@@ -74,10 +74,20 @@ const AdvancedSearchFront = (props) => {
   };
 
   const onSearch = (searchParams) => {
-    for (const [key, value] of Object.entries(searchParams)) {
-      if (key !== "page" && value !== currentSearchParams[key]) {
-        searchParams.page = 1;
-        break;
+    if (searchParams.searchFields?.length > 0) {
+      for (const field of searchParams.searchFields) {
+        if (field.search) {
+          if (!field.search.startsWith("~")) {
+            searchParams[field.field] = `~${field.search}`;
+          } else {
+            searchParams[field.field] = field.search;
+          }
+        }
+      }
+    }
+    if (searchParams.selectedFlags?.length) {
+      for (const flag of searchParams.selectedFlags) {
+        searchParams[flag] = true;
       }
     }
     searchParams.posts_per_page = resultsPerPage;
