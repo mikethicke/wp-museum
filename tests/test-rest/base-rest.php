@@ -18,7 +18,7 @@ const TEST_REST_NAMESPACE = '/' . REST_NAMESPACE;
 /**
  * Base class for REST API tests.
  */
-class BaseRESTTest extends WP_UnitTestCase {
+abstract class BaseRESTTest extends WP_UnitTestCase {
 
 	/**
 	 * The REST server.

@@ -67,12 +67,12 @@ class RemoteClient {
 	 */
 	public static function from_database( $row ) {
 		$instance                    = new self();
-		$instance->client_id         = intval( $row->client_id );
-		$instance->uuid              = trim( wp_unslash( $row->uuid ) );
-		$instance->title             = trim( wp_unslash( $row->title ) );
-		$instance->url               = trim( wp_unslash( $row->url ) );
-		$instance->blocked           = (bool) intval( $row->blocked );
-		$instance->registration_time = trim( wp_unslash( $row->registration_time ) );
+		$instance->client_id         = isset( $row->client_id ) ? intval( $row->client_id ) : null;
+		$instance->uuid              = isset( $row->uuid ) ? trim( wp_unslash( $row->uuid ) ) : '';
+		$instance->title             = isset( $row->title ) ? trim( wp_unslash( $row->title ) ) : '';
+		$instance->url               = isset( $row->url ) ? trim( wp_unslash( $row->url ) ) : '';
+		$instance->blocked           = isset( $row->blocked ) ? (bool) intval( $row->blocked ) : false;
+		$instance->registration_time = isset( $row->registration_time ) ? trim( wp_unslash( $row->registration_time ) ) : '';
 
 		return $instance;
 	}
@@ -236,7 +236,7 @@ class RemoteClient {
 		if ( is_null( $this->uuid ) ) {
 			return false;
 		}
-		$regex = '/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/';
+		$regex = '/^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$/';
 		if ( 1 === preg_match( $regex, $this->uuid ) ) {
 			return true;
 		}
