@@ -56,6 +56,10 @@
         "resultsPerPage": {
             "type": "number",
             "default": 20
+        },
+        "columns": {
+            "type": "number",
+            "default": 4
         }
     }
 }

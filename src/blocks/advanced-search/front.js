@@ -2,9 +2,9 @@ import { useState, useEffect, createRoot } from "@wordpress/element";
 
 import apiFetch from "@wordpress/api-fetch";
 
-import { AdvancedSearchUI } from "../../components";
+import { AdvancedSearchUI, ObjectGrid, withPagination } from "../../components";
 
-import { PaginatedObjectList } from "../../components/object-list/object-list";
+const PaginatedObjectGrid = withPagination(ObjectGrid);
 
 window.addEventListener("DOMContentLoaded", () => {
   const advancedSearchElements = document.getElementsByClassName(
@@ -40,6 +40,7 @@ const AdvancedSearchFront = (props) => {
     showTags,
     showFields,
     resultsPerPage,
+    columns,
   } = attributes;
 
   const [collectionData, setCollectionData] = useState({});
@@ -143,13 +144,18 @@ const AdvancedSearchFront = (props) => {
         />
       )}
       {searchResults && (
-        <PaginatedObjectList
+        <PaginatedObjectGrid
           currentPage={currentPage}
           totalPages={totalPages}
           searchCallback={onSearch}
           searchParams={currentSearchParams}
           mObjects={searchResults}
-          displayImages={true}
+          columns={columns}
+          displayTitle={true}
+          displayDate={false}
+          displayExcerpt={false}
+          linkToObjects={false}
+          doObjectModal={true}
         />
       )}
     </>

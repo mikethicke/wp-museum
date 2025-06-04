@@ -25,10 +25,9 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { AdvancedSearchUI } from '../../components';
-import {
-	PaginatedObjectList
-} from '../../components/object-list/object-list';
+import { AdvancedSearchUI, ObjectGrid, withPagination } from '../../components';
+
+const PaginatedObjectGrid = withPagination(ObjectGrid);
 
 const AdvancedSearchEdit = props => {
 	const {
@@ -46,12 +45,14 @@ const AdvancedSearchEdit = props => {
 		showCollections,
 		showTags,
 		showFields,
-		resultsPerPage
+		resultsPerPage,
+		columns
 	} = attributes;
 
 	const [ collectionData , setCollectionData ] = useState( {} );
 	const [ kindsData, setKindsData ] = useState( [] );
 	const [ searchResults, setSearchResults ] = useState( [] );
+	const [ currentSearchParams, setCurrentSearchParams ] = useState( {} );
 
 	const baseRestPath = '/wp-museum/v1';
 
@@ -79,6 +80,7 @@ const AdvancedSearchEdit = props => {
 				break;
 			}
 		}
+		setCurrentSearchParams( searchParams );
 		apiFetch( {
 			path:   `${baseRestPath}/search`,
 			method: 'POST',
@@ -157,6 +159,18 @@ const AdvancedSearchEdit = props => {
 						{ value: -1,  label: 'Unlimited' }
 					] }
 				/>
+				<SelectControl
+					label = 'Grid Columns'
+					value = { columns }
+					onChange = { val => setAttributes( { columns: parseInt( val ) } ) }
+					options = { [
+						{ value: 2, label: '2' },
+						{ value: 3, label: '3' },
+						{ value: 4, label: '4' },
+						{ value: 5, label: '5' },
+						{ value: 6, label: '6' }
+					] }
+				/>
 			</PanelBody>
 		</InspectorControls>
 		<AdvancedSearchUI
@@ -175,10 +189,19 @@ const AdvancedSearchEdit = props => {
 			setAttributes   = { setAttributes }
 			onSearch        = { onSearch }
 		/>
-		{ searchResults &&
-			<PaginatedObjectList
-				objects = { searchResults }
-				displayImages = { true }
+		{ searchResults && searchResults.length > 0 &&
+			<PaginatedObjectGrid
+				currentPage = { searchResults[0]?.query_data?.current_page || 1 }
+				totalPages = { searchResults[0]?.query_data?.num_pages || 0 }
+				searchCallback = { onSearch }
+				searchParams = { currentSearchParams }
+				mObjects = { searchResults }
+				columns = { columns }
+				displayTitle = { true }
+				displayDate = { false }
+				displayExcerpt = { true }
+				linkToObjects = { false }
+				doObjectModal = { true }
 			/>
 		}
 		</div>
