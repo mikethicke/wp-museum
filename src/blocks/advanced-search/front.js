@@ -154,8 +154,8 @@ const AdvancedSearchFront = (props) => {
           displayTitle={true}
           displayDate={false}
           displayExcerpt={false}
-          linkToObjects={false}
-          doObjectModal={true}
+          linkToObjects={true}
+          doObjectModal={false}
         />
       )}
     </>
