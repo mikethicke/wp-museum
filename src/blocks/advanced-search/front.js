@@ -37,6 +37,7 @@ const AdvancedSearchFront = (props) => {
     showTitleToggle,
     showFlags,
     showCollections,
+    showTags,
     showFields,
     resultsPerPage,
   } = attributes;
@@ -130,6 +131,7 @@ const AdvancedSearchFront = (props) => {
           defaultSearch={defaultSearch}
           showFlags={showFlags}
           showCollections={showCollections}
+          showTags={showTags}
           showFields={showFields}
           showObjectType={showObjectType}
           showTitleToggle={showTitleToggle}

@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from "@wordpress/element";
 
 import { Button, CheckboxControl, SelectControl } from "@wordpress/components";
 
-import { isEmpty } from "../../javascript/util";
+import apiFetch from "@wordpress/api-fetch";
+
+import { isEmpty, wordPressRestBase } from "../../javascript/util";
 
 const FieldSearchElement = (props) => {
   const { fieldData, searchFieldData, updateSearch } = props;
@@ -98,6 +100,7 @@ const AdvancedSearchUI = (props) => {
     defaultSearch,
     showFlags,
     showCollections,
+    showTags,
     showFields,
     showObjectType,
     showTitleToggle,
@@ -114,12 +117,14 @@ const AdvancedSearchUI = (props) => {
   const [searchValues, setSearchValues] = useState({});
   const [fieldData, setFieldData] = useState({});
   const [numberFieldSearches, setNumberFieldSearches] = useState(3);
+  const [tagsData, setTagsData] = useState([]);
 
   const {
     searchText,
     onlyTitle,
     selectedFlags,
     selectedCollections,
+    selectedTags,
     selectedKind,
     searchFields,
   } = searchValues;
@@ -137,6 +142,9 @@ const AdvancedSearchUI = (props) => {
       params.set("collections", values.selectedCollections.join(","));
     if (values.searchFields?.length) {
       params.set("fields", JSON.stringify(values.searchFields));
+    }
+    if (values.selectedTags?.length) {
+      params.set("tags", values.selectedTags.join(","));
     }
 
     const newUrl = `${window.location.pathname}?${params.toString()}`;
@@ -156,6 +164,7 @@ const AdvancedSearchUI = (props) => {
       values.selectedFlags = params.get("flags").split(",");
     if (params.has("collections"))
       values.selectedCollections = params.get("collections").split(",");
+    if (params.has("tags")) values.selectedTags = params.get("tags").split(",");
     if (params.has("fields")) {
       try {
         values.searchFields = JSON.parse(params.get("fields"));
@@ -168,6 +177,22 @@ const AdvancedSearchUI = (props) => {
   };
 
   useEffect(() => {
+    // Fetch tags data ordered by count (frequency)
+    const fetchTags = async () => {
+      try {
+        const tags = await apiFetch({
+          path: `${wordPressRestBase}/tags?orderby=count&order=desc&per_page=100`,
+        });
+        // Filter out tags with zero count
+        const filteredTags = tags.filter(tag => tag.count > 0);
+        setTagsData(filteredTags);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+
+    fetchTags();
+
     // First try to get values from URL
     const urlValues = deserializeUrlToSearch();
 
@@ -250,6 +275,13 @@ const AdvancedSearchUI = (props) => {
       opts[index] = { value: collection.ID, label: collection.post_title };
     });
     return opts;
+  };
+
+  const tagOptions = () => {
+    return tagsData.map((tag) => ({
+      value: tag.slug,
+      label: tag.name,
+    }));
   };
 
   const kindOptions = () => {
@@ -393,6 +425,19 @@ const AdvancedSearchUI = (props) => {
               options={collectionOptions()}
             />
           )}
+          {(inEditor || showTags) && (
+            <SelectControl
+              className={
+                "advanced-search-tags-select" +
+                (showTags ? " search-visible" : " search-hidden")
+              }
+              multiple
+              label="Tags"
+              value={selectedTags ? selectedTags : []}
+              onChange={(val) => updateSearchValues({ selectedTags: val })}
+              options={tagOptions()}
+            />
+          )}
         </div>
         {(inEditor || showFields) && (
           <div
@@ -414,8 +459,9 @@ const AdvancedSearchUI = (props) => {
         isPrimary
         className="advanced-search-button"
         onClick={() => {
-          setSearchValues({});
-          serializeSearchToUrl({});
+          const resetValues = {};
+          setSearchValues(resetValues);
+          serializeSearchToUrl(resetValues);
         }}
       >
         Reset Search

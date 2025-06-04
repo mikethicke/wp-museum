@@ -508,6 +508,12 @@ class Objects_Controller extends \WP_REST_Controller
             }
         }
 
+        // Search by tag
+        $tags = $request->get_param("selectedTags");
+        if (!empty($tags) && is_array($tags)) {
+            $query_args["tag_slug__in"] = $tags;
+        }
+
         $posts_query = new \WP_Query();
         $query_result = $posts_query->query($query_args);
         $post_data = [];

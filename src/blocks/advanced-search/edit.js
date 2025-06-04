@@ -44,6 +44,7 @@ const AdvancedSearchEdit = props => {
 		showTitleToggle,
 		showFlags,
 		showCollections,
+		showTags,
 		showFields,
 		resultsPerPage
 	} = attributes;
@@ -130,6 +131,11 @@ const AdvancedSearchEdit = props => {
 					onChange = { val => setAttributes( { showCollections: val } ) }
 				/>
 				<CheckboxControl
+					label = 'Show Tags'
+					checked = { showTags }
+					onChange = { val => setAttributes( { showTags: val } ) }
+				/>
+				<CheckboxControl
 					label = 'Show Fields'
 					checked = { showFields }
 					onChange = { val => setAttributes( { showFields: val } ) }
@@ -157,6 +163,7 @@ const AdvancedSearchEdit = props => {
 			defaultSearch   = { defaultSearch }
 			showFlags       = { showFlags }
 			showCollections = { showCollections }
+			showTags        = { showTags }
 			showFields      = { showFields }
 			showObjectType  = { showObjectType }
 			fixSearch       = { fixSearch }
