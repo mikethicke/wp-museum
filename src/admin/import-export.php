@@ -42,7 +42,7 @@ function export_csv() {
 		$sorted_row   = sort_row_by_fields( $row, $fields );
 		$sorted_row[] = get_permalink( $the_post );
 		$sorted_row[] = $the_post->post_status;
-		array_unshift( $sorted_row, html_entity_decode( $the_post->post_content ) );
+		array_unshift( $sorted_row, wp_strip_all_tags( $the_post->post_content ) );
 		array_unshift( $sorted_row, html_entity_decode( $the_post->post_title ) );
 		$rows[] = $sorted_row;
 	}
