@@ -26,3 +26,4 @@ wordpress/
 bin/install-wp-tests.sh
 test-sample.php
 *.tar.gz
+.phpunit.result.cache
