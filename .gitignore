@@ -23,7 +23,11 @@ museum-remote/release
 .DS_Store
 node_modules
 wordpress/
+wordpress-test/
 bin/install-wp-tests.sh
 test-sample.php
 *.tar.gz
 .phpunit.result.cache
+playwright-report/
+browser-cache/
+test-results/

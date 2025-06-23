@@ -27,6 +27,58 @@ services:
       user: wordpress
       password: wordpress
       database: wordpress
+  wp-test-server:
+    type: php:custom
+    via: nginx
+    ssl: true
+    overrides:
+      build: .lando
+      image: wp-museum/wordpress:8.4
+      environment:
+        XDEBUG_MODE:
+        XDEBUG_CONFIG:
+        WP_TESTS_PHPUNIT_POLYFILLS_PATH: /app/vendor/yoast/phpunit-polyfills
+        WP_TESTS_DIR: /app/tests/
+        TEST_DB_NAME: wptest
+        TEST_DB_USER: wptest
+        TEST_DB_PASS: wptest
+        TEST_DB_HOST: wp-test-database
+        TEST_WP_ADMIN_USER: admin
+        TEST_WP_ADMIN_PASS: admin
+        TEST_WP_ADMIN_EMAIL: admin@test.com
+    build_as_root:
+      - /app/.lando/setup-test-wordpress.sh
+    run:
+      - /app/.lando/reset-test-wordpress.sh
+    config:
+      php: .lando/php.ini
+      vhosts: .lando/nginx-test.conf
+  wp-test-database:
+    type: mariadb
+    portforward: true
+    creds:
+      user: wptest
+      password: wptest
+      database: wptest
+  playwright:
+    type: node:23
+    build_as_root:
+      - cd /app/tests/playwright && npm install && npx playwright install --with-deps
+    overrides:
+      environment:
+        PLAYWRIGHT_BROWSERS_PATH: /app/tests/playwright/browser-cache
+        TEST_DB_NAME: wptest
+        TEST_DB_USER: wptest
+        TEST_DB_PASS: wptest
+        TEST_DB_HOST: wp-test-database
+        TEST_WP_ADMIN_USER: admin
+        TEST_WP_ADMIN_PASS: admin
+        TEST_WP_ADMIN_EMAIL: admin@test.com
+
+proxy:
+  wp-test-server_nginx:
+    - wp-test.lndo.site
+
 tooling:
   wp:
     service: appserver
@@ -41,17 +93,22 @@ tooling:
     description: Installs WordPress with user admin and password admin
     cmd: wp core install --title="WordPress Museum" --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --url=wp-museum.lndo.site
   phpunit:
-    service: appserver
+    service: wp-test-server
     description: Runs PHPUnit tests
     cmd: phpunit
   phpunit-debug:
-    service: appserver
+    service: wp-test-server
     description: Runs local tests with xdebug
     cmd: php -d xdebug.start_with_request=yes /app/vendor/bin/phpunit
-  install-wp-tests:
-    service: appserver
-    description: Installs the WordPress test suite
-    cmd: /app/.lando/install-wp-tests.sh
+  test-reset:
+    service: wp-test-server
+    description: Reset test WordPress to clean state
+    cmd: /app/.lando/reset-test-wordpress.sh
+  test:
+    service: wp-test-server
+    description: Reset test environment and run PHPUnit tests
+    cmd: /app/.lando/reset-test-wordpress.sh && phpunit
+
   npm:
     service: appserver
     description: Runs npm commands
@@ -60,3 +117,8 @@ tooling:
     service: database
     description: Runs MySQL commands
     cmd: mysql -u wordpress -pwordpress wordpress
+  playwright:
+    service: playwright
+    description: Runs Playwright tests
+    dir: /app/tests/playwright
+    cmd: npx playwright test --reporter=line

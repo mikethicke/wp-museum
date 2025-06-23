@@ -1,72 +1,81 @@
-# Tests Directory Structure
+# WP Museum Testing
 
-This directory contains all test files and test infrastructure for the WP Museum plugin.
+This project uses a custom testing setup that leverages Lando's `wp-test-server` service instead of the traditional WordPress test suite's temporary installation approach.
 
-## Directory Structure
+## Architecture
 
-```
-tests/
-├── README.md              # This file
-├── bootstrap.php          # PHPUnit bootstrap file
-├── wp-tests-config.php    # WordPress test configuration
-├── includes/              # WordPress test framework scaffolding
-├── data/                  # Test data and fixtures
-├── phpunit/               # PHPUnit test files
-│   ├── test-plugin-loaded.php  # Basic plugin loading test
-│   ├── classes/           # Tests for plugin classes
-│   └── rest/              # Tests for REST API endpoints
-└── playwright/            # Playwright/E2E tests (future)
-```
+- **wp-test-server**: A dedicated Lando service running a clean WordPress installation at `/app/wordpress-test/`
+- **wp-test-database**: A separate MariaDB database for testing
+- **PHPUnit Integration**: Tests run against the live WordPress instance in `wp-test-server`
+
+## Benefits
+
+- **Consistent Environment**: Tests run against the same WordPress setup every time
+- **Faster Setup**: No need to download/install WordPress for each test run
+- **Real Environment**: Tests run against a real WordPress installation, not a mock
+- **Isolated**: Test database and WordPress instance are completely separate from development
 
 ## Running Tests
 
-### PHPUnit Tests
-
-All PHPUnit tests are located in the `phpunit/` directory. Run them using:
-
+### Quick Test Run
 ```bash
-# Run all PHPUnit tests
+lando test
+```
+This resets the test environment and runs all PHPUnit tests.
+
+### Manual Steps
+```bash
+# Reset test environment to clean state
+lando test-reset
+
+# Run PHPUnit tests
 lando phpunit
 
-# Run a specific test file
-lando phpunit tests/phpunit/test-plugin-loaded.php
-
-# Run tests in a specific directory
-lando phpunit tests/phpunit/classes/
-
-# Run with debug mode
+# Run PHPUnit with debugging
 lando phpunit-debug
 ```
 
-### Test Categories
+### Test Structure
 
-- **classes/**: Unit tests for plugin classes and core functionality
-- **rest/**: Tests for REST API endpoints and controllers
-- **test-plugin-loaded.php**: Basic test to verify plugin loads correctly
+- `tests/bootstrap.php` - PHPUnit bootstrap file
+- `tests/wp-tests-config.php` - WordPress test configuration
+- `tests/phpunit/` - PHPUnit test files
+- `tests/includes/` - WordPress test framework files
 
-## Adding New Tests
+## Environment Variables
 
-### PHPUnit Tests
+The test environment uses these environment variables (set in `.lando.yml`):
 
-1. Create new test files in the appropriate subdirectory under `phpunit/`
-2. Follow the naming convention: `test-*.php`
-3. Extend the appropriate WordPress test case class
-4. Tests will be automatically discovered by PHPUnit
+- `TEST_DB_NAME`: Test database name (default: wptest)
+- `TEST_DB_USER`: Test database user (default: wptest)
+- `TEST_DB_PASS`: Test database password (default: wptest)
+- `TEST_DB_HOST`: Test database host (default: wp-test-database)
+- `TEST_WP_ADMIN_USER`: WordPress admin username (default: admin)
+- `TEST_WP_ADMIN_PASS`: WordPress admin password (default: admin)
+- `TEST_WP_ADMIN_EMAIL`: WordPress admin email (default: admin@test.com)
 
-### Other Test Types
+## Writing Tests
 
-- **playwright/**: Reserved for future Playwright/E2E tests
-- Additional test frameworks can be added as new subdirectories
+Tests should extend `WP_UnitTestCase` from the WordPress test framework:
 
-## Test Infrastructure
+```php
+<?php
 
-- **bootstrap.php**: Initializes WordPress test environment
-- **wp-tests-config.php**: WordPress database and configuration settings
-- **includes/**: WordPress core test framework files and utilities
-- **data/**: Test fixtures, sample data, and mock objects
+class MyFeatureTest extends WP_UnitTestCase {
+    
+    public function test_my_feature() {
+        // Your test code here
+        $this->assertTrue(true);
+    }
+}
+```
 
-## Notes
+## Database State
 
-- The scaffolding files (`includes/`, `data/`, `bootstrap.php`, etc.) are part of the WordPress test framework and should not be modified unless necessary
-- All actual test files have been moved to the `phpunit/` subdirectory to separate them from scaffolding
-- The PHPUnit configuration (`phpunit.xml.dist`) has been updated to look for tests in the `phpunit/` directory
+Each test run starts with a completely fresh WordPress installation:
+- Database is dropped and recreated
+- WordPress is reinstalled with default settings
+- The wp-museum plugin is activated
+- No other plugins or customizations are present
+
+This ensures tests are isolated and reproducible.

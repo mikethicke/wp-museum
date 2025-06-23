@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "build": "wp-scripts build",
-    "start": "wp-scripts start"
+    "start": "wp-scripts start",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser playwright test --ui --ui-host=0.0.0.0 --ui-port=9323",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed"
   },
   "repository": {
     "type": "git",
@@ -19,6 +23,7 @@
   "homepage": "https://github.com/mikethicke/wp-museum#readme",
   "devDependencies": {
     "@prettier/plugin-php": "^0.22.4",
+    "@playwright/test": "^1.48.0",
     "@wordpress/api-fetch": "^7.22.0",
     "@wordpress/block-editor": "^14.17.0",
     "@wordpress/blocks": "^14.11.0",
