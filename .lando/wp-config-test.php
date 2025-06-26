@@ -44,6 +44,19 @@ $table_prefix = "wp_";
 define("WP_DEBUG", true);
 define("WP_DEBUG_LOG", true);
 define("WP_DEBUG_DISPLAY", false);
+define("SCRIPT_DEBUG", true);
+define("SAVEQUERIES", true);
+define("WP_CACHE", false);
+define("WP_DISABLE_FATAL_ERROR_HANDLER", true);
+define("WP_MEMORY_LIMIT", "128M");
+define("WP_MAX_MEMORY_LIMIT", "128M");
+
+/**
+ * Docker error logging.
+ */
+ini_set("log_errors", "on");
+ini_set("error_log", "php://stderr");
+ini_set("error_reporting", E_ALL);
 
 if (!defined("ABSPATH")) {
     define("ABSPATH", __DIR__ . "/");

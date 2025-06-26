@@ -1,3 +1,7 @@
 - This is a wordpress plugin
 - To run PHPUnit tests, run lando phpunit
 - To run playwright tests, run `lando playwright` or `lando playwright-html`
+- The frontend is primarily React.
+- The backend is primarily PHP.
+- Never ever use jquery.
+- Strongly favor simplicity and concision when making solutions. Do not over-engineer.
