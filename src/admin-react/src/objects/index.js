@@ -1,87 +1,151 @@
 import apiFetch from "@wordpress/api-fetch";
-import { useState, useEffect, useRef } from "@wordpress/element";
+import { useState, useEffect, useCallback } from "@wordpress/element";
 import { Button } from "@wordpress/components";
 
 import Edit from "./edit";
+import {
+  getCurrentView,
+  getParam,
+  navigateTo,
+  navigateToMain,
+  useRouter,
+} from "../router";
 
 const ObjectAdminControl = () => {
-  const [selectedPage, setSelectedPage] = useState("main");
+  const [selectedPage, setSelectedPage] = useState(getCurrentView());
   const [isSaving, setIsSaving] = useState(false);
   const [kindItem, setKindItem] = useState(null);
   const [newKindCount, updateNewKindCount] = useState(1);
-  const savingNewItemRef = useRef(null);
+  const [navigateToNewKind, setNavigateToNewKind] = useState(false);
+  const [existingKindIds, setExistingKindIds] = useState(new Set());
 
   const baseRestPath = "/wp-museum/v1";
   const [objectKinds, updateObjectKinds] = useState(null);
   const [kindIds, setKindIds] = useState(null);
 
+  // Define functions with proper dependency management
+  const refreshKindData = useCallback(() => {
+    apiFetch({ path: `${baseRestPath}/mobject_kinds` }).then((result) => {
+      updateObjectKinds(result);
+    });
+  }, []);
+
+  const saveKindData = useCallback(() => {
+    if (!objectKinds) return;
+    setIsSaving(true);
+    apiFetch({
+      path: `${baseRestPath}/mobject_kinds`,
+      method: "POST",
+      data: objectKinds,
+    }).then(() => {
+      refreshKindData();
+      setIsSaving(false);
+    });
+  }, [objectKinds, refreshKindData]);
+
   useEffect(() => {
     if (!objectKinds) {
       refreshKindData();
     }
-  });
+  }, [objectKinds, refreshKindData]);
 
-  useEffect(() => maybeSaveKindData(), [objectKinds]);
-
-  const refreshKindData = () => {
-    apiFetch({ path: `${baseRestPath}/mobject_kinds` }).then((result) => {
-      if (
-        !objectKinds ||
-        JSON.stringify(result) != JSON.stringify(objectKinds)
-      ) {
-        setObjectKinds(result);
+  // Handle navigation to newly created kind
+  useEffect(() => {
+    if (navigateToNewKind && objectKinds) {
+      // Find the kind that wasn't in the original set
+      const newKind = objectKinds.find(
+        (kind) => kind.kind_id > 0 && !existingKindIds.has(kind.kind_id),
+      );
+      if (newKind) {
+        editKind(newKind);
+        setNavigateToNewKind(false);
+        setExistingKindIds(new Set());
       }
-    });
-  };
+    }
+  }, [navigateToNewKind, objectKinds, existingKindIds]);
 
-  const setObjectKinds = (newKindArray) => {
-    console.log("setObjectKinds called", {
-      currentKindItem: kindItem,
-      savingNewItem: savingNewItemRef.current,
-      newArrayLength: newKindArray?.length,
-      newArrayIds: newKindArray?.map((item) => item.kind_id),
-    });
-
-    updateObjectKinds(newKindArray);
-    if (!kindItem || !newKindArray) return;
-
-    let kindItemIndex = newKindArray.findIndex(
+  // Update kindItem when objectKinds changes
+  useEffect(() => {
+    if (!kindItem || !objectKinds) return;
+    const kindItemIndex = objectKinds.findIndex(
       (item) => item.kind_id == kindItem.kind_id,
     );
-
-    console.log("Initial find result", {
-      kindItemIndex,
-      lookingForId: kindItem.kind_id,
-    });
-
-    // If not found and we were saving a new item, find it by matching properties
-    if (kindItemIndex === -1 && savingNewItemRef.current) {
-      console.log("Trying to match saved item", savingNewItemRef.current);
-      kindItemIndex = newKindArray.findIndex(
-        (item) =>
-          item.label === savingNewItemRef.current.label && item.kind_id > 0,
-      );
-      console.log("Match result", {
-        kindItemIndex,
-        foundItem: newKindArray[kindItemIndex],
-      });
-      // Clear the saving state once we've found the item
-      if (kindItemIndex !== -1) {
-        savingNewItemRef.current = null;
-      }
-    }
-
     if (kindItemIndex === -1) {
-      console.log("Setting kindItem to null - item not found");
       setKindItem(null);
     } else {
-      console.log(
-        "Setting kindItem to found item",
-        newKindArray[kindItemIndex],
-      );
-      setKindItem(newKindArray[kindItemIndex]);
+      setKindItem(objectKinds[kindItemIndex]);
     }
-  };
+  }, [objectKinds, kindItem]);
+
+  // Auto-save when kind structure changes
+  useEffect(() => {
+    const currentIds = objectKinds
+      ? JSON.stringify(objectKinds.map((kindItem) => kindItem.kind_id))
+      : null;
+    if (kindIds && kindIds !== currentIds && objectKinds) {
+      saveKindData();
+    }
+    setKindIds(currentIds);
+  }, [objectKinds, kindIds, saveKindData]);
+
+  // Set up router
+  useEffect(() => {
+    const cleanup = useRouter((params) => {
+      const newView = params.view || "main";
+      setSelectedPage(newView);
+
+      if (newView === "edit" && params.kind_id && objectKinds) {
+        const kindId = parseInt(params.kind_id);
+        const foundKind = objectKinds.find((kind) => kind.kind_id === kindId);
+        if (foundKind) {
+          setKindItem(foundKind);
+        }
+      } else if (newView === "main") {
+        setKindItem(null);
+      }
+    });
+
+    return cleanup;
+  }, [objectKinds]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Escape key to go back to main view
+      if (event.key === "Escape" && selectedPage === "edit") {
+        event.preventDefault();
+        navigateToMain();
+      }
+
+      // Ctrl/Cmd + S to save (when in edit mode)
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key === "s" &&
+        selectedPage === "edit"
+      ) {
+        event.preventDefault();
+        if (kindItem) {
+          saveKindData();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedPage, kindItem, saveKindData]);
+
+  // Handle initial load
+  useEffect(() => {
+    if (selectedPage === "edit" && objectKinds) {
+      const kindId = parseInt(getParam("kind_id"));
+      if (kindId) {
+        const foundKind = objectKinds.find((kind) => kind.kind_id === kindId);
+        if (foundKind) {
+          setKindItem(foundKind);
+        }
+      }
+    }
+  }, [objectKinds]);
 
   const updateKind = (kindId, field, event) => {
     const kindIndex = objectKinds.findIndex(
@@ -111,7 +175,7 @@ const ObjectAdminControl = () => {
     kind_id: 0 - newKindCount,
     cat_field_id: null,
     name: null,
-    type_name: "new_object_type",
+    type_name: null,
     label: "New Object Type",
     label_plural: null,
     description: null,
@@ -124,51 +188,24 @@ const ObjectAdminControl = () => {
     parent_kind_id: null,
   };
 
+  const setObjectKinds = (newKindArray) => {
+    updateObjectKinds(newKindArray);
+  };
+
   const newKind = () => {
+    // Track existing kind IDs before creating new one
+    const currentKindIds = new Set(
+      objectKinds
+        .filter((kind) => kind.kind_id > 0)
+        .map((kind) => kind.kind_id),
+    );
+    setExistingKindIds(currentKindIds);
+
     const newKind = Object.assign({}, defaultKind);
-    newKind.kind_id = 0 - newKindCount;
-    updateNewKindCount(newKindCount + 1);
     const newObjectKinds = objectKinds.concat([newKind]);
-    updateObjectKinds(newObjectKinds);
-    setKindItem(newKind);
-    setSelectedPage("edit");
-  };
-
-  const saveKindData = () => {
-    console.log("saveKindData called", {
-      currentKindItem: kindItem,
-      isNewItem: kindItem?.kind_id < 0,
-    });
-    setIsSaving(true);
-    // Track if we're saving a new item
-    if (kindItem && kindItem.kind_id < 0) {
-      console.log("Setting savingNewItem", kindItem);
-      savingNewItemRef.current = kindItem;
-    }
-    apiFetch({
-      path: `${baseRestPath}/mobject_kinds`,
-      method: "POST",
-      data: objectKinds,
-    }).then(() => {
-      console.log("Save complete, calling refreshKindData");
-      refreshKindData();
-      setIsSaving(false);
-    });
-  };
-
-  const maybeSaveKindData = () => {
-    const currentIds = objectKinds
-      ? JSON.stringify(objectKinds.map((kindItem) => kindItem.kind_id))
-      : null;
-    if (!kindIds || kindIds != currentIds) {
-      setKindIds(currentIds);
-      // Don't auto-save if we have new items with negative IDs
-      const hasNewItems =
-        objectKinds && objectKinds.some((item) => item.kind_id < 0);
-      if (!hasNewItems) {
-        saveKindData();
-      }
-    }
+    setObjectKinds(newObjectKinds);
+    setNavigateToNewKind(true);
+    saveKindData();
   };
 
   const deleteKind = (kindItem) => {
@@ -176,14 +213,26 @@ const ObjectAdminControl = () => {
       "Really delete kind? Objects associated with this kind will remain in database but will be inaccessible.",
     );
     if (confirmDelete) {
-      kindItem.delete = true;
-      saveKindData();
+      const kindIndex = objectKinds.findIndex(
+        (item) => item.kind_id == kindItem.kind_id,
+      );
+      if (kindIndex !== -1) {
+        const newKindArray = objectKinds.concat([]);
+        newKindArray[kindIndex].delete = true;
+        setObjectKinds(newKindArray);
+        saveKindData();
+      }
     }
   };
 
   const editKind = (newKindItem) => {
     setKindItem(newKindItem);
+    navigateTo("edit", { kind_id: newKindItem.kind_id });
     setSelectedPage("edit");
+  };
+
+  const handleKindDoubleClick = (kindItem) => {
+    editKind(kindItem);
   };
 
   const exportKind = async (kindItem) => {
@@ -228,6 +277,7 @@ const ObjectAdminControl = () => {
           newKind={newKind}
           deleteKind={deleteKind}
           exportKind={exportKind}
+          handleKindDoubleClick={handleKindDoubleClick}
         />
       );
     case "edit":
@@ -240,7 +290,7 @@ const ObjectAdminControl = () => {
             saveKindData={saveKindData}
             isSaving={isSaving}
             setIsSaving={setIsSaving}
-            setSelectedPage={setSelectedPage}
+            navigateToMain={navigateToMain}
           />
         );
       } else {
@@ -250,7 +300,14 @@ const ObjectAdminControl = () => {
 };
 
 const Main = (props) => {
-  const { objectKinds, editKind, newKind, deleteKind, exportKind } = props;
+  const {
+    objectKinds,
+    editKind,
+    newKind,
+    deleteKind,
+    exportKind,
+    handleKindDoubleClick,
+  } = props;
 
   if (objectKinds) {
     const kindRows = objectKinds
@@ -259,8 +316,13 @@ const Main = (props) => {
           typeof kindItem.delete === "undefined" || !kindItem.delete,
       )
       .map((kindItem, index) => (
-        <div key={index}>
-          <div>{kindItem.label}</div>
+        <div
+          key={index}
+          className="kind-item"
+          onDoubleClick={() => handleKindDoubleClick(kindItem)}
+          title="Double-click to edit"
+        >
+          <div className="kind-label">{kindItem.label}</div>
           <div className="object-action-buttons">
             <Button onClick={() => editKind(kindItem)} isLarge isSecondary>
               Edit
@@ -284,10 +346,17 @@ const Main = (props) => {
     return (
       <div className="museum-admin-main">
         <h1>Museum Administration</h1>
-        <div>{kindRows}</div>
-        <div>
-          <Button onClick={newKind} isLarge isSecondary>
-            Add New
+        <div className="help-text">
+          <p>
+            Manage your museum object types and their fields.{" "}
+            <strong>Tip:</strong> Double-click any object type to edit it
+            quickly.
+          </p>
+        </div>
+        <div className="kinds-list">{kindRows}</div>
+        <div className="main-actions">
+          <Button onClick={newKind} isLarge isPrimary>
+            Add New Object Type
           </Button>
         </div>
       </div>

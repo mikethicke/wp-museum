@@ -1,2 +1,42 @@
 @import './objects/admin.scss';
 @import './remote/admin.scss';
+
+// Breadcrumb navigation styles
+.wpm-breadcrumbs {
+	margin-bottom: 1em;
+	font-size: 14px;
+
+	.breadcrumb-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+
+	.breadcrumb-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+
+	.breadcrumb-link {
+		text-decoration: none;
+		color: #0073aa;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	.breadcrumb-current {
+		color: #666;
+		font-weight: 500;
+	}
+
+	.breadcrumb-separator {
+		color: #666;
+		margin: 0 0.25em;
+	}
+}

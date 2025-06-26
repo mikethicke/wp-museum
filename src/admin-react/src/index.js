@@ -1,30 +1,53 @@
-import './admin.scss';
+import "./admin.scss";
 
-import { createRoot } from '@wordpress/element';
+import { createRoot } from "@wordpress/element";
 
-import Dashboard from './dashboard';
-import GeneralOptions from './general';
-import { ObjectPage } from './objects';
-import RemoteAdmin from './remote';
+import Dashboard from "./dashboard";
+import GeneralOptions from "./general";
+import { ObjectPage } from "./objects";
+import RemoteAdmin from "./remote";
+import OmiPmhAdmin from "./omi-pmh";
+import { updateUrlParams } from "./router";
 
-if ( !! document.getElementById( 'wpm-react-admin-app-container-general') ) {
-	const root = createRoot( document.getElementById( 'wpm-react-admin-app-container-general') );
-	root.render( 
-		<GeneralOptions />
-	);
-} else if ( !! document.getElementById( 'wpm-react-admin-app-container-dashboard') ) {
-	const root = createRoot( document.getElementById( 'wpm-react-admin-app-container-dashboard' ) );
-	root.render( 
-		<Dashboard />
-	);
-} else if ( !! document.getElementById( 'wpm-react-admin-app-container-objects') ) {
-	const root = createRoot( document.getElementById( 'wpm-react-admin-app-container-objects') );
-	root.render( 
-		<ObjectPage />
-	);
-} else if ( !! document.getElementById( 'wpm-react-admin-app-container-remote') ) {
-	const root = createRoot( document.getElementById( 'wpm-react-admin-app-container-remote' ) ); 
-	root.render( 
-		<RemoteAdmin />
-	);
+// Initialize URL state for WordPress admin pages
+const initializeAdminPageRouting = () => {
+  // Ensure we have a view parameter for navigation consistency
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!urlParams.has("view")) {
+    updateUrlParams({ view: "main" }, true); // Use replace for initial state
+  }
+};
+
+if (!!document.getElementById("wpm-react-admin-app-container-general")) {
+  initializeAdminPageRouting();
+  const root = createRoot(
+    document.getElementById("wpm-react-admin-app-container-general"),
+  );
+  root.render(<GeneralOptions />);
+} else if (
+  !!document.getElementById("wpm-react-admin-app-container-dashboard")
+) {
+  initializeAdminPageRouting();
+  const root = createRoot(
+    document.getElementById("wpm-react-admin-app-container-dashboard"),
+  );
+  root.render(<Dashboard />);
+} else if (!!document.getElementById("wpm-react-admin-app-container-objects")) {
+  initializeAdminPageRouting();
+  const root = createRoot(
+    document.getElementById("wpm-react-admin-app-container-objects"),
+  );
+  root.render(<ObjectPage />);
+} else if (!!document.getElementById("wpm-react-admin-app-container-remote")) {
+  initializeAdminPageRouting();
+  const root = createRoot(
+    document.getElementById("wpm-react-admin-app-container-remote"),
+  );
+  root.render(<RemoteAdmin />);
+} else if (!!document.getElementById("wpm-react-admin-app-container-omi-pmh")) {
+  initializeAdminPageRouting();
+  const root = createRoot(
+    document.getElementById("wpm-react-admin-app-container-omi-pmh"),
+  );
+  root.render(<OmiPmhAdmin />);
 }

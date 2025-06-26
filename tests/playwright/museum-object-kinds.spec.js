@@ -3,6 +3,24 @@ const { loginAsAdmin, deleteAllObjectKinds } = require("./utils");
 const fs = require("fs");
 const path = require("path");
 
+/**
+ * Count the number of object kinds displayed on the objects admin page
+ * @param {import('@playwright/test').Page} page - Playwright page object
+ * @returns {Promise<number>} Number of object kinds found
+ */
+async function countObjectKinds(page) {
+  // Navigate to Museum Administration > Objects
+  await page.goto("/wp-admin/admin.php?page=wpm-react-admin-objects");
+  await page.waitForLoadState("networkidle");
+
+  // Wait for React app to load
+  await page.waitForSelector(".museum-admin-main", { timeout: 15000 });
+
+  // Count the number of Delete buttons (one per object kind)
+  const deleteButtons = page.locator('button:has-text("Delete")');
+  return await deleteButtons.count();
+}
+
 test.describe("Museum Object Kinds", () => {
   test("can create a basic object kind", async ({ page }) => {
     await loginAsAdmin(page);
@@ -17,8 +35,8 @@ test.describe("Museum Object Kinds", () => {
     // Wait for React app to load
     await page.waitForSelector(".museum-admin-main", { timeout: 15000 });
 
-    // Click "Add New" button
-    await page.click('button:has-text("Add New")');
+    // Click "Add New Object Type" button
+    await page.click('button:has-text("Add New Object Type")');
 
     // Wait for the edit page to load
     await page.waitForSelector(".edit-header h1", { timeout: 10000 });
@@ -27,32 +45,19 @@ test.describe("Museum Object Kinds", () => {
     const headerText = await page.textContent(".edit-header h1");
     expect(headerText).toBe("New Object Type");
 
-    // Fill in basic object kind information
-    await page.fill('input[value="New Object Type"]', "Test Instrument");
-    await page.fill('input[value=""]', "Test Instruments"); // plural form
+    // Fill in basic object kind information in the KindSettings component
+    await page.fill('label:has-text("Object Name") input', "Test Instrument");
     await page.fill(
-      "textarea",
+      'label:has-text("Object Name (Plural)") input',
+      "Test Instruments",
+    );
+    await page.fill(
+      'label:has-text("Description") textarea',
       "A test scientific instrument for automated testing",
     );
 
-    // Add a basic field
-    await page.click('button:has-text("Add New Field")');
-
-    // Wait for the field to be added and form to appear
-    await page.waitForSelector(".field-form", { timeout: 10000 });
-
-    // Fill in field details - the Label field
-    await page.fill(
-      '.field-form .field-section label:has-text("Label") input',
-      "Test Field",
-    );
-    await page.selectOption(
-      '.field-form .field-section label:has-text("Type") select',
-      "plain",
-    );
-
-    // Save the object kind
-    await page.click('button:has-text("Save")');
+    // Save the object kind first to get a type_name
+    await page.click('button:has-text("Save Changes")');
 
     // Wait for save to complete
     await page.waitForSelector(".is-saving", {
@@ -60,10 +65,39 @@ test.describe("Museum Object Kinds", () => {
       timeout: 15000,
     });
 
-    // Navigate back to main objects page
-    await page.goto("/wp-admin/admin.php?page=wpm-react-admin-objects");
-    await page.waitForLoadState("networkidle");
+    // Now add a basic field (after kind is saved and has type_name)
+    await page.click('button:has-text("Add New Field")');
+
+    // Wait for the field card to be added
+    await page.waitForSelector(".field-card", { timeout: 10000 });
+
+    // Fill in field details in the FieldEdit component
+    await page.fill('.field-card label:has-text("Label") input', "Test Field");
+    await page.selectOption(
+      '.field-card label:has-text("Type") select',
+      "plain",
+    );
+
+    // Save the changes again
+    await page.click('button:has-text("Save Changes")');
+
+    // Wait for save to complete
+    await page.waitForSelector(".is-saving", {
+      state: "hidden",
+      timeout: 15000,
+    });
+
+    // Navigate back to main page
+    await page.click('button:has-text("← Back to Objects")');
+
+    // Wait for main page to load
     await page.waitForSelector(".museum-admin-main", { timeout: 15000 });
+
+    // Navigate back to main objects page and count object kinds
+    const objectKindCount = await countObjectKinds(page);
+
+    // Verify exactly one object kind was created
+    expect(objectKindCount).toBe(1);
 
     // Verify the new object kind appears in the list
     await expect(page.locator("text=Test Instrument").first()).toBeVisible();
@@ -95,19 +129,25 @@ test.describe("Museum Object Kinds", () => {
     // Wait for React app to load
     await page.waitForSelector(".museum-admin-main", { timeout: 15000 });
 
-    // Click "Add New" button
-    await page.click('button:has-text("Add New")');
+    // Click "Add New Object Type" button
+    await page.click('button:has-text("Add New Object Type")');
 
     // Wait for the edit page to load
     await page.waitForSelector(".edit-header h1", { timeout: 10000 });
 
     // Fill in object kind basic information to match instrument schema
-    await page.fill('input[value="New Object Type"]', expectedSchema.label);
+    await page.fill(
+      'label:has-text("Object Name") input',
+      expectedSchema.label,
+    );
     await page.fill(
       'label:has-text("Object Name (Plural)") input',
       expectedSchema.label_plural,
     );
-    await page.fill("textarea", expectedSchema.description);
+    await page.fill(
+      'label:has-text("Description") textarea',
+      expectedSchema.description,
+    );
 
     // Set hierarchical option if needed
     if (expectedSchema.hierarchical) {
@@ -125,11 +165,11 @@ test.describe("Museum Object Kinds", () => {
       // Click "Add New Field" button
       await page.click('button:has-text("Add New Field")');
 
-      // Wait for the new field form to appear
-      await page.waitForSelector(".field-form >> nth=-1", { timeout: 10000 });
+      // Wait for the new field card to appear
+      await page.waitForSelector(".field-card >> nth=-1", { timeout: 10000 });
 
-      // Get the last field form (the newly added one)
-      const fieldForm = page.locator(".field-form").last();
+      // Get the last field card (the newly added one)
+      const fieldForm = page.locator(".field-card").last();
 
       // Fill in field information
       await fieldForm
@@ -183,7 +223,7 @@ test.describe("Museum Object Kinds", () => {
     }
 
     // Save the object kind
-    await page.click('button:has-text("Save")');
+    await page.click('button:has-text("Save Changes")');
 
     // Wait for save to complete
     await page.waitForSelector(".is-saving", {
@@ -191,10 +231,11 @@ test.describe("Museum Object Kinds", () => {
       timeout: 20000,
     });
 
-    // Navigate back to main objects page
-    await page.goto("/wp-admin/admin.php?page=wpm-react-admin-objects");
-    await page.waitForLoadState("networkidle");
-    await page.waitForSelector(".museum-admin-main", { timeout: 15000 });
+    // Navigate back to main objects page and count object kinds
+    const objectKindCount = await countObjectKinds(page);
+
+    // Verify exactly one object kind was created
+    expect(objectKindCount).toBe(1);
 
     // Find the created object kind and click Export Kind
     const instrumentRow = page.locator('div:has-text("Instrument")').first();
@@ -277,7 +318,9 @@ test.describe("Museum Object Kinds", () => {
       page.locator('h1:has-text("Museum Administration")'),
     ).toBeVisible();
 
-    // Verify Add New button is present
-    await expect(page.locator('button:has-text("Add New")')).toBeVisible();
+    // Verify Add New Object Type button is present
+    await expect(
+      page.locator('button:has-text("Add New Object Type")'),
+    ).toBeVisible();
   });
 });
