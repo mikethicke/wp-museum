@@ -67,6 +67,7 @@ services:
     overrides:
       environment:
         PLAYWRIGHT_BROWSERS_PATH: /app/tests/playwright/browser-cache
+        PLAYWRIGHT_HTML_OPEN: never
         TEST_DB_NAME: wptest
         TEST_DB_USER: wptest
         TEST_DB_PASS: wptest
@@ -118,7 +119,17 @@ tooling:
     description: Runs MySQL commands
     cmd: mysql -u wordpress -pwordpress wordpress
   playwright:
-    service: playwright
     description: Runs Playwright tests
-    dir: /app/tests/playwright
-    cmd: npx playwright test --reporter=line
+    cmd:
+      - wp-test-server: /app/.lando/reset-test-wordpress.sh
+      - playwright: cd /app/tests/playwright && npx playwright test --reporter=line
+  playwright-html:
+    description: Runs Playwright tests with HTML report and videos
+    cmd:
+      - wp-test-server: /app/.lando/reset-test-wordpress.sh
+      - playwright: cd /app/tests/playwright && npx playwright test --reporter=html
+  playwright-multi:
+    description: Runs Playwright tests against all browsers (chromium, firefox, webkit) with HTML report
+    cmd:
+      - wp-test-server: /app/.lando/reset-test-wordpress.sh
+      - playwright: cd /app/tests/playwright && npx playwright test --config=playwright.multi-browser.config.js --reporter=html

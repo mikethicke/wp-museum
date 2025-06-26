@@ -1,0 +1,86 @@
+{
+  "object_id": 1,
+  "kind_id": 1,
+  "title": "Brass Telescope",
+  "slug": "brass-telescope-001",
+  "status": "published",
+  "created_date": "2024-01-15T10:30:00Z",
+  "modified_date": "2024-01-15T10:30:00Z",
+  "fields": {
+    "1": {
+      "field_id": 1,
+      "slug": "accession-number",
+      "value": "2024.SCI.001"
+    },
+    "2": {
+      "field_id": 2,
+      "slug": "name",
+      "value": "Brass Telescope"
+    },
+    "3": {
+      "field_id": 3,
+      "slug": "description",
+      "value": "<p>A beautiful brass refracting telescope from the early 20th century. Features a 3-inch objective lens and comes with original wooden tripod. The telescope shows fine craftsmanship with engraved brass fittings and leather-wrapped eyepiece housing.</p>"
+    },
+    "4": {
+      "field_id": 4,
+      "slug": "manufacturer",
+      "value": "Zeiss"
+    },
+    "5": {
+      "field_id": 5,
+      "slug": "date-of-manufacture",
+      "value": "1925-03-15"
+    },
+    "6": {
+      "field_id": 6,
+      "slug": "primary-materials",
+      "value": "Brass, glass, wood, leather"
+    },
+    "7": {
+      "field_id": 7,
+      "slug": "dimensions",
+      "value": "75 x 8 x 8"
+    },
+    "8": {
+      "field_id": 8,
+      "slug": "condition",
+      "value": "<p>Excellent condition. All lenses are clear with no scratches or cloudiness. Brass shows some natural patina but no corrosion. Tripod is stable with all original hardware intact.</p>"
+    },
+    "9": {
+      "field_id": 9,
+      "slug": "location",
+      "value": "Storage Room A, Shelf 3"
+    },
+    "10": {
+      "field_id": 10,
+      "slug": "on-display",
+      "value": true
+    }
+  },
+  "images": [
+    {
+      "image_id": 1,
+      "filename": "tests/data/images/test-image-large.jpg",
+      "alt_text": "Brass telescope on wooden tripod",
+      "caption": "Main view of the brass telescope showing the full instrument on its original tripod",
+      "is_primary": true
+    },
+    {
+      "image_id": 2,
+      "filename": "tests/data/images/test-image-3.jpg",
+      "alt_text": "Close-up of telescope eyepiece and brass fittings",
+      "caption": "Detail view showing the craftsmanship of the brass fittings and leather-wrapped eyepiece",
+      "is_primary": false
+    },
+    {
+      "image_id": 3,
+      "filename": "tests/data/images/gradient-square.jpg",
+      "alt_text": "Telescope lens detail",
+      "caption": "Close-up view of the telescope's objective lens showing optical clarity",
+      "is_primary": false
+    }
+  ],
+  "categories": [],
+  "tags": ["telescope", "optics", "astronomy", "brass", "zeiss", "20th-century"]
+}

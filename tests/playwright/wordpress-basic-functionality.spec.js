@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { loginAsAdmin } = require("./utils");
 
 test.describe("WordPress Basic Functionality", () => {
   test("front page loads successfully", async ({ page }) => {
@@ -27,44 +28,14 @@ test.describe("WordPress Basic Functionality", () => {
   });
 
   test("can login to WordPress admin dashboard", async ({ page }) => {
-    // Get credentials from environment variables
-    const adminUser = process.env.TEST_WP_ADMIN_USER || "admin";
-    const adminPass = process.env.TEST_WP_ADMIN_PASS || "admin";
-
-    // Navigate to WordPress login page
-    const response = await page.goto("/wp-login.php");
-    expect(response.status()).toBe(200);
-
-    // Wait for login form to load
-    await page.waitForLoadState("networkidle");
-
-    // Fill in login credentials
-    await page.fill("#user_login", adminUser);
-    await page.fill("#user_pass", adminPass);
-
-    // Click login button
-    await page.click("#wp-submit");
-
-    // Wait for dashboard to load
-    await page.waitForLoadState("networkidle");
-
-    // Verify we're on the dashboard by checking for admin bar
-    const adminBarExists = await page.locator("#wpadminbar").isVisible();
-    expect(adminBarExists).toBe(true);
-
-    // Verify dashboard title contains "Dashboard"
-    const title = await page.title();
-    expect(title).toContain("Dashboard");
+    // Use utility function to login as admin
+    const loggedInUser = await loginAsAdmin(page);
 
     // Verify we can see the main dashboard content
     const dashboardContent = await page.locator("#wpbody-content").isVisible();
     expect(dashboardContent).toBe(true);
 
-    // Check that we're logged in as the expected user
-    const howdyText = await page
-      .locator("#wp-admin-bar-my-account a .display-name")
-      .first()
-      .textContent();
-    expect(howdyText).toBe(adminUser);
+    // Verify the login was successful and returned the username
+    expect(loggedInUser).toBeTruthy();
   });
 });

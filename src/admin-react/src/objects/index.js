@@ -1,5 +1,5 @@
 import apiFetch from "@wordpress/api-fetch";
-import { useState, useEffect } from "@wordpress/element";
+import { useState, useEffect, useRef } from "@wordpress/element";
 import { Button } from "@wordpress/components";
 
 import Edit from "./edit";
@@ -9,6 +9,7 @@ const ObjectAdminControl = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [kindItem, setKindItem] = useState(null);
   const [newKindCount, updateNewKindCount] = useState(1);
+  const savingNewItemRef = useRef(null);
 
   const baseRestPath = "/wp-museum/v1";
   const [objectKinds, updateObjectKinds] = useState(null);
@@ -34,21 +35,57 @@ const ObjectAdminControl = () => {
   };
 
   const setObjectKinds = (newKindArray) => {
+    console.log("setObjectKinds called", {
+      currentKindItem: kindItem,
+      savingNewItem: savingNewItemRef.current,
+      newArrayLength: newKindArray?.length,
+      newArrayIds: newKindArray?.map((item) => item.kind_id),
+    });
+
     updateObjectKinds(newKindArray);
     if (!kindItem || !newKindArray) return;
-    const kindItemIndex = newKindArray.findIndex(
-      (item) => item.kind_id == kindItem.kind_id
+
+    let kindItemIndex = newKindArray.findIndex(
+      (item) => item.kind_id == kindItem.kind_id,
     );
+
+    console.log("Initial find result", {
+      kindItemIndex,
+      lookingForId: kindItem.kind_id,
+    });
+
+    // If not found and we were saving a new item, find it by matching properties
+    if (kindItemIndex === -1 && savingNewItemRef.current) {
+      console.log("Trying to match saved item", savingNewItemRef.current);
+      kindItemIndex = newKindArray.findIndex(
+        (item) =>
+          item.label === savingNewItemRef.current.label && item.kind_id > 0,
+      );
+      console.log("Match result", {
+        kindItemIndex,
+        foundItem: newKindArray[kindItemIndex],
+      });
+      // Clear the saving state once we've found the item
+      if (kindItemIndex !== -1) {
+        savingNewItemRef.current = null;
+      }
+    }
+
     if (kindItemIndex === -1) {
+      console.log("Setting kindItem to null - item not found");
       setKindItem(null);
     } else {
+      console.log(
+        "Setting kindItem to found item",
+        newKindArray[kindItemIndex],
+      );
       setKindItem(newKindArray[kindItemIndex]);
     }
   };
 
   const updateKind = (kindId, field, event) => {
     const kindIndex = objectKinds.findIndex(
-      (kindItem) => kindItem.kind_id == kindId
+      (kindItem) => kindItem.kind_id == kindId,
     );
     if (kindIndex === -1) return;
 
@@ -74,7 +111,7 @@ const ObjectAdminControl = () => {
     kind_id: 0 - newKindCount,
     cat_field_id: null,
     name: null,
-    type_name: null,
+    type_name: "new_object_type",
     label: "New Object Type",
     label_plural: null,
     description: null,
@@ -89,18 +126,31 @@ const ObjectAdminControl = () => {
 
   const newKind = () => {
     const newKind = Object.assign({}, defaultKind);
+    newKind.kind_id = 0 - newKindCount;
+    updateNewKindCount(newKindCount + 1);
     const newObjectKinds = objectKinds.concat([newKind]);
-    setObjectKinds(newObjectKinds);
-    saveKindData();
+    updateObjectKinds(newObjectKinds);
+    setKindItem(newKind);
+    setSelectedPage("edit");
   };
 
   const saveKindData = () => {
+    console.log("saveKindData called", {
+      currentKindItem: kindItem,
+      isNewItem: kindItem?.kind_id < 0,
+    });
     setIsSaving(true);
+    // Track if we're saving a new item
+    if (kindItem && kindItem.kind_id < 0) {
+      console.log("Setting savingNewItem", kindItem);
+      savingNewItemRef.current = kindItem;
+    }
     apiFetch({
       path: `${baseRestPath}/mobject_kinds`,
       method: "POST",
       data: objectKinds,
     }).then(() => {
+      console.log("Save complete, calling refreshKindData");
       refreshKindData();
       setIsSaving(false);
     });
@@ -112,13 +162,18 @@ const ObjectAdminControl = () => {
       : null;
     if (!kindIds || kindIds != currentIds) {
       setKindIds(currentIds);
-      saveKindData();
+      // Don't auto-save if we have new items with negative IDs
+      const hasNewItems =
+        objectKinds && objectKinds.some((item) => item.kind_id < 0);
+      if (!hasNewItems) {
+        saveKindData();
+      }
     }
   };
 
   const deleteKind = (kindItem) => {
     let confirmDelete = confirm(
-      "Really delete kind? Objects associated with this kind will remain in database but will be inaccessible."
+      "Really delete kind? Objects associated with this kind will remain in database but will be inaccessible.",
     );
     if (confirmDelete) {
       kindItem.delete = true;
@@ -200,7 +255,8 @@ const Main = (props) => {
   if (objectKinds) {
     const kindRows = objectKinds
       .filter(
-        (kindItem) => typeof kindItem.delete === "undefined" || !kindItem.delete
+        (kindItem) =>
+          typeof kindItem.delete === "undefined" || !kindItem.delete,
       )
       .map((kindItem, index) => (
         <div key={index}>

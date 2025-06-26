@@ -1,0 +1,3 @@
+- This is a wordpress plugin
+- To run PHPUnit tests, run lando phpunit
+- To run playwright tests, run `lando playwright` or `lando playwright-html`

@@ -1,0 +1,93 @@
+{
+  "object_id": 2,
+  "kind_id": 1,
+  "title": "Victorian Microscope",
+  "slug": "victorian-microscope-002",
+  "status": "published",
+  "created_date": "2024-01-20T14:15:00Z",
+  "modified_date": "2024-01-20T14:15:00Z",
+  "fields": {
+    "1": {
+      "field_id": 1,
+      "slug": "accession-number",
+      "value": "2024.SCI.002"
+    },
+    "2": {
+      "field_id": 2,
+      "slug": "name",
+      "value": "Victorian Microscope"
+    },
+    "3": {
+      "field_id": 3,
+      "slug": "description",
+      "value": "<p>An elegant Victorian-era compound microscope featuring brass construction and fine mechanical adjustments. This instrument represents the pinnacle of 19th-century optical craftsmanship, with multiple objective lenses and a rotating turret for magnification changes. The microscope includes original specimen slides and accessories in a fitted mahogany case.</p>"
+    },
+    "4": {
+      "field_id": 4,
+      "slug": "manufacturer",
+      "value": "Ernst Leitz"
+    },
+    "5": {
+      "field_id": 5,
+      "slug": "date-of-manufacture",
+      "value": "1885-11-22"
+    },
+    "6": {
+      "field_id": 6,
+      "slug": "primary-materials",
+      "value": "Brass, iron, glass, mahogany"
+    },
+    "7": {
+      "field_id": 7,
+      "slug": "dimensions",
+      "value": "35 x 20 x 15"
+    },
+    "8": {
+      "field_id": 8,
+      "slug": "condition",
+      "value": "<p>Very good condition for its age. All mechanical parts function smoothly. Minor brass tarnishing consistent with age. All lenses are clear and free from scratches. Original case shows some wear but remains structurally sound with intact hinges and clasps.</p>"
+    },
+    "9": {
+      "field_id": 9,
+      "slug": "location",
+      "value": "Display Case B, Main Gallery"
+    },
+    "10": {
+      "field_id": 10,
+      "slug": "on-display",
+      "value": true
+    }
+  },
+  "images": [
+    {
+      "image_id": 4,
+      "filename": "tests/data/images/canola.jpg",
+      "alt_text": "Victorian microscope in mahogany case",
+      "caption": "The complete microscope set showing the instrument in its original fitted mahogany case",
+      "is_primary": true
+    },
+    {
+      "image_id": 5,
+      "filename": "tests/data/images/waffles.jpg",
+      "alt_text": "Microscope objective lenses and turret detail",
+      "caption": "Detail view of the rotating objective turret with multiple magnification lenses",
+      "is_primary": false
+    },
+    {
+      "image_id": 6,
+      "filename": "tests/data/images/sugarloaf-mountain.jpg",
+      "alt_text": "Microscope eyepiece and focusing mechanism",
+      "caption": "Close-up of the brass eyepiece assembly and fine focusing controls",
+      "is_primary": false
+    },
+    {
+      "image_id": 7,
+      "filename": "tests/data/images/test-image-iptc.jpg",
+      "alt_text": "Original specimen slides and accessories",
+      "caption": "Collection of original glass specimen slides and tools included with the microscope",
+      "is_primary": false
+    }
+  ],
+  "categories": [],
+  "tags": ["microscope", "optics", "victorian", "brass", "leitz", "19th-century", "compound-microscope"]
+}

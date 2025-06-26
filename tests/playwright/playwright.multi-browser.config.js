@@ -1,17 +1,18 @@
 const { defineConfig, devices } = require("@playwright/test");
 
 /**
+ * Multi-browser configuration for comprehensive testing
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
   testDir: "./",
-  /* Run tests in files in parallel */
+  /* Run tests in files sequentially for multi-browser testing */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
+  /* Force sequential execution */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { outputFolder: "playwright-report", open: "never" }]],
@@ -41,6 +42,16 @@ module.exports = defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+    },
+
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
     },
   ],
 
