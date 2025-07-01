@@ -230,6 +230,9 @@ class ObjectKind
         if (isset($kind_row->description)) {
             $this->description = $kind_row->description;
         }
+        if (isset($kind_row->categorized)) {
+            $this->categorized = (bool) intval($kind_row->categorized);
+        }
         if (isset($kind_row->hierarchical)) {
             $this->hierarchical = (bool) intval($kind_row->hierarchical);
         }
@@ -363,6 +366,7 @@ class ObjectKind
         $arr["label_plural"] = $this->label_plural;
         $arr["description"] = $this->description;
         $arr["categorized"] = $this->categorized;
+        $arr["must_gallery"] = $this->must_gallery;
         $arr["hierarchical"] = $this->hierarchical;
         $arr["must_featured_image"] = $this->must_featured_image;
         $arr["must_gallery"] = $this->must_gallery;
@@ -388,6 +392,7 @@ class ObjectKind
         $arr["label_plural"] = $this->label_plural;
         $arr["description"] = $this->description;
         $arr["categorized"] = $this->categorized;
+        $arr["must_gallery"] = $this->must_gallery;
         $arr["hierarchical"] = $this->hierarchical;
         $arr["parent_kind_id"] = $this->parent_kind_id;
         $arr["children"] = $this->get_children_array();

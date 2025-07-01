@@ -1,166 +1,309 @@
 import {
-	Modal,
-	Button,
-	SVG,
-	Path,
-	Icon
-} from '@wordpress/components';
+  Button,
+  TextControl,
+  Icon,
+  Flex,
+  FlexItem,
+  FlexBlock,
+  __experimentalVStack as VStack,
+  __experimentalHStack as HStack,
+} from "@wordpress/components";
 
-import {
-	useState,
-	useRef,
-	useEffect
-} from '@wordpress/element';
+import { useState, useRef, useEffect } from "@wordpress/element";
 
+import { __ } from "@wordpress/i18n";
+
+/**
+ * Close Icon
+ */
 const closeIcon = (
-	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-		<Path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z" />
-	</SVG>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+  </svg>
 );
 
 /**
- * Delete Icon from Darius Dan
- * @link https://www.flaticon.com/authors/darius-dan
+ * Plus Icon
  */
-const deleteIcon = (
-	<SVG
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 512 512"
-    >
-      <Path d="M256 512C114.84 512 0 397.16 0 256S114.84 0 256 0s256 114.84 256 256-114.84 256-256 256zm0-475.43C135.008 36.57 36.57 135.008 36.57 256S135.008 475.43 256 475.43 475.43 376.992 475.43 256 376.992 36.57 256 36.57zm0 0"></Path>
-      <Path d="M347.43 365.715c-4.68 0-9.36-1.785-12.93-5.36L151.645 177.5c-7.145-7.145-7.145-18.715 0-25.855 7.14-7.141 18.714-7.145 25.855 0L360.355 334.5c7.145 7.145 7.145 18.715 0 25.855a18.207 18.207 0 01-12.925 5.36zm0 0"></Path>
-      <Path d="M164.57 365.715c-4.68 0-9.355-1.785-12.925-5.36-7.145-7.14-7.145-18.714 0-25.855L334.5 151.645c7.145-7.145 18.715-7.145 25.855 0 7.141 7.14 7.145 18.714 0 25.855L177.5 360.355a18.216 18.216 0 01-12.93 5.36zm0 0"></Path>
-    </SVG>
+const plusIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+  </svg>
 );
 
-const FactorEditModal = props => {
-	const {
-		factors,
-		updateFactors,
-		close
-	} = props;
+/**
+ * Trash Icon
+ */
+const trashIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+  </svg>
+);
 
-	const textInput = useRef( null );
+const FactorEditModal = (props) => {
+  const { factors = [], updateFactors, close, isOpen } = props;
 
-	useEffect( () => textInput.current.focus(), [] );
+  const dialogRef = useRef(null);
+  const textInputRef = useRef(null);
+  const [currentInputText, setCurrentInputText] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(-1);
 
-	const [ currentInputText, updateCurrentInputText ] = useState( '' );
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
 
-	const updateInputText = ( event ) => {
-		updateCurrentInputText( event.target.value );
-	}
+    if (isOpen) {
+      dialog.showModal();
+      // Focus the input when modal opens
+      setTimeout(() => {
+        if (textInputRef.current) {
+          textInputRef.current.focus();
+        }
+      }, 100);
+    } else {
+      dialog.close();
+    }
+  }, [isOpen]);
 
-	const addItem = () => {
-		if ( currentInputText && ! factors.includes( currentInputText ) ) {
-			const newFactors = factors.concat( [ currentInputText ] );
-			updateFactors( newFactors );
-			updateCurrentInputText( '' );
-		}
-	}
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
 
-	const removeItem = factorItem => {
-		const itemIndex = factors.indexOf( factorItem )
-		if ( itemIndex != -1 ) {
-			const newFactors = [ ...factors ];
-			newFactors.splice( itemIndex, 1 );
-			updateFactors( newFactors );
-		}
-	}
+    const handleClose = () => {
+      close();
+    };
 
-	const clearItems = () => {
-		if ( factors.length > 0 ) {
-			updateFactors( [] );
-		}
-	}
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      }
+    };
 
-	const handleKeyPress = ( event ) => {
-		if ( event.key == 'Enter' ) {
-			event.stopPropagation();
-			addItem();
-		}
-	}
+    dialog.addEventListener("close", handleClose);
+    dialog.addEventListener("keydown", handleKeyDown);
 
-	const handleListDelete = ( event, factorItem ) => {
-		if ( event.key == 'Delete' || event.key == 'Backspace' ) {
-			event.stopPropagation();
-			removeItem( factorItem );
-		}
-	}
+    return () => {
+      dialog.removeEventListener("close", handleClose);
+      dialog.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [close]);
 
-	const factorListItems = factors.map( ( factorItem, index ) => 
-		<div
-			key = { index }
-			tabIndex = '0'
-			className = 'factor-list-item'
-			onKeyDown = { event => handleListDelete( event, factorItem ) }
-		>
-			<div
-				className = 'remove-item-div'
-				onClick = { () => removeItem( factorItem ) }
-			>
-				<Icon
-					icon = { deleteIcon }
-					size = '0.8em'
-				/>
-			</div>
-			{ factorItem }
-		</div>
-	);
+  const updateInputText = (value) => {
+    setCurrentInputText(value);
+  };
 
-	return (
-		<Modal
-			className = 'factor-edit-modal'
-			title = 'Edit Factors'
-			onRequestClose = { close }
-		>
-			<div className = 'factor-edit-input'>
-				<input
-					type = 'text'
-					onKeyPress = { handleKeyPress }
-					placeholder = 'Type to add factors...'
-					value = { currentInputText }
-					onChange = { updateInputText }
-					ref = { textInput }
-				/>
-				<Button
-					className = 'factor-button add'
-					tabIndex = '-1'
-					title = 'Add'
-					onClick = { addItem }
-					isLarge
-					isPrimary
-				>
-					Add
-				</Button>
-			</div>
-			<div className = 'factor-list'>
-				<div>
-					{ factorListItems }
-				</div>
-			</div>
-			<div className = 'bottom-buttons'>
-				<Button
-					className = 'factor-button clear'
-					title = 'Clear factors'
-					onClick = { clearItems }
-					isLarge
-					isSecondary
-				>
-					Clear
-				</Button>
-				<Button
-					className = 'factor-button close'
-					title = 'Save and close'
-					onClick = { close }
-					isLarge
-					isSecondary
-				>
-					Close
-				</Button>
-			</div>
-		</Modal>
+  const addFactor = () => {
+    const trimmedText = currentInputText.trim();
+    if (trimmedText && !factors.includes(trimmedText)) {
+      const newFactors = [...factors, trimmedText];
+      updateFactors(newFactors);
+      setCurrentInputText("");
+      // Refocus input after adding
+      if (textInputRef.current) {
+        textInputRef.current.focus();
+      }
+    }
+  };
 
-	);
-}
+  const removeFactor = (factorToRemove) => {
+    const newFactors = factors.filter((factor) => factor !== factorToRemove);
+    updateFactors(newFactors);
+  };
+
+  const clearAllFactors = () => {
+    if (factors.length > 0) {
+      updateFactors([]);
+    }
+  };
+
+  const handleInputKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addFactor();
+    }
+  };
+
+  const handleFactorKeyDown = (event, factor, index) => {
+    if (event.key === "Delete" || event.key === "Backspace") {
+      event.preventDefault();
+      removeFactor(factor);
+      // Focus the next item or previous if last item
+      const nextIndex =
+        index < factors.length - 1 ? index : Math.max(0, index - 1);
+      setFocusedIndex(nextIndex);
+    } else if (event.key === "ArrowDown" && index < factors.length - 1) {
+      event.preventDefault();
+      setFocusedIndex(index + 1);
+    } else if (event.key === "ArrowUp" && index > 0) {
+      event.preventDefault();
+      setFocusedIndex(index - 1);
+    }
+  };
+
+  const handleBackdropClick = (event) => {
+    if (event.target === dialogRef.current) {
+      close();
+    }
+  };
+
+  const factorListItems = factors.map((factor, index) => (
+    <div
+      key={factor}
+      className={`factor-list-item ${focusedIndex === index ? "focused" : ""}`}
+      tabIndex="0"
+      role="listitem"
+      aria-label={__(
+        `Factor: ${factor}. Press Delete or Backspace to remove.`,
+        "wp-museum",
+      )}
+      onKeyDown={(event) => handleFactorKeyDown(event, factor, index)}
+      onFocus={() => setFocusedIndex(index)}
+      onBlur={() => setFocusedIndex(-1)}
+    >
+      <span className="factor-text">{factor}</span>
+      <button
+        type="button"
+        className="remove-factor-btn"
+        onClick={() => removeFactor(factor)}
+        aria-label={__(`Remove factor: ${factor}`, "wp-museum")}
+        title={__("Remove factor", "wp-museum")}
+      >
+        <Icon icon={closeIcon} size={16} />
+      </button>
+    </div>
+  ));
+
+  return (
+    <dialog
+      ref={dialogRef}
+      className="factor-edit-modal"
+      onClick={handleBackdropClick}
+    >
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>{__("Edit Factors", "wp-museum")}</h2>
+          <button
+            type="button"
+            className="modal-close-btn"
+            onClick={close}
+            aria-label={__("Close modal", "wp-museum")}
+          >
+            <Icon icon={closeIcon} size={20} />
+          </button>
+        </div>
+
+        <div className="modal-body">
+          <VStack spacing={6}>
+            {/* Input Section */}
+            <div className="factor-input-section">
+              <HStack spacing={3}>
+                <FlexBlock>
+                  <TextControl
+                    ref={textInputRef}
+                    value={currentInputText}
+                    onChange={updateInputText}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder={__("Type to add a factor...", "wp-museum")}
+                    className="factor-input"
+                    autoComplete="off"
+                  />
+                </FlexBlock>
+                <FlexItem>
+                  <Button
+                    variant="primary"
+                    onClick={addFactor}
+                    disabled={
+                      !currentInputText.trim() ||
+                      factors.includes(currentInputText.trim())
+                    }
+                    icon={plusIcon}
+                    size="default"
+                    className="add-factor-btn"
+                  >
+                    {__("Add", "wp-museum")}
+                  </Button>
+                </FlexItem>
+              </HStack>
+            </div>
+
+            {/* Factors List */}
+            <div className="factors-list-section">
+              {factors.length > 0 ? (
+                <>
+                  <div className="factors-list-header">
+                    <h3>{__("Current Factors", "wp-museum")}</h3>
+                    <span className="factors-count">
+                      {factors.length}{" "}
+                      {factors.length === 1
+                        ? __("factor", "wp-museum")
+                        : __("factors", "wp-museum")}
+                    </span>
+                  </div>
+                  <div
+                    className="factors-list"
+                    role="list"
+                    aria-label={__("List of factors", "wp-museum")}
+                  >
+                    {factorListItems}
+                  </div>
+                </>
+              ) : (
+                <div className="empty-state">
+                  <p>
+                    {__(
+                      "No factors added yet. Type above to add your first factor.",
+                      "wp-museum",
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+          </VStack>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="modal-footer">
+          <HStack justify="space-between" className="modal-actions">
+            <FlexItem>
+              {factors.length > 0 && (
+                <Button
+                  variant="tertiary"
+                  onClick={clearAllFactors}
+                  icon={trashIcon}
+                  isDestructive
+                  className="clear-all-btn"
+                >
+                  {__("Clear All", "wp-museum")}
+                </Button>
+              )}
+            </FlexItem>
+            <FlexItem>
+              <Button
+                variant="primary"
+                onClick={close}
+                className="save-close-btn"
+              >
+                {__("Done", "wp-museum")}
+              </Button>
+            </FlexItem>
+          </HStack>
+        </div>
+      </div>
+    </dialog>
+  );
+};
 
 export default FactorEditModal;

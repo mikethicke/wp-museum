@@ -6,8 +6,8 @@
   "label": "Instrument",
   "label_plural": "Instruments",
   "description": "A scientific instrument",
-  "categorized": false,
-  "hierarchical": true,
+  "categorized": true,
+  "hierarchical": false,
   "parent_kind_id": null,
   "children": [],
   "fields": {
@@ -92,7 +92,7 @@
     },
     "7": {
       "field_id": 7,
-      "slug": "dimensions",
+      "slug": "dimensions-cm",
       "kind_id": 1,
       "name": "Dimensions (cm)",
       "type": "plain",

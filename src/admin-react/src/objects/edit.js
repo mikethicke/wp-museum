@@ -4,12 +4,12 @@ import apiFetch from "@wordpress/api-fetch";
 
 import FieldEdit from "./field-edit";
 import KindSettings from "./kind-settings";
+import { useKindForm } from "./use-kind-form";
 import { navigateToMain } from "../router";
 import Breadcrumbs from "../components/breadcrumbs";
 
 const Edit = (props) => {
-  const { kindItem, kinds, updateKind, saveKindData, isSaving, setIsSaving } =
-    props;
+  const { kindItem, kinds, updateKind, saveKindData } = props;
 
   const {
     kind_id: kindId,
@@ -24,46 +24,40 @@ const Edit = (props) => {
     labels: ["", "", ""],
   };
 
+  // Field data state (keeping existing field management for now)
   const [fieldData, setFieldData] = useState(null);
   const [nextFieldId, setNextFieldId] = useState(-1);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [hasUnsavedKindChanges, setHasUnsavedKindChanges] = useState(false);
-  const [lastSaveTime, setLastSaveTime] = useState(null);
-  const [saveError, setSaveError] = useState(null);
+  const [fieldsSaveState, setFieldsSaveState] = useState({
+    hasUnsavedChanges: false,
+    isSaving: false,
+    lastSaveTime: null,
+    saveError: null,
+  });
 
-  // Handle field blur events - save field data when focus leaves input
-  const handleFieldBlur = useCallback(async () => {
-    if (!hasUnsavedChanges || !fieldData) return;
+  // Drag and drop state
+  const [draggedField, setDraggedField] = useState(null);
+  const [dragOverField, setDragOverField] = useState(null);
 
-    try {
-      await apiFetch({
-        path: `${baseRestPath}/${kindPostType}/fields`,
-        method: "POST",
-        data: fieldData,
-      });
-      setHasUnsavedChanges(false);
-      setLastSaveTime(new Date());
-      setSaveError(null);
-    } catch (error) {
-      console.error("Field save failed:", error);
-      setSaveError("Field save failed. Please try again.");
-    }
-  }, [hasUnsavedChanges, fieldData, kindPostType]);
+  // Use custom hook for kind form management
+  const kindForm = useKindForm(kindItem, async (formData) => {
+    // Update the parent state with the form data
+    // We need to simulate the event structure that updateKind expects
+    Object.keys(formData).forEach((key) => {
+      if (formData[key] !== kindItem[key]) {
+        const mockEvent = {
+          target: {
+            type: typeof formData[key] === "boolean" ? "checkbox" : "text",
+            value: formData[key],
+            checked: formData[key],
+          },
+        };
+        updateKind(kindItem.kind_id, key, mockEvent);
+      }
+    });
 
-  // Handle kind blur events - save kind data when focus leaves input
-  const handleKindBlur = useCallback(async () => {
-    if (!hasUnsavedKindChanges) return;
-
-    try {
-      await saveKindData();
-      setHasUnsavedKindChanges(false);
-      setLastSaveTime(new Date());
-      setSaveError(null);
-    } catch (error) {
-      console.error("Kind save failed:", error);
-      setSaveError("Kind save failed. Please try again.");
-    }
-  }, [hasUnsavedKindChanges, saveKindData]);
+    // Save to server
+    await saveKindData();
+  });
 
   const refreshFieldData = useCallback(() => {
     if (!kindPostType || kindPostType === "null") {
@@ -73,11 +67,18 @@ const Edit = (props) => {
     apiFetch({ path: `${baseRestPath}/${kindPostType}/fields` })
       .then((data) => {
         setFieldData(data);
-        setHasUnsavedChanges(false);
+        setFieldsSaveState((prev) => ({
+          ...prev,
+          hasUnsavedChanges: false,
+          saveError: null,
+        }));
       })
       .catch((error) => {
         console.error("Failed to load field data:", error);
-        setSaveError("Failed to load field data.");
+        setFieldsSaveState((prev) => ({
+          ...prev,
+          saveError: "Failed to load field data.",
+        }));
       });
   }, [kindPostType]);
 
@@ -87,52 +88,80 @@ const Edit = (props) => {
     }
   }, [fieldData, refreshFieldData]);
 
-  const updateKindData = (field, event) => {
-    updateKind(kindId, field, event);
-    setHasUnsavedKindChanges(true);
-  };
+  const saveFieldData = useCallback(async () => {
+    if (!fieldsSaveState.hasUnsavedChanges || !fieldData) return;
 
-  const doManualSave = async () => {
-    if (isSaving) return;
-
-    setIsSaving(true);
-    setSaveError(null);
+    setFieldsSaveState((prev) => ({
+      ...prev,
+      isSaving: true,
+      saveError: null,
+    }));
 
     try {
-      const promises = [];
+      await apiFetch({
+        path: `${baseRestPath}/${kindPostType}/fields`,
+        method: "POST",
+        data: fieldData,
+      });
+      setFieldsSaveState((prev) => ({
+        ...prev,
+        hasUnsavedChanges: false,
+        lastSaveTime: new Date(),
+        isSaving: false,
+      }));
+    } catch (error) {
+      console.error("Field save failed:", error);
+      setFieldsSaveState((prev) => ({
+        ...prev,
+        saveError: "Field save failed. Please try again.",
+        isSaving: false,
+      }));
+      throw error;
+    }
+  }, [fieldsSaveState.hasUnsavedChanges, fieldData, kindPostType]);
 
-      if (hasUnsavedChanges && fieldData) {
+  const doManualSave = async () => {
+    const promises = [];
+    let hasError = false;
+
+    try {
+      // Save kind changes if any
+      if (kindForm.isDirty) {
         promises.push(
-          apiFetch({
-            path: `${baseRestPath}/${kindPostType}/fields`,
-            method: "POST",
-            data: fieldData,
+          kindForm.save().catch((error) => {
+            hasError = true;
+            throw error;
           }),
         );
       }
 
-      if (hasUnsavedKindChanges) {
-        promises.push(saveKindData());
+      // Save field changes if any
+      if (fieldsSaveState.hasUnsavedChanges) {
+        promises.push(
+          saveFieldData().catch((error) => {
+            hasError = true;
+            throw error;
+          }),
+        );
       }
 
-      await Promise.all(promises);
-
-      setHasUnsavedChanges(false);
-      setHasUnsavedKindChanges(false);
-      setLastSaveTime(new Date());
+      if (promises.length > 0) {
+        await Promise.all(promises);
+      }
     } catch (error) {
       console.error("Manual save failed:", error);
-      setSaveError("Save failed. Please try again.");
-    } finally {
-      setIsSaving(false);
+      // Individual save functions handle their own error states
     }
   };
 
-  const updateField = (fieldId, fieldItem, changeEvent) => {
+  const updateField = (fieldId, fieldItem, changeEventOrValue) => {
+    // Handle both event objects and direct values for compatibility
     const newValue =
-      changeEvent.target.type === "checkbox"
-        ? changeEvent.target.checked
-        : changeEvent.target.value;
+      changeEventOrValue && changeEventOrValue.target
+        ? changeEventOrValue.target.type === "checkbox"
+          ? changeEventOrValue.target.checked
+          : changeEventOrValue.target.value
+        : changeEventOrValue;
 
     // Handle dimensions separately
     if (fieldItem.startsWith("dimension")) {
@@ -149,7 +178,7 @@ const Edit = (props) => {
       }
       newFieldData[fieldId]["dimensions"] = newDimensionData;
       setFieldData(newFieldData);
-      setHasUnsavedChanges(true);
+      setFieldsSaveState((prev) => ({ ...prev, hasUnsavedChanges: true }));
       return;
     }
 
@@ -158,7 +187,7 @@ const Edit = (props) => {
     if (fieldData[fieldId][fieldItem] !== newValue) {
       newFieldData[fieldId][fieldItem] = newValue;
       setFieldData(newFieldData);
-      setHasUnsavedChanges(true);
+      setFieldsSaveState((prev) => ({ ...prev, hasUnsavedChanges: true }));
     }
   };
 
@@ -176,7 +205,10 @@ const Edit = (props) => {
       refreshFieldData();
     } catch (error) {
       console.error("Failed to delete field:", error);
-      setSaveError("Failed to delete field.");
+      setFieldsSaveState((prev) => ({
+        ...prev,
+        saveError: "Failed to delete field.",
+      }));
     }
   };
 
@@ -188,28 +220,73 @@ const Edit = (props) => {
       const newFieldData = Object.assign({}, fieldData);
       newFieldData[fieldId]["factors"] = newFactors;
       setFieldData(newFieldData);
-      setHasUnsavedChanges(true);
+      setFieldsSaveState((prev) => ({ ...prev, hasUnsavedChanges: true }));
     }
   };
 
-  const moveItem = (fieldId, move) => {
-    const oldOrder = fieldData[fieldId]["display_order"];
-    const targetOrder = oldOrder + move;
-    if (targetOrder < 0) return;
+  const moveFieldToPosition = (sourceFieldId, targetFieldId) => {
+    if (sourceFieldId === targetFieldId) return;
 
     const fieldValues = Object.values(fieldData);
-    if (targetOrder >= fieldValues.length) return;
+    const sourceField = fieldValues.find((f) => f.field_id === sourceFieldId);
+    const targetField = fieldValues.find((f) => f.field_id === targetFieldId);
 
-    const targetIndex = fieldValues.findIndex(
-      (fieldItem) => fieldItem["display_order"] == targetOrder,
+    if (!sourceField || !targetField) return;
+
+    const sortedFields = fieldValues.sort(
+      (a, b) => a.display_order - b.display_order,
     );
-    const targetKey = fieldValues[targetIndex]["field_id"];
+    const sourceIndex = sortedFields.findIndex(
+      (f) => f.field_id === sourceFieldId,
+    );
+    const targetIndex = sortedFields.findIndex(
+      (f) => f.field_id === targetFieldId,
+    );
 
+    if (sourceIndex === -1 || targetIndex === -1) return;
+
+    // Remove source field and insert at target position
+    const reorderedFields = [...sortedFields];
+    const [movedField] = reorderedFields.splice(sourceIndex, 1);
+    reorderedFields.splice(targetIndex, 0, movedField);
+
+    // Update display_order for all fields
     const newFieldData = Object.assign({}, fieldData);
-    newFieldData[fieldId]["display_order"] = targetOrder;
-    newFieldData[targetKey]["display_order"] = oldOrder;
+    reorderedFields.forEach((field, index) => {
+      newFieldData[field.field_id].display_order = index;
+    });
+
     setFieldData(newFieldData);
-    setHasUnsavedChanges(true);
+    setFieldsSaveState((prev) => ({ ...prev, hasUnsavedChanges: true }));
+  };
+
+  const handleDragStart = (fieldId) => {
+    setDraggedField(fieldId);
+  };
+
+  const handleDragOver = (e, fieldId) => {
+    e.preventDefault();
+    if (draggedField && draggedField !== fieldId) {
+      setDragOverField(fieldId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverField(null);
+  };
+
+  const handleDrop = (e, targetFieldId) => {
+    e.preventDefault();
+    if (draggedField && targetFieldId && draggedField !== targetFieldId) {
+      moveFieldToPosition(draggedField, targetFieldId);
+    }
+    setDraggedField(null);
+    setDragOverField(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedField(null);
+    setDragOverField(null);
   };
 
   const defaultFieldData = {
@@ -247,7 +324,7 @@ const Edit = (props) => {
 
     setNextFieldId(nextFieldId - 1);
     setFieldData(updatedFieldData);
-    setHasUnsavedChanges(true);
+    setFieldsSaveState((prev) => ({ ...prev, hasUnsavedChanges: true }));
 
     try {
       await apiFetch({
@@ -258,12 +335,15 @@ const Edit = (props) => {
       refreshFieldData();
     } catch (error) {
       console.error("Failed to add field:", error);
-      setSaveError("Failed to add field.");
+      setFieldsSaveState((prev) => ({
+        ...prev,
+        saveError: "Failed to add field.",
+      }));
     }
   };
 
   const handleBackClick = () => {
-    const hasChanges = hasUnsavedChanges || hasUnsavedKindChanges;
+    const hasChanges = kindForm.isDirty || fieldsSaveState.hasUnsavedChanges;
     if (hasChanges) {
       if (
         confirm("You have unsaved changes. Are you sure you want to leave?")
@@ -277,7 +357,7 @@ const Edit = (props) => {
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      const hasChanges = hasUnsavedChanges || hasUnsavedKindChanges;
+      const hasChanges = kindForm.isDirty || fieldsSaveState.hasUnsavedChanges;
       if (hasChanges) {
         e.preventDefault();
         e.returnValue =
@@ -288,21 +368,44 @@ const Edit = (props) => {
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [hasUnsavedChanges, hasUnsavedKindChanges]);
+  }, [kindForm.isDirty, fieldsSaveState.hasUnsavedChanges]);
 
   const getSaveStatusText = () => {
-    if (isSaving) return "Saving...";
-    if (hasUnsavedChanges || hasUnsavedKindChanges) return "Unsaved changes";
-    if (lastSaveTime) return `Last saved: ${lastSaveTime.toLocaleTimeString()}`;
+    const isAnySaving = kindForm.isSaving || fieldsSaveState.isSaving;
+    const hasAnyChanges = kindForm.isDirty || fieldsSaveState.hasUnsavedChanges;
+
+    if (isAnySaving) return "Saving...";
+    if (hasAnyChanges) return "Unsaved changes";
+
+    // Show the most recent save time
+    const lastSaveTimes = [
+      kindForm.lastSaveTime,
+      fieldsSaveState.lastSaveTime,
+    ].filter(Boolean);
+    if (lastSaveTimes.length > 0) {
+      const mostRecent = new Date(
+        Math.max(...lastSaveTimes.map((t) => t.getTime())),
+      );
+      return `Last saved: ${mostRecent.toLocaleTimeString()}`;
+    }
+
     return "";
   };
 
   const getSaveStatusClass = () => {
-    if (isSaving) return "is-saving";
-    if (hasUnsavedChanges || hasUnsavedKindChanges) return "unsaved-warning";
-    if (lastSaveTime) return "saved-indicator";
+    const isAnySaving = kindForm.isSaving || fieldsSaveState.isSaving;
+    const hasAnyChanges = kindForm.isDirty || fieldsSaveState.hasUnsavedChanges;
+
+    if (isAnySaving) return "is-saving";
+    if (hasAnyChanges) return "unsaved-warning";
+    if (kindForm.lastSaveTime || fieldsSaveState.lastSaveTime)
+      return "saved-indicator";
     return "";
   };
+
+  const hasAnyError = kindForm.saveError || fieldsSaveState.saveError;
+  const isAnySaving = kindForm.isSaving || fieldsSaveState.isSaving;
+  const hasAnyChanges = kindForm.isDirty || fieldsSaveState.hasUnsavedChanges;
 
   let fieldForms;
   if (fieldData) {
@@ -311,21 +414,36 @@ const Edit = (props) => {
         (dataItem) => typeof dataItem.delete == "undefined" || !dataItem.delete,
       )
       .sort((a, b) => (a["display_order"] > b["display_order"] ? 1 : -1))
-      .map((dataItem) => (
-        <Card key={dataItem["field_id"]} className="field-card">
-          <CardBody>
-            <FieldEdit
-              fieldData={dataItem}
-              updateField={updateField}
-              updateFactors={updateFactors}
-              deleteField={deleteField}
-              moveItem={moveItem}
-              dimensionsDefault={dimensionsDefault}
-              onFieldBlur={handleFieldBlur}
-            />
-          </CardBody>
-        </Card>
-      ));
+      .map((dataItem) => {
+        const fieldId = dataItem["field_id"];
+        const isDragging = draggedField === fieldId;
+        const isDragOver = dragOverField === fieldId;
+
+        return (
+          <Card
+            key={fieldId}
+            className={`field-card ${isDragging ? "dragging" : ""} ${isDragOver ? "drag-over" : ""}`}
+            onDragOver={(e) => handleDragOver(e, fieldId)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, fieldId)}
+          >
+            <CardBody>
+              <FieldEdit
+                fieldData={dataItem}
+                updateField={updateField}
+                updateFactors={updateFactors}
+                deleteField={deleteField}
+                dimensionsDefault={dimensionsDefault}
+                dragHandleProps={{
+                  draggable: true,
+                  onDragStart: () => handleDragStart(fieldId),
+                  onDragEnd: handleDragEnd,
+                }}
+              />
+            </CardBody>
+          </Card>
+        );
+      });
   }
 
   return (
@@ -340,27 +458,27 @@ const Edit = (props) => {
         <div className="header-title">
           <h1>
             {kindLabel}
-            {(hasUnsavedChanges || hasUnsavedKindChanges) && (
-              <span className="unsaved-indicator">*</span>
-            )}
+            {hasAnyChanges && <span className="unsaved-indicator">*</span>}
           </h1>
         </div>
 
         <div className="header-actions">
           <div className={`save-status ${getSaveStatusClass()}`}>
-            {isSaving && <Spinner />}
+            {isAnySaving && <Spinner />}
             <span>{getSaveStatusText()}</span>
           </div>
 
-          {saveError && <div className="save-error">{saveError}</div>}
+          {hasAnyError && (
+            <div className="save-error">
+              {kindForm.saveError || fieldsSaveState.saveError}
+            </div>
+          )}
 
           <Button
             onClick={doManualSave}
             variant="primary"
-            isBusy={isSaving}
-            disabled={
-              isSaving || (!hasUnsavedChanges && !hasUnsavedKindChanges)
-            }
+            isBusy={isAnySaving}
+            disabled={isAnySaving || !hasAnyChanges}
           >
             Save Changes
           </Button>
@@ -373,11 +491,11 @@ const Edit = (props) => {
             <CardBody>
               <h2>Object Settings</h2>
               <KindSettings
-                kindData={kindItem}
+                kindData={kindForm.formData}
                 fieldData={fieldData}
                 kinds={kinds}
-                updateKindData={updateKindData}
-                onBlur={handleKindBlur}
+                onFieldChange={kindForm.handleInputChange}
+                disabled={kindForm.isSaving}
               />
             </CardBody>
           </Card>
@@ -388,7 +506,7 @@ const Edit = (props) => {
               <Button
                 onClick={addField}
                 variant="secondary"
-                disabled={isSaving}
+                disabled={isAnySaving}
               >
                 Add New Field
               </Button>

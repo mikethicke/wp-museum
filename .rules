@@ -5,3 +5,4 @@
 - The backend is primarily PHP.
 - Never ever use jquery.
 - Strongly favor simplicity and concision when making solutions. Do not over-engineer.
+- When writing playwright tests, use .pressSequentially with a delay of 100ms when inputting text into html elements.

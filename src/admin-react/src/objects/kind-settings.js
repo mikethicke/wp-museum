@@ -1,128 +1,167 @@
-const KindSettings = (props) => {
-  const { kindData, fieldData, kinds, updateKindData, onBlur } = props;
+import { memo } from "@wordpress/element";
 
-  const {
-    kind_id: kindId,
-    cat_field_Id: catFieldId,
-    description,
-    categorized,
-    exclude_from_search: excludeFromSearch,
-    label,
-    label_plural: labelPlural,
-    must_featured_image: mustFeaturedImage,
-    must_gallery: mustGallery,
-    name,
-    parent_kind_id: parentKindId,
-    strict_checking: strictChecking,
-  } = kindData;
+const KindSettings = memo(
+  ({ kindData, fieldData, kinds, onFieldChange, disabled = false }) => {
+    const {
+      kind_id: kindId,
+      cat_field_id: catFieldId,
+      description,
+      categorized,
+      exclude_from_search: excludeFromSearch,
+      label,
+      label_plural: labelPlural,
+      must_featured_image: mustFeaturedImage,
+      must_gallery: mustGallery,
+      parent_kind_id: parentKindId,
+      strict_checking: strictChecking,
+    } = kindData;
 
-  const parentKindOptions = kinds
-    .filter((kindItem) => kindItem.kind_id != kindId)
-    .map((kindItem) => (
-      <option key={kindItem.kind_id} value={kindItem.kind_id}>
-        {kindItem.label}
-      </option>
-    ));
+    const parentKindOptions =
+      kinds
+        ?.filter((kindItem) => kindItem.kind_id !== kindId)
+        .map((kindItem) => (
+          <option key={kindItem.kind_id} value={kindItem.kind_id}>
+            {kindItem.label}
+          </option>
+        )) || [];
 
-  const idFieldOptions = fieldData
-    ? Object.values(fieldData).map((fieldItem) => (
-        <option key={fieldItem.field_id} value={fieldItem.field_id}>
-          {fieldItem.name}
-        </option>
-      ))
-    : [];
+    const idFieldOptions = fieldData
+      ? Object.values(fieldData).map((fieldItem) => (
+          <option key={fieldItem.field_id} value={fieldItem.field_id}>
+            {fieldItem.name}
+          </option>
+        ))
+      : [];
 
-  return (
-    <div className="edit-kind-form">
-      <label>
-        Object Name
-        <input
-          type="text"
-          value={label || ""}
-          onChange={(event) => updateKindData("label", event)}
-          onBlur={onBlur}
-        />
-      </label>
-      <label>
-        Object Name (Plural)
-        <input
-          type="text"
-          value={labelPlural || ""}
-          onChange={(event) => updateKindData("label_plural", event)}
-          onBlur={onBlur}
-        />
-      </label>
-      <label>
-        Description
-        <textarea
-          value={description || ""}
-          onChange={(event) => updateKindData("description", event)}
-          onBlur={onBlur}
-        />
-      </label>
-      <label>
-        Parent Object
-        <select
-          value={parentKindId || ""}
-          onChange={(event) => updateKindData("parent_kind_id", event)}
-        >
-          <option></option>
-          {parentKindOptions}
-        </select>
-      </label>
-      <label>
-        ID Field
-        <select
-          value={catFieldId || ""}
-          onChange={(event) => updateKindData("cat_field_id", event)}
-        >
-          {idFieldOptions}
-        </select>
-      </label>
-      <div className="kind-options">
-        <label>
+    return (
+      <div className="edit-kind-form">
+        <label className="kind-label-field">
+          Object Name
           <input
-            type="checkbox"
-            checked={!!strictChecking}
-            onChange={(event) => updateKindData("strict_checking", event)}
+            type="text"
+            name="kind-label"
+            className="kind-label-input"
+            value={label || ""}
+            onChange={onFieldChange("label")}
+            disabled={disabled}
           />
-          Strictly enforce requirements
         </label>
-        <label>
+
+        <label className="kind-label-plural-field">
+          Object Name (Plural)
           <input
-            type="checkbox"
-            checked={!!categorized}
-            onChange={(event) => updateKindData("categorized", event)}
+            type="text"
+            name="kind-label-plural"
+            className="kind-label-plural-input"
+            value={labelPlural || ""}
+            onChange={onFieldChange("label_plural")}
+            disabled={disabled}
           />
-          Must be categorized
         </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={!!mustFeaturedImage}
-            onChange={(event) => updateKindData("must_featured_image", event)}
+
+        <label className="kind-description-field">
+          Description
+          <textarea
+            name="kind-description"
+            className="kind-description-textarea"
+            value={description || ""}
+            onChange={onFieldChange("description")}
+            disabled={disabled}
           />
-          Must have featured image
         </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={!!mustGallery}
-            onChange={(event) => updateKindData("must_gallery", event)}
-          />
-          Must have image gallery
+
+        <label className="kind-parent-field">
+          Parent Object
+          <select
+            name="kind-parent"
+            className="kind-parent-select"
+            value={parentKindId || ""}
+            onChange={onFieldChange("parent_kind_id")}
+            disabled={disabled}
+          >
+            <option value="">None</option>
+            {parentKindOptions}
+          </select>
         </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={!!excludeFromSearch}
-            onChange={(event) => updateKindData("exclude_from_search", event)}
-          />
-          Exclude from search
+
+        <label className="kind-id-field">
+          ID Field
+          <select
+            name="kind-id-field"
+            className="kind-id-field-select"
+            value={catFieldId || ""}
+            onChange={onFieldChange("cat_field_id")}
+            disabled={disabled}
+          >
+            <option value="">None</option>
+            {idFieldOptions}
+          </select>
         </label>
+
+        <div className="kind-options">
+          <label className="kind-strict-checking-field">
+            <input
+              type="checkbox"
+              name="kind-strict-checking"
+              className="kind-strict-checking-checkbox"
+              checked={!!strictChecking}
+              onChange={onFieldChange("strict_checking")}
+              disabled={disabled}
+            />
+            Strictly enforce requirements
+          </label>
+
+          <label className="kind-categorized-field">
+            <input
+              type="checkbox"
+              name="kind-categorized"
+              className="kind-categorized-checkbox"
+              checked={!!categorized}
+              onChange={onFieldChange("categorized")}
+              disabled={disabled}
+            />
+            Must be categorized
+          </label>
+
+          <label className="kind-must-featured-image-field">
+            <input
+              type="checkbox"
+              name="kind-must-featured-image"
+              className="kind-must-featured-image-checkbox"
+              checked={!!mustFeaturedImage}
+              onChange={onFieldChange("must_featured_image")}
+              disabled={disabled}
+            />
+            Must have featured image
+          </label>
+
+          <label className="kind-must-gallery-field">
+            <input
+              type="checkbox"
+              name="kind-must-gallery"
+              className="kind-must-gallery-checkbox"
+              checked={!!mustGallery}
+              onChange={onFieldChange("must_gallery")}
+              disabled={disabled}
+            />
+            Must have image gallery
+          </label>
+
+          <label className="kind-exclude-from-search-field">
+            <input
+              type="checkbox"
+              name="kind-exclude-from-search"
+              className="kind-exclude-from-search-checkbox"
+              checked={!!excludeFromSearch}
+              onChange={onFieldChange("exclude_from_search")}
+              disabled={disabled}
+            />
+            Exclude from search
+          </label>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  },
+);
 
 export default KindSettings;

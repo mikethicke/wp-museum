@@ -13,7 +13,6 @@ import {
 
 const ObjectAdminControl = () => {
   const [selectedPage, setSelectedPage] = useState(getCurrentView());
-  const [isSaving, setIsSaving] = useState(false);
   const [kindItem, setKindItem] = useState(null);
   const [newKindCount, updateNewKindCount] = useState(1);
   const [navigateToNewKind, setNavigateToNewKind] = useState(false);
@@ -32,14 +31,12 @@ const ObjectAdminControl = () => {
 
   const saveKindData = useCallback(() => {
     if (!objectKinds) return;
-    setIsSaving(true);
-    apiFetch({
+    return apiFetch({
       path: `${baseRestPath}/mobject_kinds`,
       method: "POST",
       data: objectKinds,
     }).then(() => {
       refreshKindData();
-      setIsSaving(false);
     });
   }, [objectKinds, refreshKindData]);
 
@@ -288,9 +285,6 @@ const ObjectAdminControl = () => {
             kindItem={kindItem}
             updateKind={updateKind}
             saveKindData={saveKindData}
-            isSaving={isSaving}
-            setIsSaving={setIsSaving}
-            navigateToMain={navigateToMain}
           />
         );
       } else {
