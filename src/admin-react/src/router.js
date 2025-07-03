@@ -126,8 +126,8 @@ export const getBreadcrumbs = () => {
     breadcrumbs.push({ label: "General", url: null });
   } else if (currentPage.includes("remote")) {
     breadcrumbs.push({ label: "Museum Remote", url: null });
-  } else if (currentPage.includes("omi-pmh")) {
-    breadcrumbs.push({ label: "OMI-PMH", url: null });
+  } else if (currentPage.includes("oai-pmh")) {
+    breadcrumbs.push({ label: "OAI-PMH", url: null });
   }
 
   return breadcrumbs;

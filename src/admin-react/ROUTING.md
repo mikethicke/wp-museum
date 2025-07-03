@@ -37,7 +37,7 @@ The routing system uses WordPress admin page URL parameters:
 - `?page=wpm-react-admin-objects` - Objects main page
 - `?page=wpm-react-admin-general` - General settings
 - `?page=wpm-react-admin-museum-remote` - Remote settings
-- `?page=wpm-react-admin-omi-pmh` - OMI-PMH settings
+- `?page=wpm-react-admin-oai-pmh` - OAI-PMH settings
 
 ### With Navigation State
 - `?page=wpm-react-admin-objects&view=main` - Objects main view
@@ -52,7 +52,7 @@ import { useRouter, getCurrentView, getParam } from '../router';
 
 const MyComponent = () => {
   const [currentView, setCurrentView] = useState(getCurrentView());
-  
+
   useEffect(() => {
     const cleanup = useRouter((params) => {
       setCurrentView(params.view || 'main');
@@ -60,7 +60,7 @@ const MyComponent = () => {
     });
     return cleanup;
   }, []);
-  
+
   // Component logic...
 };
 ```

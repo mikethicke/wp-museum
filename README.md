@@ -53,7 +53,7 @@ features up to the 1.0 release.
 ### 0.9
 
  * Support for localization on admin side.
- * [Dublin core / OMI-PMH](https://www.dublincore.org/) support.
+ * [Dublin core / oai-pmh](https://www.dublincore.org/) support.
  * Out-of-the-box compatibility with popular themes.
 
 ### 1.0

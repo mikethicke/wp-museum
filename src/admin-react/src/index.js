@@ -6,7 +6,7 @@ import Dashboard from "./dashboard";
 import GeneralOptions from "./general";
 import { ObjectPage } from "./objects";
 import RemoteAdmin from "./remote";
-import OmiPmhAdmin from "./omi-pmh";
+import OmiPmhAdmin from "./oai-pmh";
 import { updateUrlParams } from "./router";
 
 // Initialize URL state for WordPress admin pages
@@ -44,10 +44,10 @@ if (!!document.getElementById("wpm-react-admin-app-container-general")) {
     document.getElementById("wpm-react-admin-app-container-remote"),
   );
   root.render(<RemoteAdmin />);
-} else if (!!document.getElementById("wpm-react-admin-app-container-omi-pmh")) {
+} else if (!!document.getElementById("wpm-react-admin-app-container-oai-pmh")) {
   initializeAdminPageRouting();
   const root = createRoot(
-    document.getElementById("wpm-react-admin-app-container-omi-pmh"),
+    document.getElementById("wpm-react-admin-app-container-oai-pmh"),
   );
   root.render(<OmiPmhAdmin />);
 }

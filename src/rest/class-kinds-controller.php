@@ -340,6 +340,39 @@ class Kinds_Controller extends \WP_REST_Controller
                     "context" => ["view", "edit"],
                     "readonly" => true,
                 ],
+                "available_fields_for_oai_pmh" => [
+                    "description" => __(
+                        "Available fields for OAI-PMH mapping including WordPress post fields."
+                    ),
+                    "type" => "array",
+                    "items" => [
+                        "type" => "object",
+                        "properties" => [
+                            "id" => [
+                                "type" => "string",
+                            ],
+                            "slug" => [
+                                "type" => "string",
+                            ],
+                            "name" => [
+                                "type" => "string",
+                            ],
+                            "type" => [
+                                "type" => "string",
+                            ],
+                        ],
+                    ],
+                    "context" => ["view", "edit"],
+                    "readonly" => true,
+                ],
+                "oai_pmh_mappings" => [
+                    "description" => __(
+                        "OAI-PMH Dublin Core metadata field mappings for this kind."
+                    ),
+                    "type" => "object",
+                    "context" => ["view", "edit"],
+                    "readonly" => false,
+                ],
             ],
         ];
 

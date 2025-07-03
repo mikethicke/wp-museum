@@ -118,6 +118,13 @@ class ObjectKind
     public $parent_kind_id = null;
 
     /**
+     * OAI-PMH Dublin Core mappings for this kind.
+     *
+     * @var OaiPmhMappings $oai_pmh_mappings
+     */
+    public $oai_pmh_mappings = null;
+
+    /**
      * Converts museum object kind's label to name: all lowercase, spaces replaced by dashes.
      *
      * @param   string $kind_label The object kind's label.
@@ -255,6 +262,23 @@ class ObjectKind
         if (isset($kind_row->parent_kind_id)) {
             $this->parent_kind_id = intval($kind_row->parent_kind_id);
         }
+        if (isset($kind_row->oai_pmh_mappings)) {
+            if (is_string($kind_row->oai_pmh_mappings)) {
+                $this->oai_pmh_mappings = OaiPmhMappings::from_json(
+                    $kind_row->oai_pmh_mappings
+                );
+            } elseif ($kind_row->oai_pmh_mappings instanceof \stdClass) {
+                $this->oai_pmh_mappings = OaiPmhMappings::from_std_object(
+                    $kind_row->oai_pmh_mappings
+                );
+            } elseif ($kind_row->oai_pmh_mappings instanceof OaiPmhMappings) {
+                $this->oai_pmh_mappings = $kind_row->oai_pmh_mappings;
+            } else {
+                $this->oai_pmh_mappings = new OaiPmhMappings();
+            }
+        } else {
+            $this->oai_pmh_mappings = new OaiPmhMappings();
+        }
     }
 
     /**
@@ -349,6 +373,9 @@ class ObjectKind
         $arr["strict_checking"] = $this->strict_checking;
         $arr["exclude_from_search"] = $this->exclude_from_search;
         $arr["parent_kind_id"] = $this->parent_kind_id;
+        $arr["oai_pmh_mappings"] = json_encode(
+            $this->get_oai_pmh_mappings()->to_array()
+        );
         return $arr;
     }
 
@@ -366,13 +393,16 @@ class ObjectKind
         $arr["label_plural"] = $this->label_plural;
         $arr["description"] = $this->description;
         $arr["categorized"] = $this->categorized;
-        $arr["must_gallery"] = $this->must_gallery;
         $arr["hierarchical"] = $this->hierarchical;
         $arr["must_featured_image"] = $this->must_featured_image;
         $arr["must_gallery"] = $this->must_gallery;
         $arr["strict_checking"] = $this->strict_checking;
         $arr["exclude_from_search"] = $this->exclude_from_search;
         $arr["parent_kind_id"] = $this->parent_kind_id;
+        $arr["oai_pmh_mappings"] = $this->get_oai_pmh_mappings()->to_array();
+        $arr[
+            "available_fields_for_oai_pmh"
+        ] = $this->get_available_fields_for_oai_pmh();
         $arr["block_template"] = $this->block_template();
         $arr["children"] = $this->get_children_array();
         return $arr;
@@ -395,6 +425,10 @@ class ObjectKind
         $arr["must_gallery"] = $this->must_gallery;
         $arr["hierarchical"] = $this->hierarchical;
         $arr["parent_kind_id"] = $this->parent_kind_id;
+        $arr["oai_pmh_mappings"] = $this->get_oai_pmh_mappings()->to_array();
+        $arr[
+            "available_fields_for_oai_pmh"
+        ] = $this->get_available_fields_for_oai_pmh();
         $arr["children"] = $this->get_children_array();
         return $arr;
     }
@@ -448,5 +482,153 @@ class ObjectKind
             $field->delete_from_db();
         }
         return $wpdb->delete($table_name, ["kind_id" => $this->kind_id]);
+    }
+
+    /**
+     * Get all available fields for OAI-PMH mapping including WordPress post fields.
+     *
+     * @return array Array of available fields with WordPress post fields and kind fields.
+     */
+    public function get_available_fields_for_oai_pmh()
+    {
+        $available_fields = [];
+
+        // Add WordPress post fields
+        $available_fields[] = [
+            "id" => "wp_post_title",
+            "slug" => "wp_post_title",
+            "name" => "Post Title",
+            "type" => "wordpress_post_field",
+        ];
+
+        $available_fields[] = [
+            "id" => "wp_post_excerpt",
+            "slug" => "wp_post_excerpt",
+            "name" => "Post Excerpt",
+            "type" => "wordpress_post_field",
+        ];
+
+        $available_fields[] = [
+            "id" => "wp_post_author",
+            "slug" => "wp_post_author",
+            "name" => "Post Author",
+            "type" => "wordpress_post_field",
+        ];
+
+        // Add kind fields
+        $kind_fields = $this->get_fields();
+
+        if (is_array($kind_fields)) {
+            foreach ($kind_fields as $field) {
+                if (
+                    is_object($field) &&
+                    isset($field->field_id, $field->slug, $field->name)
+                ) {
+                    $available_fields[] = [
+                        "id" => "field_" . $field->field_id,
+                        "slug" => $field->slug,
+                        "name" => $field->name,
+                        "type" => "kind_field",
+                    ];
+                }
+            }
+        }
+        return $available_fields;
+    }
+
+    /**
+     * Get WordPress post field value for a given post.
+     *
+     * @param int $post_id The post ID.
+     * @param string $field_slug The WordPress post field slug (wp_post_title, wp_post_excerpt, wp_post_author).
+     * @return string The field value or empty string if not found.
+     */
+    public function get_wordpress_post_field_value($post_id, $field_slug)
+    {
+        $post = get_post($post_id);
+        if (!$post) {
+            return "";
+        }
+
+        switch ($field_slug) {
+            case "wp_post_title":
+                return $post->post_title;
+            case "wp_post_excerpt":
+                return $post->post_excerpt;
+            case "wp_post_author":
+                $author = get_userdata($post->post_author);
+                return $author ? $author->display_name : "";
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Get OAI-PMH mappings for this kind.
+     *
+     * @return OaiPmhMappings The OAI-PMH mappings instance.
+     */
+    public function get_oai_pmh_mappings()
+    {
+        if (is_null($this->oai_pmh_mappings)) {
+            $this->oai_pmh_mappings = new OaiPmhMappings();
+        }
+        return $this->oai_pmh_mappings;
+    }
+
+    /**
+     * Set OAI-PMH mappings for this kind.
+     *
+     * @param OaiPmhMappings $mappings The OAI-PMH mappings instance.
+     */
+    public function set_oai_pmh_mappings($mappings)
+    {
+        $this->oai_pmh_mappings = $mappings;
+    }
+
+    /**
+     * Update OAI-PMH mappings from JSON string.
+     *
+     * @param string $json_string JSON string containing mappings data.
+     */
+    public function update_oai_pmh_mappings_from_json($json_string)
+    {
+        $this->oai_pmh_mappings = OaiPmhMappings::from_json($json_string);
+    }
+
+    /**
+     * Update OAI-PMH mappings from array.
+     *
+     * @param array $mappings_array Array containing mappings data.
+     */
+    public function update_oai_pmh_mappings_from_array($mappings_array)
+    {
+        $this->oai_pmh_mappings = OaiPmhMappings::from_array($mappings_array);
+    }
+
+    /**
+     * Check if this kind has OAI-PMH mappings configured.
+     *
+     * @return bool True if mappings exist, false otherwise.
+     */
+    public function has_oai_pmh_mappings()
+    {
+        return !is_null($this->oai_pmh_mappings) &&
+            $this->oai_pmh_mappings->get_mapping_count() > 0;
+    }
+
+    /**
+     * Validate OAI-PMH mappings against this kind's fields.
+     *
+     * @return array Array of validation errors, empty if all valid.
+     */
+    public function validate_oai_pmh_mappings()
+    {
+        if (is_null($this->oai_pmh_mappings)) {
+            return [];
+        }
+
+        $kind_fields = $this->get_fields();
+        return $this->oai_pmh_mappings->validate_mappings($kind_fields);
     }
 }

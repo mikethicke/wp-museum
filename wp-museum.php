@@ -8,7 +8,7 @@
  * @wordpress-plugin
  * Plugin Name: Museum for WordPress
  * Description: Manages a database of museum objects.
- * Version: 0.6.68
+ * Version: 0.6.69
  * Requires at least: 6.2
  * Author: Mike Thicke
  * Author URI: http://www.mikethicke.com
@@ -21,7 +21,7 @@ const WPM_PREFIX = "wpm_"; // Prefix for database tables.
 const CSS_VERSION = "0.5.3"; // Change to force reload of CSS.
 const SCRIPT_VERSION = "0.5.2"; // Change to force reload of JS.
 const CACHE_GROUP = "MikeThicke\WPMuseum"; // For caching db queries.
-const DB_VERSION = "0.5.24"; // Change to update db structure.
+const DB_VERSION = "0.6.69"; // Change to update db structure.
 const DB_SHOW_ERRORS = true; // Have WP report db errors.
 const IMAGE_DIR = "wp-museum"; // Directory to save exported images.
 const REST_NAMESPACE = "wp-museum/v1"; // Root for rest routes.
@@ -81,6 +81,7 @@ require_once $require_prefix . "classes/class-customposttype.php";
 require_once $require_prefix . "classes/class-metabox.php";
 require_once $require_prefix . "classes/class-objectposttype.php";
 require_once $require_prefix . "classes/class-objectkind.php";
+require_once $require_prefix . "classes/class-oai-pmh-mappings.php";
 require_once $require_prefix . "classes/class-mobjectfield.php";
 require_once $require_prefix . "classes/class-remoteclient.php";
 
